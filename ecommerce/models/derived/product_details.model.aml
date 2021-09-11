@@ -1,0 +1,63 @@
+import '../base/products.model.aml' {
+  products as model__products
+}
+import '../base/categories.model.aml' {
+  categories as model__categories
+}
+
+Model product_details {
+  type: 'query'
+  label: 'Product Details'
+  description: ''
+  data_source_name: 'demodb'
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension product_name {
+    label: 'Product Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_name }};;
+  }
+  dimension product_price {
+    label: 'Product Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_price }};;
+  }
+  dimension product_created_at {
+    label: 'Product Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_created_at }};;
+  }
+  dimension merchant_id {
+    label: 'Merchant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension category_id {
+    label: 'Category Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_id }};;
+  }
+
+  owner: 'khai.to+demo4@holistics.io'
+  query: @sql
+    SELECT {{ #p.id }} as product_id
+      , {{ #p.name }} as product_name
+      , {{ #p.price }} as product_price
+      , {{ #p.created_at }} as product_created_at
+      , {{ #p.merchant_id }}
+      , {{ #ca.id }} as category_id
+    FROM {{ #products p }} LEFT JOIN {{ #categories ca }} ON {{ #p.category_id }} = {{ #ca.id }};;
+  models: [
+    model__products,
+    model__categories
+  ]
+}
