@@ -59,6 +59,71 @@ Model order_derived {
     definition: @sql {{ #SOURCE.product_price }};;
   }
 
+    dimension item_value {
+    label: 'Item Value'
+    type: 'number'
+    definition: @sql {{ quantity }} * {{ product_price }};;
+    hidden: false
+  }
+  dimension week_num {
+    label: 'Week Num'
+    type: 'number'
+    definition: @sql extract(dow from {{ order_created_at }});;
+    hidden: false
+  }
+  dimension month_name {
+    label: 'Month Name'
+    type: 'text'
+    description: ''
+    definition: @sql           CONCAT(
+  EXTRACT(MONTH FROM TO_DATE(TO_CHAR({{ order_created_at }}, 'Month'), 'Month'))
+  ,' - '
+  , TO_CHAR({{ order_created_at }}, 'Month')
+);;
+    hidden: false
+  }
+  measure aov {
+    label: 'Aov'
+    type: 'number'
+    description: ''
+    definition: @sql sum({{ item_value }}) / COUNT(DISTINCT {{ order_id }} );;
+    hidden: false
+  }
+  measure cancel_value_ratio {
+    label: 'Cancel Value Ratio'
+    type: 'number'
+    definition: @sql         sum(case when {{ order_status }} = 'cancelled' then {{ item_value }} else 0 end)::float /
+sum({{ item_value }})::float;;
+    hidden: false
+  }
+  measure cancelled_orders_count {
+    label: 'Cancelled Orders Count'
+    type: 'number'
+    definition: @sql count(distinct case when {{ order_status }} = 'cancelled'
+          then {{ order_id }} else null end);;
+    hidden: false
+  }
+  measure gross_merchandise_value {
+    label: 'Gross Merchandise Value'
+    type: 'number'
+    definition: @sql sum({{ item_value }} );;
+    hidden: false
+  }
+  measure delivered_orders_count {
+    label: 'Delivered Orders Count'
+    type: 'number'
+    definition: @sql count(distinct case when {{ order_status }} = 'delivered'
+          then {{ order_id }} else null end);;
+    hidden: false
+  }
+  measure totalorder {
+    label: 'Totalorder'
+    type: 'number'
+    description: ''
+    definition: @sql count({{ order_id }});;
+    hidden: false
+  }
+
   owner: 'khai.to+demo4@holistics.io'
   query: @sql
     select {{ #od.user_id }} as "user_id"
