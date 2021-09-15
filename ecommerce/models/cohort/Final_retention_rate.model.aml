@@ -36,12 +36,13 @@ import '../cohort/cohort_size.model.aml' {
     definition: @sql AVG({{ #SOURCE.Num_Users }})/AVG({{ #SOURCE.Total_Users }});;
    }
    query: @sql
-    select {{#r.Cohort_Month}}
+    select {{#s.Cohort_Month}}
         ,{{#s.Total_Users}}
         ,{{#r.Month_Number}}
         , {{#r.Num_Users}}
       from {{#Cohort_retention as r}}
-        left join {{#Cohort_size as s}} on {{#r.Cohort_Month}}={{#s.Cohort_Month}};;
+        left join {{#Cohort_size as s}} on {{#r.Cohort_Month}}={{#s.Cohort_Month}}
+        where {{#r.Cohort_Month}} is not null;;
    models:[
     model__Cohort_retention,
     model__Cohort_size
