@@ -18,13 +18,15 @@ import '../base/orders.model.aml' {
     label: 'Months Active'
     type: 'date'
     hidden: false
-    definition: @sql {{ #SOURCE.months_active}};;
+    definition: @sql {{ #SOURCE.month_number}};;
    }
    query: @sql
     select {{#o.user_id}}
-        ,date_trunc('month',{{#o.created_at}})::date as months_active
-      from {{#orders as o}};;
+        ,MONTH_DIFF(date_trunc('month',{{#o.created_at}})::date,{{#c.cohort_month}}) as month_number
+      from {{#orders as o}}
+        left join {{#cohort_dfn as c}} on {{#o.user_id}}={{#c.user_id}};;
    models:[
     model__orders
+    model__cohort_dfn
    ]
  }
