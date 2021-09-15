@@ -23,12 +23,18 @@ import '../cohort/cohort_dfn.model.aml' {
     hidden: false
     definition: @sql {{ #SOURCE.month_number}};;
    }
+   measure Num_Users{
+    label: 'Number Users'
+    type: 'number'
+    hidden: false
+    definition: @sql count(DISTINCT({{ #SOURCE.user_id }}));;
+   }
    query: @sql
     select {{#c.Cohort_Month}}
         ,{{#r.month_number}}
         ,{{#r.user_id}}
       from {{#retention_by_user_by_month as r}}
-        left join {{#cohort_dfn as c}} on {{#o.user_id}}={{#c.user_id}};;
+        left join {{#cohort_dfn as c}} on {{#r.user_id}}={{#c.user_id}};;
    models:[
     model__retention_by_user_by_month,
     model__cohort_dfn
