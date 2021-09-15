@@ -33,12 +33,13 @@ import '../cohort/cohort_size.model.aml' {
     label: 'Retention Rate'
     type: 'number'
     hidden: false
-    definition: @sql AVG({{ #SOURCE.Total_Users }})/sum();;
+    definition: @sql AVG({{ #SOURCE.Num_Users }})/AVG({{ #SOURCE.Total_Users }});;
    }
    query: @sql
     select {{#r.Cohort_Month}}
         ,{{#s.Total_Users}}
         ,{{#r.Month_Number}}
+        , {{#r.Num_Users}}
       from {{#cohort_retention as r}}
         left join {{#cohort_size as s}} on {{#r.Cohort_Month}}={{#s.Cohort_Month}};;
    models:[
