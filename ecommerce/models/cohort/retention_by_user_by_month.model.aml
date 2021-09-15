@@ -1,28 +1,30 @@
-// Refer to the template below to build model. For more information, please visit: https://docs.holistics.io/docs/aml/syntax/model
-//--------------------------------------------
-
-// Model model_name {
-//   type: 'table'
-//   label: "Model Label"
-//   description: "Model Description"
-//   owner: 'your_email@domain.com'
-//   data_source_name: 'data_source_name'
-
-//   table_name: 'your_table_name'
-
-//   dimension dimension_name {
-//     label: 'Dimension Label'
-//     type: 'text | number | date | datetime | truefalse'
-//     description: 'Field Description'
-//     hidden: true|false
-//     definition: @sql {{#SOURCE.column_name}};;
-//   }
-
-//   measure measure_name {
-//     label: 'Measure Name'
-//     type: 'number | date | datetime'
-//     definition: @sql {{#SOURCE.column_name}};;
-//     aggregation_type: 'count | count_distinct | sum | avg'
-//   }
-
-// }
+// Months a user has been active or made purchase
+import '../base/orders.model.aml' {
+  orders as model__orders
+}
+ Model cohort_dfn {
+   type: 'query'
+   label: "Cohort dfn"
+   description: ""
+   data_source_name: 'demodb'
+   owner:'anh.vu+demo4@holistics.io'
+   dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+   }
+   dimension Months_Active{
+    label: 'Months Active'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.months_active}};;
+   }
+   query: @sql
+    select {{#o.user_id}}
+        ,date_trunc('month',{{#o.created_at}})::date as months_active
+      from {{#orders as o}};;
+   models:[
+    model__orders
+   ]
+ }
