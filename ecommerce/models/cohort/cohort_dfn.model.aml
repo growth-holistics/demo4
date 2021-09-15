@@ -8,7 +8,6 @@ import '../base/orders.model.aml' {
    description: ""
    data_source_name: 'demodb'
    owner:'anh.vu+demo4@holistics.io'
-   table_name: '"ecommerce"."cohort_dfn"'
    dimension user_id {
     label: 'User Id'
     type: 'number'
@@ -24,5 +23,8 @@ import '../base/orders.model.aml' {
    query: @sql
     select {{user_id}}
         ,date_trunc(min({{created_at}}),'month') as cohort_month
-      from {{#model__orders}} group by {{user_id}};;
+      from {{#orders}} group by {{user_id}};;
+   models:[
+    model__orders
+   ]
  }
