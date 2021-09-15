@@ -29,25 +29,47 @@
 //   ]
 
 // }
-import '../models/derived/order_details.model.aml' {
-  order_details 
-}
-import '../models/derived/product_details.model.aml' {
-  product_details 
-}
 
+import '../models/cohort/Cohort_retention.model.aml' {
+  Cohort_retention
+}
+import '../models/cohort/cohort_size.model.aml' {
+  Cohort_size
+}
 Dataset cohort {
   label: 'Cohort'
   description: ''
   data_source_name: 'demodb'
   models: [
-    users,
-    location,
-    order_derived,
-    order_details,
-    product_details
+    Cohort_retention,
+    Cohort_size,
   ]
   relationships: [
+    RelationshipConfig  {
+      rel: Relationship {
+        type: many_to_one
+        from: FieldRef {
+          model: 'Cohort_retention'
+          field: 'Cohort_month'
+        }
+        to: FieldRef {
+          model: 'Cohort_retention'
+          field: ''
+        }
+      }
+      active: 
+    }
   ]
+  //   relationships: [
+//     RelationshipConfig {
+//         rel: Relationship {
+//             type: 'many_to_one | one_to_one'
+//             from: ref('model_name','dimension_name')
+//             to: ref('model_name','dimension_name')
+//         }
+//         active: true | false
+//         direction: 'two_way | one_to_many'
+//     }
+//   ]
   owner: 'anh.vu+demo4@holistics.io'
 }
