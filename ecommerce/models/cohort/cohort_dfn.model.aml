@@ -17,7 +17,7 @@ import '../base/orders.model.aml' {
     label: 'Cohort Month'
     Type: 'date'
     hidden: false
-    definition: @sql {{#SOURCE.created_at}}
+    definition: @sql date_trunc(min({{#SOURCE.created_at}}),'month') group by {{#SOURCE.user_id}}
    }
 
 //   table_name: 'your_table_name'
@@ -27,7 +27,7 @@ import '../base/orders.model.aml' {
 //     type: 'text | number | date | datetime | truefalse'
 //     description: 'Field Description'
 //     hidden: true|false
-//     definition: @sql date_trunc(min({{#SOURCE.column_name}}),'month');;
+//     definition: @sql min({{#SOURCE.column_name}});;
 //   }
 
 //   measure measure_name {
