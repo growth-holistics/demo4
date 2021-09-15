@@ -27,15 +27,14 @@ import '../cohort/cohort_dfn.model.aml' {
     label: 'Number Users'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.Countd }};;
+    definition: @sql count(DISTINCT({{ #SOURCE.user_id }}));;
    }
    query: @sql
     select {{#c.Cohort_Month}}
         ,{{#r.Month_Number}}
-        ,count(DISTINCT({{#r.user_id}})) as Countd
+        ,{{#r.user_id}}
       from {{#retention_by_user_by_month as r}}
-        left join {{#cohort_dfn as c}} on {{#r.user_id}}={{#c.user_id}}
-        group by 1,2;;
+        left join {{#cohort_dfn as c}} on {{#r.user_id}}={{#c.user_id}};;
    models:[
     model__retention_by_user_by_month,
     model__cohort_dfn
