@@ -25,7 +25,7 @@ import '../cohort/cohort_dfn.model.aml' {
    }
    query: @sql
     select {{#o.user_id}}
-        ,MONTH_DIFF(date_trunc('month',{{#o.created_at}})::date,{{#c.Cohort_Month}}) as month_number
+        ,DATEDIFF(MONTH,{{#c.Cohort_Month}},date_trunc('month',{{#o.created_at}})::date) as month_number
       from {{#orders as o}}
         left join {{#cohort_dfn as c}} on {{#o.user_id}}={{#c.user_id}};;
    models:[
