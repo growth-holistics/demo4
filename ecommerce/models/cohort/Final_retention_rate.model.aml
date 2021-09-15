@@ -17,22 +17,28 @@ import '../cohort/cohort_size.model.aml' {
     hidden: false
     definition: @sql {{ #SOURCE.Cohort_Month}};;
    }
+   measure Total_Users{
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql AVG({{ #SOURCE.Total_Users }});;
+   }
    dimension Month_Number{
     label: 'Month Number'
     type: 'text'
     hidden: false
     definition: @sql concat('Month ',TO_CHAR({{ #SOURCE.Month_Number}},'fm00'));;
    }
-   measure Num_Users{
-    label: 'Number Users'
+   measure Retention_Rate{
+    label: 'Retention Rate'
     type: 'number'
     hidden: false
-    definition: @sql count(DISTINCT({{ #SOURCE.user_id }}));;
+    definition: @sql AVG({{ #SOURCE.Total_Users }})/sum();;
    }
    query: @sql
     select {{#r.Cohort_Month}}
         ,{{#s.Total_Users}}
-        ,{{#r.user_id}}
+        ,{{#r.Month_Number}}
       from {{#cohort_retention as r}}
         left join {{#cohort_size as s}} on {{#r.Cohort_Month}}={{#s.Cohort_Month}};;
    models:[
