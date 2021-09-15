@@ -1,28 +1,30 @@
-// Refer to the template below to build model. For more information, please visit: https://docs.holistics.io/docs/aml/syntax/model
-//--------------------------------------------
-
-// Model model_name {
-//   type: 'table'
-//   label: "Model Label"
-//   description: "Model Description"
-//   owner: 'your_email@domain.com'
-//   data_source_name: 'data_source_name'
-
-//   table_name: 'your_table_name'
-
-//   dimension dimension_name {
-//     label: 'Dimension Label'
-//     type: 'text | number | date | datetime | truefalse'
-//     description: 'Field Description'
-//     hidden: true|false
-//     definition: @sql {{#SOURCE.column_name}};;
-//   }
-
-//   measure measure_name {
-//     label: 'Measure Name'
-//     type: 'number | date | datetime'
-//     definition: @sql {{#SOURCE.column_name}};;
-//     aggregation_type: 'count | count_distinct | sum | avg'
-//   }
-
-// }
+// Cohort size defined by number of users in the cohort
+import '../cohort/cohort_dfn.model.aml' {
+  orders as model__cohort_dfn
+}
+ Model cohort_size {
+   type: 'query'
+   label: "Cohort Size"
+   description: ""
+   data_source_name: 'demodb'
+   owner:'anh.vu+demo4@holistics.io'
+   dimension Cohort_Month {
+    label: 'Cohort_Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Cohort_Month }};;
+   }
+   dimension Num_users{
+    label: 'Number users'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.Num_users}};;
+   }
+   query: @sql
+    select {{#c.Cohort_Month}}
+        ,count(1) as Num_users
+      from {{#cohort_dfn as c}} group by 1;;
+   models:[
+    model__cohort_dfn
+   ]
+ }
