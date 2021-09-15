@@ -3,11 +3,12 @@ import '../cohort/cohort_dfn.model.aml' {
   cohort_dfn as model__cohort_dfn
 }
  Model Cohort_size {
-   type: 'query'
+   type: 'table'
    label: "Cohort Size"
    description: ""
    data_source_name: 'demodb'
    owner:'anh.vu+demo4@holistics.io'
+   table_name: '"ecommerce"."Cohort_size"'
    dimension Cohort_Month {
     label: 'Cohort_Month'
     type: 'date'
@@ -18,7 +19,7 @@ import '../cohort/cohort_dfn.model.aml' {
     label: 'Total Users'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.total_users }};;
+    definition: @sql count({{ #SOURCE.total_users }});;
    }
    query: @sql
     select {{#c.Cohort_Month}}
