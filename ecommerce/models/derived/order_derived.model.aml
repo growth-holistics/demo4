@@ -75,7 +75,7 @@ Model order_derived {
     label: 'Month Name'
     type: 'text'
     description: ''
-    definition: @sql           CONCAT(
+    definition: @sql            CONCAT(
   EXTRACT(MONTH FROM TO_DATE(TO_CHAR({{ order_created_at }}, 'Month'), 'Month'))
   ,' - '
   , TO_CHAR({{ order_created_at }}, 'Month')
@@ -92,7 +92,7 @@ Model order_derived {
   measure cancel_value_ratio {
     label: 'Cancel Value Ratio'
     type: 'number'
-    definition: @sql         sum(case when {{ order_status }} = 'cancelled' then {{ item_value }} else 0 end)::float /
+    definition: @sql          sum(case when {{ order_status }} = 'cancelled' then {{ item_value }} else 0 end)::float /
 sum({{ item_value }})::float;;
     hidden: false
   }
@@ -100,7 +100,7 @@ sum({{ item_value }})::float;;
     label: 'Cancelled Orders Count'
     type: 'number'
     definition: @sql count(distinct case when {{ order_status }} = 'cancelled'
-          then {{ order_id }} else null end);;
+         then {{ order_id }} else null end);;
     hidden: false
   }
   measure gross_merchandise_value {
@@ -113,29 +113,28 @@ sum({{ item_value }})::float;;
     label: 'Delivered Orders Count'
     type: 'number'
     definition: @sql count(distinct case when {{ order_status }} = 'delivered'
-          then {{ order_id }} else null end);;
+         then {{ order_id }} else null end);;
     hidden: false
   }
   measure totalorder {
-    label: 'Totalorder'
-    type: 'number'
-    description: ''
+    label: "Totalorder"
+    type: "number"
     definition: @sql count({{ order_id }});;
     hidden: false
+    format: "#,###0.00,,\"M\""
   }
 
   owner: 'khai.to+demo4@holistics.io'
-  query: @sql
-    select {{ #od.user_id }} as "user_id"
-      , {{ #od.order_id }} as order_id
-      , {{ #od.order_status }}
-      , {{ #od.order_created_at }} as order_created_at
-      , {{ #od.delivery_attempts }}
-      , {{ #od.quantity }} as quantity
-      , {{ #pd.product_id }} as product_id
-      , {{ #pd.product_price }} as product_price
-    from {{ #order_details as od }}
-      left join {{ #product_details as pd }} on {{ #od.product_id }} = {{ #pd.product_id }};;
+  query: @sql select {{ #od.user_id }} as "user_id"
+  , {{ #od.order_id }} as order_id
+  , {{ #od.order_status }}
+  , {{ #od.order_created_at }} as order_created_at
+  , {{ #od.delivery_attempts }}
+  , {{ #od.quantity }} as quantity
+  , {{ #pd.product_id }} as product_id
+  , {{ #pd.product_price }} as product_price
+from {{ #order_details as od }}
+  left join {{ #product_details as pd }} on {{ #od.product_id }} = {{ #pd.product_id }};;
   models: [
     model__order_details,
     model__product_details
