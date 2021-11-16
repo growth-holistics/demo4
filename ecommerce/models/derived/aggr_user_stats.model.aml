@@ -10,10 +10,10 @@ Model aggr_user_stats {
   query: @sql
     select 
       {{#oi.user_id}}
-      , {{#oi.orders_count}} as total_orders_count
-      , {{#oi.delivered_orders_count}}  as delivered_orders_count
-      , {{#oi.gross_merchandise_value}} as gmv
-      , {{#oi.net_merchandise_value}} as nmv
+      , count(distinct {{#oi.order_id}}) as total_orders_count
+      , count(distinct case when {{#oi.order_status}} = 'delivered' then {{#oi.order_id}} else null end)  as delivered_orders_count
+      , {{#oi.gmv}} as gmv
+      , {{#oi.nmv}} as nmv
       , coalesce({{#oi.order_count}}, 0) > 0 as is_buyer
       , coalesce({{#oi.order_count}}, 0) > 1 as is_repeated_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
