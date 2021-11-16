@@ -1,0 +1,93 @@
+Model analysis_ecommerce_user_cohort {
+  type: 'query'
+  label: 'Analysis Ecommerce User Cohort'
+  description: ''
+  data_source_name: 'demodb'
+  dimension cohort_month {
+    label: 'Cohort Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.cohort_month }};;
+  }
+  dimension users_count {
+    label: 'Users Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.users_count }};;
+  }
+  dimension relative_month {
+    label: 'Relative Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month }};;
+  }
+  dimension relative_month_disp {
+    label: 'Relative Month Disp'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month_disp }};;
+  }
+  dimension active_users_count {
+    label: 'Active Users Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.active_users_count }};;
+  }
+  dimension retention_rate {
+    label: 'Retention Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.retention_rate }};;
+  }
+
+  owner: 'ha.pham+demo4@holistics.io'
+  query: @sql
+    with cohort_items as (
+      select
+        date_trunc('month', u.sign_up_at)::date as cohort_month,
+        id as user_id
+      from ecommerce.users u
+      order by 1, 2
+    )
+
+    , user_activities as (
+      select 
+        o.user_id,
+        date_part('month', age(date_trunc('month', o.created_at::date), c.cohort_month)) as relative_month
+      from ecommerce.orders o
+      left join cohort_items c on o.user_id = c.user_id
+      group by 1, 2
+    )
+
+    , cohort_size as (
+      select
+        cohort_month
+        , count(user_id) as users_count
+      from cohort_items
+      group by 1
+    )
+
+
+    , retentions_count as (
+      select
+        c.cohort_month, 
+        ua.relative_month, 
+        count(ua.user_id) as active_users_count
+      from user_activities ua
+      left join cohort_items c on ua.user_id = c.user_id
+      group by 1, 2
+    )
+
+    select
+      s.cohort_month
+      , s.users_count
+      , r.relative_month
+      , 'Month ' || lpad(r.relative_month::text, 2, '0') as relative_month_disp
+      , coalesce(r.active_users_count, 0) as active_users_count
+      , coalesce(r.active_users_count, 0)::float / s.users_count::float as retention_rate
+    from retentions_count r
+    left join cohort_size s on r.cohort_month = s.cohort_month
+    order by 1, 3;;
+  models: [
+  ]
+}
