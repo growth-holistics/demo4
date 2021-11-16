@@ -1,28 +1,81 @@
-// Refer to the template below to build model. For more information, please visit: https://docs.holistics.io/docs/aml/syntax/model
-//--------------------------------------------
+Model ecommerce_order_items_master {
+  type: 'query'
+  label: "Order Items"
+  description: "Derived model to report all Ecommerce metrics"
+  owner: 'ha.pham+demo4@holistics.io'
+  data_source_name: 'demodb'
 
-// Model model_name {
-//   type: 'table'
-//   label: "Model Label"
-//   description: "Model Description"
-//   owner: 'your_email@domain.com'
-//   data_source_name: 'data_source_name'
+  query: @sql
+    select 
+      {{#o.id}} as order_id
+      , {{#o.user_id}}
+      , {{#o.status }}
+      , {{#o.created_at}} as order_created_at
+      , {{#o.created_at}}::date as order_created_date
+      , {{#o.delivery_attempts}}
+      , {{#o.discount}}
+      , {{#oi.quantity}}
+      , {{#oi.product_id}}
+      , {{#p.price}}
+      , {{#p.merchant_id}}
+    from {{ #ecommerce_order_items AS oi }} 
+    left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+    left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}}
+  ;;
 
-//   table_name: 'your_table_name'
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension order_created_at {
+    label: 'Order Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_at }};;
+  }
+  dimension order_created_date {
+    label: 'Order Created Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_date }};;
+  }
+  dimension delivery_attempts {
+    label: 'Delivery Attempts'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivery_attempts }};;
+  }
+  dimension discount {
+    label: 'Discount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.discount }};;
+  }
+  dimension order_status {
+    label: 'Order Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_status }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension quantity {
+    label: 'Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity }};;
+  }
 
-//   dimension dimension_name {
-//     label: 'Dimension Label'
-//     type: 'text | number | date | datetime | truefalse'
-//     description: 'Field Description'
-//     hidden: true|false
-//     definition: @sql {{#SOURCE.column_name}};;
-//   }
-
-//   measure measure_name {
-//     label: 'Measure Name'
-//     type: 'number | date | datetime'
-//     definition: @sql {{#SOURCE.column_name}};;
-//     aggregation_type: 'count | count_distinct | sum | avg'
-//   }
-
-// }
+}
