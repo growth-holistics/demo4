@@ -14,6 +14,8 @@ Model aggr_user_stats {
       , {{#oi.delivered_orders_count}}  as delivered_orders_count
       , {{#oi.gross_merchandise_value}} as gmv
       , {{#oi.net_merchandise_value}} as nmv
+      , coalesce({{#oi.order_count}}, 0) > 0 as is_buyer
+      , , coalesce({{#oi.order_count}}, 0) > 1 as is_repeated_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
       , max( {{#oi.order_created_date}}) as last_order_date
       , current_date - max( {{#oi.order_created_date}}) as days_from_last_order
@@ -63,5 +65,5 @@ Model aggr_user_stats {
     hidden: false
     definition: @sql {{ #SOURCE.days_from_last_order }};;
   }
-
+  
 }
