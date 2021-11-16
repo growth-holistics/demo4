@@ -49,7 +49,13 @@ Model ecommerce_users {
     label: 'Gender'
     type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.gender }};;
+    definition: @sql 
+      case
+        when {{#THIS.gender}} = 'f' then 'Female'
+        when {{#THIS.gender}} = 'm' then 'Male'
+        else null
+      end
+    ;;
   }
   dimension city_id {
     label: 'City Id'
@@ -62,6 +68,20 @@ Model ecommerce_users {
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
+  }
+  // Custom fields
+  dimension age_group {
+    label: 'Age Group'
+    type: 'text'
+    hidden: false
+    definition: @sql 
+      case
+        when ({{ #THIS.age }} < 20) then '1. Under 20'
+        when {{ #THIS.age }} >= 20 and {{ #THIS.age }} < 30 then '2. From 20 to 29'
+        when {{ #THIS.age }} >= 30 and {{ #THIS.age }} < 40 then '3. From 30 to 39'
+        when {{ #THIS.age }} >= 40 then '4. 40 and up'
+      end
+    ;;
   }
   measure users_signed_up_count {
     label: 'Users Signed Up'
