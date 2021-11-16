@@ -1,23 +1,22 @@
-import '../models/base/ecommerce_users.model.aml' {
-  ecommerce_users as model__ecommerce_users
-}
-import '../models/derived/aggr_user_stats.model.aml' {
-  aggr_user_stats as model__aggr_user_stats
-}
-import '../models/base/ecommerce_cities.model.aml' {
-  ecommerce_cities as model__ecommerce_cities
-}
+import '../models/base/ecommerce_users.model.aml' { ecommerce_users }
+import '../models/derived/aggr_user_stats.model.aml' { aggr_user_stats }
+import '../models/base/ecommerce_cities.model.aml' { ecommerce_cities }
+import '../models/base/ecommerce_countries.model.aml' { ecommerce_countries }
 
 Dataset demo_ecommerce_users {
   label: '[Demo] Ecommerce Users Analysis'
   description: ''
   data_source_name: 'demodb'
   models: [
-    model__ecommerce_users,
-    model__aggr_user_stats,
-    model__ecommerce_cities
+    ecommerce_users,
+    aggr_user_stats,
+    ecommerce_cities,
+    ecommerce_countries
   ]
   relationships: [
+    rel(rel_expr: ecommerce_users.id - aggr_user_stats.user_id, active: true),
+    rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
+    rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true),
   ]
   owner: 'ha.pham+demo4@holistics.io'
 }
