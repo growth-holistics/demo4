@@ -114,7 +114,7 @@ Model transform_order_items {
     label: 'Order Is Delivered'
     type: 'truefalse'
     hidden: false
-    definition: @sql {{#SOURCE.status}} = 'delivered';;
+    definition: @sql {{order_status}} = 'delivered';;
   }
 
   // Custom Measures
@@ -128,12 +128,12 @@ Model transform_order_items {
     label: '% Cancelled Value'
     type: 'number'
     definition: @sql 
-      sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ final_item_value }} else 0 end)::float / sum({{ final_item_value }})::float ;;
+      sum(case when {{ order_status }} = 'cancelled' then {{ final_item_value }} else 0 end)::float / sum({{ final_item_value }})::float ;;
   }
   measure pct_cancelled_orders {
     label: '% Cancelled Orders'
     type: 'number'
-    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.order_id }} else null end)::float / count(distinct {{ #SOURCE.order_id }})::float;;
+    definition: @sql count(distinct case when {{ order_status }} = 'cancelled' then {{ #SOURCE.order_id }} else null end)::float / count(distinct {{ #SOURCE.order_id }})::float;;
   }
   measure gross_merchandise_value {
     label: 'GMV'
@@ -145,7 +145,7 @@ Model transform_order_items {
     label: 'NMV'
     description: 'Total value of delivered orders'
     type: 'number'
-    definition: @sql sum(case when {{ #SOURCE.status }} in ('delivered') then {{ final_item_value }} else 0 end);;
+    definition: @sql sum(case when {{ order_status }} in ('delivered') then {{ final_item_value }} else 0 end);;
   }
   measure ordered_users_count {
     label: 'Ordered Users Count'
