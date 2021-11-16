@@ -33,7 +33,7 @@ Model user_cohort_retention {
     , cohort_size as (
       select
         cohort_month
-        , count(user_id) as users_count
+        , count(user_id) as cohort_size
       from cohort_items
       group by 1
     )
@@ -50,7 +50,7 @@ Model user_cohort_retention {
 
     select
       s.cohort_month
-      , s.users_count
+      , s.cohort_size
       , r.relative_month
       , 'Month ' || lpad(r.relative_month::text, 2, '0') as relative_month_disp
       , coalesce(r.active_users_count, 0) as active_users_count
@@ -65,11 +65,11 @@ Model user_cohort_retention {
     hidden: false
     definition: @sql {{ #SOURCE.cohort_month }};;
   }
-  dimension users_count {
-    label: 'Users Count'
+  dimension cohort_size {
+    label: 'Cohort Size'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.users_count }};;
+    definition: @sql {{ #SOURCE.cohort_size }};;
   }
   dimension relative_month {
     label: 'Relative Month'
