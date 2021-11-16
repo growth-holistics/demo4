@@ -1,6 +1,6 @@
-Model analysis_ecommerce_user_cohort {
+Model analysis_ecommerce_cohort_retention {
   type: 'query'
-  label: 'Analysis Ecommerce User Cohort'
+  label: "User Cohort Retention"
   description: ''
   data_source_name: 'demodb'
   dimension cohort_month {
@@ -41,7 +41,7 @@ Model analysis_ecommerce_user_cohort {
   }
 
   owner: 'ha.pham+demo4@holistics.io'
-  query: @sql
+  query: @sql 
     with cohort_items as (
       select
         date_trunc('month', u.sign_up_at)::date as cohort_month,
@@ -88,6 +88,5 @@ Model analysis_ecommerce_user_cohort {
     from retentions_count r
     left join cohort_size s on r.cohort_month = s.cohort_month
     order by 1, 3;;
-  models: [
-  ]
+  
 }
