@@ -12,8 +12,8 @@ Model aggr_user_stats {
       {{#oi.user_id}}
       , count(distinct {{#oi.order_id}}) as total_orders_count
       , count(distinct case when {{#oi.order_status}} = 'delivered' then {{#oi.order_id}} else null end)  as delivered_orders_count
-      , {{#oi.gmv}} as gmv
-      , {{#oi.nmv}} as nmv
+      , {{#oi.gross_merchandise_value}} as gross_merchandise_value
+      , {{#oi.net_merchandise_value}} as net_merchandise_value
       , coalesce({{#oi.order_count}}, 0) > 0 as is_buyer
       , coalesce({{#oi.order_count}}, 0) > 1 as is_repeated_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
@@ -35,17 +35,17 @@ Model aggr_user_stats {
     hidden: false
     definition: @sql {{ #SOURCE.delivered_orders_count }};;
   }
-  dimension gmv {
-    label: 'GMV'
+  dimension gross_merchandise_value {
+    label: 'Gross Merchandise Value'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.gmv }};;
+    definition: @sql {{ #SOURCE.gross_merchandise_value }};;
   }
-  dimension nmv {
-    label: 'NMV'
+  dimension net_merchandise_value {
+    label: 'Net Merchandise Value'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.nmv }};;
+    definition: @sql {{ #SOURCE.net_merchandise_value }};;
   }
   dimension first_order_date {
     label: 'First Order date'
@@ -85,7 +85,7 @@ Model aggr_user_stats {
     label: 'AOV'
     description: 'Average order value of this customer'
     type: 'number'
-    definition: @sql sum({{ gmv }})::float/nullif(sum({{ total_orders }})::float, 0);;
+    definition: @sql sum({{ gross_merchandise_value }})::float/nullif(sum({{ total_orders }})::float, 0);;
   }
   measure buyers_count {
     label: 'Buyers Count'
