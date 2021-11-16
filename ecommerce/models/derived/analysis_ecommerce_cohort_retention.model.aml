@@ -15,9 +15,9 @@ Model analysis_ecommerce_cohort_retention {
   query: @sql 
     with cohort_items as (
       select
-        date_trunc('month', u.sign_up_at)::date as cohort_month,
+        date_trunc('month', sign_up_at::date) as cohort_month,
         id as user_id
-      from {{#ecommerce_users}} u
+      from {{#ecommerce_users}} 
       order by 1, 2
     )
 
@@ -25,7 +25,7 @@ Model analysis_ecommerce_cohort_retention {
       select 
         o.user_id,
         date_part('month', age(date_trunc('month', o.created_at::date), c.cohort_month)) as relative_month
-      from {{#ecommerce_orders}} o
+      from {{#ecommerce_orders o}} 
       left join cohort_items c on o.user_id = c.user_id
       group by 1, 2
     )
