@@ -54,7 +54,7 @@ Model user_cohort_retention {
       , r.relative_month
       , 'Month ' || lpad(r.relative_month::text, 2, '0') as relative_month_disp
       , coalesce(r.active_users_count, 0) as active_users_count
-      , coalesce(r.active_users_count, 0)::float / s.users_count::float as retention_rate
+      , coalesce(r.active_users_count, 0)::float / s.cohort_size::float as retention_rate
     from retentions_count r
     left join cohort_size s on r.cohort_month = s.cohort_month
     order by 1, 3;;
