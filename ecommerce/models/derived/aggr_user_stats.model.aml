@@ -85,6 +85,16 @@ Model aggr_user_stats {
     label: 'AOV'
     description: 'Average order value of this customer'
     type: 'number'
-    definition: @sql {{ gmv }}::float/nullif({{ total_orders }}::float, 0);;
+    definition: @sql sum({{ gmv }})::float/nullif(sum({{ total_orders }})::float, 0);;
+  }
+  measure buyers_count {
+    label: 'Buyers Count'
+    type: 'number'
+    definition: @sql count( case when {{ is_buyer }} then 1 else null end);;
+  }
+  measure repeated_buyers_count {
+    label: 'Repeated Buyers Count'
+    type: 'number'
+    definition: @sql count(case when {{ is_repeat_buyer }} then 1 else null end);;
   }
 }
