@@ -1,35 +1,31 @@
-import '../models/base/users.model.aml' {
-  users as model__users
-}
-import '../models/base/orders.model.aml' {
-  orders as model__orders
-}
-import '../models/base/products.model.aml' {
-  products as model__products
-}
-import '../models/base/merchants.model.aml' {
-  merchants as model__merchants
-}
-import '../models/base/cities.model.aml' {
-  cities as model__cities
-}
-import '../models/base/countries.model.aml' {
-  countries as model__countries
-}
+import '../models/base/ecommerce_users.model.aml' {ecommerce_users}
+import '../models/base/ecommerce_orders.model.aml' {ecommerce_orders}
+import '../models/derived/transform_order_items.model.aml' {ecommerce_order_items}
+import '../models/derived/map_categories.model.aml' {ecommerce_categories}
+import '../models/base/ecommerce_products.model.aml' {ecommerce_products}
+import '../models/base/ecommerce_merchants.model.aml' {ecommerce_merchants}
+import '../models/base/ecommerce_cities.model.aml' {ecommerce_cities}
+import '../models/base/ecommerce_countries.model.aml' {ecommerce_countries}
 
 Dataset demo_ecommerce {
   label: 'Demo Ecommerce'
-  description: ''
+  description: 'Official dataset for demoing E-commerce use cases'
   data_source_name: 'demodb'
   models: [
-    model__users,
-    model__orders,
-    model__products,
-    model__merchants,
-    model__cities,
-    model__countries
+    ecommerce_users,
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_cities,
+    ecommerce_countries
   ]
   relationships: [
+    rel(rel_expr: ecommerce_order_items.order_id > ecommerce_orders.id, active: true)
+    , rel(rel_expr: ecommerce_order_items.product_id > ecommerce_products.id, active: true)
+    , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
+    , rel(rel_expr: ecommerce_products.merchant_id > ecommerce_merchants.id, active: true)
+    , rel(rel_expr: ecommerce_products.category_id > ecommerce_categories.id, active: true)
   ]
   owner: 'ha.pham+demo4@holistics.io'
 }
