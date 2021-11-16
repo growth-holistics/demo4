@@ -1,0 +1,24 @@
+Model dim_dates {
+  type: 'query'
+  label: 'Dim Dates'
+  description: ''
+  data_source_name: 'demodb'
+  dimension report_date {
+    label: 'Report Date'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.report_date }};;
+  }
+
+  owner: 'ha.pham+demo4@holistics.io'
+  query: @sql
+    SELECT
+      report_date
+    FROM  generate_series (
+      '2015-07-01' :: date
+      , current_date 
+      ,'1 day' :: interval
+      ) report_date;;
+  models: [
+  ]
+}
