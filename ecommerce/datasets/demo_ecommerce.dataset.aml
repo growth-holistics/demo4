@@ -1,7 +1,7 @@
 import '../models/base/ecommerce_users.model.aml' {ecommerce_users}
 import '../models/base/ecommerce_orders.model.aml' {ecommerce_orders}
-import '../models/derived/transform_order_items.model.aml' {ecommerce_order_items}
-import '../models/derived/map_categories.model.aml' {ecommerce_categories}
+import '../models/derived/transform_order_items.model.aml' {transform_order_items}
+import '../models/derived/map_categories.model.aml' {map_categories}
 import '../models/base/ecommerce_products.model.aml' {ecommerce_products}
 import '../models/base/ecommerce_merchants.model.aml' {ecommerce_merchants}
 import '../models/base/ecommerce_cities.model.aml' {ecommerce_cities}
@@ -14,15 +14,15 @@ Dataset demo_ecommerce {
   models: [
     ecommerce_users,
     ecommerce_orders,
-    ecommerce_order_items,
+    transform_order_items,
     ecommerce_products,
     ecommerce_merchants,
     ecommerce_cities,
     ecommerce_countries
   ]
   relationships: [
-    rel(rel_expr: ecommerce_order_items.order_id > ecommerce_orders.id, active: true)
-    , rel(rel_expr: ecommerce_order_items.product_id > ecommerce_products.id, active: true)
+    rel(rel_expr: transform_order_items.order_id > ecommerce_orders.id, active: true)
+    , rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true)
     , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
     , rel(rel_expr: ecommerce_products.merchant_id > ecommerce_merchants.id, active: true)
     , rel(rel_expr: ecommerce_products.category_id > ecommerce_categories.id, active: true)
