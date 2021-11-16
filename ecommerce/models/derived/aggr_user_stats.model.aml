@@ -1,4 +1,4 @@
-import './transform_order_items.model.aml' {ecommerce_order_items}
+import './transform_order_items.model.aml' {transform_order_items}
 
 Model aggr_user_stats {
   type: 'query'
@@ -6,7 +6,7 @@ Model aggr_user_stats {
   description: "Aggregating statistics about users"
   owner: 'ha.pham+demo4@holistics.io'
   data_source_name: 'demodb'
-
+  models: [transform_order_items]
   query: @sql
     select 
       {{#o.user_id}}
@@ -15,7 +15,7 @@ Model aggr_user_stats {
       , {{#oi.gross_merchandise_value}} as gmv
       , {{#oi.net_merchandise_value}} as nmv
       , coalesce({{#oi.order_count}}, 0) > 0 as is_buyer
-      , , coalesce({{#oi.order_count}}, 0) > 1 as is_repeated_buyer
+      , coalesce({{#oi.order_count}}, 0) > 1 as is_repeated_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
       , max( {{#oi.order_created_date}}) as last_order_date
       , current_date - max( {{#oi.order_created_date}}) as days_from_last_order
