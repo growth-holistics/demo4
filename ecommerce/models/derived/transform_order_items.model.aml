@@ -153,4 +153,9 @@ Model transform_order_items {
     type: 'number'
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
+  measure refunded_orders_count {
+    label: 'Refunded Orders Count'
+    type: 'number'
+    definition: @sql count(distinct case when {{ status }} = 'refunded' then {{ order_id }} else null end);;
+  }
 }
