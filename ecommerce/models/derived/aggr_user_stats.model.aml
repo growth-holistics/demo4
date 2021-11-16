@@ -15,7 +15,7 @@ Model aggr_user_stats {
       , {{#oi.gross_merchandise_value}} as gross_merchandise_value
       , {{#oi.net_merchandise_value}} as net_merchandise_value
       , coalesce(count(distinct {{#oi.order_id}}), 0) > 0 as is_buyer
-      , coalesce(count(distinct {{#oi.order_id}}), 0) > 1 as is_repeated_buyer
+      , coalesce(count(distinct {{#oi.order_id}}), 0) > 1 as is_repeat_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
       , max( {{#oi.order_created_date}}) as last_order_date
       , current_date - max( {{#oi.order_created_date}}) as days_from_last_order
@@ -72,12 +72,12 @@ Model aggr_user_stats {
     hidden: false
     definition: @sql {{ #SOURCE.is_buyer }};;
   }
-  dimension is_repeated_buyer {
-    label: 'Is Repeated Buyer'
+  dimension is_repeat_buyer {
+    label: 'Is Repeat Buyer'
     description: 'TRUE if the user has more than 1 orders.'
     type: 'truefalse'
     hidden: false
-    definition: @sql {{ #SOURCE.is_repeated_buyer }};;
+    definition: @sql {{ #SOURCE.is_repeat_buyer }};;
   }
 
   // Custom measures
