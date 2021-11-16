@@ -1,28 +1,67 @@
-// Refer to the template below to build model. For more information, please visit: https://docs.holistics.io/docs/aml/syntax/model
-//--------------------------------------------
+import './transform_order_items.model.aml' {ecommerce_order_items}
 
-// Model model_name {
-//   type: 'table'
-//   label: "Model Label"
-//   description: "Model Description"
-//   owner: 'your_email@domain.com'
-//   data_source_name: 'data_source_name'
+Model aggr_user_stats {
+  type: 'query'
+  label: "User Stats."
+  description: "Aggregating statistics about users"
+  owner: 'ha.pham+demo4@holistics.io'
+  data_source_name: 'demodb'
 
-//   table_name: 'your_table_name'
+  query: @sql
+    select 
+      {{#o.user_id}}
+      , {{#oi.order_count}} as total_orders_count
+      , {{#oi.delivered_orders_count}}  as delivered_orders_count
+      , {{#oi.gross_merchandise_value}} as gmv
+      , {{#oi.net_merchandise_value}} as nmv
+      , min( {{#oi.order_created_date}}) as first_order_date
+      , max( {{#oi.order_created_date}}) as last_order_date
+      , current_date - max( {{#oi.order_created_date}}) as days_from_last_order
+    from {{ #ecommerce_order_items oi }}  
+    group by 1
+  ;;
 
-//   dimension dimension_name {
-//     label: 'Dimension Label'
-//     type: 'text | number | date | datetime | truefalse'
-//     description: 'Field Description'
-//     hidden: true|false
-//     definition: @sql {{#SOURCE.column_name}};;
-//   }
+  dimension total_orders_count {
+    label: 'Total Orders Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_orders_count }};;
+  }
+  dimension delivered_orders_count {
+    label: 'Delivered Orders Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_orders_count }};;
+  }
+  dimension gmv {
+    label: 'GMV'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.gmv }};;
+  }
+  dimension nmv {
+    label: 'NMV'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.nmv }};;
+  }
+  dimension first_order_date {
+    label: 'First Order date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.first_order_date }};;
+  }
+  dimension last_order_date {
+    label: 'Last Order Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.last_order_date }};;
+  }
+  dimension days_from_last_order {
+    label: 'Days From Last Order'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.days_from_last_order }};;
+  }
 
-//   measure measure_name {
-//     label: 'Measure Name'
-//     type: 'number | date | datetime'
-//     definition: @sql {{#SOURCE.column_name}};;
-//     aggregation_type: 'count | count_distinct | sum | avg'
-//   }
-
-// }
+}
