@@ -3,6 +3,9 @@ Model ecommerce_orders {
   label: 'Orders'
   description: ''
   data_source_name: 'demodb'
+  owner: 'vincent+demo4@holistics.io'
+  table_name: '"ecommerce"."orders"'
+
   dimension id {
     label: 'Id'
     type: 'number'
@@ -39,7 +42,12 @@ Model ecommerce_orders {
     hidden: false
     definition: @sql {{ #SOURCE.delivery_attempts }};;
   }
-
-  owner: 'vincent+demo4@holistics.io'
-  table_name: '"ecommerce"."orders"'
+  // Custom dimension
+  dimension created_date {
+    label: 'Created date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }}::date;;
+  }
+  
 }
