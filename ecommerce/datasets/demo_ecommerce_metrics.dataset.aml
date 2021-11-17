@@ -1,5 +1,8 @@
 import '../models/derived/dim_dates.model.aml' {dim_dates}
-import '../models/base/ecommerce_orders.model.aml' {ecommerce_orders }
+import '../models/base/ecommerce_orders.model.aml' {ecommerce_orders}
+import '../models/base/ecommerce_users.model.aml' {ecommerce_users}
+import '../models/base/ecommerce_cities.model.aml' {ecommerce_cities}
+import '../models/base/ecommerce_countries.model.aml' {ecommerce_countries}
 import '../models/derived/transform_order_items.model.aml' {transform_order_items }
 
 Dataset demo_ecommerce_metrics {
@@ -14,6 +17,9 @@ Dataset demo_ecommerce_metrics {
   relationships: [
     rel(rel_expr: transform_order_items.order_created_date > dim_dates.date_key, active: true),
     rel(rel_expr: ecommerce_orders.created_date > dim_dates.date_key, active: true),
+    rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true),
+    rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
+    rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true),
   ]
   owner: 'ha.pham+demo4@holistics.io'
 }
