@@ -55,7 +55,7 @@ Model transform_order_items {
   dimension delivery_attempts {
     label: 'Delivery Attempts'
     type: 'number'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.delivery_attempts }};;
   }
   dimension discount {
@@ -68,7 +68,7 @@ Model transform_order_items {
   dimension order_status {
     label: 'Order Status'
     type: 'text'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.order_status }};;
   }
   dimension product_id {
@@ -129,11 +129,11 @@ Model transform_order_items {
     definition: @sql 
       sum(case when {{ order_status }} = 'cancelled' then {{ final_item_value }} else 0 end)::float / sum({{ final_item_value }})::float ;;
   }
-  measure pct_cancelled_orders {
-    label: '% Cancelled Orders'
-    type: 'number'
-    definition: @sql count(distinct case when {{ order_status }} = 'cancelled' then {{ #SOURCE.order_id }} else null end)::float / count(distinct {{ #SOURCE.order_id }})::float;;
-  }
+  // measure pct_cancelled_orders {
+  //   label: '% Cancelled Orders'
+  //   type: 'number'
+  //   definition: @sql count(distinct case when {{ order_status }} = 'cancelled' then {{ #SOURCE.order_id }} else null end)::float / count(distinct {{ #SOURCE.order_id }})::float;;
+  // }
   measure gross_merchandise_value {
     label: 'GMV'
     description: 'Total order value, regardless of status'
@@ -152,9 +152,9 @@ Model transform_order_items {
     type: 'number'
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
-  measure refunded_orders_count {
-    label: 'Refunded Orders Count'
-    type: 'number'
-    definition: @sql count(distinct case when {{ order_status }} = 'refunded' then {{ order_id }} else null end);;
-  }
+  // measure refunded_orders_count {
+  //   label: 'Refunded Orders Count'
+  //   type: 'number'
+  //   definition: @sql count(distinct case when {{ order_status }} = 'refunded' then {{ order_id }} else null end);;
+  // }
 }
