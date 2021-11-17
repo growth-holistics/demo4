@@ -4,11 +4,12 @@ import '../models/derived/transform_order_items.model.aml' {transform_order_item
 
 Dataset demo_ecommerce_metrics {
   label: '[Demo] Ecommerce Metrics'
-  description: ''
+  description: 'Dataset to demo Metric Sheet with ecommerce data'
   data_source_name: 'demodb'
   models: [ecommerce_orders, transform_order_items, dim_dates]
   relationships: [
-    
+    rel(rel_expr: transform_order_items.order_created_date > dim_dates.date_key, active: true),
+    rel(rel_expr: ecommerce_orders.created_date > dim_dates.date_key, active: true),
   ]
   owner: 'ha.pham+demo4@holistics.io'
 }
