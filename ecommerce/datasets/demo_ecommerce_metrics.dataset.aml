@@ -3,7 +3,9 @@ import '../models/base/ecommerce_orders.model.aml' {ecommerce_orders}
 import '../models/base/ecommerce_users.model.aml' {ecommerce_users}
 import '../models/base/ecommerce_cities.model.aml' {ecommerce_cities}
 import '../models/base/ecommerce_countries.model.aml' {ecommerce_countries}
-import '../models/derived/transform_order_items.model.aml' {transform_order_items }
+import '../models/base/ecommerce_products.model.aml' {ecommerce_products}
+import '../models/derived/transform_order_items.model.aml' {transform_order_items}
+import '../models/derived/map_categories.model.aml' {map_categories}
 
 Dataset demo_ecommerce_metrics {
   label: '[Demo] Ecommerce Metrics'
@@ -13,9 +15,13 @@ Dataset demo_ecommerce_metrics {
     dim_dates,
     ecommerce_orders,
     transform_order_items,
+    ecommerce_products,
+    map_categories
   ]
   relationships: [
     rel(rel_expr: transform_order_items.order_created_date > dim_dates.date_key, active: true),
+    rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true),
+    rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true),
     rel(rel_expr: ecommerce_orders.created_date > dim_dates.date_key, active: true),
     rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true),
     rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
