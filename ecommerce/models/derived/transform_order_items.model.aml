@@ -126,8 +126,8 @@ Model transform_order_items {
   measure pct_cancelled_value  {
     label: '% Cancelled Value'
     type: 'number'
-    definition: @sql 
-      sum(case when {{ order_status }} = 'cancelled' then {{ final_item_value }} else 0 end)::float / sum({{ final_item_value }})::float ;;
+    definition: @aml 
+      sum(case(when:transform_order_items.order_status = 'cancelled', then: transform_order_items.final_item_value, else: 0) / sum(transform_order_items.final_item_value) ;;
   }
   // measure pct_cancelled_orders {
   //   label: '% Cancelled Orders'
