@@ -12,8 +12,8 @@ Model aggr_user_stats {
       {{#oi.user_id}}
       , count(distinct {{#oi.order_id}}) as total_orders_count
       , count(distinct case when {{#oi.order_status}} = 'delivered' then {{#oi.order_id}} else null end)  as delivered_orders_count
-      , {{#oi.gross_merchandise_value}} as gross_merchandise_value
-      , {{#oi.net_merchandise_value}} as net_merchandise_value
+      , sum({{#oi.final_item_value}}) as gross_merchandise_value
+      , sum(case when {{#oi.order_status}} = 'delivered' then {{#oi.final_item_value}} else 0 end) as net_merchandise_value
       , coalesce(count(distinct {{#oi.order_id}}), 0) > 0 as is_buyer
       , coalesce(count(distinct {{#oi.order_id}}), 0) > 1 as is_repeat_buyer
       , min( {{#oi.order_created_date}}) as first_order_date
