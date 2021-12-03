@@ -138,13 +138,13 @@ Model transform_order_items {
     label: 'GMV'
     description: 'Total order value, regardless of status'
     type: 'number'
-    definition: @sql sum(transform_order_items.final_item_value);;
+    definition: @aml sum(transform_order_items.final_item_value);;
   }
   measure net_merchandise_value {
     label: 'NMV'
     description: 'Total value of delivered orders'
     type: 'number'
-    definition: @sql sum(case when {{ order_status }} in ('delivered') then {{ final_item_value }} else 0 end);;
+    definition: @aml sum(case(when: transform_order_items.order_status = 'delivered', then: transform_order_items.final_item_value, else: 0);;
   }
   measure ordered_users_count {
     label: 'Ordered Users Count'
