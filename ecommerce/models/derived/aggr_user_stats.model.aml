@@ -22,7 +22,12 @@ Model aggr_user_stats {
     from {{ #transform_order_items oi }}  
     group by 1
   ;;
-
+  dimension user_id {
+    label: 'User ID'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
   dimension total_orders_count {
     label: 'Total Orders Count'
     type: 'number'
