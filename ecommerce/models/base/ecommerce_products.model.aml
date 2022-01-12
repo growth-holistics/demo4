@@ -3,6 +3,7 @@ Model ecommerce_products {
   label: 'Products'
   description: ''
   data_source_name: 'demodb'
+
   dimension id {
     label: 'Product ID'
     type: 'number'
@@ -39,6 +40,14 @@ Model ecommerce_products {
     hidden: true
     definition: @sql {{ #SOURCE.created_at }};;
   }
+
+  dimension product_google_link {
+    label: 'Product (image)'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ CONCAT('<a href="','https://www.google.com/search?q=',{{ #THIS.name }},'" target="_blank">',{{ #THIS.name }},'</a>') }};;
+  }
+
 
   owner: 'vincent+demo4@holistics.io'
   table_name: '"ecommerce"."products"'
