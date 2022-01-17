@@ -64,6 +64,17 @@ Model ecommerce_users {
     definition: @sql {{ #SOURCE.full_name }};;
   }
 
+  dimension customer_email_pii {
+    label: "Customer Email Pii"
+    type: 'text'
+    definition: @aml case(
+        when:
+          in(1, H.current_user.pii_access),
+        then: ecommerce_users.email,
+        else: '(redacted)'
+      );;
+  }
+
   owner: 'nam.tran+demo4@holistics.io'
   table_name: '\"ecommerce\".\"users\"'
 }
