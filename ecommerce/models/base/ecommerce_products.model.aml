@@ -3,6 +3,7 @@ Model ecommerce_products {
   label: 'Products'
   description: ''
   data_source_name: 'demodb'
+
   dimension id {
     label: 'Product ID'
     type: 'number'
@@ -12,7 +13,7 @@ Model ecommerce_products {
   dimension category_id {
     label: 'Category Id'
     type: 'number'
-    hidden: true
+    hidden: false
     definition: @sql {{ #SOURCE.category_id }};;
   }
   dimension name {
@@ -24,7 +25,7 @@ Model ecommerce_products {
   dimension merchant_id {
     label: 'Merchant Id'
     type: 'number'
-    hidden: true
+    hidden: false
     definition: @sql {{ #SOURCE.merchant_id }};;
   }
   dimension price {
@@ -36,9 +37,17 @@ Model ecommerce_products {
   dimension created_at {
     label: 'Created At'
     type: 'datetime'
-    hidden: true
+    hidden: false
     definition: @sql {{ #SOURCE.created_at }};;
   }
+
+  dimension product_google_link {
+    label: 'Product (image)'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ CONCAT('<a href="','https://www.google.com/search?q=',{{ #THIS.name }},'" target="_blank">',{{ #THIS.name }},'</a>') }};;
+  }
+
 
   owner: 'vincent+demo4@holistics.io'
   table_name: '"ecommerce"."products"'
