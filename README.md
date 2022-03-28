@@ -1,4 +1,4 @@
 This is a new project
 new commits 
 
-commit from github
+commit from github -> create conflict
