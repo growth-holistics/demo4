@@ -2,4 +2,4 @@ This is a new project
 new commits 
 
 commit from github -> create conflict
-make another commits
+commit from github -> create conflict 123
