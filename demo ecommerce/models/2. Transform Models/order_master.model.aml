@@ -81,7 +81,7 @@ Model order_master {
   }
 
   owner: 'vincent+demo4@holistics.io'
-  query: @sql select 
+  query: @sql                select 
   {{#o.id}} as order_id
   , {{#o.user_id}}
   , {{#o.status }}
@@ -105,5 +105,95 @@ left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}};;
     label: "Order Count"
     type: "number"
     definition: @sql count(distinct {{ #THIS.order_id }});;
+  }
+  measure aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    definition: @sql sum({{ #THIS.item_value }}) / count(distinct {{ #THIS.order_id }});;
+    format: "[$$]#,###0.00"
+  }
+  measure cancel_value_ratio {
+    label: "Cancel Value Ratio"
+    type: "number"
+    definition: @sql            sum(case when {{ #THIS.status }} = 'cancelled' then {{ #THIS.item_value }} else 0 end)::float /
+sum({{ #THIS.item_value }})::float;;
+    format: "#,###0.00"
+  }
+  measure cancelled_order_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    definition: @sql             count(distinct case when {{ #THIS.status }} = 'cancelled'
+                    then {{ #THIS.order_id }} else null end)::float / 
+count(distinct {{ #THIS.order_id }})::float ;;
+    description: "Total number of cancelled orders/Total numbers of orders"
+    format: FullNumberFormat {
+      pattern: "#,###0.00"
+      groupSeparator: "."
+      decimalSeparator: ","
+    }
+  }
+  measure cancelled_orders_count {
+    label: "Cancelled Orders Count"
+    type: "number"
+    definition: @sql count(distinct case when {{ #THIS.status }} = 'cancelled'
+         then {{ #THIS.order_id }} else null end);;
+    description: "Total number of cancelled orders"
+    format: "#,###0.00"
+  }
+  measure cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    definition: @sql sum(case when {{ #THIS.status }} = 'cancelled'
+then {{ #THIS.item_value }} else 0 end)::float;;
+    description: "Total values of orders cancelled"
+    format: "#,###0.00"
+  }
+  measure count_distinct_users {
+    label: "Count Distinct Users"
+    type: "number"
+    definition: @sql count(distinct {{ #THIS.user_id }});;
+  }
+  measure delivered_orders_count {
+    label: "Delivered Orders Count"
+    type: "number"
+    definition: @sql count(distinct case when {{ #THIS.status }} = 'delivered'
+            then {{ #THIS.order_id }} else null end);;
+  }
+  measure gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    definition: @sql sum({{ #THIS.item_value }});;
+    description: "Total value regardless of order status"
+    format: "#,###0.00"
+  }
+  measure nmv {
+    label: "NMV - Net Merchandise Value"
+    type: "number"
+    definition: @sql     sum(case when {{ #THIS.status }} in ('cancelled', 'refunded')
+then 0 else {{ #THIS.item_value }} end);;
+  }
+  measure refunded_orders_count {
+    label: "Refunded Orders Count"
+    type: "number"
+    definition: @sql count(distinct case when {{ #THIS.status }} = 'delivered'
+                 then {{ #THIS.order_id }} else null end);;
+  }
+  measure revenue {
+    label: "Revenue"
+    type: "number"
+    definition: @sql sum({{ #THIS.price }}*{{ #THIS.quantity }});;
+    description: "P x Q"
+  }
+  measure revenue_delivered {
+    label: "Revenue Delivered"
+    type: "number"
+    definition: @sql sum(case when {{ #THIS.status }} = 'delivered'
+ then {{ #THIS.item_value }} else 0 end);;
+    description: "Revenue of delivered items only"
+  }
+  measure users_count {
+    label: "Users Count"
+    type: "number"
+    definition: @sql count(distinct {{ #THIS.user_id }});;
   }
 }
