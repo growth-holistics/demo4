@@ -1,0 +1,109 @@
+import '../1. Table Models/ecommerce_orders.model.aml' {
+  ecommerce_orders as model__ecommerce_orders
+}
+import '../1. Table Models/ecommerce_products.model.aml' {
+  ecommerce_products as model__ecommerce_products
+}
+import '../1. Table Models/ecommerce_order_items.model.aml' {
+  ecommerce_order_items as model__ecommerce_order_items
+}
+
+Model order_master {
+  type: 'query'
+  label: 'Order Master'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+  dimension order_created_date {
+    label: 'Order Created Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_date }};;
+  }
+  dimension delivery_attempts {
+    label: 'Delivery Attempts'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivery_attempts }};;
+  }
+  dimension discount {
+    label: 'Discount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.discount }};;
+  }
+  dimension quantity {
+    label: 'Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension price {
+    label: 'Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }};;
+  }
+  dimension merchant_id {
+    label: 'Merchant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension test_broken {
+    label: 'Test Broken'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.test_broken }};;
+  }
+
+  owner: 'vincent+demo4@holistics.io'
+  query: @sql select 
+  {{#o.id}} as order_id
+  , {{#o.user_id}}
+  , {{#o.status }}
+  , {{#o.created_date}} as order_created_date
+  , {{#o.delivery_attempts}}
+  , {{#o.discount}}
+  , {{#oi.quantity}}
+  , {{#oi.product_id}}
+  , {{#p.price}}
+  , {{#p.merchant_id}}
+  , {{ #oi.order_id }} as test_broken
+from {{ #ecommerce_order_items AS oi }} 
+left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}};;
+  models: [
+    model__ecommerce_orders,
+    model__ecommerce_products,
+    model__ecommerce_order_items
+  ]
+  measure order_count {
+    label: "Order Count"
+    type: "number"
+    definition: @sql count(distinct {{ #THIS.order_id }});;
+  }
+}

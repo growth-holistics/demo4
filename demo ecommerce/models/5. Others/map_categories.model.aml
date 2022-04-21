@@ -1,0 +1,41 @@
+import '../1. Table Models/ecommerce_categories.model.aml' {
+  ecommerce_categories as model__ecommerce_categories
+}
+
+Model map_categories {
+  type: 'query'
+  label: 'Map Categories'
+  description: ''
+  data_source_name: 'demodb'
+  dimension category_id {
+    label: 'Category Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_id }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension parent_category {
+    label: 'Parent Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.parent_category }};;
+  }
+
+  owner: 'ha.pham+demo4@holistics.io'
+  query: @sql
+    select
+      cat.id as category_id
+      , cat.name as category
+      , pcat.name as parent_category
+    from {{#ecommerce_categories cat}} 
+    left join {{#ecommerce_categories pcat}} on cat.parent_id = pcat.id
+    where cat.parent_id is not null;;
+  models: [
+    model__ecommerce_categories
+  ]
+}
