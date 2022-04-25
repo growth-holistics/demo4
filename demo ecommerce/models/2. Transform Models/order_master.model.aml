@@ -1,18 +1,38 @@
-import '../1. Table Models/ecommerce_orders.model.aml' {
-  ecommerce_orders as model__ecommerce_orders
-}
-import '../1. Table Models/ecommerce_products.model.aml' {
-  ecommerce_products as model__ecommerce_products
-}
-import '../1. Table Models/ecommerce_order_items.model.aml' {
-  ecommerce_order_items as model__ecommerce_order_items
-}
+import '../1. Table Models/ecommerce_orders.model.aml' {ecommerce_orders}
+import '../1. Table Models/ecommerce_order_items.model.aml' {ecommerce_order_items}
+import '../1. Table Models/ecommerce_products.model.aml' {ecommerce_products}
 
 Model order_master {
   type: 'query'
   label: 'Order Master'
-  description: ''
+  description: 'Derived model to report all Ecommerce metrics'
+  owner: 'vincent+demo4@holistics.io'
   data_source_name: 'demodb'
+
+  models: [
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_products
+  ]
+
+  query: @sql                
+  select 
+    {{#o.id}} as order_id
+    , {{#o.user_id}}
+    , {{#o.status }}
+    , {{#o.created_at}} as order_created_at
+    , {{#o.delivery_attempts}}
+    , {{#o.discount}}
+    , {{#oi.quantity}}
+    , {{#oi.product_id}}
+    , {{#p.price}}
+    , {{#p.merchant_id}}
+    , {{ #oi.order_id }} as test_broken
+  from {{ #ecommerce_order_items AS oi }} 
+  left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+  left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}}
+  ;;
+
   dimension order_id {
     label: 'Order Id'
     type: 'number'
@@ -31,11 +51,11 @@ Model order_master {
     hidden: false
     definition: @sql {{ #SOURCE.status }};;
   }
-  dimension order_created_date {
-    label: 'Order Created Date'
-    type: 'date'
+  dimension order_created_at {
+    label: 'Order Created At'
+    type: 'datetime'
     hidden: false
-    definition: @sql {{ #SOURCE.order_created_date }};;
+    definition: @sql {{ #SOURCE.order_created_at }};;
   }
   dimension delivery_attempts {
     label: 'Delivery Attempts'
@@ -76,55 +96,95 @@ Model order_master {
   dimension test_broken {
     label: 'Test Broken'
     type: 'number'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.test_broken }};;
   }
 
-  owner: 'vincent+demo4@holistics.io'
-  query: @sql                select 
-  {{#o.id}} as order_id
-  , {{#o.user_id}}
-  , {{#o.status }}
-  , {{#o.created_date}} as order_created_date
-  , {{#o.delivery_attempts}}
-  , {{#o.discount}}
-  , {{#oi.quantity}}
-  , {{#oi.product_id}}
-  , {{#p.price}}
-  , {{#p.merchant_id}}
-  , {{ #oi.order_id }} as test_broken
-from {{ #ecommerce_order_items AS oi }} 
-left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
-left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}};;
-  models: [
-    model__ecommerce_orders,
-    model__ecommerce_products,
-    model__ecommerce_order_items
-  ]
+// Custom dimensions
+  dimension order_created_date {
+    label: 'Order Created Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_at }}::date;;
+  }
+  dimension order_created_month {
+    label: 'Order Created Month'
+    type: 'date'
+    hidden: false
+    definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date);;
+  }
+  dimension last_month {
+    label: 'Last Month'
+    type: 'date'
+    hidden: false
+    definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date) - interval '1 month';;
+  }
+  dimension final_item_value {
+    label: 'Final Item Value'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }} * (1 - {{ #SOURCE.discount }}) ;;
+  }
+  dimension order_is_delivered {
+    label: 'Order Is Delivered'
+    type: 'truefalse'
+    hidden: false
+    definition: @sql {{#SOURCE.status}} = 'delivered';;
+  }
+  dimension date_and_merchant_id {
+      label: 'Date And Merchant ID'
+      description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
+      type: 'text'
+      hidden: false
+      definition: @sql concat ({{ #SOURCE.order_created_at }}::date,'_',{{ #SOURCE.merchant_id }});;
+  }
+  dimension last_order_value {
+      label: 'Last Order Value'
+      description: 'This is what we get'
+      type: 'number'
+      hidden: false
+      definition: @sql {{ #SOURCE.price }} - {{ #SOURCE.discount }};;
+  }
+  dimension quantity_threshold {
+      label: 'Quantity Threshold'
+      description: 'Used to check stock level (threshold = 30)'
+      type: 'text'
+      hidden: false
+      definition: @sql 
+        CASE
+            WHEN {{ #SOURCE.quantity }} > 30 then 'The quantity is greater than 30'
+            WHEN {{ #SOURCE.quantity }} = 30 then 'The quantity is 30'
+            ELSE 'The quantity is under 30'
+        END
+      ;;
+  }
+
+// Custom measures
   measure order_count {
     label: "Order Count"
     type: "number"
-    definition: @sql count(distinct {{ #THIS.order_id }});;
+    definition: @sql count(distinct {{ #SOURCE.order_id }});;
   }
   measure aov {
     label: "AOV - Average Order Value"
     type: "number"
-    definition: @sql sum({{ #THIS.item_value }}) / count(distinct {{ #THIS.order_id }});;
+    definition: @sql sum({{ #SOURCE.price }}) / count(distinct {{ #SOURCE.order_id }});;
     format: "[$$]#,###0.00"
   }
   measure cancel_value_ratio {
     label: "Cancel Value Ratio"
     type: "number"
-    definition: @sql            sum(case when {{ #THIS.status }} = 'cancelled' then {{ #THIS.item_value }} else 0 end)::float /
-sum({{ #THIS.item_value }})::float;;
+    definition: @sql            
+      sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float / sum({{ #SOURCE.price }})::float;;
     format: "#,###0.00"
   }
   measure cancelled_order_ratio {
     label: "Cancelled Order Ratio"
     type: "number"
-    definition: @sql             count(distinct case when {{ #THIS.status }} = 'cancelled'
-                    then {{ #THIS.order_id }} else null end)::float / 
-count(distinct {{ #THIS.order_id }})::float ;;
+    definition: @sql             
+      count(distinct case when {{ #SOURCE.status }} = 'cancelled'
+                    then {{ #SOURCE.order_id }} else null end)::float / 
+        count(distinct {{ #SOURCE.order_id }})::float ;;
     description: "Total number of cancelled orders/Total numbers of orders"
     format: FullNumberFormat {
       pattern: "#,###0.00"
@@ -135,65 +195,66 @@ count(distinct {{ #THIS.order_id }})::float ;;
   measure cancelled_orders_count {
     label: "Cancelled Orders Count"
     type: "number"
-    definition: @sql count(distinct case when {{ #THIS.status }} = 'cancelled'
-         then {{ #THIS.order_id }} else null end);;
+    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'cancelled'
+         then {{ #SOURCE.order_id }} else null end);;
     description: "Total number of cancelled orders"
     format: "#,###0.00"
   }
   measure cancelled_value {
     label: "Cancelled Value"
     type: "number"
-    definition: @sql sum(case when {{ #THIS.status }} = 'cancelled'
-then {{ #THIS.item_value }} else 0 end)::float;;
+    definition: @sql sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float;;
     description: "Total values of orders cancelled"
     format: "#,###0.00"
+  }
+  measure completed_order_count {
+    label: "Completed Order Count"
+    description: 'Refunded and Delivered Orders'
+    type: "number"
+    definition: @sql count(distinct case when {{ #SOURCE.status }} <> 'cancelled' then {{ #SOURCE.order_id }} else null end);;
   }
   measure count_distinct_users {
     label: "Count Distinct Users"
     type: "number"
-    definition: @sql count(distinct {{ #THIS.user_id }});;
+    definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
     type: "number"
-    definition: @sql count(distinct case when {{ #THIS.status }} = 'delivered'
-            then {{ #THIS.order_id }} else null end);;
+    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.order_id }} else null end);;
   }
   measure gmv {
     label: "GMV - Gross Merchandise Value"
     type: "number"
-    definition: @sql sum({{ #THIS.item_value }});;
+    definition: @sql sum({{ #SOURCE.price }});;
     description: "Total value regardless of order status"
     format: "#,###0.00"
   }
   measure nmv {
     label: "NMV - Net Merchandise Value"
     type: "number"
-    definition: @sql     sum(case when {{ #THIS.status }} in ('cancelled', 'refunded')
-then 0 else {{ #THIS.item_value }} end);;
+    definition: @sql sum(case when {{ #SOURCE.status }} in ('cancelled', 'refunded') then 0 else {{ #SOURCE.price }} end);;
   }
   measure refunded_orders_count {
     label: "Refunded Orders Count"
     type: "number"
-    definition: @sql count(distinct case when {{ #THIS.status }} = 'delivered'
-                 then {{ #THIS.order_id }} else null end);;
+    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.order_id }} else null end);;
   }
   measure revenue {
     label: "Revenue"
     type: "number"
-    definition: @sql sum({{ #THIS.price }}*{{ #THIS.quantity }});;
+    definition: @sql sum({{ #SOURCE.price }}*{{ #SOURCE.quantity }});;
     description: "P x Q"
   }
   measure revenue_delivered {
     label: "Revenue Delivered"
     type: "number"
-    definition: @sql sum(case when {{ #THIS.status }} = 'delivered'
- then {{ #THIS.item_value }} else 0 end);;
+    definition: @sql sum(case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.price }} else 0 end);;
     description: "Revenue of delivered items only"
   }
   measure users_count {
     label: "Users Count"
     type: "number"
-    definition: @sql count(distinct {{ #THIS.user_id }});;
+    definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
 }
