@@ -1,7 +1,9 @@
 import '../models/3. Derived Models/dim_dates.model.aml' {dim_dates}
-import '../models/3. Derived Models/transform_order_items.model.aml' {transform_order_items}
+// import '../models/3. Derived Models/transform_order_items.model.aml' {transform_order_items}
 import '../models/3. Derived Models/map_categories.model.aml' {map_categories}
 import '../models/3. Derived Models/analysis_ecommerce_cohort_retention.model.aml' {user_cohort_retention}
+
+import '../models/2. Transform Models/order_master.model.aml' {order_master}
 
 import '../models/1. Table Models/ecommerce_orders.model.aml' {ecommerce_orders}
 import '../models/1. Table Models/ecommerce_users.model.aml' {ecommerce_users}
@@ -11,13 +13,13 @@ import '../models/1. Table Models/ecommerce_products.model.aml'{ecommerce_produc
 import '../models/1. Table Models/ecommerce_merchants.model.aml' {ecommerce_merchants}
 
 
-
 Dataset demo_ecommerce {
   label: '[Demo] Ecommerce (Official)'
   description: "Official dataset for demoing E-commerce use cases test"
   data_source_name: 'demodb'
   models: [
-    transform_order_items,
+    // transform_order_items,
+    order_master,
     ecommerce_orders,
     ecommerce_users,
     ecommerce_products,
@@ -25,16 +27,28 @@ Dataset demo_ecommerce {
     ecommerce_cities,
     ecommerce_countries,
     map_categories,
-    user_cohort_retention
+    user_cohort_retention,
+    dim_dates
   ]
+  // relationships: [
+  //   rel(rel_expr: transform_order_items.order_id > ecommerce_orders.id, active: true)
+  //   , rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true)
+  //   , rel(rel_expr: transform_order_items.user_id > ecommerce_users.id, active: true)
+  //   , rel(rel_expr: transform_order_items.merchant_id > ecommerce_merchants.id, active: true)
+  //   , rel(rel_expr: ecommerce_products.merchant_id > ecommerce_merchants.id, active: true)
+  //   , rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true)
+  //   , rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true)
+  //   , rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true)
+  // ]
   relationships: [
-    rel(rel_expr: transform_order_items.order_id > ecommerce_orders.id, active: true)
-    , rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true)
-    , rel(rel_expr: transform_order_items.user_id > ecommerce_users.id, active: true)
-    , rel(rel_expr: ecommerce_products.merchant_id > ecommerce_merchants.id, active: true)
+    rel(rel_expr: ecommerce_orders.order_created_date > dim_dates.date_d, active: true)
+    , rel(rel_expr: order_master.user_id - ecommerce_orders.user_id , active: true)
     , rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true)
     , rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true)
+    , rel(rel_expr: order_master.product_id > ecommerce_products.id, active: true)
+    , rel(rel_expr: order_master.merchant_id > ecommerce_merchants.id, active: true)
     , rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true)
+    , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
   ]
   owner: 'ha.pham+demo4@holistics.io'
 }
