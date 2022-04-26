@@ -8,6 +8,7 @@ Model ecommerce_users {
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
+    description: "this is ID"
   }
 
   dimension sign_up_date {
@@ -28,6 +29,7 @@ Model ecommerce_users {
     hidden: false
     definition: @sql {{ #SOURCE.first_name }};;
   }
+  
   dimension last_name {
     label: 'Last Name'
     type: 'text'
@@ -50,7 +52,7 @@ Model ecommerce_users {
     label: 'Gender'
     type: 'text'
     hidden: false
-    definition: @sql  case
+    definition: @sql    case
   when {{#SOURCE.gender}} = 'f' then 'Female'
   when {{#SOURCE.gender}} = 'm' then 'Male'
   else null
@@ -76,16 +78,15 @@ end;;
     definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
   }
   dimension age_group {
-    label: 'Age Group'
-    type: 'text'
-    hidden: false
-    definition: @sql  case
+    label: "Age Group"
+    type: "text"
+    definition: @sql    case
   when {{ age }} < 20 then '1. Under 20'
   when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
   when {{ age }} >= 30 and {{ age }} < 40 then '3. From 30 to 39'
   when {{ age }} >= 40 then '4. 40 and up'
 end;;
-
+    description: "Group of age of the customer"
   }
 
   measure users_signed_up_count {
