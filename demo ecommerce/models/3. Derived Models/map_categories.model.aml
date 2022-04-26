@@ -7,6 +7,21 @@ Model map_categories {
   label: 'Map Categories'
   description: ''
   data_source_name: 'demodb'
+  owner: 'ha.pham+demo4@holistics.io'
+
+  models: [
+    ecommerce_categories
+  ]
+
+  query: @sql
+    select
+      cat.id as category_id
+      , cat.name as category
+      , pcat.name as parent_category
+    from {{#ecommerce_categories cat}} 
+    left join {{#ecommerce_categories pcat}} on cat.parent_id = pcat.id
+    where cat.parent_id is not null;;
+
   dimension category_id {
     label: 'Category Id'
     type: 'number'
@@ -26,16 +41,5 @@ Model map_categories {
     definition: @sql {{ #SOURCE.parent_category }};;
   }
 
-  owner: 'ha.pham+demo4@holistics.io'
-  query: @sql
-    select
-      cat.id as category_id
-      , cat.name as category
-      , pcat.name as parent_category
-    from {{#ecommerce_categories cat}} 
-    left join {{#ecommerce_categories pcat}} on cat.parent_id = pcat.id
-    where cat.parent_id is not null;;
-  models: [
-    ecommerce_categories
-  ]
+
 }
