@@ -1,0 +1,63 @@
+import '../raw/rt_prepped.model.aml' {
+  rt_prepped as rt_prepped
+}
+
+Model rt_products {
+  type: 'query'
+  label: 'Rt Products'
+  description: ''
+  data_source_name: 'demodb'
+  dimension ordering {
+    label: 'Ordering'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ordering }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension product {
+    label: 'Product'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product }};;
+  }
+  dimension sales {
+    label: 'Sales'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sales }};;
+  }
+  dimension running_by_product {
+    label: 'Running By Product'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.running_by_product }};;
+  }
+
+  owner: 'hien.nguyen+demo4@holistics.io'
+  query: @sql
+    SELECT
+      t1.ordering,
+      t1.date,
+      t1.product,
+      t1.sales,
+      sum(t2.sales) as running_by_product
+    FROM
+      {{ #rt_prepped t1}}
+      INNER JOIN {{ #rt_prepped t2}} ON t1.ordering >= t2.ordering AND t1.product = t2.product
+      
+    GROUP BY
+    t1.ordering,
+    t1.product,
+    t1.date,
+    t1.sales
+    ORDER BY
+      t1.ordering;;
+  models: [
+    rt_prepped
+  ]
+}

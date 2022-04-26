@@ -1,0 +1,37 @@
+import '../models/3. Derived Models/dim_dates.model.aml' {dim_dates}
+import '../models/3. Derived Models/transform_order_items.model.aml' {transform_order_items}
+import '../models/3. Derived Models/map_categories.model.aml' {map_categories}
+
+import '../models/1. Table Models/ecommerce_orders.model.aml' {ecommerce_orders}
+import '../models/1. Table Models/ecommerce_users.model.aml' {ecommerce_users}
+import '../models/1. Table Models/ecommerce_cities.model.aml' {ecommerce_cities}
+import '../models/1. Table Models/ecommerce_countries.model.aml' {ecommerce_countries}
+import '../models/1. Table Models/ecommerce_products.model.aml'{ecommerce_products}
+
+
+
+Dataset demo_ecommerce_metrics {
+  label: '[Demo] Ecommerce Metrics'
+  description: 'Dataset to demo Metric Sheet with ecommerce data'
+  data_source_name: 'demodb'
+  models: [
+    dim_dates,
+    ecommerce_orders,
+    transform_order_items,
+    ecommerce_products,
+    map_categories,
+    ecommerce_users,
+    ecommerce_cities,
+    ecommerce_countries
+  ]
+  relationships: [
+    rel(rel_expr: transform_order_items.order_created_date > dim_dates.date_key, active: true),
+    rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true),
+    rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true),
+    rel(rel_expr: ecommerce_orders.created_date > dim_dates.date_key, active: true),
+    rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true),
+    rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
+    rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true),
+  ]
+  owner: 'ha.pham+demo4@holistics.io'
+}
