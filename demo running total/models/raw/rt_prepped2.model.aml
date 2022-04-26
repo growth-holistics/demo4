@@ -1,0 +1,54 @@
+import './running_total_demo_data.model.aml' {
+  running_total_demo_data as running_total_demo_data
+}
+
+Model rt_prepped2 {
+  type: 'query'
+  label: 'Rt Prepped2'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension product {
+    label: 'Product'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product }};;
+  }
+  dimension sales {
+    label: 'Sales'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sales }};;
+  }
+
+  owner: 'hien.nguyen+demo4@holistics.io'
+  query: @sql
+    with t3 as(
+    select 
+    		generate_series( min({{ #a.date}}), max({{ #a.date}}),'1d')::date as dates 
+    	from 
+    		 {{ #running_total_demo_data a}}
+    )
+
+    SELECT
+      ROW_NUMBER () OVER () as id,
+      t3.dates as date,
+      COALESCE(t1.product,'A') as product,
+      COALESCE(t1.sales,0) as sales
+    FROM
+      {{ #running_total_demo_data as t1}} FULL JOIN t3 ON t1.date=t3.dates;;
+  models: [
+    running_total_demo_data
+  ]
+}
