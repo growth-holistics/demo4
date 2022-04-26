@@ -1,0 +1,30 @@
+import '../models/transforms/rt_all.model.aml' {
+  rt_all as rt_all
+}
+import '../models/transforms/rt_products.model.aml' {
+  rt_products as rt_products
+}
+import '../models/transforms/total_by_transaction.model.aml' {
+  total_by_transaction as total_by_transaction
+}
+import '../models/raw/rt_prepped.model.aml' {
+  rt_prepped as rt_prepped
+}
+
+Dataset demo_running_total {
+  label: 'Demo Running Total'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    rt_all,
+    rt_products,
+    total_by_transaction,
+    rt_prepped
+  ]
+  relationships: [
+    rel(rel_expr: rt_products.ordering - rt_prepped.ordering, active: true)
+    , rel(rel_expr: total_by_transaction.ordering - rt_prepped.ordering, active: true)
+    , rel(rel_expr: rt_all.ordering - rt_prepped.ordering, active: true)
+  ]
+  owner: 'hien.nguyen+demo4@holistics.io'
+}
