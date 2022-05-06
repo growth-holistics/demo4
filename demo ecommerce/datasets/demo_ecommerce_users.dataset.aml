@@ -3,7 +3,7 @@
 import '../models/1. Table Models/ecommerce_users.model.aml' {ecommerce_users}
 import '../models/1. Table Models/ecommerce_cities.model.aml' {ecommerce_cities}
 import '../models/1. Table Models/ecommerce_countries.model.aml' {ecommerce_countries}
-import '../models/3. Derived Models/aggr_user_stats.model.aml' {aggr_user_stats}
+import '../models/3. Derived Models/user_facts_aggr.model.aml' {user_facts_aggr}
 
 
 
@@ -13,12 +13,12 @@ Dataset demo_ecommerce_users {
   data_source_name: 'demodb'
   models: [
     ecommerce_users,
-    aggr_user_stats,
+    user_facts_aggr,
     ecommerce_cities,
     ecommerce_countries
   ]
   relationships: [
-    rel(rel_expr: ecommerce_users.id - aggr_user_stats.user_id, active: true),
+    rel(rel_expr: ecommerce_users.id - user_facts_aggr.user_id, active: true),
     rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
     rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true),
   ]
