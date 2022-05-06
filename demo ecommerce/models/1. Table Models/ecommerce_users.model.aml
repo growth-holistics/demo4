@@ -2,13 +2,15 @@ Model ecommerce_users {
   type: 'table'
   label: 'Users'
   description: ''
-  data_source_name: 'khaidb'
+  data_source_name: 'demodb'
   dimension id {
     label: 'Id'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
+    description: "this is ID"
   }
+
   dimension sign_up_date {
     label: 'Sign Up Date'
     type: 'date'
@@ -22,11 +24,12 @@ Model ecommerce_users {
     definition: @sql {{ #SOURCE.sign_up_at }};;
   }
   dimension first_name {
-    label: 'First Name Of'
+    label: 'First Name'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.first_name }};;
   }
+  
   dimension last_name {
     label: 'Last Name'
     type: 'text'
@@ -49,12 +52,16 @@ Model ecommerce_users {
     label: 'Gender'
     type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.gender }};;
+    definition: @sql    case
+  when {{#SOURCE.gender}} = 'f' then 'Female'
+  when {{#SOURCE.gender}} = 'm' then 'Male'
+  else null
+end;;
   }
   dimension city_id {
     label: 'City Id'
     type: 'number'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.city_id }};;
   }
   dimension full_name {
@@ -63,9 +70,37 @@ Model ecommerce_users {
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
   }
+  // Custom fields
+  dimension age {
+    label: 'Age'
+    type: 'number'
+    hidden: false
+    definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
+  }
+  dimension age_group {
+    label: "Age Group"
+    type: "text"
+    definition: @sql    case
+  when {{ age }} < 20 then '1. Under 20'
+  when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
+  when {{ age }} >= 30 and {{ age }} < 40 then '3. From 30 to 39'
+  when {{ age }} >= 40 then '4. 40 and up'
+end;;
+    description: "Group of age of the customer"
+  }
 
+  measure users_signed_up_count {
+    label: 'Users Signed Up'
+    type: 'number'
+    definition: @sql {{ id }};;
+    aggregation_type: 'count'
+  }
+  measure total_users {
+    label: "Total Users"
+    type: "number"
+    definition: @sql count({{ id }});;
+    hidden: false
+  }
   owner: 'vincent+demo4@holistics.io'
-  table_name: '"ecommerce"."users"'
+  table_name: '\"ecommerce\".\"users\"'
 }
-
-// commenting some changes for demo
