@@ -12,6 +12,16 @@ import '../models/1. Table Models/ecommerce_countries.model.aml' {ecommerce_coun
 import '../models/1. Table Models/ecommerce_products.model.aml'{ecommerce_products}
 import '../models/1. Table Models/ecommerce_merchants.model.aml' {ecommerce_merchants}
 
+import '../relationships.aml' {
+  ecommerce_cities_ecommerce_countries as rel__ecommerce_cities_ecommerce_countries
+  , ecommerce_orders_dim_dates as rel__ecommerce_orders_dim_dates
+  , ecommerce_orders_ecommerce_users as rel__ecommerce_orders_ecommerce_users
+  , ecommerce_products_map_categories as rel__ecommerce_products_map_categories
+  , ecommerce_users_ecommerce_cities as rel__ecommerce_users_ecommerce_cities
+  , order_master_ecommerce_merchants as rel__order_master_ecommerce_merchants
+  , order_master_ecommerce_orders as rel__order_master_ecommerce_orders
+  , order_master_ecommerce_products as rel__order_master_ecommerce_products
+}
 
 Dataset demo_ecommerce {
   label: '[Demo] Ecommerce (Official)'
@@ -30,25 +40,57 @@ Dataset demo_ecommerce {
     user_cohort_retention,
     dim_dates
   ]
+  relationships: [
+    RelationshipConfig {
+      rel: rel__ecommerce_cities_ecommerce_countries
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__ecommerce_orders_dim_dates
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__ecommerce_orders_ecommerce_users
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__ecommerce_products_map_categories
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__ecommerce_users_ecommerce_cities
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__order_master_ecommerce_merchants
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__order_master_ecommerce_orders
+      active: true
+      direction: 'two_way'
+    },
+    RelationshipConfig {
+      rel: rel__order_master_ecommerce_products
+      active: true
+      direction: 'two_way'
+    }
+  ]
   // relationships: [
-  //   rel(rel_expr: transform_order_items.order_id > ecommerce_orders.id, active: true)
-  //   , rel(rel_expr: transform_order_items.product_id > ecommerce_products.id, active: true)
-  //   , rel(rel_expr: transform_order_items.user_id > ecommerce_users.id, active: true)
-  //   , rel(rel_expr: transform_order_items.merchant_id > ecommerce_merchants.id, active: true)
-  //   , rel(rel_expr: ecommerce_products.merchant_id > ecommerce_merchants.id, active: true)
+  //   rel(rel_expr: ecommerce_orders.order_created_date > dim_dates.date_d, active: true)
+  //   , rel(rel_expr: order_master.user_id - ecommerce_orders.user_id , active: true)
   //   , rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true)
   //   , rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true)
+  //   , rel(rel_expr: order_master.product_id > ecommerce_products.id, active: true)
+  //   , rel(rel_expr: order_master.merchant_id > ecommerce_merchants.id, active: true)
   //   , rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true)
+  //   , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
   // ]
-  relationships: [
-    rel(rel_expr: ecommerce_orders.order_created_date > dim_dates.date_d, active: true)
-    , rel(rel_expr: order_master.user_id - ecommerce_orders.user_id , active: true)
-    , rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true)
-    , rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true)
-    , rel(rel_expr: order_master.product_id > ecommerce_products.id, active: true)
-    , rel(rel_expr: order_master.merchant_id > ecommerce_merchants.id, active: true)
-    , rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true)
-    , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
-  ]
   owner: 'ha.pham+demo4@holistics.io'
 }
