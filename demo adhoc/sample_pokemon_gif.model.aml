@@ -66,7 +66,7 @@ Model sample_pokemon_gif {
   dimension gif {
     label: 'Gif'
     type: 'text'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.gif }};;
   }
   dimension png {
@@ -75,7 +75,12 @@ Model sample_pokemon_gif {
     hidden: false
     definition: @sql {{ #SOURCE.png }};;
   }
+  dimension gif_cleaned {
+    label: "Gif Cleaned"
+    type: "text"
+    definition: @sql concat(substring({{ gif }},1,strpos({{ gif }},'height')-1),'style="width: 100%;width: 70px; height: 70px;"','/>');;
+  }
 
   owner: 'vincent+demo4@holistics.io'
-  table_name: '"sample"."pokemon_gif"'
+  table_name: '\"sample\".\"pokemon_gif\"'
 }
