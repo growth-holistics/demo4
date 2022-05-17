@@ -1,0 +1,47 @@
+import './running_total_demo_data.model.aml' {
+  running_total_demo_data as running_total_demo_data
+}
+
+Model rt_prepped {
+  type: 'query'
+  label: 'Rt Prepped'
+  description: ''
+  data_source_name: 'demodb'
+  dimension ordering {
+    label: 'Ordering'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ordering }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension sales {
+    label: 'Sales'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sales }};;
+  }
+  dimension product {
+    label: 'Product'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product }};;
+  }
+
+  owner: 'hien.nguyen+demo4@holistics.io'
+  query: @sql
+    select
+      row_number () over () as ordering,
+      date,
+      sales,
+      product
+    from
+      {{ #running_total_demo_data}};;
+  models: [
+    running_total_demo_data
+  ]
+}
