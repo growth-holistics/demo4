@@ -1,22 +1,12 @@
-import '../1. Table Models/ecommerce_users.model.aml' {
-  ecommerce_users as model__ecommerce_users
-}
-import '../1. Table Models/ecommerce_orders.model.aml' {
-  ecommerce_orders as model__ecommerce_orders
-}
-import '../2. Transform Models/order_master.model.aml' {
-  order_master as model__order_master
-}
-
 Model buyer_facts_daily {
   type: 'query'
   label: 'Buyer Facts Daily'
   description: ''
   data_source_name: 'demodb'
   models: [
-    model__ecommerce_users,
-    model__ecommerce_orders,
-    model__order_master
+    ecommerce_users,
+    ecommerce_orders,
+    order_master
   ]
   query: @sql
     with base as (
@@ -95,7 +85,7 @@ Model buyer_facts_daily {
     definition: @sql {{ #SOURCE.nmv }};;
   }
 
-// Custom dimension
+  // Custom dimension
   dimension days_to_next_order {
     label: 'Days To Next Order'
     description: 'Number of days to the next order'
@@ -103,7 +93,7 @@ Model buyer_facts_daily {
     hidden: false
     definition: @sql {{#SOURCE.next_order_date}} - {{#SOURCE.order_created_date}};;
   }
-// Measures
+  // Measures
   measure avg_days_between_orders {
     label: 'Avg Days Between Orders'
     description: 'Calculate average days between orders'

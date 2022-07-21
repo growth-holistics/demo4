@@ -1,7 +1,3 @@
-import '../1. Table Models/ecommerce_orders.model.aml' {ecommerce_orders}
-import '../1. Table Models/ecommerce_order_items.model.aml' {ecommerce_order_items}
-import '../1. Table Models/ecommerce_products.model.aml' {ecommerce_products}
-
 Model order_master {
   type: 'query'
   label: 'Order Master'
@@ -107,7 +103,7 @@ Model order_master {
     definition: @sql {{ #SOURCE.test_broken }};;
   }
 
-// Custom dimensions
+  // Custom dimensions
   dimension order_created_date {
     label: 'Order Created Date'
     type: 'date'
@@ -139,25 +135,25 @@ Model order_master {
     definition: @sql {{#SOURCE.status}} = 'delivered';;
   }
   dimension date_and_merchant_id {
-      label: 'Date And Merchant ID'
-      description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
-      type: 'text'
-      hidden: false
-      definition: @sql concat ({{ #SOURCE.order_created_at }}::date,'_',{{ #SOURCE.merchant_id }});;
+    label: 'Date And Merchant ID'
+    description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
+    type: 'text'
+    hidden: false
+    definition: @sql concat ({{ #SOURCE.order_created_at }}::date,'_',{{ #SOURCE.merchant_id }});;
   }
   dimension last_order_value {
-      label: 'Last Order Value'
-      description: 'This is what we get'
-      type: 'number'
-      hidden: false
-      definition: @sql {{ #SOURCE.price }} - {{ #SOURCE.discount }};;
+    label: 'Last Order Value'
+    description: 'This is what we get'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }} - {{ #SOURCE.discount }};;
   }
   dimension quantity_threshold {
-      label: 'Quantity Threshold'
-      description: 'Used to check stock level (threshold = 30)'
-      type: 'text'
-      hidden: false
-      definition: @sql 
+    label: 'Quantity Threshold'
+    description: 'Used to check stock level (threshold = 30)'
+    type: 'text'
+    hidden: false
+    definition: @sql 
         CASE
             WHEN {{ #SOURCE.quantity }} > 30 then 'The quantity is greater than 30'
             WHEN {{ #SOURCE.quantity }} = 30 then 'The quantity is 30'
@@ -166,7 +162,7 @@ Model order_master {
       ;;
   }
 
-// Custom measures
+  // Custom measures
   measure order_count {
     label: "Order Count"
     type: "number"
