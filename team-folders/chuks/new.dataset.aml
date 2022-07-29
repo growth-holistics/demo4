@@ -1,0 +1,73 @@
+// Refer to the template below to build dataset. For more information, please visit: https://docs.holistics.io/docs/aml/syntax/dataset
+//--------------------------------------------
+
+// import 'path/to/model_a' {model_a}
+// import 'path/to/model_b' {model_b}
+
+// Dataset dataset_name {
+//   label: 'Dataset Label'
+//   description: "Dataset Description"
+//   owner: 'your_email@domain.com'
+
+//   data_source_name: 'data_source_name'
+
+//   models: [
+//     model_a,
+//     model_b
+//   ]
+
+//   relationships: [
+//     RelationshipConfig {
+//         rel: Relationship {
+//             type: 'many_to_one | one_to_one'
+//             from: ref('model_name','dimension_name')
+//             to: ref('model_name','dimension_name')
+//         }
+//         active: true | false
+//         direction: 'two_way | one_to_many'
+//     }
+//   ]
+
+// }
+
+Dataset new {
+  label: 'new'
+  description: "Official dataset for demoing E-commerce use cases test"
+  owner: 'chukwudi+demo4@holistics.io'
+  data_source_name: 'demodb'
+
+  models: [
+    order_master,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_cities,
+    ecommerce_countries,
+    map_categories,
+    user_cohort_retention,
+    dim_dates
+  ]
+
+  relationships: [
+    relationship(ecommerce_cities_ecommerce_countries, true),
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(ecommerce_orders_ecommerce_users, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_users_ecommerce_cities, true),
+    relationship(order_master_ecommerce_merchants, true),
+    relationship(order_master_ecommerce_orders, true),
+    relationship(order_master_ecommerce_products, true)
+  ]
+
+// relationships: [
+//   rel(rel_expr: ecommerce_orders.order_created_date > dim_dates.date_d, active: true)
+//   , rel(rel_expr: order_master.user_id - ecommerce_orders.user_id , active: true)
+//   , rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true)
+//   , rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true)
+//   , rel(rel_expr: order_master.product_id > ecommerce_products.id, active: true)
+//   , rel(rel_expr: order_master.merchant_id > ecommerce_merchants.id, active: true)
+//   , rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true)
+//   , rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
+// ]
+}
