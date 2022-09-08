@@ -3,6 +3,7 @@ Model ecommerce_users {
   label: "Users"
   description: ''
   data_source_name: 'demodb'
+  
   dimension id {
     label: 'Id'
     type: 'number'
@@ -29,7 +30,7 @@ Model ecommerce_users {
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.first_name }};;
-    
+
   }
 
   dimension last_name {
@@ -60,8 +61,7 @@ Model ecommerce_users {
     hidden: false
     definition: @sql            case
   when {{#SOURCE.gender}} = 'f' then 'Female'
-  when {{#SOURCE.gender}} = 'm' then 'Male'
-  
+  when {{#SOURCE.gender}} = 'm' then 'Male' 
   else null
 end;;
   }
@@ -76,8 +76,8 @@ end;;
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
-
   }
+  
   // Custom fields
   dimension age {
     label: 'Age'
@@ -93,7 +93,6 @@ end;;
   when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
   when {{ age }} >= 30 and {{ age }} < 40 then '3. From 30 to 39'
   when {{ age }} >= 40 then '4. 40 and up'
-  
 end;;
     description: "Grouping of the age demographics by age group\nUnder 20\n21-30\n31-40\nAbove 40"
   }
