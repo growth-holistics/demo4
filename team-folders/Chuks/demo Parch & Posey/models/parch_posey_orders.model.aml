@@ -78,4 +78,17 @@ Model parch_posey_orders {
 
   owner: 'chukwudi+demo4@holistics.io'
   table_name: '"parch_posey"."orders"'
+  measure quartile {
+    label: "Quartile"
+    type: "number"
+    definition: @sql   FLOOR(
+(SUM(CASE WHEN {{ total_amt_usd }} < {{ total_amt_usd }} THEN 1 ELSE 0 END))/(COUNT(*))*4) + 1;;
+    aggregation_type: "custom"
+  }
+  measure percentile {
+    label: "Percentile"
+    type: "number"
+    definition: @sql ntile(100) over (order by {{ total_amt_usd }});;
+    aggregation_type: "custom"
+  }
 }
