@@ -1,15 +1,18 @@
-Dataset thy_test {
-  label: 'Thy Test'
-  description: ''
+Dataset ecommerce_test {
+  label: 'Ecommerce Test'
   data_source_name: 'demodb'
   models: [
-    ecommerce_countries,
-    ecommerce_users,
-    ecommerce_cities
+    ecommerce_cities,
+    ecommerce_countries
   ]
   relationships: [
-  relationship(ecommerce_users.city_id > ecommerce_cities.id, true), 
-  relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
+    RelationshipConfig {
+      rel: Relationship {
+        type: 'many_to_one'
+        from: ref('ecommerce_cities','country_code')
+        to: ref('ecommerce_countries','code')
+      }
+      active: true
+    }
   ]
-  owner: 'thy.nh@holistics.io'
 }
