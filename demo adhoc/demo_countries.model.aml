@@ -1,0 +1,74 @@
+Model demo_countries {
+  type: 'query'
+  label: 'Demo Countries'
+  description: ''
+  data_source_name: 'demo_bigquery'
+
+
+  dimension code {
+    label: "Code"
+    type: "text"
+    definition: @sql {{ #SOURCE.code }};;
+    description: "Country Code"
+  }
+  dimension name {
+    label: "Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.name }};;
+    description: "Country Name"
+  }
+
+  dimension cities_array_struct {
+    label: "Cities Array Struct"
+    type: "unknown"
+    definition: @sql {{ #SOURCE.cities_array_struct }};;
+    description: "ARRAY[STRUCT] - Array of city with Struct type"
+  }
+
+  dimension cities_array_string {
+    label: "Cities Array String"
+    type: "unknown"
+    definition: @sql {{ #SOURCE.cities_array_string }};;
+    description: "ARRAY[STRING] -  Array of city names"
+  }
+
+  dimension continent_struct {
+    label: "Continent Struct"
+    type: "unknown"
+    definition: @sql {{ #SOURCE.continent_struct }};;
+    description: "STRUCT - Struct of Continent "
+  }
+
+  owner: 'triet.lq+demo4@holistics.io'
+  query: @sql
+    WITH 
+    base as (
+      SELECT 
+        countries.code,
+        countries.name,
+        countries.continent_name,
+        ARRAY_AGG(cities) AS cities_array_struct,
+        ARRAY_AGG(cities.name) AS cities_array_string
+
+      FROM `ecommerce.countries` countries 
+      LEFT JOIN `ecommerce.cities` cities
+        ON countries.code = cities.country_code
+      GROUP BY 
+        1,2,3
+    )
+
+    SELECT
+      code,
+      name,
+      cities_array_struct,
+      cities_array_string,
+      STRUCT(
+        continent_name AS name, 
+        CASE 
+          WHEN continent_name = 'Asia' THEN 1
+          ELSE 2
+        END AS id) AS continent_struct
+    FROM base;;
+  models: [
+  ]
+}
