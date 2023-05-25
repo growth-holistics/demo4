@@ -1,0 +1,43 @@
+Model public_links {
+  type: 'table'
+  label: 'Links'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension imdb_id {
+    label: 'Imdb Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.imdb_id }};;
+  }
+  dimension tmdb_id {
+    label: 'Tmdb Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.tmdb_id }};;
+  }
+  dimension imdb_link {
+    label: "Imdb Link"
+    type: "text"
+    definition: @sql 'http://www.imdb.com/title/tt0'|| {{ imdb_id }} ||'/';;
+  }
+  dimension tmdb_link {
+    label: "Tmdb Link"
+    type: "text"
+    definition: @sql 'https://www.themoviedb.org/movie/'||{{ tmdb_id }};;
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  table_name: '"public"."links"'
+}
