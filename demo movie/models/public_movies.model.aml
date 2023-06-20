@@ -1,0 +1,40 @@
+Model public_movies {
+  type: 'table'
+  label: 'Movies'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension title {
+    label: 'Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.title }};;
+  }
+  dimension genres {
+    label: 'Genres'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.genres }};;
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  table_name: '"public"."movies"'
+  measure count_all_movies {
+    label: "Count All Movies"
+    type: "number"
+    definition: @sql {{ movie_id }};;
+    aggregation_type: "count"
+    format: "#,###"
+  }
+}
