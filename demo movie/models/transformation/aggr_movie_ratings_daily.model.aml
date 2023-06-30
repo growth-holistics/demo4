@@ -1,0 +1,52 @@
+Model aggr_movie_ratings_daily {
+  type: 'query'
+  label: 'Aggr Movie Ratings Daily'
+  description: "Aggregate ratings of each movie daily\n"
+  data_source_name: 'movies_lens'
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension movie_title {
+    label: 'Movie Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_title }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension ratings_count {
+    label: 'Ratings Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ratings_count }};;
+  }
+
+   persistence: FullPersistence {
+    schema: 'movielens'
+    view_name: 'public.ratings'
+
+  }
+
+
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql
+    -- aggregate number of ratings for each film by day
+
+    select 
+      m.movie_id
+      , m.title as movie_title
+      , date(r.timestamp) as date 
+      , count(r.id) as ratings_count
+    from public.ratings r 
+    left join public.movies m on r.movie_id = m.id
+    group by 1,2,3;;
+  models: [
+  ]
+}
