@@ -1,0 +1,44 @@
+Model aggr_movie_ratings_yearly {
+  type: 'query'
+  label: 'Aggr Movie Ratings Yearly'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension year {
+    label: 'Year'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.year }};;
+  }
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension movie_title {
+    label: 'Movie Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_title }};;
+  }
+  dimension total_ratings {
+    label: 'Total Ratings'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_ratings }};;
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql
+    select 
+      date_trunc('year',{{ #aggr_movie_ratings_monthly.month }}) as year 
+      , {{ #aggr_movie_ratings_monthly.movie_id }}
+      , {{ #aggr_movie_ratings_monthly.movie_title }}
+      , sum({{ #aggr_movie_ratings_monthly.ratings_number }}) as total_ratings
+      from {{ #aggr_movie_ratings_monthly }}
+      group by 1,2,3
+  ;;
+  models: [
+    aggr_movie_ratings_monthly
+  ]
+}
