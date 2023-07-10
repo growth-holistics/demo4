@@ -1,0 +1,55 @@
+Model product_discount {
+  type: 'query'
+  label: 'Product Discount'
+  description: ''
+  data_source_name: 'demodb'
+  dimension discount_percentage {
+    label: "Discount Percentage"
+    type: "number"
+    definition: @sql {{ #SOURCE.discount_percentage }};;
+    format: "#,###%"
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension product_name {
+    label: 'Product Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_name }};;
+  }
+  dimension product_price {
+    label: 'Product Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_price }};;
+  }
+  dimension discount_cost {
+    label: "Discount Cost"
+    type: "number"
+    definition: @sql {{ product_price }}*{{ discount_percentage }};;
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql
+    with base as (
+      select
+      * 
+    from generate_series(0.1,0.3,0.05) discount_percentage
+    ) 
+
+
+      select 
+      base.*
+      , {{ #ecommerce_products.id }} as product_id
+      , {{ #ecommerce_products.name }} as product_name
+      , {{ #ecommerce_products.price }} as product_price
+      from {{ #ecommerce_products }}
+      cross join base ;;
+  models: [
+    ecommerce_products
+  ]
+}

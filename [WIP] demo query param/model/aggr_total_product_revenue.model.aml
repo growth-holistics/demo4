@@ -1,0 +1,69 @@
+Model aggr_total_product_revenue {
+  type: 'query'
+  label: 'Aggr Total Product Revenue'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_created_month {
+    label: 'Order Created Month'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_month }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension product_cost {
+    label: 'Product Cost'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_cost }};;
+  }
+  dimension product_price {
+    label: 'Product Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_price }};;
+  }
+  dimension sale_quantity {
+    label: 'Sale Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sale_quantity }};;
+  }
+  dimension total_revenue {
+    label: 'Total Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_revenue }};;
+  }
+  dimension total_cost {
+    label: 'Total Cost'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_cost }};;
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql select  
+  {{ #order_master.order_created_month }}
+  , {{ #order_master.product_id }}
+  , {{ #ecommerce_products.name }}
+  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
+  , {{ #order_master.price }} as product_price
+  , {{ #order_master.quantity }} as sale_quantity
+  , {{ #order_master.price }}*{{ #order_master.quantity }} as total_revenue
+  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #order_master.quantity }} as total_cost
+from {{ #order_master }} 
+left join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
+left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }};;
+  models: [order_master, ecommerce_products, ecommerce_categories]
+}
