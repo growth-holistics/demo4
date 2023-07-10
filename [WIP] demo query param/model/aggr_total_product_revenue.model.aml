@@ -45,15 +45,19 @@ Model aggr_total_product_revenue {
     hidden: false
     definition: @sql {{ #SOURCE.total_revenue }};;
   }
-  dimension total_cost {
-    label: 'Total Product Cost'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.total_cost }};;
+  dimension total_product_cost {
+    label: "Total Product Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_product_cost }};;
+  }
+  dimension total_discount_cost {
+    label: "Total Discount Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_discount_cost }};;
   }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql select  
+  query: @sql  select  
   {{ #order_master.order_created_month }}
   , {{ #order_master.product_id }}
   , {{ #ecommerce_products.name }}
@@ -61,9 +65,11 @@ Model aggr_total_product_revenue {
   , {{ #order_master.price }} as product_price
   , {{ #order_master.quantity }} as sale_quantity
   , {{ #order_master.price }}*{{ #order_master.quantity }} as total_revenue
-  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #order_master.quantity }} as total_cost
+  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #order_master.quantity }} as total_product_cost
+  , {{ #product_discount.discount_cost }}*{{ #order_master.quantity }} as total_discount_cost
 from {{ #order_master }} 
 left join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
-left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }};;
-  models: [order_master, ecommerce_products, ecommerce_categories]
+left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }}
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }};;
+  models: [order_master, product_discount, ecommerce_products, ecommerce_categories]
 }
