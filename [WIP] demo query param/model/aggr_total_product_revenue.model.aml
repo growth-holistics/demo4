@@ -55,9 +55,19 @@ Model aggr_total_product_revenue {
     type: "number"
     definition: @sql {{ #SOURCE.total_discount_cost }};;
   }
+  dimension discount_percentage {
+    label: "Discount Percentage"
+    type: "number"
+    definition: @sql {{ #SOURCE.discount_percentage }};;
+  }
+
+param discount_rate {
+  label: 'Discount Rate'
+  type: 'number'
+}
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql  select  
+  query: @sql   select  
   {{ #order_master.order_created_month }}
   , {{ #order_master.product_id }}
   , {{ #ecommerce_products.name }}
@@ -67,9 +77,12 @@ Model aggr_total_product_revenue {
   , {{ #order_master.price }}*{{ #order_master.quantity }} as total_revenue
   , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #order_master.quantity }} as total_product_cost
   , {{ #product_discount.discount_cost }}*{{ #order_master.quantity }} as total_discount_cost
+  , {{ #product_discount.discount_percentage }}
 from {{ #order_master }} 
 left join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
 left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }}
-left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }};;
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
+where {% filter(discount_rate) %} discount_percentafe {% end %}
+;;
   models: [order_master, product_discount, ecommerce_products, ecommerce_categories]
 }
