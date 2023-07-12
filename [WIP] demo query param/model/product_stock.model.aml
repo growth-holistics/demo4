@@ -49,24 +49,14 @@ Model product_stock {
     type: 'number'
   }
 
-  param quantity {
-    label: 'Quantity'
-    type: 'number'
-  }
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql select 
+  query: @sql  select 
   {{ #order_master.order_created_month }}
   , {{ #order_master.product_id }}
   , {{ #order_master.quantity }} as sold_quantity
   , {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} as available_quantity
   , {{ #order_master.quantity }}*10 as total_quantity
-  , {{ #product_discount.discount_percentage }}
-  , {{ #product_discount.discount_cost }}
 from {{ #order_master }} 
-LEFT join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
-left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
-where {% filter(discount_rate) %} discount_percentage {% end %}
-and {% filter(quantity) %} {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} {% end %}
 ;;
-  models: [order_master, product_discount, ecommerce_products]
+  models: [order_master]
 }
