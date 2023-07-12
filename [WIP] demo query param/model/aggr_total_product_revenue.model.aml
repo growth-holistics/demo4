@@ -70,6 +70,10 @@ Model aggr_total_product_revenue {
     definition: @sql {{ #SOURCE.total_avail_discount_cost }};;
   }
 
+  param discount_rate {
+    label: 'Discount Rate'
+    type: 'number'
+  }
 
   owner: 'huong.le+demo4@holistics.io'
   query: @sql     select  
@@ -89,6 +93,9 @@ from {{ #product_stock }}
 left join {{ #ecommerce_products }} on {{ #product_stock.product_id }} = {{ #ecommerce_products.id }}
 left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
+where {% filter(discount_rate) %} discount_percentage {% end %}
+
+
 ;;
   models: [product_stock, product_discount, ecommerce_products, ecommerce_categories]
   measure total_cost {
