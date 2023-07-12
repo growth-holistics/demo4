@@ -91,4 +91,10 @@ left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} =
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
 left join {{ #product_stock }} on {{ #product_stock.product_id }} = {{ #ecommerce_products.id }};;
   models: [order_master, product_stock, product_discount, ecommerce_products, ecommerce_categories]
+  measure total_cost {
+    label: "Total Cost"
+    type: "number"
+    definition: @sql {{ product_cost }}*{{ sold_quantity }};;
+    description: "For sold items"
+  }
 }
