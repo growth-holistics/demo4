@@ -1,0 +1,66 @@
+Model product_stock {
+  type: 'query'
+  label: 'Product Stock'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_created_month {
+    label: 'Order Created Month'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_month }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension sold_quantity {
+    label: 'Sold Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sold_quantity }};;
+  }
+  dimension available_quantity {
+    label: 'Available Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.available_quantity }};;
+  }
+  dimension total_quantity {
+    label: 'Total Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_quantity }};;
+  }
+  dimension discount_percentage {
+    label: "Discount Percentage"
+    type: "number"
+    definition: @sql {{ #SOURCE.discount_percentage }};;
+  }
+  dimension discount_cost {
+    label: "Discount Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.discount_cost }};;
+  }
+
+  param discount_rate {
+    label: 'Discount Rate'
+    type: 'number'
+  }
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql select 
+  {{ #order_master.order_created_month }}
+  , {{ #order_master.product_id }}
+  , {{ #order_master.quantity }} as sold_quantity
+  , {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} as available_quantity
+  , {{ #order_master.quantity }}*10 as total_quantity
+  , {{ #product_discount.discount_percentage }}
+  , {{ #product_discount.discount_cost }}
+from {{ #order_master }} 
+LEFT join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
+where {% filter(discount_rate) %} discount_percentage {% end %}
+;;
+  models: [order_master, product_discount, ecommerce_products]
+}

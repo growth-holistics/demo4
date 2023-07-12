@@ -33,56 +33,62 @@ Model aggr_total_product_revenue {
     hidden: false
     definition: @sql {{ #SOURCE.product_price }};;
   }
-  dimension sale_quantity {
-    label: 'Sale Quantity'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.sale_quantity }};;
-  }
   dimension total_revenue {
     label: 'Total Revenue'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.total_revenue }};;
   }
-  dimension total_product_cost {
-    label: "Total Product Cost"
-    type: "number"
-    definition: @sql {{ #SOURCE.total_product_cost }};;
-  }
-  dimension total_discount_cost {
-    label: "Total Discount Cost"
-    type: "number"
-    definition: @sql {{ #SOURCE.total_discount_cost }};;
-  }
   dimension discount_percentage {
     label: "Discount Percentage"
     type: "number"
     definition: @sql {{ #SOURCE.discount_percentage }};;
   }
+  dimension sold_quantity {
+    label: "Sold Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.sold_quantity }};;
+  }
+  dimension available_quantity {
+    label: "Available Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.available_quantity }};;
+  }
+  dimension total_quantity {
+    label: "Total Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_quantity }};;
+  }
+  dimension total_avail_product_cost {
+    label: "Total Avail Product Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_avail_product_cost }};;
+  }
+  dimension total_avail_discount_cost {
+    label: "Total Avail Discount Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_avail_discount_cost }};;
+  }
 
-param discount_rate {
-  label: 'Discount Rate'
-  type: 'number'
-}
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql   select  
+  query: @sql    select  
   {{ #order_master.order_created_month }}
   , {{ #order_master.product_id }}
   , {{ #ecommerce_products.name }}
   , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
   , {{ #order_master.price }} as product_price
-  , {{ #order_master.quantity }} as sale_quantity
+  , {{ #product_stock.sold_quantity }}
+  , {{ #product_stock.available_quantity }}
+  , {{ #product_stock.total_quantity }}
   , {{ #order_master.price }}*{{ #order_master.quantity }} as total_revenue
-  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #order_master.quantity }} as total_product_cost
-  , {{ #product_discount.discount_cost }}*{{ #order_master.quantity }} as total_discount_cost
+  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #product_stock.available_quantity }} as total_avail_product_cost
+  , {{ #product_discount.discount_cost }}*{{ #product_stock.available_quantity }} as total_avail_discount_cost
   , {{ #product_discount.discount_percentage }}
 from {{ #order_master }} 
 left join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
 left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
-where {% filter(discount_rate) %} discount_percentage {% end %}
-;;
-  models: [order_master, product_discount, ecommerce_products, ecommerce_categories]
+left join {{ #product_stock }} on {{ #product_stock.product_id }} = {{ #ecommerce_products.id }};;
+  models: [order_master, product_stock, product_discount, ecommerce_products, ecommerce_categories]
 }
