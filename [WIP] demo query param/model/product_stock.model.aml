@@ -48,6 +48,11 @@ Model product_stock {
     label: 'Discount Rate'
     type: 'number'
   }
+
+  param quantity {
+    label: 'Quantity'
+    type: 'number'
+  }
   owner: 'huong.le+demo4@holistics.io'
   query: @sql select 
   {{ #order_master.order_created_month }}
@@ -61,6 +66,7 @@ from {{ #order_master }}
 LEFT join {{ #ecommerce_products }} on {{ #order_master.product_id }} = {{ #ecommerce_products.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
 where {% filter(discount_rate) %} discount_percentage {% end %}
+and {% filter(quantity) %} {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} {% end %}
 ;;
   models: [order_master, product_discount, ecommerce_products]
 }
