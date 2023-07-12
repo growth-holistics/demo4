@@ -33,6 +33,11 @@ Model product_discount {
     definition: @sql {{ product_price }}*{{ discount_percentage }};;
   }
 
+  param discount_rate {
+    label: 'Discount Rate'
+    type: 'number'
+  }
+
 
 
   owner: 'huong.le+demo4@holistics.io'
@@ -50,6 +55,8 @@ from generate_series(0,0.3,0.05) discount_percentage
   , {{ #ecommerce_products.price }} as product_price
   from {{ #ecommerce_products }}
   cross join base
+  where {% filter(discount_rate) %} discount_percentage {% end %}
+
   ;;
   models: [
     ecommerce_products
