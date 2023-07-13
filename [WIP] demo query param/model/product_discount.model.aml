@@ -41,7 +41,7 @@ Model product_discount {
 
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql with base as (
+  query: @sql  with base as (
   select
   * 
 from generate_series(0,0.3,0.05) discount_percentage
@@ -50,15 +50,12 @@ from generate_series(0,0.3,0.05) discount_percentage
 
   select 
   base.*
-  , {{ #ecommerce_products.id }} as product_id
-  , {{ #ecommerce_products.name }} as product_name
-  , {{ #ecommerce_products.price }} as product_price
-  from {{ #ecommerce_products }}
+  , {{ #products_1.id }}as product_id
+  , {{ #products_1.name }} as product_name
+  , {{ #products_1.price }} as product_price
+  from {{ #products_1 }}
   cross join base
   where {% filter(discount_rate) %} discount_percentage {% end %}
-
-  ;;
-  models: [
-    ecommerce_products
-  ]
+;;
+  models: [products_1]
 }

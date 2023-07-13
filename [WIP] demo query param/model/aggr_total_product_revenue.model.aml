@@ -76,27 +76,26 @@ Model aggr_total_product_revenue {
   }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql      select  
+  query: @sql       select  
   {{ #product_stock.order_created_month }}
   , {{ #product_stock.product_id }}
-  , {{ #ecommerce_products.name }}
-  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
-  , {{ #ecommerce_products.price }}as product_price
+  , {{ #products_1.name }}
+  , {{ #products_1.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
+  , {{ #products_1.price }}as product_price
   , {{ #product_stock.sold_quantity }}
   , {{ #product_stock.available_quantity }}
   , {{ #product_stock.total_quantity }}
-  , {{ #ecommerce_products.price }}*{{ #product_stock.sold_quantity }} as total_revenue
-  , {{ #ecommerce_products.price }}*{{ #ecommerce_categories.category_cost }}*{{ #product_stock.available_quantity }} as total_avail_product_cost
+  , {{ #products_1.price }}*{{ #product_stock.sold_quantity }} as total_revenue
+  , {{ #products_1.price }}*{{ #ecommerce_categories.category_cost }}*{{ #product_stock.available_quantity }} as total_avail_product_cost
   , {{ #product_discount.discount_cost }}*{{ #product_stock.available_quantity }} as total_avail_discount_cost
   , {{ #product_discount.discount_percentage }}
 from {{ #product_stock }}
-left join {{ #ecommerce_products }} on {{ #product_stock.product_id }} = {{ #ecommerce_products.id }}
-left join {{ #ecommerce_categories }} on {{ #ecommerce_products.category_id }} = {{ #ecommerce_categories.id }}
-left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #ecommerce_products.id }}
+left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
+left join {{ #ecommerce_categories }} on {{ #products_1.category_id }} = {{ #ecommerce_categories.id }}
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
 where {% filter(discount_rate) %} discount_percentage {% end %}
-
 ;;
-  models: [product_stock, product_discount, ecommerce_products, ecommerce_categories]
+  models: [products_1, product_stock, product_discount, ecommerce_categories]
   measure total_cost {
     label: "Total Cost"
     type: "number"
