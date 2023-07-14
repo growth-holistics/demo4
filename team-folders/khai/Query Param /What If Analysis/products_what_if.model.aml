@@ -1,0 +1,61 @@
+Model products_what_if {
+  type: 'query'
+  label: 'Products What If'
+  description: ''
+  data_source_name: 'demodb'
+  dimension category_id {
+    label: 'Category Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_id }};;
+  }
+  dimension category_name {
+    label: 'Category Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_name }};;
+  }
+  dimension total_products {
+    label: 'Total Products'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_products }};;
+  }
+  dimension profits {
+    label: 'Profit'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.profits }};;
+  }
+
+  param discount_rate_param {
+    label: 'Discount Rate Param'
+    type: 'number'
+  }
+
+  owner: 'khai.to+demo4@holistics.io'
+  query: @sql
+     with rate_table as (
+      SELECT min(rate) as rate
+      FROM generate_series(0, 1, 0.05) as rate
+      WHERE {% filter(discount_rate_param) %} rate {% end %}
+     )
+
+     select {{ #ca.id }} as category_id 
+      , {{ #ca.name }} as category_name
+      , count({{ #p.id }}) as total_products
+      , round(
+          sum( (({{ #p.price }} * (1- rate) ) - {{#p.cost}}) * {{ #oi.quantity }}
+            )
+        ) as "profits"
+    from {{ #ecommerce_order_items oi }}
+      left join {{ #ecommerce_products p }} on {{ #oi.product_id }} = {{ #p.id }}
+      left join {{ #ecommerce_categories ca }} on {{ #p.category_id }} = {{ #ca.id }}
+      join rate_table on true
+    group by 1, 2;;
+  models: [
+    ecommerce_products,
+    ecommerce_categories,
+    ecommerce_order_items
+  ]
+}
