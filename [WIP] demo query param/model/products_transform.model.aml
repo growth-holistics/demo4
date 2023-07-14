@@ -59,14 +59,15 @@ Model products_1 {
   }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql
-    with base as (
-    select 
-      *
-      , row_number() over (partition by name order by id) as idx
-    from {{ #ecommerce_products }})
+  query: @sql with base as (
+select 
+  *
+  , row_number() over (partition by name order by id) as idx
+from {{ #ecommerce_products }})
 
-    select * from base where idx = 1 ;;
+select * from base where idx = 1
+
+;;
   models: [
     ecommerce_products
   ]

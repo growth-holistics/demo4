@@ -33,30 +33,26 @@ Model product_stock {
     hidden: false
     definition: @sql {{ #SOURCE.total_quantity }};;
   }
-  dimension discount_percentage {
-    label: "Discount Percentage"
-    type: "number"
-    definition: @sql {{ #SOURCE.discount_percentage }};;
-  }
-  dimension discount_cost {
-    label: "Discount Cost"
-    type: "number"
-    definition: @sql {{ #SOURCE.discount_cost }};;
-  }
-
-  param discount_rate {
-    label: 'Discount Rate'
-    type: 'number'
-  }
+ 
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql  select 
-  {{ #order_master.order_created_month }}
-  , {{ #order_master.product_id }}
-  , {{ #order_master.quantity }} as sold_quantity
-  , {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} as available_quantity
-  , {{ #order_master.quantity }}*10 as total_quantity
-from {{ #order_master }} 
-;;
-  models: [order_master]
+  query: @sql --   select 
+--   {{ #order_master.order_created_month }}
+--   , {{ #order_master.product_id }}
+--   , {{ #order_master.quantity }} as sold_quantity
+--   , {{ #order_master.quantity }}*10 - {{ #order_master.quantity }} as available_quantity
+--   , {{ #order_master.quantity }}*10 as total_quantity
+-- from {{ #order_master }} 
+
+select 
+  date_trunc('month',date({{ #products_1.created_at }})) as order_created_month
+  , {{ #products_1.id }} as product_id
+  , {{ #ecommerce_order_items.quantity }} as sold_quantity
+  , {{ #ecommerce_order_items.quantity }}*10 - {{ #ecommerce_order_items.quantity }} as available_quantity
+  , {{ #ecommerce_order_items.quantity }}*10 as total_quantity
+from {{ #ecommerce_order_items }}  
+left join {{ #ecommerce_orders }} on {{ #ecommerce_orders.id }} = {{ #ecommerce_order_items.order_id }}
+left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_order_items.product_id }} 
+where {{ #products_1.id }} is not null ;;
+  models: [products_1, ecommerce_orders, ecommerce_order_items]
 }
