@@ -33,10 +33,16 @@ Model product_stock {
     hidden: false
     definition: @sql {{ #SOURCE.total_quantity }};;
   }
- 
+  dimension idx {
+    label: "Idx"
+    type: "number"
+    hidden: true
+    definition: @sql {{ #SOURCE.idx }};;
+  }
+
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql --   select 
+  query: @sql  --   select 
 --   {{ #order_master.order_created_month }}
 --   , {{ #order_master.product_id }}
 --   , {{ #order_master.quantity }} as sold_quantity
@@ -44,15 +50,20 @@ Model product_stock {
 --   , {{ #order_master.quantity }}*10 as total_quantity
 -- from {{ #order_master }} 
 
-select 
+with base as (
+  select 
   date_trunc('month',date({{ #products_1.created_at }})) as order_created_month
   , {{ #products_1.id }} as product_id
-  , {{ #ecommerce_order_items.quantity }} as sold_quantity
-  , {{ #ecommerce_order_items.quantity }}*10 - {{ #ecommerce_order_items.quantity }} as available_quantity
-  , {{ #ecommerce_order_items.quantity }}*10 as total_quantity
+  , sum({{ #ecommerce_order_items.quantity }}) as sold_quantity
+  , sum({{ #ecommerce_order_items.quantity }})*10 - sum({{ #ecommerce_order_items.quantity }}) as available_quantity
+  , sum({{ #ecommerce_order_items.quantity }})*10 as total_quantity
+  , row_number() over (partition by product_id) as idx
 from {{ #ecommerce_order_items }}  
 left join {{ #ecommerce_orders }} on {{ #ecommerce_orders.id }} = {{ #ecommerce_order_items.order_id }}
 left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_order_items.product_id }} 
-where {{ #products_1.id }} is not null ;;
+where {{ #products_1.id }} is not null 
+group by 1,2, {{ #ecommerce_order_items.quantity }}, {{ #ecommerce_order_items.product_id }})
+
+select * from base where idx = 1;;
   models: [products_1, ecommerce_orders, ecommerce_order_items]
 }
