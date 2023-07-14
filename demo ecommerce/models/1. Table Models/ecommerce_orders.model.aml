@@ -51,15 +51,18 @@ Model ecommerce_orders {
     definition: @sql {{ #SOURCE.created_at }}::date;;
   }
   measure total_orders_count {
-    label: 'Total Orders count'
-    type: 'number'
+    label: "Total Orders count"
+    type: "number"
     definition: @sql {{id}};;
-    aggregation_type: 'count'
+    description: "The total number of orders we received this period."
+    aggregation_type: "count"
   }
   measure delivered_orders_count {
-    label: 'Delivered Orders Count'
-    type: 'number'
+    label: "Delivered Orders Count"
+    type: "number"
     definition: @sql count( case when {{#SOURCE.status}} = 'delivered' then 1 else null end);;
+    description: "The total number of orders we delivered this period."
+    aggregation_type: "custom"
   }
   measure cancelled_orders_count {
     label: 'Cancelled Orders Count'

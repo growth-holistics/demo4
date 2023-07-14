@@ -1,0 +1,106 @@
+Model aggr_total_product_revenue {
+  type: 'query'
+  label: 'Aggr Total Product Revenue'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_created_month {
+    label: 'Order Created Month'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_month }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension product_cost {
+    label: 'Product Cost'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_cost }};;
+  }
+  dimension product_price {
+    label: 'Product Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_price }};;
+  }
+  dimension total_revenue {
+    label: 'Total Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_revenue }};;
+  }
+  dimension discount_percentage {
+    label: "Discount Percentage"
+    type: "number"
+    definition: @sql {{ #SOURCE.discount_percentage }};;
+  }
+  dimension sold_quantity {
+    label: "Sold Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.sold_quantity }};;
+  }
+  dimension available_quantity {
+    label: "Available Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.available_quantity }};;
+  }
+  dimension total_quantity {
+    label: "Total Quantity"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_quantity }};;
+  }
+  dimension total_avail_product_cost {
+    label: "Total Avail Product Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_avail_product_cost }};;
+  }
+  dimension total_avail_discount_cost {
+    label: "Total Avail Discount Cost"
+    type: "number"
+    definition: @sql {{ #SOURCE.total_avail_discount_cost }};;
+  }
+
+  param discount_rate {
+    label: 'Discount Rate'
+    type: 'number'
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  query: @sql       select  
+  {{ #product_stock.order_created_month }}
+  , {{ #product_stock.product_id }}
+  , {{ #products_1.name }}
+  , {{ #products_1.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
+  , {{ #products_1.price }}as product_price
+  , {{ #product_stock.sold_quantity }}
+  , {{ #product_stock.available_quantity }}
+  , {{ #product_stock.total_quantity }}
+  , {{ #products_1.price }}*{{ #product_stock.sold_quantity }} as total_revenue
+  , {{ #products_1.price }}*{{ #ecommerce_categories.category_cost }}*{{ #product_stock.available_quantity }} as total_avail_product_cost
+  , {{ #product_discount.discount_cost }}*{{ #product_stock.available_quantity }} as total_avail_discount_cost
+  , {{ #product_discount.discount_percentage }}
+from {{ #product_stock }}
+left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
+left join {{ #ecommerce_categories }} on {{ #products_1.category_id }} = {{ #ecommerce_categories.id }}
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
+where {% filter(discount_rate) %} discount_percentage {% end %}
+;;
+  models: [products_1, product_stock, product_discount, ecommerce_categories]
+  measure total_cost {
+    label: "Total Cost"
+    type: "number"
+    definition: @sql sum({{ product_cost }})*sum({{ sold_quantity }});;
+    description: "For sold items"
+    aggregation_type: "custom"
+  }
+}

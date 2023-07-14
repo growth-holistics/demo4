@@ -22,6 +22,45 @@ Model ecommerce_categories {
     hidden: false
     definition: @sql {{ #SOURCE.parent_id }};;
   }
+  dimension category_cost {
+    label: "Category Cost"
+    type: "number"
+    definition: @sql case
+when {{ name }} in ('Mobiles & Tablets'
+      ,'Mobiles'
+      ,'Tablets'
+      ,'Smartwatches'
+      , 'Home Entertainment'
+      , 'Gaming'
+      , 'Televisions'
+      , 'Audio Gadgets')
+then 0.5
+when {{ name }} in ('Groceries'
+                  , 'Baking and Cooking'
+                  , 'Candy'
+                  , 'Snacks'
+                  )
+then 0.25
+when {{ name }} in ('Home Furniture'
+                  , 'Kitchen and Dininng'
+                  , 'Bedroom'
+                  , 'Living Room'
+                  , 'Outdoor'
+                  , 'Bathroom'
+                  )
+then 0.5
+when {{ name }} in ('Clothes'
+                  , 'Shoes'
+                  , 'Jeans'
+                  ,'T-shirts')
+then 0.4
+when {{ name }} in ('Skin Care'
+                  , 'Face'
+                  , 'Body')
+ then 0.1
+ else '0.1' end;;
+    format: "#,###%"
+  }
 
   owner: 'ha.pham+demo4@holistics.io'
   table_name: '\"ecommerce\".\"categories\"'
