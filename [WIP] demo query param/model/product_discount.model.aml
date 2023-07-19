@@ -32,6 +32,16 @@ Model product_discount {
     type: "number"
     definition: @sql {{ product_price }}*{{ discount_percentage }};;
   }
+  dimension merchant_id {
+    label: "Merchant Id"
+    type: "number"
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension merchant_name {
+    label: "Merchant Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.merchant_name }};;
+  }
 
   param discount_rate {
     label: 'Discount Rate'
@@ -41,7 +51,7 @@ Model product_discount {
 
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql  with base as (
+  query: @sql   with base as (
   select
   * 
 from generate_series(0,0.3,0.05) discount_percentage
@@ -50,12 +60,15 @@ from generate_series(0,0.3,0.05) discount_percentage
 
   select 
   base.*
+  , {{ #products_1.merchant_id }}
+  , {{ #products_1.merchant_name }}
   , {{ #products_1.id }}as product_id
   , {{ #products_1.name }} as product_name
   , {{ #products_1.price }} as product_price
   from {{ #products_1 }}
   cross join base
-  where {% filter(discount_rate) %} discount_percentage {% end %}
-;;
-  models: [products_1]
+  where {% filter(discount_rate) %} discount_percentage {% end %};;
+  models: [
+    products_1
+  ]
 }

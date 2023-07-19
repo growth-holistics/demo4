@@ -33,6 +33,16 @@ Model product_stock {
     hidden: false
     definition: @sql {{ #SOURCE.total_quantity }};;
   }
+  dimension merchant_id {
+    label: "Merchant Id"
+    type: "number"
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension merchant_name {
+    label: "Merchant Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.merchant_name }};;
+  }
 
   param discount_rate {
     label: 'Discount Rate'
@@ -40,8 +50,10 @@ Model product_stock {
   }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql    select 
+  query: @sql select 
   date_trunc('month',{{ #ecommerce_orders.created_date }}) as order_created_month
+  , {{ #products_1.merchant_id }}
+  , {{ #products_1.merchant_name }}
   , {{ #ecommerce_products.id }} as product_id
   , sum({{ #ecommerce_order_items.quantity }}) as sold_quantity
   , sum({{ #ecommerce_order_items.quantity }})*10 - sum({{ #ecommerce_order_items.quantity }}) as available_quantity
@@ -49,6 +61,12 @@ Model product_stock {
 from {{ #ecommerce_order_items }}
 LEFT join {{ #ecommerce_orders }} on {{ #ecommerce_order_items.order_id }} = {{ #ecommerce_orders.id }}
 left join {{ #ecommerce_products }} on {{ #ecommerce_products.id }} = {{ #ecommerce_order_items.product_id }}
-group by 1,2;;
-  models: [ecommerce_orders, ecommerce_products, ecommerce_order_items]
+left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_products.id }}
+group by 1,2,3,4;;
+  models: [
+    products_1,
+    ecommerce_orders,
+    ecommerce_products,
+    ecommerce_order_items
+  ]
 }
