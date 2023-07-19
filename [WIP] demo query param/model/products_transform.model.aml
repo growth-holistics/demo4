@@ -57,18 +57,27 @@ Model products_1 {
     hidden: false
     definition: @sql {{ #SOURCE.idx }};;
   }
+  dimension merchant_name {
+    label: "Merchant Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.merchant_name }};;
+  }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql with base as (
-select 
-  *
-  , row_number() over (partition by name order by id) as idx
-from {{ #ecommerce_products }})
-
-select * from base where idx = 1
-
+  query: @sql select 
+  {{ #ecommerce_products.id }}
+  , {{ #ecommerce_products.name }}
+  , {{ #ecommerce_products.price }}
+  , {{ #ecommerce_products.product_cost }}
+  , {{ #ecommerce_products.merchant_id }}
+  , {{ #ecommerce_merchants.name }} as merchant_name
+  , {{ #ecommerce_products.created_at }}
+  , {{ #ecommerce_products.category_id }}
+from {{ #ecommerce_products }}
+left join {{ #ecommerce_merchants }} on {{ #ecommerce_products.merchant_id }} = {{ #ecommerce_merchants.id }}
 ;;
   models: [
-    ecommerce_products
+    ecommerce_products,
+    ecommerce_merchants
   ]
 }
