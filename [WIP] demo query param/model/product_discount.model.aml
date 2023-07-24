@@ -54,7 +54,8 @@ Model product_discount {
   query: @sql   with base as (
   select
   * 
-from generate_series(0,0.3,0.05) discount_percentage
+from generate_series(0,0.8,0.05) discount_percentage
+ where {% filter(discount_rate) %} discount_percentage {% end %}
 ) 
 
 
@@ -67,7 +68,7 @@ from generate_series(0,0.3,0.05) discount_percentage
   , {{ #products_1.price }} as product_price
   from {{ #products_1 }}
   cross join base
-  where {% filter(discount_rate) %} discount_percentage {% end %};;
+ ;;
   models: [
     products_1
   ]
