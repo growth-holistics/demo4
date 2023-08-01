@@ -98,6 +98,10 @@ Model aggr_total_product_revenue {
     type: "number"
     definition: @sql ({{ total_revenue_available_stock }} - {{ total_cost_available_stock }});;
   }
+  param discount_rate {
+    label: 'Discount Rate'
+    type: 'number'
+  }
 
 
 
@@ -118,7 +122,9 @@ Model aggr_total_product_revenue {
 from {{ #product_stock }}
 left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
 left join {{ #ecommerce_categories }} on {{ #products_1.category_id }} = {{ #ecommerce_categories.id }}
-left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }};;
+left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
+ where {% filter(discount_rate) %} discount_percentage {% end %}
+;;
   models: [
     products_1,
     product_stock,
