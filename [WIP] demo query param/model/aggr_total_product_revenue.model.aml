@@ -68,6 +68,36 @@ Model aggr_total_product_revenue {
     type: "number"
     definition: @sql {{ #SOURCE.discount_cost }};;
   }
+  dimension total_cost_sold {
+    label: "Total Cost Sold"
+    type: "number"
+    definition: @sql ({{ product_cost }}*{{ sold_quantity }});;
+  }
+  dimension total_revenue_sold {
+    label: "Total Revenue Sold"
+    type: "number"
+    definition: @sql ({{ product_price }}*{{ sold_quantity }});;
+  }
+  dimension total_profit_sold {
+    label: "Total Profit Sold"
+    type: "number"
+    definition: @sql ({{ total_revenue_sold }} - {{ total_cost_sold }});;
+  }
+  dimension total_cost_available_stock {
+    label: "Total Cost Available Stock"
+    type: "number"
+    definition: @sql ({{ product_cost }}*{{ available_quantity }}) + ({{ discount_cost }}*{{ available_quantity }});;
+  }
+  dimension total_revenue_available_stock {
+    label: "Total Revenue Available Stock"
+    type: "number"
+    definition: @sql coalesce({{ product_price }}*{{ available_quantity }},0);;
+  }
+  dimension total_profit_available_stock {
+    label: "Total Profit Available Stock"
+    type: "number"
+    definition: @sql ({{ total_revenue_available_stock }} - {{ total_cost_available_stock }});;
+  }
 
 
 
@@ -95,44 +125,4 @@ left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #pr
     product_discount,
     ecommerce_categories
   ]
-  measure total_cost {
-    label: "Total Cost (for sold items)"
-    type: "number"
-    definition: @sql ({{ product_cost }}*{{ sold_quantity }});;
-    description: "For sold items"
-    aggregation_type: "custom"
-  }
-  measure total_revenue_avail_stock {
-    label: "Total Revenue for available stock"
-    type: "number"
-    definition: @sql coalesce({{ product_price }}*{{ available_quantity }},0);;
-    aggregation_type: "custom"
-  }
-  measure total_profit_sold {
-    label: "Total Profit Sold"
-    type: "number"
-    definition: @sql ({{ total_revenue }} - {{ total_cost }});;
-    aggregation_type: "custom"
-  }
-  measure total_cost_avail {
-    label: "Total Cost (for available items)"
-    type: "number"
-    definition: @sql ({{ product_cost }}*{{ available_quantity }}) + ({{ discount_cost }}*{{ available_quantity }});;
-    description: "For available items"
-    aggregation_type: "custom"
-  }
-  measure total_profit_available {
-    label: "Total Profit Available"
-    type: "number"
-    definition: @sql ({{ total_revenue_avail_stock }} - {{ total_cost_avail }});;
-    description: "For available items"
-    aggregation_type: "custom"
-  }
-  measure total_revenue {
-    label: "Total Revenue"
-    type: "number"
-    definition: @sql ({{ product_price }}*{{ sold_quantity }});;
-    description: "for sold items\n"
-    aggregation_type: "sum"
-  }
 }
