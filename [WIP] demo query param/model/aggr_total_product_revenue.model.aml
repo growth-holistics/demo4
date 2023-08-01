@@ -98,40 +98,40 @@ left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #pr
   measure total_cost {
     label: "Total Cost (for sold items)"
     type: "number"
-    definition: @sql sum({{ product_cost }}*{{ sold_quantity }});;
+    definition: @sql ({{ product_cost }}*{{ sold_quantity }});;
     description: "For sold items"
     aggregation_type: "custom"
   }
   measure total_revenue_avail_stock {
     label: "Total Revenue for available stock"
     type: "number"
-    definition: @sql coalesce(sum({{ product_price }}*{{ available_quantity }}),0);;
+    definition: @sql coalesce({{ product_price }}*{{ available_quantity }},0);;
     aggregation_type: "custom"
   }
   measure total_profit_sold {
     label: "Total Profit Sold"
     type: "number"
-    definition: @sql sum({{ total_revenue }} - {{ total_cost }});;
+    definition: @sql ({{ total_revenue }} - {{ total_cost }});;
     aggregation_type: "custom"
   }
   measure total_cost_avail {
     label: "Total Cost (for available items)"
     type: "number"
-    definition: @sql sum({{ product_cost }}*{{ available_quantity }}) + sum({{ discount_cost }}*{{ available_quantity }});;
+    definition: @sql ({{ product_cost }}*{{ available_quantity }}) + ({{ discount_cost }}*{{ available_quantity }});;
     description: "For available items"
     aggregation_type: "custom"
   }
   measure total_profit_available {
     label: "Total Profit Available"
     type: "number"
-    definition: @sql sum({{ total_revenue_avail_stock }} - {{ total_cost_avail }});;
+    definition: @sql ({{ total_revenue_avail_stock }} - {{ total_cost_avail }});;
     description: "For available items"
     aggregation_type: "custom"
   }
   measure total_revenue {
     label: "Total Revenue"
     type: "number"
-    definition: @sql sum({{ product_price }}*{{ sold_quantity }});;
+    definition: @sql ({{ product_price }}*{{ sold_quantity }});;
     description: "for sold items\n"
     aggregation_type: "sum"
   }
