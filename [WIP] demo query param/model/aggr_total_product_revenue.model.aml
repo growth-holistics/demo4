@@ -15,12 +15,6 @@ Model aggr_total_product_revenue {
     hidden: false
     definition: @sql {{ #SOURCE.product_id }};;
   }
-  dimension name {
-    label: 'Name'
-    type: 'text'
-    hidden: false
-    definition: @sql {{ #SOURCE.name }};;
-  }
   dimension product_cost {
     label: 'Product Cost'
     type: 'number'
@@ -98,6 +92,11 @@ Model aggr_total_product_revenue {
     type: "number"
     definition: @sql ({{ total_revenue_available_stock }} - {{ total_cost_available_stock }});;
   }
+  dimension product_name {
+    label: "Product Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.product_name }};;
+  }
   param discount_rate {
     label: 'Discount Rate'
     type: 'number'
@@ -106,11 +105,11 @@ Model aggr_total_product_revenue {
 
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql   select  
+  query: @sql    select  
   {{ #product_stock.order_created_month }}
   , {{ #product_stock.product_id }}
-  , {{ #products_1.name }}
-  , {{ #products_1.price }}*{{ #ecommerce_categories.category_cost }} as product_cost
+  , {{ #products_1.product_name }}
+  , {{ #products_1.product_cost }}
   , {{ #products_1.price }}as product_price
   , {{ #product_stock.sold_quantity }}
   , {{ #product_stock.available_quantity }}
@@ -121,14 +120,11 @@ Model aggr_total_product_revenue {
   , {{ #products_1.merchant_name }}
 from {{ #product_stock }}
 left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
-left join {{ #ecommerce_categories }} on {{ #products_1.category_id }} = {{ #ecommerce_categories.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
- where {% filter(discount_rate) %} discount_percentage {% end %}
-;;
+ where {% filter(discount_rate) %} discount_percentage {% end %};;
   models: [
     products_1,
     product_stock,
-    product_discount,
-    ecommerce_categories
+    product_discount
   ]
 }
