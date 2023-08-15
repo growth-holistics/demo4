@@ -33,6 +33,12 @@ Model subgroup_categories {
     definition: @sql {{ product_values }} / {{ total_up }};;
     format: "#,###0.00%"
   }
+
+  dimension created_at {
+    label: 'Created AT'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.created_at }} ;;
+  }
   
   param date_param {
     label: 'Date Param'
@@ -50,6 +56,7 @@ Model subgroup_categories {
     with base as (
      select 
       ca.name as category_name 
+      , o.created_at 
       , count(oi.quantity) as total_quantity 
       , sum(p.price * oi.quantity) as product_values
      from ecommerce.order_items oi 
@@ -58,7 +65,7 @@ Model subgroup_categories {
       left join ecommerce.categories ca on p.category_id = ca.id
      where {% filter(date_param) %} o.created_at {% end %}
       and {% filter(status_param) %} o.status {% end %}
-     group by 1)
+     group by 1, 2)
      
     , total_up as (
       select
@@ -66,7 +73,8 @@ Model subgroup_categories {
       from base
     )
     select 
-      category_name 
+      category_name
+      , created_at 
       , product_values
       , total_quantity
       , total_up
