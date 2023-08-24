@@ -50,13 +50,6 @@ Model ecommerce_orders {
     hidden: false
     definition: @sql {{ #SOURCE.created_at }}::date;;
   }
-  measure total_orders_count {
-    label: "Total Orders count"
-    type: "number"
-    definition: @sql {{id}};;
-    description: "The total number of orders we received this period."
-    aggregation_type: "count"
-  }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
     type: "number"
@@ -73,5 +66,27 @@ Model ecommerce_orders {
     label: 'Refunded Orders Count'
     type: 'number'
     definition: @sql count(distinct case when {{status}} = 'refunded' then {{id}} else null end);;
+  }
+
+  measure total_order {
+    label: "total_orders_count"
+    type: "number"
+    definition: @sql {{ id }};;
+    description: "This is the description"
+    aggregation_type: "count"
+  }
+
+  measure total_orders_count {
+    label: "Total Orders Count"
+    type: "number"
+    definition: @sql {{ id }};;
+    description: "This is the description"
+    aggregation_type: "count"
+  }
+
+  measure first_order_date {
+    label: "First Order Date"
+    type: "datetime"
+    definition: @sql min({{ created_at }}) ;;
   }
 }

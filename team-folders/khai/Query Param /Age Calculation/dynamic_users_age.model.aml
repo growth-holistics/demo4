@@ -1,0 +1,113 @@
+Model dynamic_users_age {
+  type: 'query'
+  label: 'User Details'
+  description: ''
+  data_source_name: 'demodb'
+  dimension full_name {
+    label: 'Full Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.full_name }};;
+  }
+  dimension gender {
+    label: 'Gender'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.gender }};;
+  }
+
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }} ;;
+  }
+  dimension birth_date {
+    label: 'Birth Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.birth_date }};;
+  }
+  dimension city_id {
+    label: 'City Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.city_id }};;
+  }
+  dimension order_status {
+    label: 'Order Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_status }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  dimension age {
+    label: 'Age'
+    type: 'number'
+    definition: @sql {{ #SOURCE.age }};;
+  }
+
+  dimension dynamic_age {
+    label: 'Dynamic Age'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.dynamic_age }};;
+  }
+
+  dimension dynamic_age_group {
+    label: 'Dynamic Age Group'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.dynamic_age_group }};;
+  }
+
+  measure total_users {
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{user_id}} ;;
+    aggregation_type: 'count'
+  }
+
+  param date_param {
+    label: 'Date Param'
+    type: 'date'
+  }
+
+  owner: 'khai.to+demo4@holistics.io'
+  query: @sql
+    with dynamic_age as (
+      SELECT MAX(date_trunc('day', dd):: date) as date
+      FROM generate_series
+              ( '1970-01-01'::timestamp 
+              , '2025-01-01'::timestamp
+              , '1 day'::interval) dd
+      WHERE {% filter(date_param) %} date_trunc('day', dd):: date  {% end %}
+    )
+
+    select u.full_name, u.id as user_id
+      , u.gender
+      , u.birth_date
+      , u.city_id
+      , o.status as order_status
+      , o.created_at
+      , (date_part('year', current_date ) - date_part('year', u.birth_date)) as age
+      , (date_part('year', date ) - date_part('year', u.birth_date)) as dynamic_age
+      , CASE 
+          WHEN (date_part('year', da.date ) - date_part('year', u.birth_date)) < 19 then '< 19 Years Old'
+          WHEN (date_part('year', da.date ) - date_part('year', u.birth_date)) between 19 and 34 THEN '19-34 Years Old'
+          WHEN (date_part('year', da.date ) - date_part('year', u.birth_date)) > 34 THEN 'Old VCL'
+        END as dynamic_age_group
+    from ecommerce.orders o 
+      left join ecommerce.users u on o.user_id = u.id
+      join dynamic_age da on true
+    ;;
+  models: [
+  ]
+}
