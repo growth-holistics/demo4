@@ -101,6 +101,10 @@ Model aggr_total_product_revenue {
     label: 'Discount Rate'
     type: 'number'
   }
+  param category_name {
+    label: "Category Name",
+    type: "text"
+  }
 
 
 
@@ -121,7 +125,8 @@ Model aggr_total_product_revenue {
 from {{ #product_stock }}
 left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
- where {% filter(discount_rate) %} discount_percentage {% end %};;
+ where {% filter(discount_rate) %} discount_percentage {% end %}
+ and {% filter(category_name) %} category_name {% end %};;
   models: [
     products_1,
     product_stock,
