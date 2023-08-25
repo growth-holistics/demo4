@@ -105,7 +105,10 @@ Model aggr_total_product_revenue {
     label: "Category Param",
     type: "text"
   }
-
+  param date_param {
+    label: "Date Param"
+    type: "datetime"
+  }
 
 
   owner: 'huong.le+demo4@holistics.io'
@@ -123,11 +126,13 @@ Model aggr_total_product_revenue {
   , {{ #product_discount.discount_cost }}
   , {{ #products_1.merchant_id }}
   , {{ #products_1.merchant_name }}
+  , {{ #product_stock.order_created_month }} as date_stuff
 from {{ #product_stock }}
 left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
  where {% filter(discount_rate) %} discount_percentage {% end %}
- and {% filter(category_param) %} category_name {% end %};;
+ and {% filter(category_param) %} category_name {% end %}
+ and {% filter (date_param) %} date_stuff {% end %};;
   models: [
     products_1,
     product_stock,
