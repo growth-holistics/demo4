@@ -97,12 +97,18 @@ Model aggr_total_product_revenue {
     type: "text"
     definition: @sql {{ #SOURCE.product_name }};;
   }
+  dimension category_name {
+    label: "Category Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.category_name }} ;;
+  }
+
   param discount_rate {
     label: 'Discount Rate'
     type: 'number'
   }
-  param category_name {
-    label: "Category Name",
+  param category_param {
+    label: "Category Param",
     type: "text"
   }
 
@@ -126,7 +132,7 @@ from {{ #product_stock }}
 left join {{ #products_1 }} on {{ #product_stock.product_id }} = {{ #products_1.id }}
 left join {{ #product_discount }} on {{ #product_discount.product_id }} = {{ #products_1.id }}
  where {% filter(discount_rate) %} discount_percentage {% end %}
- and {% filter(category_name) %} category_name {% end %};;
+ and {% filter(category_param) %} category_name {% end %};;
   models: [
     products_1,
     product_stock,
