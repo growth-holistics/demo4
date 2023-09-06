@@ -99,11 +99,13 @@ end;;
 end;;
     description: "Grouping of the age demographics by age group\nUnder 20\n21-30\n31-40\nAbove 40"
   }
-  dimension fixed_date_datum {
-    label: "Fixed Date Datum"
-    type: "date"
-    definition: @sql TO_DATE("2022-11-25", 'YYYY-MM-DD');;
-    format: "yyyy-LL-dd"
+  dimension date_datum {
+    label: "Date Datum"
+    type: "text"
+    definition: @sql  case
+  when {{ id }} is not null then to_date('2022-11-25', 'YYYY-MM-DD')
+  else to_date('2022-11-25', 'YYYY-MM-DD')
+end;;
   }
 
 
@@ -119,6 +121,13 @@ end;;
     type: "number"
     definition: @sql count({{ id }});;
     hidden: false
+  }
+  measure date_datum_2 {
+    label: "Date Datum 2"
+    type: "date"
+    definition: @sql cast('2022-11-25' as date);;
+    aggregation_type: "custom"
+    format: "LLL dd yyyy"
   }
   owner: "vincent+demo4@holistics.io"
   table_name: '\"ecommerce\".\"users\"'
