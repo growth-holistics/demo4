@@ -50,11 +50,6 @@ Model ecommerce_orders {
     hidden: false
     definition: @sql {{ #SOURCE.created_at }}::date;;
   }
-  dimension days_since_last_order {
-    label: "Days Since Last Order"
-    type: "number"
-    definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
-  }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
     type: "number"
@@ -93,5 +88,11 @@ Model ecommerce_orders {
     label: "First Order Date"
     type: "datetime"
     definition: @sql min({{ created_at }}) ;;
+  }
+  measure days_since_last_order {
+    label: "Days Since Last Order"
+    type: "number"
+    definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
+    aggregation_type: "custom"
   }
 }
