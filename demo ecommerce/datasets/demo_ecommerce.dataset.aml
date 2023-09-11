@@ -14,10 +14,73 @@ Dataset demo_ecommerce {
     ecommerce_countries,
     map_categories,
     user_cohort_retention,
-    dim_dates
+    dim_dates,
+    transform_order_items
   ]
-  
 
+  // view: Arranging view in dataset for business users
+
+  view {
+    model ecommerce_users {
+
+      group ID {
+        field id
+        field city_id
+      }
+
+      group demographics {
+        field age_group
+        field age
+        field gender
+      }
+
+      group PII {
+        field first_name
+        field last_name
+        field email
+        field full_name
+      }
+
+      group activity {
+        field sign_up_at
+        field sign_up_date
+      }
+
+      group metrics {
+        field total_users
+        field users_signed_up_count
+      }
+
+    }
+
+    model ecommerce_orders {
+      field total_orders_count
+      field created_at
+      field discount
+      field status
+      field days_since_last_order
+
+      group order_status_tracking {
+        field created_date
+        field delivered_orders_count
+        field cancelled_orders_count
+        field refunded_orders_count
+      }
+      group others {
+        field delivery_attempts
+      }
+    }
+
+    model order_master
+    model ecommerce_products
+    model ecommerce_merchants
+    model ecommerce_cities
+    model ecommerce_countries
+    model map_categories
+    model user_cohort_retention
+    model dim_dates
+  }
+    
   relationships: [
     relationship(ecommerce_cities_ecommerce_countries, true),
     relationship(ecommerce_orders_dim_dates, true),

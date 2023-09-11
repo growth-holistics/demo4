@@ -68,10 +68,19 @@ Model ecommerce_orders {
     definition: @sql count(distinct case when {{status}} = 'refunded' then {{id}} else null end);;
   }
 
-  measure count_orders {
-    label: 'Count Orders'
+  measure total_order {
+    label: "total_orders_count"
     type: "number"
-    definition: @sql {{id}} ;;
+    definition: @sql {{ id }};;
+    description: "This is the description"
+    aggregation_type: "count"
+  }
+
+  measure total_orders_count {
+    label: "Total Orders Count"
+    type: "number"
+    definition: @sql {{ id }};;
+    description: "This is the description"
     aggregation_type: "count"
   }
 
@@ -79,5 +88,11 @@ Model ecommerce_orders {
     label: "First Order Date"
     type: "datetime"
     definition: @sql min({{ created_at }}) ;;
+  }
+  measure days_since_last_order {
+    label: "Days Since Last Order"
+    type: "number"
+    definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
+    aggregation_type: "custom"
   }
 }
