@@ -8,7 +8,8 @@ Dashboard demo_ecommerce_overview {
 </div>;;
   }
   block t2: TextBlock {
-    content: @md <picture>
+    content: @md <div>
+<picture>
 <source media="(min-width:650px)" srcset="https://cdn.holistics.io/landing/logo-color.svg">
 <img style=" display: block;
 margin-left: auto;
@@ -18,7 +19,8 @@ width: 50%;" src="holisticswhitelabeldemo.jpg" alt="demo" width="400" height="15
 
 <p align=center>
 This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors. If you have questions about the data here, please contact the <a href ="mailto:data@holistics.io"> data team </a>.
-</body>;;
+</p>
+</div>;;
   }
   block t3: TextBlock {
     content: @md <img style="
@@ -134,9 +136,6 @@ display: block;
           }
         }
       ]
-      settings {
-        max_column: 3
-      }
     }
   }
   block v2: VizBlock {
@@ -226,11 +225,24 @@ display: block;
               pattern: 'inherited'
             }
           }
+          settings {
+            point {
+              value: 'cancelled'
+              color: '#255DD4'
+            }
+            point {
+              value: 'delivered'
+              color: '#18A59E'
+            }
+            point {
+              value: 'refunded'
+              color: '#07326C'
+            }
+          }
         }
       }
     }
   }
-
   block v3: VizBlock {
     label: 'Age Demographic'
     viz: ColumnChart {
@@ -261,20 +273,17 @@ display: block;
             color: '#07326C'
             point {
               value: 'Female'
-              color: '#64628c'
-  // color: 'RED'
+              color: '#255DD4'
             }
             point {
               value: 'Male'
-              color: '#FB8761'
-  // color: 'BLUE'
+              color: '#18A59E'
             }
           }
         }
       }
     }
   }
-
   block v4: VizBlock {
     label: 'Sales Funnel'
     viz: ConversionFunnel {
@@ -310,6 +319,10 @@ display: block;
           }
         }
       ]
+      settings {
+        circle_color: '#F2B602'
+        columns_color: '#255DD4'
+      }
     }
   }
   block v5: VizBlock {
@@ -495,6 +508,14 @@ display: block;
           }
         }
       }
+      settings {
+        pop {
+          field: ref('order_master', 'order_created_at')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
     }
   }
   block f2: FilterBlock {
@@ -505,21 +526,33 @@ display: block;
       value: '12 months ago to last month end'
     }
   }
+  block f3: FilterBlock {
+    label: 'Product category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1150
     height: 2680
     block t1 {
-      position: pos(20, 70, 360, 150)
+      position: pos(20, 30, 350, 170)
     }
     block t2 {
-      position: pos(390, 70, 420, 160)
+      position: pos(380, 30, 450, 170)
     }
     block t3 {
-      position: pos(820, 60, 310, 170)
+      position: pos(840, 30, 290, 170)
     }
     block f1 {
-      position: pos(20, 240, 550, 80)
+      position: pos(20, 220, 300, 80)
     }
     block v1 {
       position: pos(20, 320, 1110, 380)
@@ -555,7 +588,10 @@ display: block;
       position: pos(570, 2280, 560, 380)
     }
     block f2 {
-      position: pos(580, 240, 550, 80)
+      position: pos(820, 220, 310, 80)
+    }
+    block f3 {
+      position: pos(340, 220, 300, 80)
     }
   }
   interactions: [
