@@ -51,22 +51,22 @@ Model product_stock {
 
   owner: 'huong.le+demo4@holistics.io'
   query: @sql select 
-  date_trunc('month',{{ #ecommerce_orders.created_date }}) as order_created_month
+  date_trunc('month',{{ #orders.created_date }}) as order_created_month
   , {{ #products_1.merchant_id }}
   , {{ #products_1.merchant_name }}
-  , {{ #ecommerce_products.id }} as product_id
-  , sum({{ #ecommerce_order_items.quantity }}) as sold_quantity
-  , sum({{ #ecommerce_order_items.quantity }})*10 - sum({{ #ecommerce_order_items.quantity }}) as available_quantity
-  , sum({{ #ecommerce_order_items.quantity }})*10 as total_quantity
-from {{ #ecommerce_order_items }}
-LEFT join {{ #ecommerce_orders }} on {{ #ecommerce_order_items.order_id }} = {{ #ecommerce_orders.id }}
-left join {{ #ecommerce_products }} on {{ #ecommerce_products.id }} = {{ #ecommerce_order_items.product_id }}
-left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_products.id }}
+  , {{ #products.id }} as product_id
+  , sum({{ #order_items.quantity }}) as sold_quantity
+  , sum({{ #order_items.quantity }})*10 - sum({{ #order_items.quantity }}) as available_quantity
+  , sum({{ #order_items.quantity }})*10 as total_quantity
+from {{ #order_items }}
+LEFT join {{ #orders }} on {{ #order_items.order_id }} = {{ #orders.id }}
+left join {{ #products }} on {{ #products.id }} = {{ #order_items.product_id }}
+left join {{ #products_1 }} on {{ #products_1.id }} = {{ #products.id }}
 group by 1,2,3,4;;
   models: [
     products_1,
-    ecommerce_orders,
-    ecommerce_products,
-    ecommerce_order_items
+    orders,
+    products,
+    order_items
   ]
 }

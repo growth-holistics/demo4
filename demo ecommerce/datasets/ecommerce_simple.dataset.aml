@@ -1,0 +1,22 @@
+Dataset ecommerce_simple {
+  label: 'Ecommerce Simple'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    orders,
+    order_items, 
+    products,
+  ]
+  relationships: [
+    relationship(order_items.order_id > orders.id, true),
+    relationship(order_items.product_id > products.id, true)
+  ]
+
+  metric revenue {
+    label: 'Revenue'
+    type: 'number'
+    definition: @aql order_items | sum(order_items.quantity * products.price) ;;
+  }
+
+  owner: 'ha.pham+demo4@holistics.io'
+}

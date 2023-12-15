@@ -4,8 +4,8 @@ Model buyer_facts_daily {
   description: ''
   data_source_name: 'demodb'
   models: [
-    ecommerce_users,
-    ecommerce_orders,
+    users,
+    orders,
     order_master
   ]
   query: @sql
@@ -20,8 +20,8 @@ Model buyer_facts_daily {
         , sum(case when {{ #oi.status }} in ('cancelled', 'refunded') then 0 else {{ #oi.price }} end) as nmv
         
       from {{ #order_master oi }}  
-      left join {{ #ecommerce_orders o }} on {{#o.id}} = {{#oi.order_id}}
-      left join {{#ecommerce_users u }} on {{#o.user_id}} = {{#u.id}}
+      left join {{ #orders o }} on {{#o.id}} = {{#oi.order_id}}
+      left join {{#users u }} on {{#o.user_id}} = {{#u.id}}
       group by 1, 2, 3
     )
 

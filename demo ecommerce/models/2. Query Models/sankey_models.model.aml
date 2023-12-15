@@ -32,12 +32,12 @@ Model sankey_models {
     end
     as target
   , count({{ #o.id }}) as order_counts
-from {{ #ecommerce_orders o}} 
-left join {{ #ecommerce_order_items i }} on {{ #o.id }} = {{ #i.order_id}}
-left join {{ #ecommerce_products p }} on {{ #i.product_id}} = {{ #p.id }} 
-left join {{ #ecommerce_merchants m }} on {{ #p.merchant_id}} = {{ #m.id }} 
-left join {{ #ecommerce_cities ci }} on {{ #m.city_id }} = {{ #ci.id }} 
-left join {{ #ecommerce_countries c }} on {{ #ci.country_code }} = {{ #c.code}}
+from {{ #orders o}} 
+left join {{ #order_items i }} on {{ #o.id }} = {{ #i.order_id}}
+left join {{ #products p }} on {{ #i.product_id}} = {{ #p.id }} 
+left join {{ #merchants m }} on {{ #p.merchant_id}} = {{ #m.id }} 
+left join {{ #cities ci }} on {{ #m.city_id }} = {{ #ci.id }} 
+left join {{ #countries c }} on {{ #ci.country_code }} = {{ #c.code}}
 group by 1,2
 
 union all 
@@ -50,12 +50,12 @@ union all
       else {{ #ci.name }}
       end as target
   , count({{ #o.id }}) as order_counts
-from {{ #ecommerce_orders o}} 
-left join {{ #ecommerce_order_items i }} on {{ #o.id }} = {{ #i.order_id}}
-left join {{ #ecommerce_products p }} on {{ #i.product_id}} = {{ #p.id }} 
-left join {{ #ecommerce_merchants m }} on {{ #p.merchant_id}} = {{ #m.id }} 
-left join {{ #ecommerce_cities ci }} on {{ #m.city_id }} = {{ #ci.id }} 
-left join {{ #ecommerce_countries c }} on {{ #ci.country_code }} = {{ #c.code}}
+from {{ #orders o}} 
+left join {{ #order_items i }} on {{ #o.id }} = {{ #i.order_id}}
+left join {{ #products p }} on {{ #i.product_id}} = {{ #p.id }} 
+left join {{ #merchants m }} on {{ #p.merchant_id}} = {{ #m.id }} 
+left join {{ #cities ci }} on {{ #m.city_id }} = {{ #ci.id }} 
+left join {{ #countries c }} on {{ #ci.country_code }} = {{ #c.code}}
 group by 1,2;;
-  models: [ecommerce_cities, ecommerce_orders, ecommerce_products, ecommerce_countries, ecommerce_merchants, ecommerce_order_items]
+  models: [cities, orders, products, countries, merchants, order_items]
 }

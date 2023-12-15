@@ -6,12 +6,12 @@ Dataset demo_ecommerce {
 
   models: [
     order_master,
-    ecommerce_orders,
-    ecommerce_users,
-    ecommerce_products,
-    ecommerce_merchants,
-    ecommerce_cities,
-    ecommerce_countries,
+    orders,
+    users,
+    products,
+    merchants,
+    cities,
+    countries,
     map_categories,
     user_cohort_retention,
     dim_dates,
@@ -21,7 +21,7 @@ Dataset demo_ecommerce {
   // view: Arranging view in dataset for business users
 
   view {
-    model ecommerce_users {
+    model users {
 
       group ID {
         field id
@@ -53,7 +53,7 @@ Dataset demo_ecommerce {
 
     }
 
-    model ecommerce_orders {
+    model orders {
       field total_orders_count
       field created_at
       field discount
@@ -72,34 +72,34 @@ Dataset demo_ecommerce {
     }
 
     model order_master
-    model ecommerce_products
-    model ecommerce_merchants
-    model ecommerce_cities
-    model ecommerce_countries
+    model products
+    model merchants
+    model cities
+    model countries
     model map_categories
     model user_cohort_retention
     model dim_dates
   }
     
   relationships: [
-    relationship(ecommerce_cities_ecommerce_countries, true),
-    relationship(ecommerce_orders_dim_dates, true),
-    relationship(ecommerce_orders_ecommerce_users, true),
-    relationship(ecommerce_products_map_categories, true),
-    relationship(ecommerce_users_ecommerce_cities, true),
-    relationship(order_master_ecommerce_merchants, true),
-    relationship(order_master_ecommerce_orders, true),
-    relationship(order_master_ecommerce_products, true)
+    // relationship(cities_countries, true),
+    // relationship(orders_dim_dates, true),
+    // relationship(orders_users, true),
+    // relationship(products_map_categories, true),
+    // relationship(users_cities, true),
+    // relationship(order_master_merchants, true),
+    // relationship(order_master_orders, true),
+    // relationship(order_master_products, true)
   ]
 
   // relationships: [
-  //   rel(rel_expr: ecommerce_orders.order_created_date > dim_dates.date_d, active: true),
-  //   rel(rel_expr: order_master.user_id - ecommerce_orders.user_id, active: true),
-  //   rel(rel_expr: ecommerce_products.category_id > map_categories.category_id, active: true),
-  //   rel(rel_expr: ecommerce_users.city_id > ecommerce_cities.id, active: true),
-  //   rel(rel_expr: order_master.product_id > ecommerce_products.id, active: true),
-  //   rel(rel_expr: order_master.merchant_id > ecommerce_merchants.id, active: true),
-  //   rel(rel_expr: ecommerce_cities.country_code > ecommerce_countries.code, active: true),
-  //   rel(rel_expr: ecommerce_orders.user_id > ecommerce_users.id, active: true)
+  //   rel(rel_expr: orders.order_created_date > dim_dates.date_d, active: true),
+  //   rel(rel_expr: order_master.user_id - orders.user_id, active: true),
+  //   rel(rel_expr: products.category_id > map_categories.category_id, active: true),
+  //   rel(rel_expr: users.city_id > cities.id, active: true),
+  //   rel(rel_expr: order_master.product_id > products.id, active: true),
+  //   rel(rel_expr: order_master.merchant_id > merchants.id, active: true),
+  //   rel(rel_expr: cities.country_code > countries.code, active: true),
+  //   rel(rel_expr: orders.user_id > users.id, active: true)
   // ]
 }

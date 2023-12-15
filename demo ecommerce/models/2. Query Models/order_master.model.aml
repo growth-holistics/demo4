@@ -6,9 +6,9 @@ Model order_master {
   data_source_name: 'demodb'
 
   models: [
-    ecommerce_orders,
-    ecommerce_order_items,
-    ecommerce_products
+    orders,
+    order_items,
+    products
   ]
 
   query: @sql                
@@ -24,9 +24,9 @@ Model order_master {
     , {{#p.price}}
     , {{#p.merchant_id}}
     , {{ #oi.order_id }} as test_broken
-  from {{ #ecommerce_order_items AS oi }} 
-  left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
-  left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}}
+  from {{ #order_items AS oi }} 
+  left join {{ #orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+  left join {{ #products AS p }} on {{#oi.product_id}} = {{#p.id}}
   ;;
   
   dimension order_id {
