@@ -1,0 +1,453 @@
+Dashboard e_commerce_business_metrics {
+  title: 'eCommerce Business Metrics'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 2740
+    block t1 {
+      position: pos(20, 10, 690, 90)
+    }
+    block f1 {
+      position: pos(20, 90, 300, 80)
+    }
+    block f1_dup {
+      position: pos(330, 90, 300, 80)
+    }
+    block t2 {
+      position: pos(20, 150, 1160, 210)
+    }
+    block f2 {
+      position: pos(640, 90, 300, 80)
+    }
+    block v1 {
+      position: pos(20, 370, 1160, 270)
+    }
+    block t3 {
+      position: pos(20, 640, 361, 40)
+    }
+    block v2 {
+      position: pos(20, 760, 510, 310)
+    }
+    block v3 {
+      position: pos(530, 760, 650, 310)
+    }
+    block v4 {
+      position: pos(20, 1410, 1160, 330)
+    }
+    block t4 {
+      position: pos(20, 690, 1160, 60)
+    }
+    block v5 {
+      position: pos(20, 2350, 1160, 370)
+    }
+    block t5 {
+      position: pos(20, 1750, 114, 40)
+    }
+    block t6 {
+      position: pos(20, 1800, 1160, 80)
+    }
+    block v6 {
+      position: pos(20, 1890, 630, 460)
+    }
+    block v7 {
+      position: pos(650, 1890, 530, 460)
+    }
+    block v8 {
+      position: pos(20, 1090, 1160, 300)
+    }
+  }
+  block t1: TextBlock {
+    content: @md <h1> eCommerce Business Metrics Dashboard </h1>
+Published  <strong>November 23rd, 2023</strong> by <strong>Nam Tran</strong>;;
+  }
+  block f1: FilterBlock {
+    label: 'Customer Age Demographic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f1_dup: FilterBlock {
+    label: 'Product Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t2: TextBlock {
+    content: @md   <h2>Orders and Sales</h2>
+<p><em>All metrics over the last 30 days.</em></p>
+
+<p>Orders are looking good, with an expected spike in early December holiday purchases. Most recent days has dropped back down, but is expected to climb as data comes in for the current week.
+
+On target to hit $2M 30-day sales by the end of the year.</p>
+Returns are growing linearly with orders, nothing out of the ordinary.
+
+See more: 
+[Order Distribution by Region](https://demo4.holistics.io/datasets/14226-demo-ecommerce-official/15uAzr9K)
+;;
+  }
+  block f2: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 1 year'
+    }
+  }
+  block v1: VizBlock {
+    label: 'Sales'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#5CC863'
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('order_master', 'order_created_date')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <h2>User Distribution </h2>;;
+  }
+  block v2: age_demographic
+
+  block v3: VizBlock {
+    label: 'Geographic Distribution'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          ref: ref('ecommerce_users', 'total_users')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Big Customers (Whales) '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'user_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders Value'
+          ref: ref('order_master', 'revenue_delivered')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md  Our customer pool concentrated in the US, Asia, Europe and Australia wiht the age demographic between Under 20 and from 20-29
+
+The 100 biggest customers are mostly in the US, Europe and Asia with the age demographic Under 20 and from 20-29;;
+  }
+  block v5: VizBlock {
+    label: 'Best Selling Products'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block t5: TextBlock {
+    content: @md <h2>Products and Orders</h2>;;
+  }
+  block t6: TextBlock {
+    content: @md <p>With 6 parents product categories, we achieve sales of <strong>5,5 Millions dolars</strong> in 2023.</p>
+
+Although the top 5 selling products are from Skin Care category, the 3 leading categories are <strong>Home Entertainment (26.07%), Mobile and Tablets (23.13%) and Home Furniture (20.49%).</strong>
+
+Our product margin keep upflow at <strong>60-70%</strong>;;
+  }
+  block v6: VizBlock {
+    label: 'Product Category by Revenue Share'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          ref: ref('order_master', 'revenue_delivered')
+          aggregation: 'custom'
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Product Margin'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_818f24a {
+        label: 'Product Margin By %'
+        formula: @aml 100*(ecommerce_products.price - ecommerce_products.cost)/ecommerce_products.price;;
+        calc_type: 'dimension'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_818f24a'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'GMV by Age Demographic & Gender'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'gmv')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'gmv')
+            aggregation: 'custom'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 4500000
+              }
+              text_color: '#000000'
+              background_color: '#62ADD4'
+            }
+          }
+        ]
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1_dup'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v6'
+          ]
+          field: ref('ecommerce_orders', 'created_date')
+        },
+        CustomMapping {
+          block: [
+            'v2',
+            'v3',
+            'v4'
+          ]
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: 'v7'
+          field: ref('ecommerce_products', 'created_at')
+        }
+      ]
+    }
+  ]
+}
