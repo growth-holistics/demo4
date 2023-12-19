@@ -1,0 +1,182 @@
+Dashboard test_dashboard {
+  title: 'Test Dashboard'
+  description: ''''''
+
+  block text_block: TextBlock {
+    content: @md
+      # Heading 1
+      ### Heading 3
+      This is a **dashboard** with _canvas layout_
+    ;;
+  }
+
+  block text_filter: FilterBlock {
+    type: 'text' // or 'field'
+    label: 'Sample text filter'
+    // use the below source for 'field' filter
+    // source: FieldFilterSource {
+    //   dataset: 'dataset'
+    //   field: ref('data model', 'data field')
+    // }
+    default {
+      operator: 'is'
+      value: 'Default value'
+    }
+  }
+  block v1: VizBlock {
+    viz: BarChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('order_master', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      x_axis: ''
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'order_count')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          field {
+            ref: ref('order_master', 'aov')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_month')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'status')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_count')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancel_value_ratio')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancelled_orders_count')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'aov')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'order_count')
+            aggregation: 'custom'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 10
+              }
+              text_color: '#000000'
+              background_color: '#62ADD4'
+            }
+          }
+        ]
+      }
+    }
+  }
+  block v1_dup: VizBlock {
+    viz: BarChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('order_master', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'order_count')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          field {
+            ref: ref('order_master', 'aov')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 800
+    block text_block {
+      position: pos(0, 0, 1200, 150)
+    }
+    block text_filter {
+      position: pos(0, 150, 300, 100)
+    }
+    block v1 {
+      position: pos(40, 240, 790, 300)
+    }
+    block v2 {
+      position: pos(40, 470, 950, 300)
+    }
+  }
+
+}
