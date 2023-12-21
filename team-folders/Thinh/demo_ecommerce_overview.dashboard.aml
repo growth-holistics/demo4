@@ -1,34 +1,27 @@
 Dashboard demo_ecommerce_overview {
   title: '[Demo] Ecommerce Overview 4.0'
   description: ''''''
-  block t1: TextBlock {
-    content: @md <div style="text-align:center; top: -1000px"> 
-<br /><h3> Austin, United States</a></h3> 
-  <iframe src="https://www.zeitverschiebung.net/clock-widget-iframe-v2?language=en&size=small&timezone=America%2FChicago" width="100%" height="85" frameborder="0" seamless></iframe> 
-</div>;;
+  block hd1: TextBlock {
+    content: @md <center>
+  <picture>
+    <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
+    <img src="holisticswhitelabeldemo.jpg" alt="demo" width="300
+    " height="35">
+  </picture>
+</center>;;
+  }
+  block hd2: TextBlock {
+    content: @md <h1 style="color:#FFFFFF;">Ecommcerce Dashboard</h1>;;
+  }
+  block hd3: TextBlock {
+    content: @md <div style="width: 2500px; height: 200px; background-color: #0B325B;"></div>;;
   }
   block t2: TextBlock {
-    content: @md <div>
-<picture>
-<source media="(min-width:650px)" srcset="https://cdn.holistics.io/landing/logo-color.svg">
-<img style=" display: block;
-margin-left: auto;
-margin-right: auto;
-width: 50%;" src="holisticswhitelabeldemo.jpg" alt="demo" width="400" height="150">
-</picture>
-
-<p align=center>
+    content: @md <div style="color:white;">
+<p>
 This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors. If you have questions about the data here, please contact the <a href ="mailto:data@holistics.io"> data team </a>.
 </p>
 </div>;;
-  }
-  block t3: TextBlock {
-    content: @md <img style="
-display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;" 
-  src='https://static1.squarespace.com/static/59287f7e15cf7d3bf186430f/594921cea5790aed882cf800/594c0c00d482e902e287e419/1514570589974/?format=1500w'>;;
   }
   block v1: VizBlock {
     label: ' KPI Overview'
@@ -49,11 +42,14 @@ display: block;
       rows: [
         MetricHeading {
           label: '🎯Orders'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#E9EFFB'
+          }
         },
         MetricSeries {
           field {
             ref: ref('ecommerce_orders', 'total_orders_count')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -63,7 +59,6 @@ display: block;
         MetricSeries {
           field {
             ref: ref('ecommerce_orders', 'delivered_orders_count')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -73,7 +68,6 @@ display: block;
         MetricSeries {
           field {
             ref: ref('ecommerce_orders', 'cancelled_orders_count')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -83,7 +77,6 @@ display: block;
         MetricSeries {
           field {
             ref: ref('ecommerce_orders', 'refunded_orders_count')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -93,7 +86,6 @@ display: block;
         MetricSeries {
           field {
             ref: ref('order_master', 'aov')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -102,11 +94,14 @@ display: block;
         },
         MetricHeading {
           label: '💰 Revenue'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#E9EFFB'
+          }
         },
         MetricSeries {
           field {
             ref: ref('order_master', 'nmv')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -116,7 +111,6 @@ display: block;
         MetricSeries {
           field {
             ref: ref('order_master', 'gmv')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -136,61 +130,44 @@ display: block;
         calc_type: 'measure'
         data_type: 'number'
       }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
       value: VizFieldFull {
+        label: 'Gross Merchandise Value'
         ref: ref('order_master', 'gmv')
-        aggregation: 'custom'
         format {
           type: 'number'
+          pattern: '[$$]#,###'
         }
       }
-      compare_value: VizFieldFull {
-        ref: 'f_2fb1cc3'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
       }
     }
-  }
-  block v2_dup: VizBlock {
-    label: 'Registered Users'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      calculation f_9040afc {
-        label: 'Target Users'
-        formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      filter {
-        field: ref('ecommerce_users', 'age_group')
-        operator: 'is'
-        value: '2. From 20 to 29'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_users', 'total_users')
-        aggregation: 'custom'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizFieldFull {
-        ref: 'f_9040afc'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        display_mode: 'progress'
-      }
+    settings {
+      hide_label: true
+      hide_controls: true
     }
   }
   block v2_dup_dup: VizBlock {
-    label: 'Total Orders count by Country Name and Status'
+    label: 'Total Orders by Country'
     viz: FilledMap {
       dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_countries', 'name')
+        operator: 'is_not'
+        value: [
+          'United States',
+          'United Kingdom',
+          'Germany',
+          'France'
+        ]
+      }
       location {
         field: VizFieldFull {
           ref: ref('ecommerce_countries', 'name')
@@ -198,54 +175,26 @@ display: block;
             type: 'text'
           }
         }
+        primary_field: true
       }
       value: VizFieldFull {
         ref: ref('order_master', 'gmv')
         format {
           type: 'number'
-          pattern: 'inherited'
+          pattern: '#,###'
         }
       }
-    }
-  }
-  block v4: VizBlock {
-    label: 'Sales Funnel'
-    viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
-      breakdown_by: VizFieldFull {
-        ref: ref('ecommerce_countries', 'name')
-        format {
-          type: 'text'
-        }
-      }
-      values: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'users_signed_up_count')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'buyers_count')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
       settings {
-        circle_color: '#F2B602'
-        columns_color: '#255DD4'
+        value_colors {
+          min {
+            value: 6000000
+            color: '#FFFFFF'
+          }
+          max {
+            value: 8200000
+            color: '#255DD4'
+          }
+        }
       }
     }
   }
@@ -306,7 +255,13 @@ display: block;
     label: 'Cohort Retention'
     viz: RetentionHeatmap {
       dataset: demo_ecommerce
+      filter {
+        field: ref('user_cohort_retention', 'cohort_month')
+        operator: 'matches'
+        value: '2023'
+      }
       cohort: VizFieldFull {
+        label: 'Cohort Month'
         ref: ref('user_cohort_retention', 'cohort_month')
         transformation: 'datetrunc month'
         format {
@@ -321,10 +276,9 @@ display: block;
         }
       }
       cohort_duration: VizFieldFull {
-        ref: ref('user_cohort_retention', 'relative_month')
+        ref: ref('user_cohort_retention', 'relative_month_disp')
         format {
-          type: 'number'
-          pattern: 'inherited'
+          type: 'text'
         }
       }
       cohort_value: VizFieldFull {
@@ -337,7 +291,7 @@ display: block;
     }
   }
   block v8: VizBlock {
-    label: '[YOY] Users vs Orders Growth'
+    label: 'Users vs Orders Growth'
     viz: CombinationChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
@@ -357,6 +311,9 @@ display: block;
               pattern: 'inherited'
             }
           }
+          settings {
+            color: '#255DD4'
+          }
         }
       }
       y_axis {
@@ -372,84 +329,135 @@ display: block;
               type: 'number'
             }
           }
+          settings {
+            color: '#18A59E'
+          }
         }
       }
     }
   }
-  block v9: VizBlock {
-    label: 'AOV Monthly'
-    viz: LineChart {
+  block v10: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
       dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: 'Average Order Value'
+        ref: ref('order_master', 'aov')
+        aggregation: 'custom'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Gross Merchandise Value'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
         transformation: 'datetrunc month'
         format {
           type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
         series {
           field {
-            ref: ref('order_master', 'aov')
+            label: ''
+            ref: ref('order_master', 'gmv')
             aggregation: 'custom'
             format {
               type: 'number'
+              pattern: '#,###'
             }
           }
           settings {
-            color: '#A50E43'
+            color: '#255DD4'
           }
         }
       }
       settings {
-        pop {
-          field: ref('order_master', 'order_created_at')
-          duration: 1
-          granularity: 'year'
-          show_growth_rate: true
-        }
+        legend_label: 'hidden'
       }
+    }
+    settings {
+      hide_controls: true
     }
   }
   view: CanvasLayout {
     label: 'View 1'
-    width: 1150
     height: 2790
-    block t1 {
-      position: pos(20, 30, 350, 170)
+    block hd1 {
+      position: pos(830, 40, 330, 100)
+    }
+    block hd2 {
+      position: pos(30, 30, 630, 60)
+    }
+    block hd3 {
+      position: pos(0, 0, 1210, 180)
+      layer: -1
     }
     block t2 {
-      position: pos(380, 30, 450, 170)
-    }
-    block t3 {
-      position: pos(840, 30, 290, 170)
+      position: pos(30, 90, 630, 80)
     }
     block v1 {
-      position: pos(20, 800, 1110, 380)
+      position: pos(30, 920, 1140, 380)
     }
     block v2 {
-      position: pos(20, 300, 290, 230)
-    }
-    block v2_dup {
-      position: pos(20, 550, 290, 230)
+      position: pos(610, 210, 270, 180)
     }
     block v2_dup_dup {
-      position: pos(330, 300, 800, 480)
-    }
-    block v4 {
-      position: pos(20, 1200, 1110, 320)
+      position: pos(30, 430, 1140, 470)
     }
     block v6 {
-      position: pos(20, 1540, 1110, 380)
+      position: pos(30, 1440, 1140, 380)
     }
     block v7 {
-      position: pos(20, 1940, 1110, 410)
+      position: pos(30, 1850, 1140, 410)
     }
     block v8 {
-      position: pos(20, 2370, 530, 380)
+      position: pos(30, 2280, 840, 380)
     }
-    block v9 {
-      position: pos(570, 2370, 560, 380)
+    block v10 {
+      position: pos(900, 210, 270, 180)
+    }
+    block v12 {
+      position: pos(30, 210, 560, 180)
+      layer: -1
     }
   }
 }
