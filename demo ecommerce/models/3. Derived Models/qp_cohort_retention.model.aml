@@ -1,0 +1,142 @@
+Model qp_cohort_retention {
+  type: 'query'
+  label: "User Cohort Retention"
+  description: ''
+  data_source_name: 'demodb'
+  owner: 'ha.pham+demo4@holistics.io'
+  models: [
+    ecommerce_users,
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_products,
+    ecommerce_categories
+  ]
+  // Product Category: 
+    // - First day buy product
+    // - The day user buy this product afterward
+  // User Gender
+    // - cohort
+  // User Age Group.
+    // - cohort
+  
+  param gender_param {
+    label: 'Gender Param'
+    type: 'text'
+  }
+  
+  param age_group_param {
+    label: 'Age Group Param'
+    type: 'text'
+  }
+  
+  param product_category_praram {
+    label: 'Product Category Param'
+    type: 'text'
+  }
+
+  query: @sql 
+    with base as (
+      select  
+        {{ #u.id }} as user_id
+        , {{ #o.created_at }} as created_at
+      from {{ #ecommerce_order_items oi }}
+      left join {{ #ecommerce_products p }}
+        on {{ #oi.product_id }} = {{ #p.id }}
+      left join {{ #ecommerce_categories c }}
+        on {{ #p.category_id }} = {{ #c.id }}
+      left join {{ #ecommerce_orders o }}
+        on {{ #oi.order_id }} = {{ #o.id }}
+      left join {{#ecommerce_users u}}
+        on {{ #o.user_id }} = {{ #u.id }}
+      
+      where {% filter(gender_param) %} {{ #u.gender }} {% end %}
+      and {% filter(age_group_param) %} {{ #u.age_group }} {% end %}
+      and {% filter(product_category_praram) %} {{ #c.name }} {% end %}
+    )
+
+    , cohort_items as (
+      select
+        user_id
+        , min(date_trunc('month', created_at::date)) as cohort_month
+
+      from base 
+      group by 1 
+    )
+
+    , user_activities as (
+      select 
+        base.user_id
+        , date_part('month', age(date_trunc('month', base.created_at::date), c.cohort_month)) as relative_month
+      from base 
+      left join cohort_items c
+      on base.user_id = c.user_id
+      group by 1, 2
+    )
+
+    , cohort_size as (
+      select
+        cohort_month
+        , count(user_id) as cohort_size
+      from cohort_items
+      group by 1
+    )
+
+    , retentions_count as (
+      select
+        c.cohort_month, 
+        ua.relative_month, 
+        count(ua.user_id) as active_users_count
+      from user_activities ua
+      left join cohort_items c on ua.user_id = c.user_id
+      group by 1, 2
+    )
+
+    select
+      s.cohort_month
+      , s.cohort_size
+      , r.relative_month
+      , 'Month ' || lpad(r.relative_month::text, 2, '0') as relative_month_disp
+      , coalesce(r.active_users_count, 0) as active_users_count
+      , coalesce(r.active_users_count, 0)::float / s.cohort_size::float as retention_rate
+    from retentions_count r
+    left join cohort_size s on r.cohort_month = s.cohort_month
+    order by 1, 3;;
+
+  dimension cohort_month {
+    label: 'Cohort Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.cohort_month }};;
+  }
+  dimension cohort_size {
+    label: 'Cohort Size'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cohort_size }};;
+  }
+  dimension relative_month {
+    label: 'Relative Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month }};;
+  }
+  dimension relative_month_disp {
+    label: 'Relative Month Disp'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month_disp }};;
+  }
+  dimension active_users_count {
+    label: 'Active Users Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.active_users_count }};;
+  }
+  dimension retention_rate {
+    label: 'Retention Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.retention_rate }};;
+  }
+
+}
