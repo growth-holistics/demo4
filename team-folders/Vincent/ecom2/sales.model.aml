@@ -1,0 +1,67 @@
+Model sales {
+  type: 'query'
+  label: 'Sales'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sale_id {
+    label: 'Sale Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sale_id }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension customer_id {
+    label: 'Customer Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension employee_id {
+    label: 'Employee Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.employee_id }};;
+  }
+  dimension sale_date {
+    label: 'Sale Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.sale_date }};;
+  }
+  dimension quantity {
+    label: 'Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity }};;
+  }
+  dimension created_at {
+    label: "Created At"
+    type: "date"
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  owner: 'vincent@holistics.io'
+  query: @sql  SELECT 
+    s.sale_id,
+    s.product_id,
+    s.customer_id,
+    s.employee_id,
+    s.created_at,
+    s.quantity
+FROM (
+    SELECT
+        generate_series(1, 100000) AS sale_id, -- Sequential SaleID
+        (random() * 999 + 1)::INTEGER AS product_id, -- Random ProductID between 1 and 1000
+        (random() * 9999 + 1)::INTEGER AS customer_id, -- Random CustomerID between 1 and 10000
+        (random() * 99 + 1)::INTEGER AS employee_id, -- Random EmployeeID between 1 and 100
+        (CURRENT_DATE - '3 years'::interval + (random() * (365 * 3))::INTEGER * '1 day'::interval)::DATE AS created_at, -- Random SaleDate within the last 3 years
+        (random() * 10 + 1)::INTEGER AS quantity -- Random Quantity between 1 and 10
+    ) s;;
+  models: [
+  ]
+}

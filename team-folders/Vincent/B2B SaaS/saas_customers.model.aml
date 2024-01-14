@@ -1,0 +1,71 @@
+Model saas_customers {
+  type: 'query'
+  label: 'Saas Customers'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension company_name {
+    label: 'Company Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.company_name }};;
+  }
+  dimension industry {
+    label: 'Industry'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.industry }};;
+  }
+  dimension region {
+    label: 'Region'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension updated_at {
+    label: 'Updated At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.updated_at }};;
+  }
+
+  owner: 'vincent@holistics.io'
+  query: @sql
+    WITH company_names AS (
+      SELECT
+        md5(random()::text || now()::text) AS id,
+        (array_to_string(ARRAY(SELECT chr(trunc(65 + random() * 25)::int) FROM generate_series(1, 6)), '') || ' ' ||
+        array_to_string(ARRAY(SELECT chr(trunc(65 + random() * 25)::int) FROM generate_series(1, 6)), '')) AS company_name
+      FROM generate_series(1, 4802)
+    ),
+    industries AS (
+      SELECT unnest(ARRAY['Technology', 'Finance', 'Manufacturing', 'Retail', 'Healthcare', 'Education', 'Media', 'Telecommunications', 'Construction', 'Professional Services']) AS industry
+    ),
+    regions AS (
+      SELECT unnest(ARRAY['North America', 'Europe', 'Asia Pacific', 'Latin America', 'Middle East', 'Africa']) AS region
+    )
+    SELECT
+      cn.id,
+      cn.company_name,
+      i.industry,
+      r.region,
+      generate_series(date_trunc('month', now()) - interval '39 month', now(), '1 month')::date AS created_at,
+      now() AS updated_at
+    FROM company_names cn
+    CROSS JOIN industries i
+    CROSS JOIN regions r
+    ORDER BY random();;;
+  models: [
+  ]
+}
