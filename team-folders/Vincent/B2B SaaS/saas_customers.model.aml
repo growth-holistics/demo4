@@ -5,7 +5,7 @@ Model saas_customers {
   data_source_name: 'demodb'
   dimension id {
     label: 'Id'
-    type: 'text'
+    type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
   }
@@ -29,7 +29,7 @@ Model saas_customers {
   }
   dimension created_at {
     label: 'Created At'
-    type: 'date'
+    type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.created_at }};;
   }
@@ -41,31 +41,50 @@ Model saas_customers {
   }
 
   owner: 'vincent@holistics.io'
-  query: @sql
-    WITH company_names AS (
-      SELECT
-        md5(random()::text || now()::text) AS id,
-        (array_to_string(ARRAY(SELECT chr(trunc(65 + random() * 25)::int) FROM generate_series(1, 6)), '') || ' ' ||
-        array_to_string(ARRAY(SELECT chr(trunc(65 + random() * 25)::int) FROM generate_series(1, 6)), '')) AS company_name
-      FROM generate_series(1, 4802)
-    ),
-    industries AS (
-      SELECT unnest(ARRAY['Technology', 'Finance', 'Manufacturing', 'Retail', 'Healthcare', 'Education', 'Media', 'Telecommunications', 'Construction', 'Professional Services']) AS industry
-    ),
-    regions AS (
-      SELECT unnest(ARRAY['North America', 'Europe', 'Asia Pacific', 'Latin America', 'Middle East', 'Africa']) AS region
-    )
-    SELECT
-      cn.id,
-      cn.company_name,
-      i.industry,
-      r.region,
-      generate_series(date_trunc('month', now()) - interval '39 month', now(), '1 month')::date AS created_at,
-      now() AS updated_at
-    FROM company_names cn
-    CROSS JOIN industries i
-    CROSS JOIN regions r
-    ORDER BY random();;;
+  query: @sql  WITH company_names AS (
+    SELECT DISTINCT 
+        chr(trunc(65 + random() * 25)::int) || 
+        chr(trunc(65 + random() * 25)::int) || 
+        chr(trunc(65 + random() * 25)::int) || 
+        chr(trunc(65 + random() * 25)::int) ||
+        chr(trunc(65 + random() * 25)::int) ||
+        lpad(trunc(random() * 999)::text, 3, '0') AS company_name
+    FROM generate_series(1, 5000)  -- Generate more to ensure uniqueness
+    LIMIT 4000
+),
+industries AS (
+    SELECT 'Technology' AS industry UNION ALL
+    SELECT 'Finance' UNION ALL
+    SELECT 'Healthcare' UNION ALL
+    SELECT 'Manufacturing' UNION ALL
+    SELECT 'Retail' UNION ALL
+    SELECT 'Education' UNION ALL
+    SELECT 'Media' UNION ALL
+    SELECT 'Government'
+),
+regions AS (
+    SELECT 'North America' AS region UNION ALL
+    SELECT 'Europe' UNION ALL
+    SELECT 'Asia Pacific' UNION ALL
+    SELECT 'Latin America' UNION ALL
+    SELECT 'Middle East' UNION ALL
+    SELECT 'Africa'
+),
+randomized AS (
+    SELECT c.company_name,
+           (ARRAY(SELECT industry FROM industries ORDER BY random()))[1] AS industry,
+           (ARRAY(SELECT region FROM regions ORDER BY random()))[1] AS region,
+           row_number() OVER (ORDER BY random()) AS rn
+    FROM company_names c
+    LIMIT 4000
+)
+SELECT rn AS id,
+       company_name,
+       industry,
+       region,
+       date_trunc('minute', CURRENT_DATE - (rn * interval '1 minute') - ((random() * (40 * 30 * 24 * 60))::text || ' minutes')::interval) AS created_at
+FROM randomized
+ORDER BY created_at;;;
   models: [
   ]
 }
