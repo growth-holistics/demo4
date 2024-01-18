@@ -1,0 +1,94 @@
+Dashboard movie_rankings {
+  title: 'Movie Rankings'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'List of Series'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'released_year')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'star1')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'star2')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'star3')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'star4')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: '   '
+    viz: DataTable {
+      dataset: movies_imdb
+      calculation f_14a9784 {
+        label: 'Image'
+        formula: @aml concat('<img src="', bigquery_demo_movies.poster_link, '" style="float:left;width:200px;height:300px;object-fit:contain" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'f_14a9784'
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/IMDb_Logo_Square.svg/1200px-IMDb_Logo_Square.svg.png" alt="Description of the image" style="width:200px;height:100px">
+;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 2000
+    height: 2000
+    block v1 {
+      position: pos(0, 10, 1140, 450)
+    }
+    block v2 {
+      position: pos(1510, 350, 280, 360)
+    }
+    block t1 {
+      position: pos(1250, 160, 190, 100)
+    }
+  }
+
+}
