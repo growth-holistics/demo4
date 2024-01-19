@@ -1,6 +1,6 @@
 Model bigquery_demo_ratings {
   type: 'query'
-  label: 'Bigquery Demo Ratings'
+  label: 'Ratings'
   description: ''
   data_source_name: 'data_staging'
   dimension series_title {
@@ -12,14 +12,14 @@ Model bigquery_demo_ratings {
   dimension rating {
     label: 'Rating'
     type: 'number'
-    hidden: false
     definition: @sql {{ #SOURCE.rating }};;
+    format: "#,###0.00"
   }
-  dimension years {
-    label: 'Years'
+  dimension year {
+    label: 'Rating Year'
     type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.years }};;
+    definition: @sql {{ #SOURCE.year }};;
   }
 
   owner: 'triet.lq@holistics.io'
@@ -38,7 +38,7 @@ Model bigquery_demo_ratings {
     select *
     from base  
       UNPIVOT (
-        rating for years in (
+        rating for year in (
            `2019`
           , `2020`
           , `2021`

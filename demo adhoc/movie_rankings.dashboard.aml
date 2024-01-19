@@ -100,10 +100,20 @@ Dashboard movie_rankings {
     label: 'Overview'
     viz: DataTable {
       dataset: movies_imdb
+      calculation f_90e9143 {
+        label: '.. '
+        formula: @aml case(
+  when: bigquery_demo_movies.overview == ''
+  , then: 'Please choose a series for displaying further details'
+  , else: bigquery_demo_movies.overview
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
       fields: [
         VizFieldFull {
           label: '  '
-          ref: ref('bigquery_demo_movies', 'overview')
+          ref: 'f_90e9143'
           format {
             type: 'text'
           }
@@ -276,7 +286,32 @@ Dashboard movie_rankings {
     }
     default {
       operator: 'is'
-      value: 'empty'
+      value: 'placeholder'
+    }
+  }
+  block v8: VizBlock {
+    label: 'Rating per Year'
+    viz: LineChart {
+      dataset: movies_imdb
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_ratings', 'year')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('bigquery_demo_ratings', 'rating')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
     }
   }
   view: CanvasLayout {
@@ -287,16 +322,16 @@ Dashboard movie_rankings {
       position: pos(-50, 40, 1140, 450)
     }
     block v2 {
-      position: pos(1570, 320, 280, 360)
+      position: pos(1610, 430, 280, 360)
     }
     block t1 {
-      position: pos(1380, 220, 190, 100)
+      position: pos(1460, 250, 190, 100)
     }
     block v3 {
-      position: pos(1170, 150, 260, 240)
+      position: pos(1240, 180, 260, 240)
     }
     block v4 {
-      position: pos(1140, 350, 400, 300)
+      position: pos(1170, 410, 400, 300)
     }
     block v5 {
       position: pos(10, 570, 400, 300)
@@ -305,7 +340,7 @@ Dashboard movie_rankings {
       position: pos(490, 560, 400, 300)
     }
     block v7 {
-      position: pos(350, 970, 400, 300)
+      position: pos(20, 910, 400, 300)
     }
     block f1 {
       position: pos(1180, 40, 300, 80)
@@ -319,6 +354,9 @@ Dashboard movie_rankings {
     block f4 {
       position: pos(1540, 140, 340, 70)
       layer: -1
+    }
+    block v8 {
+      position: pos(1090, 720, 400, 300)
     }
   }
   interactions: [
