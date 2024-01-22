@@ -35,12 +35,6 @@ Dashboard movie_rankings {
           format {
             type: 'text'
           }
-        },
-        VizFieldFull {
-          ref: ref('bigquery_demo_movies', 'star4')
-          format {
-            type: 'text'
-          }
         }
       ]
       settings {
@@ -76,19 +70,359 @@ Dashboard movie_rankings {
     content: @md <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/IMDb_Logo_Square.svg/1200px-IMDb_Logo_Square.svg.png" alt="Description of the image" style="width:200px;height:100px">
 ;;
   }
+  block v3: VizBlock {
+    label: 'IMDB Rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Overview'
+    viz: DataTable {
+      dataset: movies_imdb
+      calculation f_90e9143 {
+        label: '.. '
+        formula: @aml case(
+  when: bigquery_demo_movies.overview == ''
+  , then: 'Please choose a series for displaying further details'
+  , else: bigquery_demo_movies.overview
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: 'f_90e9143'
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: '# Series by Director'
+    viz: BarChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'director')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'director')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: '   '
+            ref: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: '# Series by Genre'
+    viz: BarChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'genre')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'genre')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'genre')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: '   '
+            ref: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: '# Series by Label'
+    viz: BarChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'certificate')
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: ref('bigquery_demo_movies', 'certificate')
+        operator: 'top'
+        value: 5
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'certificate')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: '   '
+            ref: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Director '
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'director')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Genre'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'genre')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Release Year'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'released_year')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v8: VizBlock {
+    label: 'Rating per Year'
+    viz: LineChart {
+      dataset: movies_imdb
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_ratings', 'year')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('bigquery_demo_ratings', 'rating')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+    }
+  }
+  block f4: FilterBlock {
+    label: 'Series'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'series_title')
+    }
+    default {
+      operator: 'is'
+      value: 'placeholder'
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 2000
     height: 2000
     block v1 {
-      position: pos(0, 10, 1140, 450)
+      position: pos(-50, 40, 1140, 450)
     }
     block v2 {
-      position: pos(1510, 350, 280, 360)
+      position: pos(1580, 370, 280, 360)
     }
     block t1 {
-      position: pos(1250, 160, 190, 100)
+      position: pos(1460, 250, 190, 100)
+    }
+    block v3 {
+      position: pos(1240, 180, 260, 240)
+    }
+    block v4 {
+      position: pos(1170, 410, 400, 300)
+    }
+    block v5 {
+      position: pos(10, 570, 400, 300)
+    }
+    block v6 {
+      position: pos(490, 560, 400, 300)
+    }
+    block v7 {
+      position: pos(20, 910, 400, 300)
+    }
+    block f1 {
+      position: pos(1180, 40, 300, 80)
+    }
+    block f2 {
+      position: pos(1500, 40, 300, 80)
+    }
+    block f3 {
+      position: pos(1170, 120, 300, 80)
+    }
+    block v8 {
+      position: pos(1090, 720, 400, 300)
+    }
+    block f4 {
+      position: pos(1510, 120, 300, 80)
     }
   }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f3',
+            'f4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f3',
+            'f4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v5',
+            'v6',
+            'v7',
+            'v8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
 
 }
