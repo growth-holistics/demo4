@@ -5,6 +5,11 @@ Dashboard movie_rankings {
     label: 'Movies list'
     viz: DataTable {
       dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'is_not'
+        value: 'placeholder'
+      }
       fields: [
         VizFieldFull {
           ref: ref('bigquery_demo_movies', 'series_title')
@@ -328,8 +333,8 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
 </svg>;;
   }
   block t4: TextBlock {
-    content: @md  <div style= "background-color: white;">
-<h3 style="font-size:32px; color: #585033; line-height: 2.7rem;">👇 Click on your favorite movie to reveal insights 👇</h3>
+    content: @md   <div style= "background-color: white;">
+<h3 style="font-size:28px; color: #585033; line-height: 2.6rem;">👇 Click on your favorite movie to reveal insights 👇</h3>
 </div>;;
   }
   block t6: TextBlock {
@@ -461,7 +466,7 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
         show_row_total: true
         sorts: [
           SortSetting {
-            field_index: 2
+            field_index: 1
             direction: 'desc'
           }
         ]
@@ -651,20 +656,29 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
     }
   }
   block t31: TextBlock {
-    content: @md  <svg style="
-  width: 100%;
-  height: auto;"
-width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="76" cy="76" r="76" fill="white"/>
+    content: @md   <svg width="460" height="120" viewBox="0 0 460 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="460" height="120" rx="20" fill="white"/>
 </svg>;;
   }
   block t32: TextBlock {
     content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center"> 💰GROSS💰</p>;;
   }
   block v15: VizBlock {
-    label: 'Highest rating movie (dup)'
+    label: 'Highest rating movie - gross'
     viz: DataTable {
       dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'director')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'gross')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
       fields: [
         VizFieldFull {
           label: ' '
@@ -684,6 +698,9 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
       hide_label: true
     }
   }
+  block t33: TextBlock {
+    content: @md <h3 style="font-size:32px; color: black; line-height: 2.7rem; text-align: center"> 🍿 Click on your favorite actor to reveal insights 🍿</h3>;;
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1440
@@ -698,10 +715,10 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
       position: pos(960, 690, 190, 120)
     }
     block v5 {
-      position: pos(1010, 1490, 400, 300)
+      position: pos(1010, 1480, 400, 300)
     }
     block v6 {
-      position: pos(440, 900, 490, 340)
+      position: pos(450, 910, 500, 350)
     }
     block v7 {
       position: pos(20, 920, 430, 340)
@@ -758,7 +775,7 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
       position: pos(910, 110, 300, 80)
     }
     block v9 {
-      position: pos(50, 1490, 710, 360)
+      position: pos(50, 1460, 660, 360)
     }
     block t16 {
       position: pos(720, 630, 200, 230)
@@ -777,17 +794,17 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
       position: pos(950, 880, 200, 70)
     }
     block v11 {
-      position: pos(480, 1580, 550, 50)
+      position: pos(480, 1560, 550, 50)
     }
     block t20 {
-      position: pos(520, 1530, 480, 140)
+      position: pos(520, 1510, 480, 140)
       layer: -1
     }
     block t21 {
       position: pos(470, 880, 200, 70)
     }
     block t22 {
-      position: pos(600, 1550, 310, 110)
+      position: pos(600, 1530, 310, 110)
     }
     block v12 {
       position: pos(740, 470, 380, 50)
@@ -824,14 +841,17 @@ width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.
       position: pos(1160, 710, 250, 70)
     }
     block t31 {
-      position: pos(660, 1660, 190, 220)
+      position: pos(520, 1670, 480, 140)
       layer: -1
     }
     block t32 {
-      position: pos(630, 1710, 250, 110)
+      position: pos(630, 1690, 250, 110)
     }
     block v15 {
-      position: pos(560, 1740, 390, 50)
+      position: pos(560, 1720, 390, 50)
+    }
+    block t33 {
+      position: pos(310, 1940, 830, 60)
     }
   }
   interactions: [
