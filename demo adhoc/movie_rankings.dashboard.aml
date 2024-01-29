@@ -2,7 +2,7 @@ Dashboard movie_rankings {
   title: 'Movie Rankings'
   description: ''''''
   block v1: VizBlock {
-    label: 'List of Series'
+    label: 'Movies list'
     viz: DataTable {
       dataset: movies_imdb
       fields: [
@@ -17,29 +17,20 @@ Dashboard movie_rankings {
           format {
             type: 'text'
           }
-        },
-        VizFieldFull {
-          ref: ref('bigquery_demo_movies', 'star1')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('bigquery_demo_movies', 'star2')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('bigquery_demo_movies', 'star3')
-          format {
-            type: 'text'
-          }
         }
       ]
       settings {
         show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
       }
+    }
+    settings {
+      hide_label: true
     }
   }
   block v2: VizBlock {
@@ -66,10 +57,6 @@ Dashboard movie_rankings {
       }
     }
   }
-  block t1: TextBlock {
-    content: @md <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/IMDb_Logo_Square.svg/1200px-IMDb_Logo_Square.svg.png" alt="Description of the image" style="width:200px;height:100px">
-;;
-  }
   block v3: VizBlock {
     label: 'IMDB Rating'
     viz: DataTable {
@@ -93,37 +80,8 @@ Dashboard movie_rankings {
       hide_label: true
     }
   }
-  block v4: VizBlock {
-    label: 'Overview'
-    viz: DataTable {
-      dataset: movies_imdb
-      calculation f_90e9143 {
-        label: '.. '
-        formula: @aml case(
-  when: bigquery_demo_movies.overview == ''
-  , then: 'Please choose a series for displaying further details'
-  , else: bigquery_demo_movies.overview
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-      }
-      fields: [
-        VizFieldFull {
-          label: '  '
-          ref: 'f_90e9143'
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 1
-      }
-    }
-  }
   block v5: VizBlock {
-    label: '# Series by Director'
+    label: 'No. of movies by directors'
     viz: BarChart {
       dataset: movies_imdb
       filter {
@@ -155,49 +113,90 @@ Dashboard movie_rankings {
               pattern: 'inherited'
             }
           }
+          settings {
+            color: '#2E2D1FFF'
+          }
         }
+      }
+      settings {
+        legend_label: 'hidden'
       }
     }
   }
   block v6: VizBlock {
-    label: '# Series by Genre'
-    viz: BarChart {
+    label: 'No. of movies by Genres'
+    viz: PieChart {
       dataset: movies_imdb
       filter {
         field: ref('bigquery_demo_movies', 'genre')
         operator: 'top'
-        value: 10
+        value: 7
         options {
           rank_by {
-            field: ref('bigquery_demo_movies', 'genre')
+            field: ref('bigquery_demo_movies', 'series_title')
             aggregation: 'count'
             logic: 'standard'
           }
         }
       }
-      x_axis: VizFieldFull {
+      legend: VizFieldFull {
         ref: ref('bigquery_demo_movies', 'genre')
         format {
-          type: 'text'
+          type: 'number'
         }
       }
-      y_axis {
-        series {
-          field {
-            label: '   '
-            ref: ref('bigquery_demo_movies', 'series_title')
-            aggregation: 'count'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+      series {
+        field {
+          label: '   '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'Action, Crime, Drama'
+            color: '#B59210FF'
+          }
+          point {
+            value: 'Biography, Drama, History'
+            color: '#483A07FF'
+          }
+          point {
+            value: 'Comedy, Drama'
+            color: '#DDB419FF'
+          }
+          point {
+            value: 'Comedy, Drama, Romance'
+            color: '#B59210FF'
+          }
+          point {
+            value: 'Crime, Drama, Thriller'
+            color: '#483A07FF'
+          }
+          point {
+            value: 'Drama'
+            color: '#F8CD2DFF'
+          }
+          point {
+            value: 'Drama, Romance'
+            color: '#DBB31FFF'
           }
         }
       }
+      settings {
+        legend_label: 'hidden'
+        show_data_label_by: 'value'
+      }
+    }
+    settings {
+      hide_label: true
     }
   }
   block v7: VizBlock {
-    label: '# Series by Label'
+    label: 'No. of movies by labels'
     viz: BarChart {
       dataset: movies_imdb
       filter {
@@ -234,20 +233,17 @@ Dashboard movie_rankings {
               pattern: 'inherited'
             }
           }
+          settings {
+            color: '#F8CD2DFF'
+          }
         }
       }
+      settings {
+        legend_label: 'hidden'
+      }
     }
-  }
-  block f1: FilterBlock {
-    label: 'Director '
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: movies_imdb
-      field: ref('bigquery_demo_movies', 'director')
-    }
-    default {
-      operator: 'is'
-      value: []
+    settings {
+      hide_label: true
     }
   }
   block f2: FilterBlock {
@@ -286,6 +282,9 @@ Dashboard movie_rankings {
         }
       }
       y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
         series {
           field {
             ref: ref('bigquery_demo_ratings', 'rating')
@@ -295,8 +294,17 @@ Dashboard movie_rankings {
               pattern: 'inherited'
             }
           }
+          settings {
+            color: '#F8CD2DFF'
+          }
         }
       }
+      settings {
+        show_data_points: true
+      }
+    }
+    settings {
+      hide_label: true
     }
   }
   block f4: FilterBlock {
@@ -311,59 +319,530 @@ Dashboard movie_rankings {
       value: []
     }
   }
+  block t3: TextBlock {
+    content: @md <svg style="
+  width: 100%;
+  height: auto;"
+width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="76" cy="76" r="76" fill="#F8CD2D"/>
+</svg>;;
+  }
+  block t4: TextBlock {
+    content: @md  <div style= "background-color: white;">
+<h3 style="font-size:32px; color: #585033; line-height: 2.7rem;">👇 Click on your favorite movie to reveal insights 👇</h3>
+</div>;;
+  }
+  block t6: TextBlock {
+    content: @md <svg width="1500" height="200" viewBox="0 0 1500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1113_1514)">
+<rect width="1500" height="332" fill="url(#paint0_radial_1113_1514)"/>
+<g opacity="0.25">
+<path d="M1353.87 168.042C1354 168.042 1354.13 168.042 1354.33 168.042V126.144L1401.07 99.1719L1435.24 118.943C1436.15 116.128 1437.86 113.705 1440.08 111.938L1401 89.3521L1345.82 121.234V170.399C1348.11 168.893 1350.86 168.042 1353.87 168.042Z" fill="white"/>
+<path d="M1449.18 138.124C1448.66 138.124 1448.2 138.124 1447.74 138.058V180.087L1401 207.059L1367.61 187.812C1366.63 190.562 1364.8 192.919 1362.44 194.621L1400.94 216.879L1456.12 184.997V136.356C1454.09 137.469 1451.73 138.124 1449.18 138.124Z" fill="white"/>
+<path d="M1448.66 113.116C1442.96 113.116 1438.31 117.764 1438.31 123.46C1438.31 125.227 1438.77 126.864 1439.56 128.304L1410.1 155.669C1408.27 154.098 1405.91 153.116 1403.29 153.116C1397.6 153.116 1392.95 157.764 1392.95 163.459C1392.95 163.983 1393.01 164.572 1393.08 165.096L1360.15 174.981C1358.32 173.345 1355.96 172.363 1353.34 172.363C1347.65 172.363 1343 177.011 1343 182.706C1343 188.402 1347.65 193.05 1353.34 193.05C1359.04 193.05 1363.69 188.402 1363.69 182.706C1363.69 182.052 1363.62 181.331 1363.49 180.677L1396.09 170.857C1397.92 172.624 1400.48 173.737 1403.29 173.737C1408.99 173.737 1413.63 169.089 1413.63 163.394C1413.63 162.674 1413.57 162.019 1413.44 161.364L1444.14 132.69C1445.51 133.345 1447.02 133.738 1448.66 133.738C1454.35 133.738 1459 129.09 1459 123.394C1459 117.699 1454.35 113.116 1448.66 113.116ZM1353.34 186.7C1351.18 186.7 1349.42 184.932 1349.42 182.772C1349.42 180.611 1351.18 178.844 1353.34 178.844C1355.5 178.844 1357.27 180.611 1357.27 182.772C1357.27 184.932 1355.5 186.7 1353.34 186.7ZM1403.29 167.453C1401.13 167.453 1399.36 165.685 1399.36 163.525C1399.36 161.364 1401.13 159.597 1403.29 159.597C1405.45 159.597 1407.22 161.364 1407.22 163.525C1407.22 165.685 1405.45 167.453 1403.29 167.453ZM1448.66 127.388C1446.5 127.388 1444.73 125.62 1444.73 123.46C1444.73 121.299 1446.5 119.532 1448.66 119.532C1450.82 119.532 1452.58 121.299 1452.58 123.46C1452.58 125.62 1450.82 127.388 1448.66 127.388Z" fill="white"/>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_1113_1514" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(853 -197) rotate(96.6888) scale(635.324 926.405)">
+<stop stop-color="#F5DD85"/>
+<stop offset="1" stop-color="#E4BB22"/>
+</radialGradient>
+<clipPath id="clip0_1113_1514">
+<rect width="1500" height="200" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+;;
+  }
+  block t7: TextBlock {
+    content: @md <img src="https://static-00.iconduck.com/assets.00/imdb-icon-512x267-3oag4p1t.png" alt="Description of the image" style="width:100%;height:100%">;;
+  }
+  block t9: TextBlock {
+    content: @md <h1 style="font-size:40px; color:#2E2D1F;">Movies Dashboard </h1>;;
+  }
+  block t10: TextBlock {
+    content: @md    <a href="#regional-analysis">
+  <button style="
+  background-color: #2E2D1F;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;">
+  Director rankings</button>
+  </a>;;
+  }
+  block t11: TextBlock {
+    content: @md    <a href="#regional-analysis">
+  <button style="
+  background-color: #2E2D1F;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;">
+  Actor rankings</button>
+  </a>;;
+  }
+  block t12: TextBlock {
+    content: @md    <a href="#regional-analysis">
+  <button style="
+  background-color: #2E2D1F;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;">
+  Info </button>
+  </a>;;
+  }
+  block t13: TextBlock {
+    content: @md <div style="width: 1500px; height: 16px; background-color: #2E2D1F;"></div>;;
+  }
+  block t14: TextBlock {
+    content: @md <div style="width: 1500px; height: 2000px; background-color: #27261A;"></div>;;
+  }
+  block t15: TextBlock {
+    content: @md <h3 style="font-size:32px; color: black; line-height: 2.7rem; text-align: center"> 🍿 Click on your favorite director to reveal insights 🍿</h3>;;
+  }
+  block f5: FilterBlock {
+    label: 'Director'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'director')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      input_type: 'nullable-single'
+    }
+  }
+  block v9: VizBlock {
+    label: 'Directors list'
+    viz: PivotTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'is_not'
+        value: 'placeholder'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'director')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Gross'
+          ref: ref('bigquery_demo_movies', 'gross')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        row_limit: 50
+      }
+    }
+  }
+  block t16: TextBlock {
+    content: @md <svg style="
+  width: 100%;
+  height: auto;"
+width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="76" cy="76" r="76" fill="#ECECEC"/>
+</svg>
+;;
+  }
+  block t17: TextBlock {
+    content: @md <h3 style="font-size:20px; color:#AEAEAE; line-height: 2.5rem;">Rating</h3>;;
+  }
+  block v10: VizBlock {
+    label: 'IMDB Rating (dup)'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'certificate')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t18: TextBlock {
+    content: @md <h3 style="font-size:20px; color: black; line-height: 2.5rem;">MPAA Ratings</h3>;;
+  }
+  block t19: TextBlock {
+    content: @md <h3 style="font-size:20px; color: #F8CD2D; line-height: 2.5rem;">Rating over years</h3>;;
+  }
+  block v11: VizBlock {
+    label: 'Highest rating movie'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t20: TextBlock {
+    content: @md  <svg width="460" height="120" viewBox="0 0 460 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="460" height="120" rx="20" fill="white"/>
+</svg>;;
+  }
+  block t21: TextBlock {
+    content: @md <h3 style="font-size:20px; color: black; line-height: 2.5rem;">By genres</h3>;;
+  }
+  block t22: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center">🎞 HIGHEST RATING MOVIE 🎞</p>;;
+  }
+  block v12: VizBlock {
+    label: 'Director'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'director')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t24: TextBlock {
+    content: @md <h3 style="font-size:20px; color:#AEAEAE; line-height: 2.5rem;">Director</h3>;;
+  }
+  block t25: TextBlock {
+    content: @md <svg width="400" height="100" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="100" rx="20" fill="#ECECEC"/>
+</svg>
+;;
+  }
+  block t26: TextBlock {
+    content: @md   <svg width="400" height="100" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="100" rx="20" fill="#ECECEC"/>
+</svg>;;
+  }
+  block v13: VizBlock {
+    label: 'Director (dup)'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t27: TextBlock {
+    content: @md <h3 style="font-size:20px; color:#AEAEAE; line-height: 2.5rem;">Selected Movie</h3>;;
+  }
+  block t28: TextBlock {
+    content: @md <div style="width: 1500px; height: 2000px; background-color: #F8CD2D;"></div>;;
+  }
+  block t29: TextBlock {
+    content: @md  <svg style="
+  width: 100%;
+  height: auto;"
+width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="76" cy="76" r="76" fill="#ECECEC"/>
+</svg>;;
+  }
+  block t30: TextBlock {
+    content: @md <h3 style="font-size:20px; color:#AEAEAE; line-height: 2.5rem;">Gross</h3>;;
+  }
+  block v14: VizBlock {
+    label: 'IMDB Rating (dup) (dup)'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'gross')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t31: TextBlock {
+    content: @md  <svg style="
+  width: 100%;
+  height: auto;"
+width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="76" cy="76" r="76" fill="white"/>
+</svg>;;
+  }
+  block t32: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center"> 💰GROSS💰</p>;;
+  }
+  block v15: VizBlock {
+    label: 'Highest rating movie (dup)'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'gross')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
-    width: 2000
-    height: 2000
+    width: 1440
+    height: 2500
     block v1 {
-      position: pos(-50, 40, 1140, 450)
+      position: pos(60, 350, 560, 480)
     }
     block v2 {
-      position: pos(1580, 370, 280, 360)
-    }
-    block t1 {
-      position: pos(1460, 250, 190, 100)
+      position: pos(1190, 220, 220, 360)
     }
     block v3 {
-      position: pos(1240, 180, 260, 240)
-    }
-    block v4 {
-      position: pos(1170, 410, 400, 300)
+      position: pos(960, 690, 190, 120)
     }
     block v5 {
-      position: pos(10, 570, 400, 300)
+      position: pos(1010, 1490, 400, 300)
     }
     block v6 {
-      position: pos(490, 560, 400, 300)
+      position: pos(440, 900, 490, 340)
     }
     block v7 {
-      position: pos(20, 910, 400, 300)
-    }
-    block f1 {
-      position: pos(1180, 40, 300, 80)
+      position: pos(20, 920, 430, 340)
     }
     block f2 {
-      position: pos(1500, 40, 300, 80)
+      position: pos(630, 110, 270, 80)
     }
     block f3 {
-      position: pos(1170, 120, 300, 80)
+      position: pos(70, 110, 270, 80)
     }
     block v8 {
-      position: pos(1090, 720, 400, 300)
+      position: pos(940, 920, 460, 320)
     }
     block f4 {
-      position: pos(1510, 120, 300, 80)
+      position: pos(350, 110, 270, 80)
+    }
+    block t3 {
+      position: pos(950, 630, 200, 240)
+      layer: -1
+    }
+    block t4 {
+      position: pos(60, 240, 510, 110)
+    }
+    block t6 {
+      position: pos(-50, 0, 1550, 220)
+      layer: -2
+    }
+    block t7 {
+      position: pos(1010, 670, 90, 70)
+    }
+    block t9 {
+      position: pos(70, 50, 480, 60)
+    }
+    block t10 {
+      position: pos(1020, 40, 170, 60)
+    }
+    block t11 {
+      position: pos(1190, 40, 140, 50)
+    }
+    block t12 {
+      position: pos(1340, 40, 80, 50)
+    }
+    block t13 {
+      position: pos(-40, 0, 1660, 40)
+    }
+    block t14 {
+      position: pos(670, 180, 800, 1170)
+      layer: -3
+    }
+    block t15 {
+      position: pos(300, 1410, 830, 60)
+    }
+    block f5 {
+      position: pos(910, 110, 300, 80)
+    }
+    block v9 {
+      position: pos(50, 1490, 710, 360)
+    }
+    block t16 {
+      position: pos(720, 630, 200, 230)
+      layer: -1
+    }
+    block t17 {
+      position: pos(790, 680, 100, 60)
+    }
+    block v10 {
+      position: pos(700, 710, 250, 60)
+    }
+    block t18 {
+      position: pos(80, 880, 200, 70)
+    }
+    block t19 {
+      position: pos(950, 880, 200, 70)
+    }
+    block v11 {
+      position: pos(480, 1580, 550, 50)
+    }
+    block t20 {
+      position: pos(520, 1530, 480, 140)
+      layer: -1
+    }
+    block t21 {
+      position: pos(470, 880, 200, 70)
+    }
+    block t22 {
+      position: pos(600, 1550, 310, 110)
+    }
+    block v12 {
+      position: pos(740, 470, 380, 50)
+    }
+    block t24 {
+      position: pos(890, 440, 100, 60)
+    }
+    block t25 {
+      position: pos(730, 430, 420, 130)
+      layer: -1
+    }
+    block t26 {
+      position: pos(730, 290, 420, 130)
+      layer: -1
+    }
+    block v13 {
+      position: pos(740, 330, 380, 50)
+    }
+    block t27 {
+      position: pos(850, 300, 180, 60)
+    }
+    block t28 {
+      position: pos(0, 1340, 1460, 550)
+      layer: -3
+    }
+    block t29 {
+      position: pos(1180, 630, 200, 230)
+      layer: -1
+    }
+    block t30 {
+      position: pos(1250, 670, 100, 60)
+    }
+    block v14 {
+      position: pos(1160, 710, 250, 70)
+    }
+    block t31 {
+      position: pos(660, 1660, 190, 220)
+      layer: -1
+    }
+    block t32 {
+      position: pos(630, 1710, 250, 110)
+    }
+    block v15 {
+      position: pos(560, 1740, 390, 50)
     }
   }
   interactions: [
     FilterInteraction {
-      from: 'f1'
+      from: 'v1'
       to: [
         CustomMapping {
           block: [
-            'f2',
-            'f3',
-            'f4'
+            'v5',
+            'v6',
+            'v7'
           ]
           disabled: true
         }
@@ -374,9 +853,9 @@ Dashboard movie_rankings {
       to: [
         CustomMapping {
           block: [
-            'f1',
             'f3',
-            'f4'
+            'f4',
+            'f5'
           ]
           disabled: true
         }
@@ -387,9 +866,9 @@ Dashboard movie_rankings {
       to: [
         CustomMapping {
           block: [
-            'f1',
             'f2',
-            'f4'
+            'f4',
+            'f5'
           ]
           disabled: true
         }
@@ -415,9 +894,42 @@ Dashboard movie_rankings {
       to: [
         CustomMapping {
           block: [
-            'f1',
             'f2',
-            'f3'
+            'f3',
+            'f5'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f3',
+            'f4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v9'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
           ]
           disabled: true
         }
