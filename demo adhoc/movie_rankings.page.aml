@@ -395,7 +395,7 @@ Movie insights</button>
     content: @md <p style="font-size: 20px; color: #5D5D5D; line-height: 2.6rem; text-align:center">Click on your favorite director to reveal insights </p>;;
   }
   block v9: VizBlock {
-    label: 'Directors list'
+    label: '''Director's no. of movies'''
     viz: PivotTable {
       dataset: movies_imdb
       filter {
@@ -415,13 +415,9 @@ Movie insights</button>
           format {
             type: 'text'
           }
-        }
-      ]
-      values: [
+        },
         VizFieldFull {
-          label: 'Gross'
           ref: ref('bigquery_demo_movies', 'gross')
-          aggregation: 'sum'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -429,7 +425,17 @@ Movie insights</button>
         },
         VizFieldFull {
           ref: ref('bigquery_demo_movies', 'imdb_rating')
-          aggregation: 'max'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'No. of movies'
+          ref: ref('bigquery_demo_movies', 'series_title')
+          aggregation: 'count'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -646,7 +652,7 @@ width="460" height="120" viewBox="0 0 460 120" fill="none" xmlns="http://www.w3.
     content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center"> 💰GROSS💰</p>;;
   }
   block v15: VizBlock {
-    label: 'Director total gross'
+    label: 'Director - Highest gross'
     viz: DataTable {
       dataset: movies_imdb
       filter {
@@ -839,7 +845,7 @@ Actor insights</button>
 </svg>;;
   }
   block v20: VizBlock {
-    label: '''Director's highest rating movie (dup)'''
+    label: 'Director - Highest gross movie'
     viz: DataTable {
       dataset: movies_imdb
       filter {
@@ -872,21 +878,98 @@ Actor insights</button>
       hide_label: true
     }
   }
+  block v21: VizBlock {
+    label: 'Director list'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: 'Director list'
+          ref: ref('bigquery_demo_movies', 'director')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        row_limit: 50
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v22: VizBlock {
+    label: 'Actors list'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: 'Actors list'
+          ref: ref('bigquery_demo_movies', 'star1')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        row_limit: 50
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v23: VizBlock {
+    label: 'Director - Max IMDB Rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1440
-    height: 2640
+    height: 3000
     block v1 {
-      position: pos(260, 230, 980, 270)
+      position: pos(150, 230, 1120, 270)
     }
     block v2 {
-      position: pos(610, 520, 260, 370)
+      position: pos(600, 520, 260, 370)
     }
     block v3 {
       position: pos(930, 650, 200, 100)
     }
     block v5 {
-      position: pos(920, 1500, 500, 370)
+      position: pos(910, 1560, 500, 370)
     }
     block v6 {
       position: pos(380, 990, 460, 330)
@@ -930,14 +1013,14 @@ Actor insights</button>
       position: pos(-40, 0, 1660, 40)
     }
     block t14 {
-      position: pos(-30, 460, 1510, 930)
+      position: pos(-30, 450, 1510, 930)
       layer: -3
     }
     block t15 {
       position: pos(270, 1440, 830, 60)
     }
     block v9 {
-      position: pos(500, 1490, 570, 360)
+      position: pos(910, 1400, 570, 360)
     }
     block t16 {
       position: pos(1120, 590, 160, 220)
@@ -986,8 +1069,8 @@ Actor insights</button>
       position: pos(250, 630, 180, 60)
     }
     block t28 {
-      position: pos(-10, 1390, 1460, 550)
-      layer: -3
+      position: pos(-10, 1380, 1460, 740)
+      layer: -4
     }
     block t29 {
       position: pos(990, 780, 260, 170)
@@ -1010,10 +1093,10 @@ Actor insights</button>
       position: pos(60, 1710, 390, 50)
     }
     block t33 {
-      position: pos(320, 1940, 830, 60)
+      position: pos(310, 2170, 830, 60)
     }
     block v18 {
-      position: pos(40, 2030, 640, 430)
+      position: pos(760, 2230, 640, 430)
     }
     block t34 {
       position: pos(270, 1400, 830, 60)
@@ -1031,17 +1114,26 @@ Actor insights</button>
       position: pos(1180, 50, 170, 60)
     }
     block t38 {
-      position: pos(-60, 2540, 1660, 100)
+      position: pos(-60, 2900, 1660, 100)
     }
     block t39 {
-      position: pos(50, 1790, 310, 110)
+      position: pos(90, 1830, 310, 110)
     }
     block t40 {
-      position: pos(30, 1780, 420, 150)
+      position: pos(50, 1830, 420, 150)
       layer: -1
     }
     block v20 {
-      position: pos(-60, 1830, 470, 50)
+      position: pos(30, 1890, 470, 40)
+    }
+    block v21 {
+      position: pos(650, 1520, 240, 360)
+    }
+    block v22 {
+      position: pos(60, 2270, 370, 360)
+    }
+    block v23 {
+      position: pos(100, 1450, 390, 50)
     }
   }
   interactions: [
@@ -1058,7 +1150,10 @@ Actor insights</button>
             'v11',
             'v15',
             'v19',
-            'v20'
+            'v20',
+            'v21',
+            'v22',
+            'v23'
           ]
           disabled: true
         }
@@ -1082,7 +1177,10 @@ Actor insights</button>
             'v13',
             'v14',
             'v15',
-            'v20'
+            'v20',
+            'v21',
+            'v22',
+            'v23'
           ]
           disabled: true
         }
@@ -1105,7 +1203,10 @@ Actor insights</button>
             'v13',
             'v14',
             'v15',
-            'v20'
+            'v20',
+            'v21',
+            'v22',
+            'v23'
           ]
           disabled: true
         }
@@ -1129,7 +1230,10 @@ Actor insights</button>
             'v13',
             'v14',
             'v15',
-            'v20'
+            'v20',
+            'v21',
+            'v22',
+            'v23'
           ]
           disabled: true
         }
@@ -1152,7 +1256,10 @@ Actor insights</button>
             'v13',
             'v14',
             'v15',
-            'v20'
+            'v20',
+            'v21',
+            'v22',
+            'v23'
           ]
           disabled: true
         }
@@ -1175,6 +1282,44 @@ Actor insights</button>
     },
     FilterInteraction {
       from: 'v9'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v21'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v22'
       to: [
         CustomMapping {
           block: [
