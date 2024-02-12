@@ -55,13 +55,14 @@ Model dim_station {
     label: 'Station Plus'
     type: 'truefalse'
     hidden: false
-    definition: @sql {{ #SOURCE.station_plus }};;
+    definition: @sql {{ #SOURCE.is_renting }};;
   }
 
   measure active_stations {
     label: 'Active stations'
     type: 'number'
-    definition: @aql dim_station | filter (dim_station.is_renting == 'True') | count(dim_station.station_code);;
+    definition: @sql count(case when {{is_renting}} and {{is_returning}} then  {{#SOURCE.station_code }} end)  ;;
+    //@aql dim_station | filter (dim_station.is_renting == 'True') | count(dim_station.station_code);;
      //@aql count(dim_station.station_code) | where (dim_station.is_renting is true) ;;
     //where(and(dim_station.is_renting is true, dim_station.is_returning is true)) ;;
  }
