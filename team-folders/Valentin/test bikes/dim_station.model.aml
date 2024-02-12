@@ -61,7 +61,9 @@ Model dim_station {
   measure active_stations {
     label: 'Active stations'
     type: 'number'
-    definition: @aql count(dim_station.station_code) | where(and(dim_station.is_renting, dim_station.is_returning)) ;;
+    definition: @aql dim_station | filter (dim_station.is_renting == 'True') | count(dim_station.station_code);;
+     //@aql count(dim_station.station_code) | where (dim_station.is_renting is true) ;;
+    //where(and(dim_station.is_renting is true, dim_station.is_returning is true)) ;;
  }
 
   owner: 'valentin@holistics.io'
