@@ -1,0 +1,88 @@
+Dataset demo_ecommerce {
+  label: 'Demo Ecommerce'
+  description: ''
+  data_source_name: 'demo_public'
+  __engine__:  'aql'
+  models: [
+    ecommerce_users,
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_products,
+    ecommerce_categories,
+    ecommerce_cities,
+    ecommerce_countries,
+    ecommerce_merchants
+  ]
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_products.category_id > ecommerce_categories.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
+
+  ]
+  owner: 'ha.pham@holistics.io'
+
+  metric count_orders {
+    label: 'Count Orders'
+    type: 'number'
+    definition: @aql ecommerce_orders | count(ecommerce_orders.id) ;;
+  }
+
+  metric aov {
+    label: 'AOV'
+    type: 'number'
+    definition: @aql sum(ecommerce_order_items, ecommerce_order_items.quantity * ecommerce_products.price) /  
+        count_distinct(ecommerce_order_items.order_id)
+      ;;
+  }
+
+  metric max_user_aov {
+    label: 'Max User AOV'
+    type: 'number'
+    definition: @aql ecommerce_order_items | group(ecommerce_users.id) | select(aov) | max() ;;
+  }
+
+  metric revenue {
+    label: 'Revenue'
+    type: 'number'
+    definition: @aql coalesce(ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price), 0);;
+  }
+
+  metric ranking {
+    label: 'Ranking'
+    type: 'number'
+    definition: @aql rank(order: revenue | desc());;
+  }
+
+  metric ranking_by_category {
+    label: 'Ranking by Category'
+    type: 'number'
+    definition: @aql rank(order: revenue | desc(), partition: ecommerce_categories.name);;
+  }
+
+  // dimension merchants_ranking_dim {
+  //   label: 'Merchants Ranking (Dimension)'
+  //   type: 'number'
+  //   model: ecommerce_merchants
+  //   definition: @aql  rank(order: revenue | exact_grains(ecommerce_merchants.id) | desc());;
+  // }
+
+  dimension product_revenue {
+    model: ecommerce_products
+    label: 'Product Revenue'
+    type: "number"
+    definition: @aql revenue | exact_grains(ecommerce_products.id) ;;
+  }
+
+  dimension products_ranking_dim {
+    label: 'Products Ranking (Dimension)'
+    type: "number"
+    model: ecommerce_products
+    definition: @aql rank(
+      order: (revenue | where(ecommerce_order_items.product_id is not null) | exact_grains(ecommerce_products.id)) | desc()) ;;
+  }
+
+}
