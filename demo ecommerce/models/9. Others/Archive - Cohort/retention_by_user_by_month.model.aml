@@ -1,0 +1,34 @@
+// import '../base/ecommerce_orders.model.aml' { ecommerce_orders }
+// import '../cohort/cohort_dfn.model.aml' {
+//  cohort_dfn as model__cohort_dfn
+// }
+
+Model retention_by_user_by_month {
+  type: 'query'
+  label: "Retention by user by month"
+  description: "test"
+  data_source_name: 'demodb'
+  owner: 'anh.vu+demo4@holistics.io'
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension Month_Number {
+    label: 'Month Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_number}};;
+  }
+  query: @sql
+    select {{#o.user_id}}
+        ,((DATE_PART('year', {{#o.created_at}}::date) - DATE_PART('year', {{#c.Cohort_Month}}::date)) * 12 +
+          (DATE_PART('month', {{#o.created_at}}::date) - DATE_PART('month', {{#c.Cohort_Month}}::date))) as month_number
+      from {{#ecommerce_orders as o}}
+        left join {{#cohort_dfn as c}} on {{#o.user_id}}={{#c.user_id}};;
+  models: [
+    ecommerce_orders,
+    cohort_dfn
+  ]
+}
