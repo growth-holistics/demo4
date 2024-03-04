@@ -85,4 +85,17 @@ Dataset demo_ecommerce {
       order: (revenue | where(ecommerce_order_items.product_id is not null) | exact_grains(ecommerce_products.id)) | desc()) ;;
   }
 
+  dimension monthly_revenue {
+    model: ecommerce_orders
+    label: 'Monthly Revenue'
+    type: "number"
+    definition: @aql revenue | exact_grains(ecommerce_orders.created_at | month()) ;;
+  }
+
+  metric trailing_avg_revenue_3m {
+    label: 'Trailing Avg. Revenue (3 months)'
+    type: 'number'
+    definition: @aql ecommerce_order_items |  trailing_period(avg(monthly_revenue), ecommerce_orders.created_at, interval(3 months)) ;;
+  }
+
 }
