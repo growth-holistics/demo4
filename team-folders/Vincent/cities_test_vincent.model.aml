@@ -1,0 +1,36 @@
+Model cities_test_vincent {
+  type: 'query'
+  label: 'Cities Test Vincent'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension country_code {
+    label: 'Country Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_code }};;
+  }
+
+  owner: 'vincent@holistics.io'
+  query: @sql SELECT * from {{ #ecommerce_cities }};;
+  models: [
+    ecommerce_cities
+  ]
+  measure count_cities {
+    label: "Count Cities"
+    type: "number"
+    definition: @sql cout ({{ id }});;
+    aggregation_type: "custom"
+  }
+}
