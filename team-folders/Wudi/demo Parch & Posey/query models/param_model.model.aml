@@ -34,12 +34,11 @@ Model param_model {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql
-    select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_amt }}, {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
-    from {{ #param_test }}
-    left join {{ #refs }} on {{ #param_test.id }} = {{ #refs.id }}
-    where {% filter(reference) %} ref_amt {% end %}
-  ;;
+  query: @sql select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_amt }}, {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
+from {{ #param_test }}
+left join {{ #refs }} on {{ #param_test.id }} = {{ #refs.id }}
+  where {% filter(reference) %} ref_amt {% end %}
+;;
 
   models: [
     refs,
