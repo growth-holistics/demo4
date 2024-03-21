@@ -1,4 +1,4 @@
-Dashboard thinh_ecommerce_overview {
+Dashboard ecom_dashboard {
   title: '[Demo] Ecommerce Overview 4.0'
   block hd1: TextBlock {
     content: @md <picture>
@@ -218,6 +218,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
+  block v3: age_demographic
   block v6: VizBlock {
     label: 'Top selling products'
     viz: DataTable {
@@ -485,7 +486,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     content: @md <h3 style="color: #18345E">Filter by Country</h3>;;
   }
   block t10: TextBlock {
-    content: @md   <a href="#overview">
+    content: @md <a href="#overview">
  <button style="
   background-color: white;
   color: gray;
@@ -778,7 +779,7 @@ william_da_vis@mycompany.com </a>
     content: @md <h3 style="color: #18345E">Filter by Age Group</h3>;;
   }
   block f2: FilterBlock {
-    label: 'Country'
+    label: 'Age Group'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce
@@ -812,11 +813,11 @@ william_da_vis@mycompany.com </a>
 </svg>;;
   }
   block f3: FilterBlock {
-    label: 'Country'
+    label: 'City'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce
-      field: ref('ecommerce_countries', 'name')
+      field: ref('ecommerce_cities', 'name')
     }
     default {
       operator: 'is'
@@ -915,37 +916,6 @@ william_da_vis@mycompany.com </a>
       }
     }
   }
-  block v16: VizBlock {
-    label: 'Sales Funnel'
-    viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
-      values: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'users_signed_up_count')
-          format {
-            type: 'number'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'buyers_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        circle_color: '#18A59E'
-      }
-    }
-  }
   block t37: TextBlock {
     content: @md <iframe style="border-radius: 12px;" src="https://free.timeanddate.com/clock/i97d6qp0/n218/fn9/fs20/fc1357a0/tce8f2fd/pa16/tt0/td1" frameborder="0" width="515" height="55"></iframe>;;
   }
@@ -1037,6 +1007,9 @@ text-align: right;
     block v2_dup_dup {
       position: pos(410, 2490, 400, 520)
     }
+    block v3 {
+      position: pos(40, 2010, 630, 420)
+    }
     block v6 {
       position: pos(820, 2490, 480, 520)
     }
@@ -1089,7 +1062,7 @@ text-align: right;
       layer: -1
     }
     block t15 {
-      position: pos(0, 130, 630, 250)
+      position: pos(-10, 130, 630, 250)
       layer: -1
     }
     block t16 {
@@ -1109,7 +1082,7 @@ text-align: right;
       position: pos(710, 2000, 590, 420)
     }
     block t19 {
-      position: pos(610, 430, 110, 120)
+      position: pos(600, 430, 110, 120)
     }
     block t20 {
       position: pos(20, 490, 1290, 330)
@@ -1140,10 +1113,10 @@ text-align: right;
       position: pos(330, 2510, 60, 60)
     }
     block t28 {
-      position: pos(550, 3330, 270, 50)
+      position: pos(960, 3330, 270, 50)
     }
     block f2 {
-      position: pos(500, 3380, 330, 80)
+      position: pos(910, 3380, 330, 80)
     }
     block t29 {
       position: pos(480, 3300, 380, 150)
@@ -1154,12 +1127,13 @@ text-align: right;
     }
     block t31 {
       position: pos(890, 3300, 400, 160)
+      layer: -1
     }
     block f3 {
-      position: pos(910, 3380, 330, 30)
+      position: pos(500, 3380, 330, 30)
     }
     block t32 {
-      position: pos(960, 3330, 270, 50)
+      position: pos(550, 3330, 270, 50)
     }
     block t33 {
       position: pos(910, 3320, 60, 60)
@@ -1177,9 +1151,6 @@ text-align: right;
     }
     block v15 {
       position: pos(670, 3460, 620, 510)
-    }
-    block v16 {
-      position: pos(30, 2000, 650, 420)
     }
     block t37 {
       position: pos(780, 290, 530, 70)
@@ -1230,6 +1201,7 @@ text-align: right;
             'v1',
             'v2',
             'v2_dup_dup',
+            'v3',
             'v6',
             'v10',
             'v12',
@@ -1237,18 +1209,10 @@ text-align: right;
             'v14'
           ]
           disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
+        },
         CustomMapping {
-          block: [
-            'f2',
-            'f3'
-          ]
-          disabled: true
+          block: 'f3'
+          field: ref('ecommerce_countries', 'name')
         }
       ]
     },
@@ -1274,6 +1238,7 @@ text-align: right;
             'v1',
             'v2',
             'v2_dup_dup',
+            'v3',
             'v6',
             'v10',
             'v12',
@@ -1285,29 +1250,25 @@ text-align: right;
       ]
     },
     FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f3'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'f3'
       to: [
         CustomMapping {
           block: [
+            'v1',
             'v2',
             'v2_dup_dup',
+            'v3',
             'v6',
             'v10',
-            'v12'
+            'v12',
+            'v13',
+            'v14'
           ]
           disabled: true
+        },
+        CustomMapping {
+          block: 'f1'
+          field: ref('ecommerce_cities', 'name')
         }
       ]
     },
