@@ -1,0 +1,48 @@
+Model param_model {
+  type: 'query'
+  label: 'Param Model'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension total_amt_usd {
+    label: 'Total Amt Usd'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_amt_usd }};;
+  }
+  dimension ref_amt {
+    label: 'Ref Amt'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_amt }};;
+  }
+  dimension diff {
+    label: 'Diff'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.diff }};;
+  }
+
+  param reference {
+    label: 'Reference'
+    type: 'number'
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql
+    select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_amt }}, {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
+    from {{ #param_test }}
+    left join {{ #refs }} on {{ #param_test.id }} = {{ #refs.id }}
+    where {% filter(reference) %} ref_amt {% end %}
+  ;;
+
+  models: [
+    refs,
+    param_test
+  ]
+}
