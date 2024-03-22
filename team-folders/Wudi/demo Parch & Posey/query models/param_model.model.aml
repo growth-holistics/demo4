@@ -34,10 +34,10 @@ Model param_model {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_amt }}, {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
+  query: @sql select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_id }}, max({{ #refs.ref_amt }}), {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
 from {{ #param_test }}
 cross join {{ #refs }}
-  where {% filter(reference) %} {{ #refs.ref_amt }} {% end %}
+  where {% filter(reference) %} {{ #refs.ref_id }} {% end %}
 ;;
 
   models: [
