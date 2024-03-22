@@ -27,6 +27,11 @@ Model param_model {
     hidden: false
     definition: @sql {{ #SOURCE.diff }};;
   }
+  dimension ref_id {
+    label: "Ref Id"
+    type: "number"
+    definition: @sql {{ #SOURCE.ref_id }};;
+  }
 
   param reference {
     label: 'Reference'
@@ -34,12 +39,16 @@ Model param_model {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_id }}, max({{ #refs.ref_amt }}), {{ #param_test.total_amt_usd }} - {{ #refs.ref_amt }} diff
+  query: @sql with CT as (
+  select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_id }}, max({{ #refs.ref_amt }}) as ref_amt
 from {{ #param_test }}
 cross join {{ #refs }}
   where {% filter(reference) %} {{ #refs.ref_id }} {% end %}
-group by 1,2,3,5
-;;
+group by 1,2,3
+)
+
+select *
+from CT;;
 
   models: [
     refs,
