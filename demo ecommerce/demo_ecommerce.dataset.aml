@@ -70,13 +70,7 @@ Dataset demo_ecommerce {
   //   definition: @aql  rank(order: revenue | exact_grains(ecommerce_merchants.id) | desc());;
   // }
 
-  dimension product_revenue {
-    model: ecommerce_products
-    label: 'Product Revenue'
-    type: "number"
-    definition: @aql revenue | exact_grains(ecommerce_products.id) ;;
-  }
-
+  
   dimension products_ranking_dim {
     label: 'Products Ranking (Dimension)'
     type: "number"
@@ -84,18 +78,10 @@ Dataset demo_ecommerce {
     definition: @aql rank(
       order: (revenue | where(ecommerce_order_items.product_id is not null) | exact_grains(ecommerce_products.id)) | desc()) ;;
   }
-
-  dimension monthly_revenue {
-    model: ecommerce_orders
-    label: 'Monthly Revenue'
-    type: "number"
-    definition: @aql revenue | exact_grains(ecommerce_orders.created_at | month()) ;;
-  }
-
-  metric trailing_avg_revenue_3m {
-    label: 'Trailing Avg. Revenue (3 months)'
+  
+  metric moving_avg_revenue_3m {
+    label: 'Moving Avg. Revenue (3 months)'
     type: 'number'
-    definition: @aql ecommerce_order_items |  trailing_period(avg(monthly_revenue), ecommerce_orders.created_at, interval(3 months)) ;;
+    definition: @aql trailing_period(revenue, ecommerce_orders.created_at, interval(3 months)) / 3;;
   }
-
 }
