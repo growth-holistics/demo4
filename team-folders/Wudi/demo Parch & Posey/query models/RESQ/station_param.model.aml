@@ -1,0 +1,53 @@
+Model station_param {
+  type: 'query'
+  label: 'Station Param'
+  description: ''
+  data_source_name: 'demo_bike_valentin'
+  dimension station {
+    label: 'Station'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station }};;
+  }
+  dimension station_pt {
+    label: 'Station Pt'
+    type: 'unknown'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_pt }};;
+  }
+  dimension ref_station {
+    label: 'Ref Station'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_station }};;
+  }
+  dimension ref_station_pt {
+    label: 'Ref Station Pt'
+    type: 'unknown'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_station_pt }};;
+  }
+
+    param reference {
+    label: 'Reference Station'
+    type: 'number'
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql
+    WITH CT AS (select {{ #station.station }}
+          ,{{ #station.station_pt }}
+          ,{{ #ref_station.ref_station }}
+          ,({{ #ref_station.ref_station_pt }})
+    from {{ #station }}
+    cross join {{ #ref_station }}
+      where {% filter(reference) %} {{ #ref_station.ref_station }} {% end %}
+    )
+
+    select *
+    from CT;;
+  models: [
+    station,
+    ref_station
+  ]
+}
