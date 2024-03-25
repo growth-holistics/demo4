@@ -32,6 +32,16 @@ Model station_param {
     type: "number"
     definition: @sql {{ #SOURCE.distance }};;
   }
+  dimension station_lat {
+    label: "Station Lat"
+    type: "number"
+    definition: @sql {{ #SOURCE.station_lat }};;
+  }
+  dimension station_lon {
+    label: "Station Lon"
+    type: "number"
+    definition: @sql {{ #SOURCE.station_lon }};;
+  }
 
   param reference {
     label: 'Reference Station'
@@ -39,7 +49,9 @@ Model station_param {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql   WITH CT AS (select {{ #station.station }}
+  query: @sql WITH CT AS (select {{ #station.station }}
+          ,{{ #station.station_lat }}
+          ,{{ #station.station_lon }}
           ,{{ #station.station_pt }}
           ,{{ #ref_station.ref_station }}
           ,({{ #ref_station.ref_station_pt }})
