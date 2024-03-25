@@ -27,15 +27,19 @@ Model station_param {
     hidden: false
     definition: @sql {{ #SOURCE.ref_station_pt }};;
   }
+  dimension distance {
+    label: "Distance"
+    type: "number"
+    definition: @sql {{ #SOURCE.distance }};;
+  }
 
-    param reference {
+  param reference {
     label: 'Reference Station'
     type: 'number'
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql
-    WITH CT AS (select {{ #station.station }}
+  query: @sql   WITH CT AS (select {{ #station.station }}
           ,{{ #station.station_pt }}
           ,{{ #ref_station.ref_station }}
           ,({{ #ref_station.ref_station_pt }})
@@ -44,7 +48,7 @@ Model station_param {
       where {% filter(reference) %} {{ #ref_station.ref_station }} {% end %}
     )
 
-    select *, ST_DISTANCE(station_point, ref_station_pt) AS distance
+    select *, ST_DISTANCE(station_pt, ref_station_pt) AS distance
     from CT;;
   models: [
     station,
