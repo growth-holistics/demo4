@@ -23,9 +23,9 @@ Model station_param {
   }
   dimension ref_station_pt {
     label: 'Ref Station Pt'
-    type: 'unknown'
+    type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.ref_station_pt }};;
+    definition: @sql ST_ASTEXT({{ #SOURCE.ref_station_pt }});;
   }
   dimension distance {
     label: "Distance"
@@ -65,7 +65,7 @@ CT2 AS (
       from
         {{ #ref_station }}
       where
-        { % filter(reference) % } {{ #ref_station.ref_station }} { % end % }
+        {% filter(reference) %} {{ #ref_station.ref_station }} {% end %}
     ),
     
     
