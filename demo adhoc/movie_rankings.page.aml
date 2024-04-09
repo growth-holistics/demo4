@@ -1,0 +1,2058 @@
+Dashboard movie_rankings {
+  title: 'Movie Rankings'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Movies list'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'is_not'
+        value: 'placeholder'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'released_year')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'genre')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'runtime')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Movie - Poster'
+    viz: DataTable {
+      dataset: movies_imdb
+      calculation f_14a9784 {
+        label: 'Image'
+        formula: @aml concat('<img src="', bigquery_demo_movies.poster_link, '" style="float:left;width:250px;height:350px;object-fit:contain" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'f_14a9784'
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'IMDB Rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v5: VizBlock {
+    label: 'No. of movies by directors'
+    viz: BarChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'director')
+        operator: 'top'
+        value: 6
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'director')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field {
+            label: '   '
+            ref: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2E2D1FFF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'No. of movies by Genres'
+    viz: PieChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'genre')
+        operator: 'top'
+        value: 7
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'genre')
+        format {
+          type: 'number'
+        }
+      }
+      series {
+        field {
+          label: '   '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'Action, Crime, Drama'
+            color: '#B59210FF'
+          }
+          point {
+            value: 'Biography, Drama, History'
+            color: '#483A07FF'
+          }
+          point {
+            value: 'Comedy, Drama'
+            color: '#DDB419FF'
+          }
+          point {
+            value: 'Comedy, Drama, Romance'
+            color: '#B59210FF'
+          }
+          point {
+            value: 'Crime, Drama, Thriller'
+            color: '#483A07FF'
+          }
+          point {
+            value: 'Drama'
+            color: '#F8CD2DFF'
+          }
+          point {
+            value: 'Drama, Romance'
+            color: '#DBB31FFF'
+          }
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v7: VizBlock {
+    label: 'No. of movies by labels'
+    viz: BarChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'certificate')
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: ref('bigquery_demo_movies', 'certificate')
+        operator: 'top'
+        value: 5
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'certificate')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: '   '
+            ref: ref('bigquery_demo_movies', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F8CD2DFF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v8: VizBlock {
+    label: 'Rating over years'
+    viz: LineChart {
+      dataset: movies_imdb
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_ratings', 'year')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('bigquery_demo_ratings', 'rating')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F8CD2DFF'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md  <svg style="
+  width: 100%;
+  height: auto;"
+width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="76" cy="76" r="66" fill="#F8CD2D"/>
+</svg>;;
+  }
+  block t4: TextBlock {
+    content: @md <p style="font-size: 20px; color: black; line-height: 2.6rem; text-align:center">👇 Click on your favorite movie to reveal insights 👇<p3>;;
+  }
+  block t6: TextBlock {
+    content: @md  <svg width="1500" height="472" viewBox="0 0 1500 472" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1500" height="472" fill="url(#paint0_radial_1113_1426)"/>
+<defs>
+<radialGradient id="paint0_radial_1113_1426" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(853 -306.774) rotate(94.3068) scale(985.394 930.12)">
+<stop stop-color="#F5DD85"/>
+<stop offset="1" stop-color="#E4BB22"/>
+</radialGradient>
+</defs>
+</svg>;;
+  }
+  block t7: TextBlock {
+    content: @md <img src="https://static-00.iconduck.com/assets.00/imdb-icon-512x267-3oag4p1t.png" alt="Description of the image" style="width:100%;height:100%">;;
+  }
+  block t9: TextBlock {
+    content: @md <h1 style="font-size:40px; color:#2E2D1F;">Movies Dashboard </h1>;;
+  }
+  block t10: TextBlock {
+    content: @md  <a href="#director">
+<button style="
+background-color: #2E2D1F;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-family: Arial, sans-serif;">
+Directors insights</button>
+</a>;;
+  }
+  block t11: TextBlock {
+    content: @md  <a href="#movie">
+<button style="
+background-color: #2E2D1F;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-family: Arial, sans-serif;">
+Movies insights</button>
+</a>;;
+  }
+  block t12: TextBlock {
+    content: @md    <a href="#regional-analysis">
+  <button style="
+  background-color: #2E2D1F;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;">
+  Info </button>
+  </a>;;
+  }
+  block t13: TextBlock {
+    content: @md <div style="width: 1500px; height: 16px; background-color: #2E2D1F;"></div>;;
+  }
+  block t14: TextBlock {
+    content: @md <div style="width: 100%; height: 1000px; background-color: #27261A;"></div>;;
+  }
+  block t15: TextBlock {
+    content: @md <p style="font-size: 20px; color: #5D5D5D; line-height: 2.2rem; text-align:center">👇 Click on your favorite director to reveal insights👇 </p>;;
+  }
+  block t16: TextBlock {
+    content: @md  <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="47.5" cy="47.5" r="46" fill="white" stroke="#F8CD2D" stroke-width="2"/>
+</svg>;;
+  }
+  block t17: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center"> ⭐ Rating ⭐</p>;;
+  }
+  block v10: VizBlock {
+    label: 'MPAA rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'certificate')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t18: TextBlock {
+    content: @md <h3 style="font-size:20px; color: #F8CD2D; line-height: 2.5rem;">MPAA Ratings</h3>;;
+  }
+  block v11: VizBlock {
+    label: '''Director's highest rating movie'''
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block t20: TextBlock {
+    content: @md   <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="125" height="48" viewBox="0 0 125 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="125" height="48" rx="12" fill="#E3BE33"/>
+</svg>;;
+  }
+  block t21: TextBlock {
+    content: @md <h3 style="font-size:20px; color: #F8CD2D; line-height: 2.5rem;">By genres</h3>;;
+  }
+  block t22: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center">🎞 Highest Rating Movie 🎞</p>;;
+  }
+  block v12: VizBlock {
+    label: 'Director name'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'director')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t24: TextBlock {
+    content: @md <h3 style="font-size:16px; color:#AEAEAE; line-height: 2.5rem;">Director</h3>;;
+  }
+  block t25: TextBlock {
+    content: @md   <svg width="400" height="72" viewBox="0 0 400 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="72" rx="40" fill="#ECECEC"/>
+</svg>;;
+  }
+  block t26: TextBlock {
+    content: @md   <svg width="400" height="72" viewBox="0 0 400 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="400" height="72" rx="40" fill="#ECECEC"/>
+</svg>;;
+  }
+  block v13: VizBlock {
+    label: 'Movie - Selected movie name'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t27: TextBlock {
+    content: @md <h3 style="font-size:16px; color:#AEAEAE; line-height: 2.5rem;">Selected Movie</h3>;;
+  }
+  block t28: TextBlock {
+    content: @md <div style="width: 100%; height: 852px; background-color: #F8CD2D;"></div>;;
+  }
+  block t29: TextBlock {
+    content: @md  <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="232" height="96" viewBox="0 0 232 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="232" height="96" rx="18.5" fill="white" stroke="#F8CD2D" stroke-width="3"/>
+</svg>;;
+  }
+  block t30: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center"> 💰Gross💰</p>;;
+  }
+  block v14: VizBlock {
+    label: 'Movie - Gross'
+    viz: DataTable {
+      dataset: movies_imdb
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'gross')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t31: TextBlock {
+    content: @md   <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="372" height="72" viewBox="0 0 372 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="372" height="72" rx="20" fill="#E3BE33"/>
+</svg>;;
+  }
+  block v15: VizBlock {
+    label: 'Director - Highest gross'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'gross')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'gross')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t33: TextBlock {
+    content: @md  <div id="actor">
+<h3 style="font-size:32px; color: black; line-height: 2.7rem; text-align: center"> 🍿Actors insights 🍿</h3>
+</div>;;
+  }
+  block v18: VizBlock {
+    label: 'Actors by no. of movies'
+    viz: ColumnChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_stars', 'star')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('bigquery_demo_stars', 'series_title')
+            aggregation: 'count'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bigquery_demo_stars', 'star')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Number of movies'
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('bigquery_demo_stars', 'series_title')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F8CD2DFF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t34: TextBlock {
+    content: @md  <div id="director">
+<h3 style="font-size:32px; color: black; line-height: 2.7rem; text-align: center"> 🍿Directors insights 🍿</h3>
+</div>;;
+  }
+  block v19: VizBlock {
+    label: 'Movies by IMDB Rating and Gross'
+    viz: ScatterChart {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 50
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'gross')
+            aggregation: 'sum'
+            logic: 'standard'
+          }
+        }
+      }
+      x_col: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'imdb_rating')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_col: VizFieldFull {
+        ref: ref('bigquery_demo_movies', 'gross')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      label_col: VizFieldFull {
+        label: ' '
+        ref: ref('bigquery_demo_movies', 'series_title')
+        format {
+          type: 'text'
+        }
+      }
+      settings {
+        row_limit: 100
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t35: TextBlock {
+    content: @md <h3 style="font-size:20px; color: #F8CD2D; line-height: 2.5rem;">By Gross and Rating</h3>;;
+  }
+  block t36: TextBlock {
+    content: @md <h3 style="font-size:32px; color: black; line-height: 2.7rem; text-align: center"> 🍿 Movies insights 🍿</h3>;;
+  }
+  block t37: TextBlock {
+    content: @md <a href="#actor">
+<button style="
+background-color: #2E2D1F;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-family: Arial, sans-serif;">
+Actor insights</button>
+</a>;;
+  }
+  block t38: TextBlock {
+    content: @md <svg width="1500" height="100" viewBox="0 0 1500 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_1146_1520)">
+<rect width="1500" height="332" fill="black"/>
+<g opacity="0.25">
+<path d="M1427.02 56.1715C1427.08 56.1715 1427.13 56.1715 1427.22 56.1715V37.4446L1448.11 25.3891L1463.39 34.2259C1463.8 32.9677 1464.56 31.885 1465.55 31.095L1448.08 21L1423.42 35.25V57.2249C1424.44 56.5519 1425.67 56.1715 1427.02 56.1715Z" fill="white"/>
+<path d="M1469.62 42.7992C1469.39 42.7992 1469.18 42.7992 1468.98 42.77V61.5554L1448.08 73.6109L1433.16 65.0082C1432.72 66.2372 1431.9 67.2905 1430.85 68.0513L1448.06 78L1472.72 63.75V42.0092C1471.81 42.5066 1470.76 42.7992 1469.62 42.7992Z" fill="white"/>
+<path d="M1469.39 31.6217C1466.84 31.6217 1464.76 33.6992 1464.76 36.2449C1464.76 37.0349 1464.97 37.7665 1465.32 38.4102L1452.15 50.6412C1451.33 49.939 1450.28 49.5 1449.11 49.5C1446.56 49.5 1444.49 51.5776 1444.49 54.1233C1444.49 54.3573 1444.51 54.6207 1444.54 54.8548L1429.83 59.2732C1429.01 58.5416 1427.95 58.1027 1426.78 58.1027C1424.24 58.1027 1422.16 60.1802 1422.16 62.7259C1422.16 65.2716 1424.24 67.3492 1426.78 67.3492C1429.33 67.3492 1431.41 65.2716 1431.41 62.7259C1431.41 62.4333 1431.38 62.1115 1431.32 61.8189L1445.89 57.4297C1446.71 58.2198 1447.85 58.7172 1449.11 58.7172C1451.65 58.7172 1453.73 56.6397 1453.73 54.094C1453.73 53.7721 1453.7 53.4795 1453.64 53.1869L1467.37 40.3707C1467.98 40.6633 1468.65 40.8388 1469.39 40.8388C1471.93 40.8388 1474.01 38.7613 1474.01 36.2156C1474.01 33.6699 1471.93 31.6217 1469.39 31.6217ZM1426.78 64.5109C1425.82 64.5109 1425.03 63.7208 1425.03 62.7552C1425.03 61.7896 1425.82 60.9996 1426.78 60.9996C1427.75 60.9996 1428.54 61.7896 1428.54 62.7552C1428.54 63.7208 1427.75 64.5109 1426.78 64.5109ZM1449.11 55.9082C1448.14 55.9082 1447.35 55.1181 1447.35 54.1525C1447.35 53.1869 1448.14 52.3969 1449.11 52.3969C1450.07 52.3969 1450.86 53.1869 1450.86 54.1525C1450.86 55.1181 1450.07 55.9082 1449.11 55.9082ZM1469.39 38.0005C1468.42 38.0005 1467.63 37.2105 1467.63 36.2449C1467.63 35.2793 1468.42 34.4892 1469.39 34.4892C1470.35 34.4892 1471.14 35.2793 1471.14 36.2449C1471.14 37.2105 1470.35 38.0005 1469.39 38.0005Z" fill="white"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_1146_1520">
+<rect width="1500" height="100" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+;;
+  }
+  block t39: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center">🎞 Highest Gross Movie 🎞</p>;;
+  }
+  block v20: VizBlock {
+    label: 'Director - Highest gross movie'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'gross')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v21: VizBlock {
+    label: 'Director list'
+    viz: PivotTable {
+      dataset: movies_imdb
+      rows: [
+        VizFieldFull {
+          label: 'Director'
+          ref: ref('bigquery_demo_movies', 'director')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Movies'
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('bigquery_demo_movies', 'gross')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'asc'
+          }
+        ]
+        row_limit: 50
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v23: VizBlock {
+    label: 'Director - Max IMDB Rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t40: TextBlock {
+    content: @md   <svg style="
+  width: 100%;
+  height:auto;"
+width="500" height="244" viewBox="0 0 500 252" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="500" height="244" rx="18.5" fill="white" stroke="#E3BE33" stroke-width="3"/>
+</svg>;;
+  }
+  block t41: TextBlock {
+    content: @md <svg style="
+  width: 100%;
+  height:auto;"
+width="244" height="172" viewBox="0 0 244 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="244" height="172" rx="18.5" fill="white" stroke="#E3BE33" stroke-width="3"/>
+</svg>;;
+  }
+  block t42: TextBlock {
+    content: @md <img src="https://static-00.iconduck.com/assets.00/imdb-icon-512x267-3oag4p1t.png" alt="Description of the image" style="width:100%;height:100%">;;
+  }
+  block f1: FilterBlock {
+    label: 'Director'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_movies', 'director')
+    }
+    default {
+      operator: 'is'
+      value: 'Peter Jackson'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block t43: TextBlock {
+    content: @md <img src="https://static-00.iconduck.com/assets.00/imdb-icon-512x267-3oag4p1t.png" alt="Description of the image" style="width:100%;height:100%">;;
+  }
+  block v25: VizBlock {
+    label: '''Actor's highest rating movie'''
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t45: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center">🎞 Highest Rating Movie 🎞</p>;;
+  }
+  block v26: VizBlock {
+    label: '''Actor's highest rating movie'''
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'series_title')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t46: TextBlock {
+    content: @md <p style="font-size:20px; color: #AEAEAE; line-height: 2.7rem; text-align: center">🎞 Highest Gross Movie 🎞</p>;;
+  }
+  block v27: VizBlock {
+    label: 'Actor - Max IMDB Rating'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'imdb_rating')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: '  '
+          ref: ref('bigquery_demo_movies', 'imdb_rating')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t47: TextBlock {
+    content: @md <svg style="
+  width: 100%;
+  height:auto;"
+width="500" height="244" viewBox="0 0 500 252" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="500" height="244" rx="18.5" fill="white" stroke="#DFE2EA" stroke-width="3"/>
+</svg>;;
+  }
+  block t48: TextBlock {
+    content: @md   <svg style="
+  width: 100%;
+  height:auto;"
+width="172" height="172" viewBox="0 0 172 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="172" height="172" rx="18.5" fill="white" stroke="#DFE2EA" stroke-width="3"/>
+</svg>;;
+  }
+  block t49: TextBlock {
+    content: @md <p style="font-size: 16px; color: #5D5D5D; text-align:center">👇 Click on your favorite director to reveal insights👇 </p>;;
+  }
+  block t50: TextBlock {
+    content: @md  <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="125" height="48" viewBox="0 0 125 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="125" height="48" rx="12" fill="#E3BE33"/>
+</svg>;;
+  }
+  block v28: VizBlock {
+    label: 'Actor - Highest gross'
+    viz: DataTable {
+      dataset: movies_imdb
+      filter {
+        field: ref('bigquery_demo_movies', 'series_title')
+        operator: 'top'
+        value: 1
+        options {
+          rank_by {
+            field: ref('bigquery_demo_movies', 'gross')
+            aggregation: 'max'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('bigquery_demo_movies', 'gross')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t51: TextBlock {
+    content: @md <svg 
+style="
+  width: 100%;
+  height: auto;"
+width="372" height="72" viewBox="0 0 372 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="372" height="72" rx="20" fill="#E3BE33"/>
+</svg>;;
+  }
+  block t52: TextBlock {
+    content: @md <img src="https://static-00.iconduck.com/assets.00/imdb-icon-512x267-3oag4p1t.png" alt="Description of the image" style="width:100%;height:100%">;;
+  }
+  block f2: FilterBlock {
+    label: 'Actor'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movies_imdb
+      field: ref('bigquery_demo_stars', 'star')
+    }
+    default {
+      operator: 'is'
+      value: 'Nicole Kidman'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1440
+    height: 2900
+    block v1 {
+      position: pos(150, 230, 1120, 270)
+    }
+    block v2 {
+      position: pos(600, 520, 260, 370)
+    }
+    block v3 {
+      position: pos(930, 650, 200, 100)
+    }
+    block v5 {
+      position: pos(720, 1880, 690, 280)
+    }
+    block v6 {
+      position: pos(380, 990, 460, 330)
+    }
+    block v7 {
+      position: pos(10, 980, 420, 340)
+    }
+    block v8 {
+      position: pos(-440, 200, 340, 190)
+    }
+    block t3 {
+      position: pos(940, 580, 180, 230)
+      layer: -1
+    }
+    block t4 {
+      position: pos(330, 170, 810, 60)
+    }
+    block t6 {
+      position: pos(-40, 10, 1580, 490)
+      layer: -4
+    }
+    block t7 {
+      position: pos(980, 620, 90, 70)
+    }
+    block t9 {
+      position: pos(170, 50, 480, 60)
+    }
+    block t10 {
+      position: pos(1020, 40, 170, 60)
+    }
+    block t11 {
+      position: pos(870, 40, 140, 50)
+    }
+    block t12 {
+      position: pos(1320, 40, 80, 50)
+    }
+    block t13 {
+      position: pos(-40, 0, 1660, 40)
+    }
+    block t14 {
+      position: pos(-20, 380, 1490, 1000)
+      layer: -3
+    }
+    block t15 {
+      position: pos(200, 1570, 280, 90)
+    }
+    block t16 {
+      position: pos(1120, 590, 160, 220)
+      layer: -1
+    }
+    block t17 {
+      position: pos(1130, 630, 140, 60)
+    }
+    block v10 {
+      position: pos(1070, 660, 250, 50)
+    }
+    block t18 {
+      position: pos(70, 940, 200, 70)
+    }
+    block v11 {
+      position: pos(590, 1530, 650, 50)
+    }
+    block t20 {
+      position: pos(830, 1580, 170, 100)
+      layer: -1
+    }
+    block t21 {
+      position: pos(440, 940, 200, 70)
+    }
+    block t22 {
+      position: pos(770, 1500, 310, 60)
+    }
+    block v12 {
+      position: pos(120, 760, 380, 30)
+    }
+    block t24 {
+      position: pos(270, 730, 100, 60)
+    }
+    block t25 {
+      position: pos(110, 730, 420, 110)
+      layer: -1
+    }
+    block t26 {
+      position: pos(110, 630, 420, 100)
+      layer: -1
+    }
+    block v13 {
+      position: pos(120, 660, 380, 30)
+    }
+    block t27 {
+      position: pos(250, 630, 180, 60)
+    }
+    block t28 {
+      position: pos(-10, 1370, 1460, 870)
+      layer: -4
+    }
+    block t29 {
+      position: pos(990, 780, 260, 170)
+      layer: -1
+    }
+    block t30 {
+      position: pos(1050, 790, 150, 60)
+    }
+    block v14 {
+      position: pos(1000, 820, 250, 50)
+    }
+    block t31 {
+      position: pos(750, 1740, 350, 100)
+      layer: -1
+    }
+    block v15 {
+      position: pos(730, 1750, 390, 50)
+    }
+    block t33 {
+      position: pos(310, 2270, 830, 60)
+    }
+    block v18 {
+      position: pos(1050, 2350, 370, 380)
+    }
+    block t34 {
+      position: pos(300, 1410, 830, 60)
+    }
+    block v19 {
+      position: pos(800, 990, 600, 370)
+    }
+    block t35 {
+      position: pos(800, 940, 200, 70)
+    }
+    block t36 {
+      position: pos(320, 130, 830, 60)
+    }
+    block t37 {
+      position: pos(1180, 40, 170, 60)
+    }
+    block t38 {
+      position: pos(-50, 2800, 1660, 100)
+    }
+    block t39 {
+      position: pos(770, 1660, 310, 60)
+    }
+    block v20 {
+      position: pos(570, 1690, 720, 50)
+    }
+    block v21 {
+      position: pos(60, 1870, 630, 280)
+    }
+    block v23 {
+      position: pos(900, 1590, 100, 50)
+    }
+    block t40 {
+      position: pos(550, 1480, 750, 390)
+      layer: -4
+    }
+    block t41 {
+      position: pos(150, 1530, 380, 390)
+      layer: -4
+    }
+    block t42 {
+      position: pos(40, 40, 120, 90)
+    }
+    block f1 {
+      position: pos(190, 1650, 310, 70)
+    }
+    block t43 {
+      position: pos(860, 1600, 50, 70)
+    }
+    block v25 {
+      position: pos(350, 2400, 650, 50)
+    }
+    block t45 {
+      position: pos(520, 2370, 310, 60)
+    }
+    block v26 {
+      position: pos(350, 2570, 650, 50)
+    }
+    block t46 {
+      position: pos(520, 2540, 310, 60)
+    }
+    block v27 {
+      position: pos(640, 2460, 100, 50)
+    }
+    block t47 {
+      position: pos(300, 2360, 750, 390)
+      layer: -4
+    }
+    block t48 {
+      position: pos(20, 2410, 270, 310)
+      layer: -4
+    }
+    block t49 {
+      position: pos(60, 2460, 190, 90)
+    }
+    block t50 {
+      position: pos(580, 2450, 170, 100)
+      layer: -1
+    }
+    block v28 {
+      position: pos(480, 2630, 390, 50)
+    }
+    block t51 {
+      position: pos(500, 2620, 350, 100)
+      layer: -1
+    }
+    block t52 {
+      position: pos(600, 2470, 50, 70)
+    }
+    block f2 {
+      position: pos(50, 2530, 220, 80)
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: [
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v11',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v6'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v7'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v8'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v10'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v11'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v12'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v13'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v14'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v15'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v18'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v19'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v20'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v21'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v23',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v23'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v13',
+            'v14',
+            'v18',
+            'v19',
+            'v25',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v25'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v26',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v26'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v27',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v27'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v28'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v28'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23',
+            'v25',
+            'v26',
+            'v27'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7',
+            'v8',
+            'v10',
+            'v11',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v18',
+            'v19',
+            'v20',
+            'v21',
+            'v23'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+
+}

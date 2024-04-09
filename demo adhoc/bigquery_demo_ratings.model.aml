@@ -1,0 +1,52 @@
+Model bigquery_demo_ratings {
+  type: 'query'
+  label: 'Ratings'
+  description: ''
+  data_source_name: 'data_staging'
+  dimension series_title {
+    label: 'Series Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.series_title }};;
+  }
+  dimension rating {
+    label: 'Rating'
+    type: 'number'
+    definition: @sql {{ #SOURCE.rating }};;
+    format: "#,###0.00"
+  }
+  dimension year {
+    label: 'Rating Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.year }};;
+  }
+
+  owner: 'triet.lq@holistics.io'
+  query: @sql
+    with base as (
+    SELECT
+      {{ #movies.series_title }} series_title  
+      , {{ #movies.rating_2019 }} `2019`
+      , {{ #movies.rating_2020 }} `2020`
+      , {{ #movies.rating_2021 }} `2021`
+      , {{ #movies.rating_2022 }} `2022`
+      , {{ #movies.rating_2023 }} `2023`
+    from
+      {{ #bigquery_demo_movies movies }}
+    )
+    select *
+    from base  
+      UNPIVOT (
+        rating for year in (
+           `2019`
+          , `2020`
+          , `2021`
+          , `2022`
+          , `2023`
+        )
+      );;
+  models: [
+    bigquery_demo_movies
+  ]
+}
