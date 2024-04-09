@@ -1,0 +1,188 @@
+Dashboard test_bug_1 {
+  title: 'Test Bug 1'
+  description: ''''''
+
+
+  block hd1: TextBlock {
+    content: @md <center>
+  <picture>
+    <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
+    <img src="holisticswhitelabeldemo.jpg" alt="demo" width="300
+    " height="35">
+  </picture>
+</center>;;
+  }
+  block hd2: TextBlock {
+    content: @md <h1 style="color:#FFFFFF;">Ecommerce Dashboard</h1>;;
+  }
+  block hd3: TextBlock {
+    content: @md <div style="width: 1250px; height: 200px; background-image: linear-gradient(45deg, #0B325B,#0B325B, #1B7CE4);"></div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div style="color:white;">
+<p>
+This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors. If you have questions about the data here, please contact the <a href ="mailto:data@holistics.io"> data team </a>.
+</p>
+</div>;;
+  }
+  block v2: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      // calculation f_2fb1cc3 {
+      //   label: 'GMT last year'
+      //   formula: @aml order_master.gmv * 0.87;;
+      //   calc_type: 'measure'
+      //   data_type: 'number'
+      // }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: 'Gross Merchandise Value'
+        ref: ref('order_master', 'gmv')
+        aggregation: 'custom'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  
+  block v10: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: 'Average Order Value'
+        ref: ref('order_master', 'aov')
+        aggregation: 'custom'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Gross Merchandise Value'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: ''
+            ref: ref('order_master', 'gmv')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block t3: TextBlock {
+    content: @md <hr style="border: 1px solid; opacity:20%">;;
+  }
+  block t5: TextBlock {
+    content: @md <h1>Overview</h1>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 2710
+    block hd1 {
+      position: pos(830, 40, 330, 100)
+    }
+    block hd2 {
+      position: pos(30, 30, 630, 60)
+    }
+    block hd3 {
+      position: pos(0, 0, 1210, 180)
+      layer: -1
+    }
+    block t2 {
+      position: pos(30, 90, 630, 80)
+    }
+    block v2 {
+      position: pos(650, 250, 270, 180)
+    }
+    block v8 {
+      position: pos(80, 480, 400, 300)
+    }
+    block v10 {
+      position: pos(900, 250, 270, 180)
+    }
+    block v12 {
+      position: pos(30, 250, 560, 180)
+      layer: -1
+    }
+    block t3 {
+      position: pos(0, 0, 569, 40)
+    }
+    block t5 {
+      position: pos(30, 190, 390, 60)
+    }
+  }
+}
