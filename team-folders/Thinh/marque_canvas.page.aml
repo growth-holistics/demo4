@@ -57,9 +57,6 @@ Dashboard marque_canvas {
     block t5 {
       position: pos(60, 1010, 180, 60)
     }
-    block d1 {
-      position: pos(770, 240, 170, 60)
-    }
   }
   block v1: VizBlock {
     label: 'Gross Merchandise Value'
@@ -166,7 +163,7 @@ Dashboard marque_canvas {
     }
   }
   block v5: VizBlock {
-    label: 'Historical NMV'
+    label: 'Monthly NMV'
     viz: CombinationChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
@@ -191,7 +188,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#438FE8FF'
+            color: '#255DD4'
           }
         }
       }
@@ -211,7 +208,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#50CAA5FF'
+            color: '#18A59E'
             line_style: 'dashed'
             line_interpolation: 'smooth'
           }
@@ -219,7 +216,7 @@ Dashboard marque_canvas {
       }
       settings {
         row_limit: 5000
-        legend_label: 'right'
+        legend_label: 'top'
       }
     }
   }
@@ -248,7 +245,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#438FE8FF'
+            color: '#255DD4'
             line_interpolation: 'step'
           }
         }
@@ -265,7 +262,7 @@ Dashboard marque_canvas {
       dataset: demo_ecommerce
       calculation f_ad1924b {
         label: 'delivered orders'
-        formula: @aml  count(case(
+        formula: @aml   count(case(
   when: ecommerce_orders.status == 'delivered'
   , then: ecommerce_orders.id
   , else: null
@@ -275,7 +272,7 @@ Dashboard marque_canvas {
       }
       calculation f_fc0e443 {
         label: 'cancelled orders'
-        formula: @aml  count(case(
+        formula: @aml   count(case(
   when: ecommerce_orders.status == 'cancelled'
   , then: ecommerce_orders.id
   , else: null
@@ -285,7 +282,7 @@ Dashboard marque_canvas {
       }
       calculation f_0f1a86f {
         label: 'refunded order'
-        formula: @aml  count(case(
+        formula: @aml   count(case(
   when: ecommerce_orders.status == 'refunded'
   , then: ecommerce_orders.id
   , else: null
@@ -324,8 +321,8 @@ Dashboard marque_canvas {
         }
       ]
       settings {
-        circle_color: '#E5BA4F'
-        columns_color: '#438FE8FF'
+        circle_color: '#F2B602'
+        columns_color: '#255DD4'
       }
     }
   }
@@ -366,7 +363,7 @@ Dashboard marque_canvas {
     }
   }
   block t1: TextBlock {
-    content: @md <div style="width: 300px; height: 1080px; background-color:#d9e9fa;"></div>;;
+    content: @md <div style="width: 300px; height: 1080px; background-color:#d3dff6;"></div>;;
   }
   block t2: TextBlock {
     content: @md ---;;
@@ -396,7 +393,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#438FE8FF'
+            color: '#255DD4'
             line_style: 'dashed'
           }
         }
@@ -414,7 +411,7 @@ Dashboard marque_canvas {
     content: @md ---;;
   }
   block v6: VizBlock {
-    label: 'Top selling products'
+    label: 'Top selling product categories'
     viz: PivotTable {
       dataset: demo_ecommerce
       rows: [
@@ -462,7 +459,7 @@ Dashboard marque_canvas {
               }
               max {
                 value: 200000
-                color: '#438FE8FF'
+                color: '#255DD4'
               }
             }
           }
@@ -476,10 +473,6 @@ Dashboard marque_canvas {
   <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
   " height="35">
 </picture>;;
-  }
-  block d1: DateDrillBlock {
-    label: 'Time Period'
-    default: 'month'
   }
   interactions: [
     FilterInteraction {
@@ -509,15 +502,6 @@ Dashboard marque_canvas {
         CustomMapping {
           block: 'v4'
           field: ref('ecommerce_users', 'sign_up_date')
-        }
-      ]
-    },
-    DateDrillInteraction {
-      from: 'd1'
-      to: [
-        CustomMapping {
-          block: 'v5'
-          field: ref('order_master', 'order_created_at')
         }
       ]
     }
