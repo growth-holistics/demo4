@@ -198,7 +198,7 @@ Dashboard marque_canvas {
       y_axis {
         settings {
           alignment: 'right'
-          scale: 'logarithmic'
+          axis_min: 0
         }
         series {
           mark_type: 'line'
@@ -207,17 +207,17 @@ Dashboard marque_canvas {
             ref: ref('order_master', 'cancelled_order_ratio')
             format {
               type: 'number'
-              pattern: 'inherited'
+              pattern: '#,###%'
             }
           }
           settings {
-            color: '#18A59E'
-            line_style: 'dashed'
+            color: '#F2B602'
             line_interpolation: 'smooth'
           }
         }
       }
       settings {
+        show_data_points: true
         row_limit: 5000
         legend_label: 'right'
       }
@@ -256,6 +256,12 @@ Dashboard marque_canvas {
       settings {
         row_limit: 5000
         legend_label: 'hidden'
+        pop {
+          field: ref('order_master', 'order_created_at')
+          duration: 3
+          granularity: 'month'
+          show_growth_rate: true
+        }
       }
     }
   }
@@ -370,7 +376,7 @@ Dashboard marque_canvas {
   }
   block v10: VizBlock {
     label: 'Monthly Sign up Trend'
-    viz: AreaChart {
+    viz: CombinationChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'sign_up_date')
@@ -381,10 +387,8 @@ Dashboard marque_canvas {
         }
       }
       y_axis {
-        settings {
-          scale: 'logarithmic'
-        }
         series {
+          mark_type: 'area'
           field {
             ref: ref('ecommerce_users', 'users_signed_up_count')
             format {
@@ -394,13 +398,29 @@ Dashboard marque_canvas {
           }
           settings {
             color: '#255DD4'
-            line_style: 'dashed'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          mark_type: 'area'
+          field {
+            label: 'Users Purchased'
+            ref: ref('order_master', 'user_id')
+            aggregation: 'count distinct'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F2B602'
+            line_interpolation: 'smooth'
           }
         }
       }
       settings {
         row_limit: 5000
-        legend_label: 'hidden'
+        legend_label: 'top'
       }
     }
   }
