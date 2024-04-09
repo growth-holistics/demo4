@@ -52,7 +52,7 @@ Dashboard marque_canvas {
       position: pos(20, 140, 260, 40)
     }
     block v6 {
-      position: pos(960, 640, 570, 420)
+      position: pos(960, 640, 570, 400)
     }
     block t5 {
       position: pos(60, 1010, 180, 60)
@@ -334,11 +334,8 @@ Dashboard marque_canvas {
     type: 'date'
     default {
       operator: 'last'
-      value: '1'
-      modifier: 'year'
-      options {
-        include_current_period: true
-      }
+      value: '12'
+      modifier: 'month'
     }
   }
   block f2: FilterBlock {
@@ -427,11 +424,12 @@ Dashboard marque_canvas {
       ]
       columns: [
         VizFieldFull {
+          label: 'Year'
           ref: ref('order_master', 'order_created_at')
-          transformation: 'datetrunc year'
+          transformation: 'datetrunc quarter'
           format {
             type: 'date'
-            pattern: 'yyyy'
+            pattern: 'yyyy Qq'
           }
         }
       ]
@@ -458,10 +456,14 @@ Dashboard marque_canvas {
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#E9EFFB'
+                color: '#FFFFFFFF'
+              }
+              mid {
+                value: 160000
+                color: '#7C9EE5'
               }
               max {
-                value: 200000
+                value: 320000
                 color: '#255DD4'
               }
             }
@@ -491,6 +493,15 @@ Dashboard marque_canvas {
         }
       ]
     },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
     FilterInteraction {
       from: 'f1'
       to: [
@@ -502,22 +513,16 @@ Dashboard marque_canvas {
             'v5',
             'v7',
             'v9',
-            'v10'
+            'v6'
           ]
           field: ref('order_master', 'order_created_at')
         },
         CustomMapping {
-          block: 'v4'
+          block: [
+            'v10',
+            'v4'
+          ]
           field: ref('ecommerce_users', 'sign_up_date')
-        }
-      ]
-    },
-    DateDrillInteraction {
-      from: 'd1'
-      to: [
-        CustomMapping {
-          block: 'v5'
-          field: ref('order_master', 'order_created_at')
         }
       ]
     }
