@@ -57,6 +57,9 @@ Dashboard marque_canvas {
     block t5 {
       position: pos(60, 1010, 180, 60)
     }
+    block d1 {
+      position: pos(770, 240, 170, 80)
+    }
   }
   block v1: VizBlock {
     label: 'Gross Merchandise Value'
@@ -216,7 +219,7 @@ Dashboard marque_canvas {
       }
       settings {
         row_limit: 5000
-        legend_label: 'top'
+        legend_label: 'right'
       }
     }
   }
@@ -474,6 +477,10 @@ Dashboard marque_canvas {
   " height="35">
 </picture>;;
   }
+  block d1: DateDrillBlock {
+    label: 'Time Period'
+    default: 'month'
+  }
   interactions: [
     FilterInteraction {
       from: 'f2'
@@ -502,6 +509,15 @@ Dashboard marque_canvas {
         CustomMapping {
           block: 'v4'
           field: ref('ecommerce_users', 'sign_up_date')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          field: ref('order_master', 'order_created_at')
         }
       ]
     }
