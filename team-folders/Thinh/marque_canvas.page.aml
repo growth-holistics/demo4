@@ -3,7 +3,7 @@ Dashboard marque_canvas {
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    width: 1920
+    width: 1560
     height: 1080
     block v1 {
       position: pos(360, 20, 280, 120)
@@ -21,26 +21,41 @@ Dashboard marque_canvas {
       position: pos(360, 180, 580, 260)
     }
     block v7 {
-      position: pos(960, 180, 580, 260)
+      position: pos(360, 460, 580, 260)
     }
     block v9 {
-      position: pos(360, 480, 600, 580)
+      position: pos(960, 180, 560, 440)
     }
     block f1 {
-      position: pos(20, 80, 260, 80)
+      position: pos(20, 180, 260, 80)
     }
     block f2 {
-      position: pos(20, 280, 260, 80)
+      position: pos(20, 380, 260, 80)
     }
     block f3 {
-      position: pos(20, 180, 260, 80)
+      position: pos(20, 280, 260, 80)
     }
     block t1 {
       position: pos(0, 0, 320, 1100)
       layer: -1
     }
     block t2 {
-      position: pos(360, 140, 1520, 40)
+      position: pos(360, 140, 1180, 40)
+    }
+    block v10 {
+      position: pos(360, 760, 580, 280)
+    }
+    block t3 {
+      position: pos(20, 20, 260, 140)
+    }
+    block t4 {
+      position: pos(20, 140, 260, 40)
+    }
+    block v6 {
+      position: pos(960, 640, 570, 420)
+    }
+    block t5 {
+      position: pos(60, 1010, 180, 60)
     }
   }
   block v1: VizBlock {
@@ -149,7 +164,7 @@ Dashboard marque_canvas {
   }
   block v5: VizBlock {
     label: 'Monthly NMV'
-    viz: ColumnChart {
+    viz: CombinationChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
@@ -160,7 +175,9 @@ Dashboard marque_canvas {
       }
       y_axis {
         series {
+          mark_type: 'column'
           field {
+            label: 'Net Merchandise Value'
             ref: ref('order_master', 'nmv')
             format {
               type: 'number'
@@ -169,11 +186,36 @@ Dashboard marque_canvas {
               decimal_separator: '.'
             }
           }
+          settings {
+            color: '#438FE8FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          scale: 'logarithmic'
+        }
+        series {
+          mark_type: 'line'
+          field {
+            label: 'Growth Rate'
+            ref: ref('order_master', 'cancelled_order_ratio')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D25236'
+            line_style: 'dashed'
+            line_interpolation: 'smooth'
+          }
         }
       }
       settings {
         row_limit: 5000
-        legend_label: 'hidden'
+        legend_label: 'top'
       }
     }
   }
@@ -201,6 +243,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
+            color: '#438FE8FF'
             line_interpolation: 'step'
           }
         }
@@ -217,7 +260,7 @@ Dashboard marque_canvas {
       dataset: demo_ecommerce
       calculation f_ad1924b {
         label: 'delivered orders'
-        formula: @aml count(case(
+        formula: @aml  count(case(
   when: ecommerce_orders.status == 'delivered'
   , then: ecommerce_orders.id
   , else: null
@@ -227,7 +270,7 @@ Dashboard marque_canvas {
       }
       calculation f_fc0e443 {
         label: 'cancelled orders'
-        formula: @aml count(case(
+        formula: @aml  count(case(
   when: ecommerce_orders.status == 'cancelled'
   , then: ecommerce_orders.id
   , else: null
@@ -237,7 +280,7 @@ Dashboard marque_canvas {
       }
       calculation f_0f1a86f {
         label: 'refunded order'
-        formula: @aml count(case(
+        formula: @aml  count(case(
   when: ecommerce_orders.status == 'refunded'
   , then: ecommerce_orders.id
   , else: null
@@ -275,6 +318,10 @@ Dashboard marque_canvas {
           }
         }
       ]
+      settings {
+        circle_color: '#E5BA4F'
+        columns_color: '#438FE8FF'
+      }
     }
   }
   block f1: FilterBlock {
@@ -310,14 +357,119 @@ Dashboard marque_canvas {
     }
     default {
       operator: 'is'
-      value: []
+      value: 'Asia'
     }
   }
   block t1: TextBlock {
-    content: @md <div style="width: 300px; height: 1080px; background-color:lightgrey;"></div>;;
+    content: @md <div style="width: 300px; height: 1080px; background-color:#438FE8;"></div>;;
   }
   block t2: TextBlock {
     content: @md ---;;
+  }
+  block v10: VizBlock {
+    label: 'Monthly Sign up Trend'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          scale: 'logarithmic'
+        }
+        series {
+          field {
+            ref: ref('ecommerce_users', 'users_signed_up_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#438FE8FF'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md # E-commerce Monitoring Dashboard;;
+  }
+  block t4: TextBlock {
+    content: @md ---;;
+  }
+  block v6: VizBlock {
+    label: 'Top selling products'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'nmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        pagination_size: 100
+        show_row_with_no_data: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'nmv')
+            aggregation: 'custom'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#E9EFFB'
+              }
+              max {
+                value: 200000
+                color: '#438FE8FF'
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+  block t5: TextBlock {
+    content: @md <picture>
+  <source media="(min-width:650px)" srcset="https://cdn.holistics.io/landing/logo-color.svg">
+  <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
+  " height="35">
+</picture>;;
   }
   interactions: [
     FilterInteraction {
@@ -339,7 +491,8 @@ Dashboard marque_canvas {
             'v3',
             'v5',
             'v7',
-            'v9'
+            'v9',
+            'v10'
           ]
           field: ref('order_master', 'order_created_at')
         },
