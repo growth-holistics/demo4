@@ -405,7 +405,7 @@ Dashboard marque_canvas {
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#FFFFFFFF'
+                color: '#E8F6F5'
               }
               mid {
                 value: 160000
@@ -413,9 +413,15 @@ Dashboard marque_canvas {
               }
               max {
                 value: 320000
-                color: '#255DD4'
+                color: '#18A59E'
               }
             }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
           }
         ]
       }
@@ -433,10 +439,11 @@ Dashboard marque_canvas {
     default: 'month'
   }
   block v11: VizBlock {
-    label: 'AOV, Buyers Count, and Total GMV'
+    label: 'User Retention'
     viz: ScatterChart {
       dataset: demo_ecommerce_users
       x_col: VizFieldFull {
+        label: 'NMV'
         ref: ref('user_facts_aggr', 'nmv')
         format {
           type: 'number'
@@ -487,6 +494,15 @@ Dashboard marque_canvas {
       ]
     },
     FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: ref('ecommerce_countries', 'continent_name')
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
@@ -503,18 +519,10 @@ Dashboard marque_canvas {
         CustomMapping {
           block: [
             'v10',
-            'v4'
+            'v4',
+            'v11'
           ]
           field: ref('ecommerce_users', 'sign_up_date')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: 'v11'
-          field: ref('ecommerce_countries', 'continent_name')
         }
       ]
     }
