@@ -5,10 +5,22 @@ Model order_master {
   owner: 'vincent+demo4@holistics.io'
   data_source_name: 'demodb'
 
-  // persistence: FullPersistence {
-  //   schema: 'persisted' // persisted table will be written into this schema
-  //   // view_name: 'order_master' //Optional
-  // }
+  persistence: FullPersistence {
+    schema: 'persisted' // persisted table will be written into this schema
+    // view_name: 'order_master' //Optional
+    custom_ddl: @sql 	
+      CREATE TABLE {{ persisted_table }}
+      AS {{ parsed_query }};
+
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (order_created_at);
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} ((order_created_at::date));
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (user_id);
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (status);
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (product_id);
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (merchant_id);
+      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (order_id, product_id);
+      ;;
+  }
 
   models: [
     ecommerce_orders,
