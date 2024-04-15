@@ -1,0 +1,57 @@
+Model param_model {
+  type: 'query'
+  label: 'Param Model'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension total_amt_usd {
+    label: 'Total Amt Usd'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_amt_usd }};;
+  }
+  dimension ref_amt {
+    label: 'Ref Amt'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_amt }};;
+  }
+  dimension diffs {
+    label: 'Diff'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.diffs }};;
+  }
+  dimension ref_id {
+    label: "Ref Id"
+    type: "number"
+    definition: @sql {{ #SOURCE.ref_id }};;
+  }
+
+  param reference {
+    label: 'Reference'
+    type: 'number'
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql with CT as (
+  select {{ #param_test.id }}, {{ #param_test.total_amt_usd }}, {{ #refs.ref_id }}, max({{ #refs.ref_amt }}) as ref_amt
+from {{ #param_test }}
+cross join {{ #refs }}
+  where {% filter(reference) %} {{ #refs.ref_id }} {% end %}
+group by 1,2,3
+)
+
+select *, totaL_amt_usd - ref_amt diffs
+from CT;;
+
+  models: [
+    refs,
+    param_test
+  ]
+}
