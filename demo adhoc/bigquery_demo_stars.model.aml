@@ -1,0 +1,40 @@
+Model bigquery_demo_stars {
+  type: 'query'
+  label: 'Bigquery Demo Stars'
+  description: ''
+  data_source_name: 'data_staging'
+  dimension series_title {
+    label: 'Series Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.series_title }};;
+  }
+  dimension star {
+    label: 'Star'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.star }};;
+  }
+
+  owner: 'triet.lq@holistics.io'
+  query: @sql
+    select series_title, star1 as star 
+    from demo_dataset.movies
+
+    union all
+
+    select series_title, star2 as star 
+    from demo_dataset.movies
+
+    union all
+
+    select series_title, star3 as star 
+    from demo_dataset.movies
+
+    union all
+
+    select series_title, star4 as star 
+    from demo_dataset.movies;;
+  models: [
+  ]
+}

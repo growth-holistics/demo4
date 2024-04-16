@@ -1,0 +1,62 @@
+Model station_density {
+  type: 'query'
+  label: 'Station Density'
+  description: ''
+  data_source_name: 'demo_bike_valentin'
+  dimension station_name {
+    label: 'Station Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_name }};;
+  }
+  dimension stationcode {
+    label: 'Station Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_code }};;
+  }
+  dimension lon {
+    label: 'Lon'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.lon }};;
+  }
+  dimension lat {
+    label: 'Lat'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.lat }};;
+  }
+  dimension n_docks_500m {
+    label: 'N Docks 500m'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.n_docks_500m }};;
+  }
+
+  owner: 'valentin@holistics.io'
+  query: @sql
+    select
+      aa.station_code,
+      aa.station_name,
+      aa.lon,
+      aa.lat,
+      coalesce(sum(cc.capacity), 1) n_docks_500m
+    from
+      dbt_prod.dim_station aa
+      left join dbt_prod.dtm_station_distance bb on aa.station_code = bb.origin_station_code
+      and bb.distance_meters < 500
+      left join dbt_prod.dim_station cc on bb.dest_station_code = cc.station_code
+      and cc.is_renting
+      and cc.is_returning
+    where
+      aa.is_renting
+      and aa.is_returning
+    group by
+      1,
+      2,
+      3,
+      4;;
+  models: [
+  ]
+}
