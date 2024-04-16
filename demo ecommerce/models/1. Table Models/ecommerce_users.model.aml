@@ -45,6 +45,19 @@ Model ecommerce_users {
     description: "Email address"
   }
 
+  dimension email_pii {
+  label: 'Email Pii'
+  type: 'text'
+  hidden: false
+  definition: @aml 
+    case(
+      when: 
+        in(1, H.current_user.pii_access),
+      then: ecommerce_users.email,
+      else: '(redacted)'
+    );;
+  }
+
   dimension birth_date {
     label: "Birth Date"
     type: "date"
