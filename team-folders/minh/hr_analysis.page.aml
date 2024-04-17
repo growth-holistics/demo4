@@ -8,7 +8,19 @@ Dashboard hr_employees_analysis {
       position: pos(50, 60, 220, 140)
     }
     block v2 {
-      position: pos(300, 60, 250, 170)
+      position: pos(300, 60, 250, 110)
+    }
+    block v3 {
+      position: pos(560, 60, 340, 100)
+    }
+    block v4 {
+      position: pos(490, 450, 540, 330)
+    }
+    block v5 {
+      position: pos(50, 210, 390, 330)
+    }
+    block v6 {
+      position: pos(30, 570, 400, 300)
     }
   }
   block v1: VizBlock {
@@ -56,6 +68,160 @@ Dashboard hr_employees_analysis {
     }
     settings {
       hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Satisfaction Level'
+    viz: MetricKpi {
+      dataset: hr_employee
+      value: VizFieldFull {
+        label: 'Avg time spent on site (days/week)'
+        ref: ref('minhminh_hr_employee_data', 'time_spend_company')
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Departments'
+    viz: PieChart {
+      dataset: hr_employee
+      filter {
+        field: ref('minhminh_hr_employee_data', 'left')
+        operator: 'is_not'
+        value: '1'
+      }
+      legend: VizFieldFull {
+        ref: ref('minhminh_hr_employee_data', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: 'department'
+          ref: ref('minhminh_hr_employee_data', 'emp_id')
+          aggregation: 'count distinct'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'IT'
+            color: '#438FE8FF'
+          }
+          point {
+            value: 'RandD'
+            color: '#50CAA5FF'
+          }
+          point {
+            value: 'accounting'
+            color: '#123986FF'
+          }
+          point {
+            value: 'hr'
+            color: '#C457C6FF'
+          }
+          point {
+            value: 'management'
+            color: '#E5BA4F'
+          }
+          point {
+            value: 'marketing'
+            color: '#D25236'
+          }
+          point {
+            value: 'product_mng'
+            color: '#9B1995'
+          }
+          point {
+            value: 'sales'
+            color: '#438FE8FF'
+          }
+          point {
+            value: 'support'
+            color: '#50CAA5FF'
+          }
+          point {
+            value: 'technical'
+            color: '#123986FF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        legend_label: 'right'
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Employee Salary'
+    viz: ColumnChart {
+      dataset: hr_employee
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_hr_employee_data', 'salary')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('minhminh_hr_employee_data', 'emp_id')
+            aggregation: 'count distinct'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#438FE8FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Projects by Department'
+    viz: ColumnChart {
+      dataset: hr_employee
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_hr_employee_data', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('minhminh_hr_employee_data', 'number_project')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
     }
   }
 
