@@ -41,21 +41,21 @@ Model ecommerce_users {
   dimension email {
     label: "Email"
     type: "text"
+    hidden: true
     definition: @sql {{ #SOURCE.email }};;
     description: "Email address"
   }
 
   dimension email_pii {
-  label: 'Email Pii'
-  type: 'text'
-  hidden: false
-  definition: @aml 
-    case(
-      when: 
-        in(1, H.current_user.pii_access),
-      then: ecommerce_users.email,
-      else: '(redacted)'
-    );;
+    label: 'Email'
+    type: 'text'
+    definition: @aml
+      case(
+        when:
+          in(1, H.current_user.pii_access),
+        then: ecommerce_users.email,
+        else: '(redacted)'
+      );;
   }
 
   dimension birth_date {
