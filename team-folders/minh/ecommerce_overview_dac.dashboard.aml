@@ -1,5 +1,7 @@
-Dashboard demo_ecommerce_overview {
-  title: '[Demo] Ecommerce Overview 4.0'
+Dashboard demo_ecommerce_overview_as_code {
+  title: '[Demo] Ecommerce Overview As-code'
+  description: ''''''
+
   block hd1: TextBlock {
     content: @md <center>
   <picture>
@@ -13,12 +15,19 @@ Dashboard demo_ecommerce_overview {
     content: @md <h1 style="color:#FFFFFF;">Ecommcerce Dashboard</h1>;;
   }
   block hd3: TextBlock {
-    content: @md <div style="width: 1250px; height: 200px; background-image: linear-gradient(45deg, #0B325B,#0B325B, #1B7CE4);"></div>;;
+    content: @md <div style="width: 2500px; height: 200px; background-color: #0B325B;"></div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div style="color:white;">
+<p>
+This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors. If you have questions about the data here, please contact the <a href ="mailto:data@holistics.io"> data team </a>.
+</p>
+</div>;;
   }
   block v1: VizBlock {
     label: ' KPI Overview'
     viz: MetricSheet {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_metrics
       filter {
         field: ref('dim_dates', 'date_key')
         operator: 'matches'
@@ -110,13 +119,6 @@ Dashboard demo_ecommerce_overview {
           }
         }
       ]
-      settings {
-        max_column: 3
-      }
-    }
-    settings {
-      hide_label: true
-      hide_controls: true
     }
   }
   block v2: VizBlock {
@@ -137,7 +139,6 @@ Dashboard demo_ecommerce_overview {
       value: VizFieldFull {
         label: 'Gross Merchandise Value'
         ref: ref('order_master', 'gmv')
-        aggregation: 'custom'
         format {
           type: 'number'
           pattern: '[$$]#,###'
@@ -156,7 +157,7 @@ Dashboard demo_ecommerce_overview {
   }
   block v2_dup_dup: VizBlock {
     label: 'Total Orders by Country'
-    viz: BarChart {
+    viz: FilledMap {
       dataset: demo_ecommerce
       filter {
         field: ref('ecommerce_countries', 'name')
@@ -168,36 +169,47 @@ Dashboard demo_ecommerce_overview {
           'France'
         ]
       }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_countries', 'name')
+      location {
+        field: VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        }
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'gmv')
         format {
-          type: 'text'
+          type: 'number'
+          pattern: '#,###'
         }
       }
-      y_axis {
-        series {
-          field {
-            label: 'GMV'
-            ref: ref('order_master', 'gmv')
-            format {
-              type: 'number'
-              pattern: '#,###'
-            }
+      settings {
+        value_colors {
+          min {
+            value: 6000000
+            color: '#FFFFFF'
+          }
+          max {
+            value: 8200000
+            color: '#255DD4'
           }
         }
       }
     }
   }
   block v6: VizBlock {
-    label: 'GMV by Category and Country'
+    label: 'GMV by Age Group - Gender'
     viz: PivotTable {
       dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2023'
-      }
       rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
         VizFieldFull {
           ref: ref('ecommerce_countries', 'name')
           format {
@@ -205,7 +217,21 @@ Dashboard demo_ecommerce_overview {
           }
         },
         VizFieldFull {
-          ref: ref('map_categories', 'parent_category')
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
           format {
             type: 'text'
           }
@@ -213,52 +239,16 @@ Dashboard demo_ecommerce_overview {
       ]
       values: [
         VizFieldFull {
-          label: 'GMV'
           ref: ref('order_master', 'gmv')
           aggregation: 'custom'
           format {
             type: 'number'
-            pattern: '[$$]#,###'
-          }
-        },
-        VizFieldFull {
-          label: 'NMV'
-          ref: ref('order_master', 'nmv')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-            pattern: '[$$]#,###'
-          }
-        },
-        VizFieldFull {
-          label: 'AOV'
-          ref: ref('order_master', 'aov')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-            pattern: 'inherited'
           }
         }
       ]
       settings {
-        pagination_size: 100
+        show_row_total: true
         show_column_total: true
-        conditional_formats: [
-          ConditionalFormat {
-            ref: ref('order_master', 'aov')
-            aggregation: 'custom'
-            format: ScaleFormat {
-              min {
-                value: 100
-                color: '#E8F6F5'
-              }
-              max {
-                value: 3000
-                color: '#18A59E'
-              }
-            }
-          }
-        ]
       }
     }
   }
@@ -323,7 +313,7 @@ Dashboard demo_ecommerce_overview {
             }
           }
           settings {
-            color: '#18A59E'
+            color: '#255DD4'
           }
         }
       }
@@ -341,7 +331,7 @@ Dashboard demo_ecommerce_overview {
             }
           }
           settings {
-            color: '#255DD4'
+            color: '#18A59E'
           }
         }
       }
@@ -417,7 +407,7 @@ Dashboard demo_ecommerce_overview {
             }
           }
           settings {
-            color: '#18A59E'
+            color: '#255DD4'
           }
         }
       }
@@ -429,84 +419,9 @@ Dashboard demo_ecommerce_overview {
       hide_controls: true
     }
   }
-  block t3: TextBlock {
-    content: @md <hr style="border: 1px solid; opacity:20%">;;
-  }
-  block v13: VizBlock {
-    label: 'GMV by Product Category'
-    viz: CustomChart {
-      dataset: demo_ecommerce
-      custom_chart_id: 7466
-      field source: VizFieldFull {
-        ref: ref('map_categories', 'parent_category')
-        format {
-          type: 'text'
-        }
-      }
-      field target: VizFieldFull {
-        ref: ref('map_categories', 'category')
-        format {
-          type: 'text'
-        }
-      }
-      field volume: VizFieldFull {
-        ref: ref('order_master', 'gmv')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      setting margin_top: 30
-      setting node_align: 'left'
-      setting node_width: 15
-      setting margin_left: 30
-      setting margin_right: 30
-      setting node_padding: 10
-      setting margin_bottom: 30
-    }
-  }
-  block t4: TextBlock {
-    content: @md <hr style="border: 1px solid; opacity:20%">;;
-  }
-  block f1: FilterBlock {
-    label: 'Country'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_countries', 'name')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-    settings {
-      input_type: 'nullable-single'
-    }
-  }
-  block t5: TextBlock {
-    content: @md <h1>Overview</h1>;;
-  }
-  block t6: TextBlock {
-    content: @md <h1>Regional Analysis</h1>;;
-  }
-  block t7: TextBlock {
-    content: @md Click on Pivot table to Cross-filter Sankey Chart;;
-  }
-  block t8: TextBlock {
-    content: @md <h1>User Analysis</h1>;;
-  }
-  block t9: TextBlock {
-    content: @md Use this filter to deep dive into specific countries;;
-  }
-  block t10: TextBlock {
-    content: @md <a href="#block-t5">Overview Section</a>;;
-  }
-  block t11: TextBlock {
-    content: @md <a href="#block-v6">GMV by Category and Country</a>;;
-  }
   view: CanvasLayout {
     label: 'View 1'
-    height: 2710
+    height: 2790
     block hd1 {
       position: pos(830, 40, 330, 100)
     }
@@ -517,102 +432,33 @@ Dashboard demo_ecommerce_overview {
       position: pos(0, 0, 1210, 180)
       layer: -1
     }
+    block t2 {
+      position: pos(30, 90, 630, 80)
+    }
     block v1 {
-      position: pos(30, 440, 1140, 380)
+      position: pos(30, 920, 1140, 380)
     }
     block v2 {
-      position: pos(610, 250, 270, 180)
+      position: pos(610, 210, 270, 180)
     }
     block v2_dup_dup {
-      position: pos(30, 910, 1140, 330)
+      position: pos(30, 430, 1140, 470)
     }
     block v6 {
-      position: pos(30, 1300, 680, 520)
+      position: pos(30, 1440, 1140, 380)
     }
     block v7 {
-      position: pos(30, 2280, 1140, 410)
+      position: pos(30, 1850, 1140, 410)
     }
     block v8 {
-      position: pos(440, 1860, 730, 400)
+      position: pos(30, 2280, 840, 380)
     }
     block v10 {
-      position: pos(900, 250, 270, 180)
+      position: pos(900, 210, 270, 180)
     }
     block v12 {
-      position: pos(30, 250, 560, 180)
+      position: pos(30, 210, 560, 180)
       layer: -1
     }
-    block t3 {
-      position: pos(30, 820, 1140, 40)
-    }
-    block v13 {
-      position: pos(740, 1300, 430, 540)
-    }
-    block t4 {
-      position: pos(30, 1830, 1140, 40)
-    }
-    block f1 {
-      position: pos(30, 1960, 390, 80)
-    }
-    block t5 {
-      position: pos(30, 190, 390, 60)
-    }
-    block t6 {
-      position: pos(30, 850, 348, 60)
-    }
-    block t7 {
-      position: pos(30, 1270, 600, 40)
-    }
-    block t8 {
-      position: pos(30, 1860, 390, 60)
-    }
-    block t9 {
-      position: pos(30, 1920, 390, 40)
-    }
-    block t10 {
-      position: pos(30, 90, 140, 40)
-    }
-    block t11 {
-      position: pos(30, 120, 600, 40)
-    }
-  }
-  interactions: [
-    FilterInteraction {
-      from: 'v6'
-      to: [
-        CustomMapping {
-          block: [
-            'v2',
-            'v2_dup_dup',
-            'v7',
-            'v8',
-            'v10',
-            'v12'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'v2',
-            'v2_dup_dup',
-            'v6',
-            'v10',
-            'v12',
-            'v13'
-          ]
-          disabled: true
-        }
-      ]
-    }
-  ]
-  settings {
-    timezone: 'America/Los_Angeles'
-    allow_timezone_change: true
-    cache_duration: 10
   }
 }
