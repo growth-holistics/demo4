@@ -12,6 +12,7 @@ Model users {
     description: "this is ID"
   }
 
+
   dimension sign_up_date {
     label: "Sign Up Date"
     type: "date"
@@ -25,27 +26,38 @@ Model users {
     hidden: false
     definition: @sql {{ #SOURCE.sign_up_at }};;
   }
-
   dimension first_name {
     label: "First Name"
     type: "text"
     definition: @sql {{ #SOURCE.first_name }};;
-    description: "This is a first name"
+    description: "User First Name"
   }
-
-
   dimension last_name {
     label: 'Last Name'
     type: 'text'
-    hidden: false
     definition: @sql {{ #SOURCE.last_name }};;
+    description: "User Last Name"
   }
   dimension email {
     label: "Email"
     type: "text"
+    hidden: true
     definition: @sql {{ #SOURCE.email }};;
     description: "Email address"
   }
+
+  dimension email_pii {
+    label: 'Email'
+    type: 'text'
+    definition: @aml
+      case (
+        when: 
+          in(1, H.current_user.pii_access),
+        then: ecommerce_users.email,
+        else: '(redacted)'
+      );;
+  }
+
   dimension birth_date {
     label: "Birth Date"
     type: "date"
@@ -76,7 +88,6 @@ end;;
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
-
   }
 
   // Custom fields
@@ -107,7 +118,6 @@ end;;
 end;;
     format: "LLL dd yyyy"
   }
-
 
 
   measure users_signed_up_count {

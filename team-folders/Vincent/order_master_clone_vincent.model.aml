@@ -1,33 +1,15 @@
-Model order_master {
+Model order_master_clone_vincent {
   type: 'query'
   label: 'Order Master'
   description: 'Derived model to report all Ecommerce metrics'
   owner: 'vincent+demo4@holistics.io'
   data_source_name: 'demodb'
 
-  persistence: FullPersistence {
-    schema: 'persisted' // persisted table will be written into this schema
-    // view_name: 'order_master' //Optional
-    custom_ddl: @sql 	
-      CREATE TABLE {{ persisted_table }}
-      AS {{ parsed_query }};
-
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (order_created_at);
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} ((order_created_at::date));
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (user_id);
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (status);
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (product_id);
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (merchant_id);
-      CREATE INDEX {{ index_name }} ON {{ persisted_table }} (order_id, product_id);
-      ;;
-  }
-
   models: [
-    orders,
-    order_items,
-    products
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_products
   ]
-  
 
   query: @sql                
   select 
@@ -42,9 +24,9 @@ Model order_master {
     , {{#p.price}}
     , {{#p.merchant_id}}
     , {{ #oi.order_id }} as test_broken
-  from {{ #order_items AS oi }} 
-  left join {{ #orders AS o }} on {{#oi.order_id}} = {{#o.id}}
-  left join {{ #products AS p }} on {{#oi.product_id}} = {{#p.id}}
+  from {{ #ecommerce_order_items AS oi }} 
+  left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+  left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}}
   ;;
   
   dimension order_id {
