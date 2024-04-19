@@ -3,10 +3,10 @@ Dashboard clinical_analytics {
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    width: 1900
+    width: 1420
     height: 880
     block v1 {
-      position: pos(20, 100, 1860, 280)
+      position: pos(20, 100, 740, 780)
     }
     block f1 {
       position: pos(20, 20, 300, 80)
@@ -15,7 +15,13 @@ Dashboard clinical_analytics {
       position: pos(360, 20, 300, 80)
     }
     block f3 {
-      position: pos(700, 20, 300, 80)
+      position: pos(700, 20, 700, 80)
+    }
+    block v2 {
+      position: pos(800, 100, 600, 400)
+    }
+    block v3 {
+      position: pos(800, 520, 600, 340)
     }
   }
   block v1: VizBlock {
@@ -25,7 +31,7 @@ Dashboard clinical_analytics {
       rows: [
         VizFieldFull {
           label: ' '
-          ref: ref('persisted_clinical_analytics', 'check_in_day_of_week')
+          ref: ref('persisted_clinical_analytics', 'check_in_hour_of_day')
           format {
             type: 'text'
           }
@@ -34,7 +40,7 @@ Dashboard clinical_analytics {
       columns: [
         VizFieldFull {
           label: ' '
-          ref: ref('persisted_clinical_analytics', 'check_in_hour_of_day')
+          ref: ref('persisted_clinical_analytics', 'check_in_day_of_week')
           format {
             type: 'text'
           }
@@ -62,12 +68,12 @@ Dashboard clinical_analytics {
                 color: '#FFFFFFFF'
               }
               mid {
-                value: 1000
-                color: '#7C9EE5'
+                value: 100
+                color: '#255DD4'
               }
               max {
                 value: 2000
-                color: '#255DD4'
+                color: '#07326C'
               }
             }
           }
@@ -100,7 +106,7 @@ Dashboard clinical_analytics {
     }
     default {
       operator: 'matches'
-      value: '2014-01-01 - 2014-12-31'
+      value: '2014-01-01 - 2014-02-28'
     }
   }
   block f3: FilterBlock {
@@ -125,6 +131,54 @@ Dashboard clinical_analytics {
         'Psych, Substance Abuse, or Rehab Hospital',
         'Transfer from Critical Access Hospital'
       ]
+    }
+  }
+  block v2: VizBlock {
+    label: 'Care Score & Wait Time Min by Department'
+    viz: CustomChart {
+      dataset: clinical_analytics_dataset
+      custom_chart_id: 16507
+      field x_axis: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'care_score')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field y_axis: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      setting tooltip: true
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Care Score & Wait Time Min by Department (dup)'
+    viz: CustomChart {
+      dataset: clinical_analytics_dataset
+      custom_chart_id: 16507
+      field x_axis: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'wait_time_min')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field y_axis: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      setting tooltip: true
+    }
+    settings {
+      hide_label: true
     }
   }
   interactions: [
