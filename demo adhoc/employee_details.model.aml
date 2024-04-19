@@ -59,16 +59,27 @@ Model minhminh_employee_details {
   }
   dimension employee_number {
     label: 'Employee Number'
-    type: 'text'
+    type: 'number'
     hidden: false
-    definition: @sql {{ #SOURCE.EmployeeNumber }};;
+    definition: @sql SELECT CAST({{ #SOURCE.EmployeeNumber }} as INT);;
   }
   dimension age {
     label: 'Age'
-    type: 'text'
+    type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.Age }};;
   }
+  measure age_group {
+    label: 'Age Group'
+    type: 'text'
+    definition: @sql case
+      when {{#SOURCE.Age}} < 18 then '1. Under 18'
+      when {{#SOURCE.Age}} >=18 and {{#SOURCE.Age}} <25 then '2. 18 to 25'
+      when {{ #SOURCE.Age }} >= 25 and {{ #SOURCE.Age }} <30 then '3. 25 to 30'
+      when {{ #SOURCE.Age }} >= 30 and {{ #SOURCE.Age }} <35 then '4. 30 to 35'
+      else '5. From 35' end;;
+  }
+
   dimension length_service {
     label: 'Length Service'
     type: 'text'
