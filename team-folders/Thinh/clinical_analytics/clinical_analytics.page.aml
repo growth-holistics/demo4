@@ -1,0 +1,169 @@
+Dashboard clinical_analytics {
+  title: 'Clinical Analytics'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1900
+    height: 880
+    block v1 {
+      position: pos(20, 100, 1860, 280)
+    }
+    block f1 {
+      position: pos(20, 20, 300, 80)
+    }
+    block f2 {
+      position: pos(360, 20, 300, 80)
+    }
+    block f3 {
+      position: pos(700, 20, 300, 80)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Patient Volume'
+    viz: PivotTable {
+      dataset: clinical_analytics_dataset
+      rows: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('persisted_clinical_analytics', 'check_in_day_of_week')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('persisted_clinical_analytics', 'check_in_hour_of_day')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('persisted_clinical_analytics', 'check_in_time')
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('persisted_clinical_analytics', 'check_in_time')
+            aggregation: 'count'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFFFF'
+              }
+              mid {
+                value: 1000
+                color: '#7C9EE5'
+              }
+              max {
+                value: 2000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Select Clinic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'clinic_name')
+    }
+    default {
+      operator: 'is'
+      value: 'Madison Center'
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Select Period'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'check_in_time')
+    }
+    default {
+      operator: 'matches'
+      value: '2014-01-01 - 2014-12-31'
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Select Admit Source'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'admit_source')
+    }
+    default {
+      operator: 'is'
+      value: [
+        'Admitted as transfer from another unit',
+        'Clinic Referral',
+        'Court/Law Enforcement',
+        'Information Unavailable',
+        'Emergency Room',
+        'Outside Health Care Facility',
+        'Outside Home Health Agency',
+        'Outside Hospital',
+        'Physician Referral',
+        'Psych, Substance Abuse, or Rehab Hospital',
+        'Transfer from Critical Access Hospital'
+      ]
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+
+}
