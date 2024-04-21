@@ -4,6 +4,371 @@ Dashboard marketing_analysis {
   view: CanvasLayout {
     label: 'View 1'
     height: 800
+    block v1 {
+      position: pos(40, 120, 230, 140)
+    }
+    block v3 {
+      position: pos(330, 250, 310, 230)
+    }
+    block v4 {
+      position: pos(70, 490, 1090, 300)
+    }
+    block f1 {
+      position: pos(40, 20, 300, 80)
+    }
+    block v6 {
+      position: pos(880, 30, 130, 110)
+    }
+    block v7 {
+      position: pos(630, 30, 180, 110)
+    }
+    block v8 {
+      position: pos(370, 30, 200, 130)
+    }
+    block v9 {
+      position: pos(650, 190, 470, 300)
+    }
+    block v10 {
+      position: pos(50, 220, 190, 100)
+    }
+    block v11 {
+      position: pos(40, 350, 220, 130)
+    }
+    block v12 {
+      position: pos(260, 160, 220, 130)
+    }
+    block v13 {
+      position: pos(220, 350, 210, 130)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Sum of Mark Spent'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Cost'
+        ref: ref('minhminh_marketing_kpi', 'mark_spent')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Conversions gauge chart'
+    viz: GaugeChart {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'orders')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      max_value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'leads')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        label: 'Conversions'
+        suffix: ''
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Cost per order'
+    viz: ColumnChart {
+      dataset: marketing_demo
+      calculation f_d6c8a8b {
+        label: 'Cost per conversion'
+        formula: @aml sum(minhminh_marketing_kpi.orders / minhminh_marketing_kpi.mark_spent)*100;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: 'f_d6c8a8b'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+          settings {
+            color: '#123986FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Campaign'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: marketing_demo
+      field: ref('minhminh_marketing_kpi', 'campaign_name')
+    }
+    default {
+      operator: 'is'
+      value: 'youtube_blogger'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block v6: VizBlock {
+    label: 'CTR'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      calculation f_7b41f2c {
+        label: 'CTR'
+        formula: @aml minhminh_marketing_kpi.clicks / minhminh_marketing_kpi.impressions;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'CTR'
+        ref: 'f_7b41f2c'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v7: VizBlock {
+    label: 'Cost (dup) (dup)'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      calculation f_7b41f2c {
+        label: 'CTR'
+        formula: @aml minhminh_marketing_kpi.clicks / minhminh_marketing_kpi.impressions;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Impressions'
+        ref: ref('minhminh_marketing_kpi', 'impressions')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v8: VizBlock {
+    label: 'Clicks'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Clicks'
+        ref: ref('minhminh_marketing_kpi', 'clicks')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'clicks_Feb_15_2021')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v9: VizBlock {
+    label: 'Ad Impressions vs Clicks'
+    viz: LineChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'impressions')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#C457C6FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'clicks')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#438FE8FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block v10: VizBlock {
+    label: 'Conversion rate'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Conversion rate'
+        ref: ref('minhminh_marketing_kpi', 'conversion_rate')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'CPC'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      calculation f_be51648 {
+        label: 'Cost per click'
+        formula: @aml sum(minhminh_marketing_kpi.mark_spent / minhminh_marketing_kpi.clicks);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'f_be51648'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Cost per thousand impressions'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Cost per thousand impressions'
+        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v13: VizBlock {
+    label: 'Cost per conversion'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      calculation f_92c0d9a {
+        label: 'Cost per conversion'
+        formula: @aml sum(minhminh_marketing_kpi.mark_spent / minhminh_marketing_kpi.orders);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'f_92c0d9a'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
   }
 
 }
