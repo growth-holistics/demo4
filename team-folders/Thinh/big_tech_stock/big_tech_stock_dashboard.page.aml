@@ -156,9 +156,6 @@ Dashboard big_tech_stock_dashboard {
     block c14 {
       position: pos(240, 1840, 200, 120)
     }
-    block t1 {
-      position: pos(560, 60, 140, 60)
-    }
     block t2 {
       position: pos(720, 0, 140, 60)
     }
@@ -169,7 +166,10 @@ Dashboard big_tech_stock_dashboard {
       position: pos(540, 330, 520, 220)
     }
     block f1 {
-      position: pos(720, 70, 300, 80)
+      position: pos(480, 0, 300, 80)
+    }
+    block d1 {
+      position: pos(540, 90, 210, 80)
     }
   }
   block v2: VizBlock {
@@ -244,12 +244,6 @@ Dashboard big_tech_stock_dashboard {
   block c12: genClosing('NVDA')
   block c13: genClosing('ORCL')
   block c14: genClosing('TSLA')
-
-
-
-  block t1: TextBlock {
-    content: @md ## 1 MONTH;;
-  }
   block t2: TextBlock {
     content: @md ## 6 MONTH;;
   }
@@ -311,5 +305,19 @@ Dashboard big_tech_stock_dashboard {
       value: '$H_NIL$'
     }
   }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v2'
+          field: ref('persisted_models_big_tech_stock', 'date')
+        }
+      ]
+    }
+  ]
 
 }
