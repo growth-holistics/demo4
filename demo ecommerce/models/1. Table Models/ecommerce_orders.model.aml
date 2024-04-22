@@ -49,25 +49,16 @@ Model ecommerce_orders {
     definition: @sql {{ #SOURCE.created_at }}::date;;
     description: "Date-stamp of the order when it was created"
   }
-  dimension month_name {
-    label: "Month Name"
-    type: "text"
-    definition: @sql TO_CHAR({{ created_at }}, 'Month');;
-  }
-  dimension month_number {
-    label: "Month Number"
-    type: "text"
-    definition: @sql LPAD((DATE_PART('month', {{ created_at }}))::text, 2, '0');;
-  }
   dimension order_month {
     label: "Order Month"
     type: "text"
-    definition: @sql {{ month_number }} || ' ' || {{ month_name }};;
+    definition: @sql LPAD((DATE_PART('month', {{ created_at }}))::text, 2, '0') || ' ' || TO_CHAR({{ created_at }}, 'Month');;
   }
-  dimension cumm_orders {
+  measure cumm_orders {
     label: 'Cummulative Orders'
     type: 'number'
     definition: @aql running_total(ecommerce_orders.total_order, ecommerce_orders.order_month) ;;
+    aggregation_type: "custom"
   }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
