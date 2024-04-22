@@ -3,42 +3,77 @@ Dashboard marketing_analysis {
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    height: 800
+    height: 850
     block v1 {
-      position: pos(40, 120, 230, 140)
+      position: pos(70, 120, 180, 110)
     }
     block v3 {
-      position: pos(330, 250, 310, 230)
-    }
-    block v4 {
-      position: pos(70, 490, 1090, 300)
+      position: pos(10, 520, 370, 310)
     }
     block f1 {
-      position: pos(40, 20, 300, 80)
+      position: pos(640, 20, 480, 80)
     }
     block v6 {
-      position: pos(880, 30, 130, 110)
+      position: pos(930, 110, 200, 100)
     }
     block v7 {
-      position: pos(630, 30, 180, 110)
+      position: pos(650, 110, 180, 110)
     }
     block v8 {
-      position: pos(370, 30, 200, 130)
-    }
-    block v9 {
-      position: pos(650, 190, 470, 300)
+      position: pos(370, 110, 200, 90)
     }
     block v10 {
-      position: pos(50, 220, 190, 100)
+      position: pos(400, 570, 190, 100)
     }
     block v11 {
-      position: pos(40, 350, 220, 130)
+      position: pos(370, 250, 190, 100)
     }
     block v12 {
-      position: pos(260, 160, 220, 130)
+      position: pos(660, 250, 320, 100)
     }
     block v13 {
-      position: pos(220, 350, 210, 130)
+      position: pos(400, 700, 210, 110)
+    }
+    block t1 {
+      position: pos(40, 100, 270, 280)
+      layer: -1
+    }
+    block t2 {
+      position: pos(350, 100, 250, 120)
+      layer: -1
+    }
+    block t3 {
+      position: pos(630, 100, 250, 120)
+      layer: -1
+    }
+    block t4 {
+      position: pos(910, 100, 250, 120)
+      layer: -1
+    }
+    block t5 {
+      position: pos(350, 240, 250, 120)
+      layer: -1
+    }
+    block t6 {
+      position: pos(630, 240, 540, 130)
+      layer: -1
+    }
+    block t7 {
+      position: pos(380, 560, 230, 120)
+      layer: -1
+    }
+    block t8 {
+      position: pos(380, 690, 240, 120)
+      layer: -1
+    }
+    block t9 {
+      position: pos(40, 30, 550, 50)
+    }
+    block v14 {
+      position: pos(630, 370, 520, 300)
+    }
+    block v15 {
+      position: pos(50, 220, 250, 120)
     }
   }
   block v1: VizBlock {
@@ -92,46 +127,6 @@ Dashboard marketing_analysis {
       hide_label: true
     }
   }
-  block v4: VizBlock {
-    label: 'Cost per order'
-    viz: ColumnChart {
-      dataset: marketing_demo
-      calculation f_d6c8a8b {
-        label: 'Cost per conversion'
-        formula: @aml sum(minhminh_marketing_kpi.orders / minhminh_marketing_kpi.mark_spent)*100;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      x_axis: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'c_date')
-        transformation: 'datetrunc week'
-        format {
-          type: 'date'
-        }
-      }
-      y_axis {
-        settings {
-          show_data_label_by: 'value'
-        }
-        series {
-          field {
-            ref: 'f_d6c8a8b'
-            format {
-              type: 'number'
-              pattern: '[$$]#,###0.00'
-            }
-          }
-          settings {
-            color: '#123986FF'
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        legend_label: 'hidden'
-      }
-    }
-  }
   block f1: FilterBlock {
     label: 'Campaign'
     type: 'field'
@@ -151,18 +146,12 @@ Dashboard marketing_analysis {
     label: 'CTR'
     viz: MetricKpi {
       dataset: marketing_demo
-      calculation f_7b41f2c {
-        label: 'CTR'
-        formula: @aml minhminh_marketing_kpi.clicks / minhminh_marketing_kpi.impressions;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
       value: VizFieldFull {
         label: 'CTR'
-        ref: 'f_7b41f2c'
+        ref: ref('minhminh_marketing_kpi', 'ctr')
         format {
           type: 'number'
-          pattern: '#,###%'
+          pattern: 'inherited'
         }
       }
       settings {
@@ -213,71 +202,12 @@ Dashboard marketing_analysis {
           pattern: '#,###0.00,"K"'
         }
       }
-      compare_value: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'clicks_Feb_15_2021')
-        aggregation: 'sum'
-        format {
-          type: 'number'
-          pattern: '#,###0.00'
-        }
-      }
       settings {
         row_limit: 5000
       }
     }
     settings {
       hide_label: true
-    }
-  }
-  block v9: VizBlock {
-    label: 'Ad Impressions vs Clicks'
-    viz: LineChart {
-      dataset: marketing_demo
-      x_axis: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'c_date')
-        transformation: 'datetrunc week'
-        format {
-          type: 'date'
-        }
-      }
-      y_axis {
-        series {
-          field {
-            ref: ref('minhminh_marketing_kpi', 'impressions')
-            aggregation: 'sum'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#C457C6FF'
-            line_interpolation: 'smooth'
-          }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-        }
-        series {
-          field {
-            ref: ref('minhminh_marketing_kpi', 'clicks')
-            aggregation: 'sum'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#438FE8FF'
-            line_interpolation: 'smooth'
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-      }
     }
   }
   block v10: VizBlock {
@@ -368,6 +298,110 @@ Dashboard marketing_analysis {
     }
     settings {
       hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div style="width: 260px; height: 250px; background-color: #9FE6FC;"></div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div style="width: 245px; height: 116px; background-color: #9FE6FC;"></div>;;
+  }
+  block t3: TextBlock {
+    content: @md <div style="width: 245px; height: 116px; background-color: #9FE6FC;"></div>;;
+  }
+  block t4: TextBlock {
+    content: @md <div style="width: 245px; height: 116px; background-color: #9FE6FC;"></div>;;
+  }
+  block t5: TextBlock {
+    content: @md <div style="width: 245px; height: 116px; border: solid 2px #C9E2EA;"></div>;;
+  }
+  block t6: TextBlock {
+    content: @md <div style="width: 525px; height: 116px; border: solid 2px #C9E2EA;"></div>;;
+  }
+  block t7: TextBlock {
+    content: @md <div style="width: 225px; height: 116px; background-color: #F5F5F5;"></div>;;
+  }
+  block t8: TextBlock {
+    content: @md <div style="width: 225px; height: 116px; background-color: #F5F5F5;"></div>;;
+  }
+  block t9: TextBlock {
+    content: @md   <div id="heading">
+<h2  style="font-size:40px; color:#53586A; text-align: left"> Ads Campaign Dashboard</h1>
+</div>;;
+  }
+  block v14: VizBlock {
+    label: 'Cost per conversion'
+    viz: LineChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'cost_per_conversion')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#C457C6FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+      }
+    }
+  }
+  block v15: VizBlock {
+    label: 'Sum of Mark Spent by Week Campaign Date'
+    viz: LineChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'mark_spent')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color: '#E9EFFB'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
     }
   }
 
