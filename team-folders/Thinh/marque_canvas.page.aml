@@ -23,9 +23,6 @@ Dashboard marque_canvas {
     block v7 {
       position: pos(360, 460, 580, 280)
     }
-    block v9 {
-      position: pos(960, 180, 580, 440)
-    }
     block f1 {
       position: pos(20, 180, 300, 80)
     }
@@ -59,6 +56,9 @@ Dashboard marque_canvas {
     }
     block d1 {
       position: pos(770, 240, 170, 80)
+    }
+    block v11 {
+      position: pos(960, 180, 580, 440)
     }
   }
   block v1: VizBlock {
@@ -211,7 +211,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#F2B602'
+            color: '#18A59E'
           }
         }
       }
@@ -261,76 +261,6 @@ Dashboard marque_canvas {
           granularity: 'month'
           show_growth_rate: true
         }
-      }
-    }
-  }
-  block v9: VizBlock {
-    label: 'Order Conversion by Country'
-    viz: ConversionFunnel {
-      dataset: demo_ecommerce
-      calculation f_ad1924b {
-        label: 'delivered orders'
-        formula: @aml   count(case(
-  when: ecommerce_orders.status == 'delivered'
-  , then: ecommerce_orders.id
-  , else: null
-));;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation f_fc0e443 {
-        label: 'cancelled orders'
-        formula: @aml   count(case(
-  when: ecommerce_orders.status == 'cancelled'
-  , then: ecommerce_orders.id
-  , else: null
-));;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation f_0f1a86f {
-        label: 'refunded order'
-        formula: @aml   count(case(
-  when: ecommerce_orders.status == 'refunded'
-  , then: ecommerce_orders.id
-  , else: null
-));;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      breakdown_by: VizFieldFull {
-        label: 'Country'
-        ref: ref('ecommerce_countries', 'name')
-        format {
-          type: 'text'
-        }
-      }
-      values: [
-        VizFieldFull {
-          ref: 'f_ad1924b'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'f_fc0e443'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'f_0f1a86f'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        circle_color: '#F2B602'
-        columns_color: '#255DD4'
       }
     }
   }
@@ -412,7 +342,7 @@ Dashboard marque_canvas {
             }
           }
           settings {
-            color: '#F2B602'
+            color: '#18A59E'
             line_interpolation: 'smooth'
           }
         }
@@ -475,17 +405,23 @@ Dashboard marque_canvas {
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#FFFFFFFF'
+                color: '#E8F6F5'
               }
               mid {
                 value: 160000
-                color: '#7C9EE5'
+                color: '#74C9C5'
               }
               max {
                 value: 320000
-                color: '#255DD4'
+                color: '#18A59E'
               }
             }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
           }
         ]
       }
@@ -501,6 +437,42 @@ Dashboard marque_canvas {
   block d1: DateDrillBlock {
     label: 'Time Period'
     default: 'month'
+  }
+  block v11: VizBlock {
+    label: 'User Retention'
+    viz: ScatterChart {
+      dataset: demo_ecommerce_users
+      x_col: VizFieldFull {
+        label: 'NMV'
+        ref: ref('user_facts_aggr', 'nmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_col: VizFieldFull {
+        ref: ref('user_facts_aggr', 'days_from_last_order')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      group_col: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      label_col: VizFieldFull {
+        ref: ref('ecommerce_countries', 'continent_name')
+        format {
+          type: 'text'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
   }
   interactions: [
     FilterInteraction {
@@ -522,6 +494,15 @@ Dashboard marque_canvas {
       ]
     },
     FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: ref('ecommerce_countries', 'continent_name')
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
@@ -531,7 +512,6 @@ Dashboard marque_canvas {
             'v3',
             'v5',
             'v7',
-            'v9',
             'v6'
           ]
           field: ref('order_master', 'order_created_at')
@@ -539,7 +519,8 @@ Dashboard marque_canvas {
         CustomMapping {
           block: [
             'v10',
-            'v4'
+            'v4',
+            'v11'
           ]
           field: ref('ecommerce_users', 'sign_up_date')
         }
