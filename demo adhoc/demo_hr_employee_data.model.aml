@@ -1,8 +1,25 @@
 Model minhminh_hr_employee_data {
-  type: 'table'
+  type: 'query'
   label: 'Hr Employee Data'
   description: ''
   data_source_name: 'demodb'
+
+  owner: 'minh.ntn@holistics.io'
+  // table_name: '"minhminh"."HR-employee-data"'
+  query: @sql 
+    select 
+      *,
+      row_number() over () as employee_number
+    from "minhminh"."HR-employee-data"
+  ;;
+  
+  dimension employee_number {
+    label: 'Employee Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.employee_number }};;
+  }
+
   dimension emp_id {
     label: 'Emp Id'
     type: 'text'
@@ -72,6 +89,4 @@ Model minhminh_hr_employee_data {
     definition: @sql {{ #SOURCE.salary }};;
   }
 
-  owner: 'minh.ntn@holistics.io'
-  table_name: '"minhminh"."HR-employee-data"'
 }
