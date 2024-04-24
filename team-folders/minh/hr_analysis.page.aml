@@ -1,0 +1,184 @@
+Dashboard hr_employees_analysis {
+  title: 'HR Employees Analysis'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 870
+    block v1 {
+      position: pos(50, 130, 220, 100)
+    }
+    block v2 {
+      position: pos(300, 130, 250, 110)
+    }
+    block v3 {
+      position: pos(560, 130, 340, 100)
+    }
+    block v6 {
+      position: pos(40, 290, 400, 390)
+    }
+    block f1 {
+      position: pos(880, 30, 300, 80)
+    }
+    block v7 {
+      position: pos(530, 340, 500, 300)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Total employee'
+    viz: MetricKpi {
+      dataset: hr_employee
+      filter {
+        field: ref('minhminh_hr_employee_data', 'left')
+        operator: 'is_not'
+        value: '1'
+      }
+      value: VizFieldFull {
+        label: 'Total employee'
+        ref: ref('minhminh_hr_employee_data', 'emp_id')
+        aggregation: 'count distinct'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Avg of Satisfaction Level'
+    viz: MetricKpi {
+      dataset: hr_employee
+      value: VizFieldFull {
+        label: 'Satisfaction Level'
+        ref: ref('minhminh_hr_employee_data', 'satisfaction_level')
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Satisfaction Level'
+    viz: MetricKpi {
+      dataset: hr_employee
+      value: VizFieldFull {
+        label: 'Avg time spent on site (days/week)'
+        ref: ref('minhminh_hr_employee_data', 'time_spend_company')
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v6: VizBlock {
+    label: 'Projects by Department'
+    viz: ColumnChart {
+      dataset: hr_employee
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_hr_employee_data', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('minhminh_hr_employee_data', 'number_project')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Department'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: hr_employee
+      field: ref('minhminh_hr_employee_data', 'department')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v7: VizBlock {
+    label: 'Employee distribution by Salary and Gender'
+    viz: BarChart {
+      dataset: hr_employee
+      filter {
+        field: ref('minhminh_employee_details', 'gender')
+        operator: 'not_null'
+        value: []
+      }
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_hr_employee_data', 'salary')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('minhminh_employee_details', 'gender')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: 'Gender'
+            ref: ref('minhminh_hr_employee_data', 'emp_id')
+            aggregation: 'count distinct'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            point {
+              value: 'F'
+              color: '#C457C6FF'
+            }
+            point {
+              value: 'M'
+              color: '#123986FF'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+
+}
