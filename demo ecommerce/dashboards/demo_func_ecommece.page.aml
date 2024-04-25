@@ -1,0 +1,88 @@
+const width = 2000
+const height = 1000
+
+
+const margin = 50
+const padding = 50
+const heightPos = 150
+const heightPie = 400
+const numOfPie = 5
+const widthPie = (width  - padding*numOfPie) / numOfPie
+
+Func get_order_pie(country: String) {
+  VizBlock {
+    label: '# of Orders in ${country}'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_countries', 'name')
+        operator: 'is'
+        value: '${country}'
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: ' '
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+        group_values_into: 5
+      }
+    }
+  }
+}
+
+Func get_pos(index: Number) {
+  pos(
+    margin + widthPie * index + padding,
+    heightPos,
+    widthPie,
+    heightPie
+  )
+}
+ 
+Dashboard demo_func_ecommerce {
+  title: 'eCommerce func demo'
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 2000
+    height: 1000
+    block v9 { position: get_pos(0)}
+    
+    block v10 { position: get_pos(1)}
+    
+    block v11 { position: get_pos(2)}
+    
+    block v12 { position: get_pos(3)}
+
+    block v13 { position: get_pos(4)}
+  }
+
+
+  block v9: get_order_pie('Vietnam')
+  block v10: get_order_pie('Germany')
+  block v11: get_order_pie('France')
+  block v12: get_order_pie('India')
+  block v13: get_order_pie('Singapore')
+
+
+
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 1440
+  }
+}
