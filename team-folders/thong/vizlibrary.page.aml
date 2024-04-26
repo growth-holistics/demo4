@@ -14,8 +14,11 @@ Dashboard vizlibrary {
     label: 'View 1'
     height: 800
     block t21 {
-      position: pos(30, 30, 190, 200)
+      position: pos(30, 30, 210, 200)
       layer: -1
+    }
+    block v1 {
+      position: pos(60, 70, 150, 120)
     }
   }
 
@@ -29,6 +32,35 @@ Dashboard vizlibrary {
   border-radius: 8px !important;
 }
 </style>;;
+  }
+  block v1: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'sign_up_date')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        ref: ref('ecommerce_users', 'total_users')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
   }
 
 }
