@@ -10,7 +10,10 @@ const numOfPie = 5
 const a = width  - padding*numOfPie
 const widthPie = a / numOfPie
 
-Func get_order_pie(country: String) {
+const total_orders_count = ref('ecommerce_orders', 'total_orders_count')
+const total_orders_delivered_count = ref('ecommerce_orders', 'delivered_orders_count')
+
+Func get_order_pie(metric: FieldRef, country: String) {
   VizBlock {
     label: '# of Orders in ${country}'
     viz: PieChart {
@@ -29,7 +32,7 @@ Func get_order_pie(country: String) {
       series {
         field {
           label: ' '
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: metric
           format {
             type: 'number'
             pattern: 'inherited'
@@ -74,11 +77,11 @@ Dashboard demo_func_ecommerce {
   }
 
 
-  block v9: get_order_pie('Vietnam')
-  block v10: get_order_pie('Germany')
-  block v11: get_order_pie('France')
-  block v12: get_order_pie('India')
-  block v13: get_order_pie('Singapore')
+  block v9: get_order_pie(total_orders_delivered_count, 'Vietnam')
+  block v10: get_order_pie(total_orders_count, 'Germany')
+  block v11: get_order_pie(total_orders_delivered_count, 'France')
+  block v12: get_order_pie(total_orders_count, 'India')
+  block v13: get_order_pie(total_orders_delivered_count, 'Singapore')
 
 
 
