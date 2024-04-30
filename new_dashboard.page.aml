@@ -1,0 +1,372 @@
+Dashboard demo_embedded_dashboard {
+  title: '[Demo] Embedded Dashboard'
+  block product: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block product_id: FilterBlock {
+    label: 'Product ID'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'id')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block date: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '3 months ago to yesterday'
+    }
+  }
+  block merchant_name: FilterBlock {
+    label: 'Merchant Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_merchants', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block earning_over_time_comparison: PopBlock {
+    label: 'Earning Over Time Comparison'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+      show_growth_rate: true
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Merchant Snapshot'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'merchant_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          label: 'Merchant Name'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 3
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Detailed Order Items Breakdown'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_is_delivered')
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'merchant_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          label: 'Merchant Name'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Earnings Over Time'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'mmm yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'List of Company Users'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          label: 'Merchant Company Name'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'merchant_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          label: ''
+          ref: ref('order_master', 'user_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'first_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'last_name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  
+  interactions: [
+    FilterInteraction {
+      from: 'product'
+      to: [
+        CustomMapping {
+          block: [
+            'product_id',
+            'date',
+            'merchant_name'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'product_id'
+      to: [
+        CustomMapping {
+          block: [
+            'product',
+            'date',
+            'merchant_name'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'date'
+      to: [
+        CustomMapping {
+          block: [
+            'product',
+            'product_id',
+            'merchant_name'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'merchant_name'
+      to: [
+        CustomMapping {
+          block: [
+            'product',
+            'product_id',
+            'date'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'earning_over_time_comparison'
+      to: [
+        CustomMapping {
+          block: 'v3'
+          field: ref('ecommerce_orders', 'created_at')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'date_drill'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v2'
+          ]
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    height: 960
+    block product {
+      position: pos(0, 0, 300, 80)
+      layer: 1
+    }
+    block product_id {
+      position: pos(300, 0, 300, 80)
+      layer: 1
+    }
+    block date {
+      position: pos(600, 0, 300, 80)
+      layer: 1
+    }
+    block merchant_name {
+      position: pos(900, 0, 300, 80)
+      layer: 1
+    }
+    block earning_over_time_comparison {
+      position: pos(0, 80, 300, 80)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(300, 80, 300, 80)
+      layer: 1
+    }
+    block v1 {
+      position: pos(50, 220, 600, 400)
+      layer: 1
+    }
+    block v2 {
+      position: pos(600, 160, 600, 400)
+      layer: 1
+    }
+    block v3 {
+      position: pos(-490, 610, 600, 400)
+      layer: 1
+    }
+    block v4 {
+      position: pos(600, 560, 600, 400)
+      layer: 1
+    }
+    
+  }
+}

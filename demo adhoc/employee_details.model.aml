@@ -59,27 +59,45 @@ Model minhminh_employee_details {
   }
   dimension employee_number {
     label: 'Employee Number'
-    type: 'text'
+    type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.EmployeeNumber }};;
   }
   dimension age {
-    label: 'Age'
-    type: 'text'
-    hidden: false
+    label: 'Age (float)'
+    type: 'number'
+    hidden: true
     definition: @sql {{ #SOURCE.Age }};;
   }
   dimension length_service {
     label: 'Length Service'
-    type: 'text'
+    type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.LengthService }};;
   }
   dimension absent_hours {
     label: 'Absent Hours'
-    type: 'text'
+    type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.AbsentHours }};;
+  }
+  dimension age_int {
+    label: 'Age'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Age_int }};;
+  }
+  measure age_group {
+    label: 'Age Group'
+    type: 'text'
+    hidden: false
+    definition: @sql case
+      when {{#SOURCE.Age_int}} < 18 then '1.Under 18'
+      when {{#SOURCE.Age_int}} >= 18 and {{#SOURCE.Age_int}} < 25 then '2. 18 to 25'
+      when {{ #SOURCE.Age_int }} >= 25 and {{ #SOURCE.Age_int }} <30 then '3. 25 to 30'
+      when {{ #SOURCE.Age_int }} >= 30 and {{ #SOURCE.Age_int }} <35 then '4. 30 to 35'
+      else '5. From 35' end
+    ;;
   }
 
   owner: 'minh.ntn@holistics.io'
