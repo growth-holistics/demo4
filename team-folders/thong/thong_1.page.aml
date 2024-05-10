@@ -1,0 +1,294 @@
+Dashboard thong_1 {
+  title: 'Thong 1'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1600
+    height: 900
+    block override_css {
+      position: pos(-180, 680, 170, 120)
+    }
+    block t1 {
+      position: pos(0, 0, 280, 910)
+    }
+    block t2 {
+      position: pos(260, -10, 470, 920)
+    }
+    block v1 {
+      position: pos(300, 40, 250, 130)
+    }
+    block v2 {
+      position: pos(750, 140, 830, 370)
+    }
+    block t3 {
+      position: pos(750, 90, 830, 40)
+    }
+    block f1 {
+      position: pos(750, 20, 270, 80)
+    }
+    block v3 {
+      position: pos(300, 190, 380, 140)
+    }
+    block v4 {
+      position: pos(300, 420, 390, 320)
+    }
+    block d1 {
+      position: pos(1030, 20, 140, 80)
+    }
+    block v5 {
+      position: pos(750, 530, 580, 340)
+    }
+    block t4 {
+      position: pos(50, 150, 150, 390)
+    }
+  }
+  block override_css: TextBlock {
+    content: @md <style>
+      .dac-text-block {
+        overflow: hidden !important;
+      }
+    </style>
+</div>;;
+  }
+
+  block t1: TextBlock {
+    content: @md <div style="background: #2f3e4a; width: 100%; height: 1500px">
+</div>;;
+  }
+  block t2: TextBlock {
+    content: @md  <div style="background: #fbfbfb; width: 100%; height: 1500px">
+</div>;;
+  }
+  block v1: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('ecommerce_users', 'total_users')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'GMV - Gross Merchandise Value'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2f3e4aFF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        pop {
+          field: ref('dim_dates', 'date_key')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <hr style="border: 0.5px solid #2f3e4a; opacity: 10%;"></hr>;;
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 1 year'
+    }
+  }
+  block v3: VizBlock {
+    label: 'Total Users (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Users (dup)'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_users', 'gender')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: ' '
+          ref: ref('ecommerce_users', 'total_users')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'Female'
+            color: '#2f3e4a'
+          }
+          point {
+            value: 'Male'
+            color: '#3e657c'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Period'
+    default: 'month'
+  }
+  block v5: VizBlock {
+    label: 'GMV by Products'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'gmv')
+            format: ScaleFormat {
+              min {
+                value: 600000
+                color: '#FFFFFF'
+              }
+              max {
+                value: 1000000
+                color: '#2F3E4AFF'
+              }
+            }
+          }
+        ]
+        pop {
+          field: ref('dim_dates', 'date_key')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+        row_limit: 5000
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md <ul style="list-style-type: none; color: white; font-size: 18px; line-height: 3; padding-left: 0">
+      <li><span style="font-weight: 700; border-bottom: 1px solid white ">Overview</span></li>
+      <li>Users</li>
+      <li>Revenue</li>
+      <li>Products</li>
+    </ul>;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v4'
+          ]
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: [
+            'v2',
+            'v3',
+            'v5'
+          ]
+          field: ref('dim_dates', 'date_key')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v5'
+          ]
+          field: ref('dim_dates', 'date_key')
+        }
+      ]
+    }
+  ]
+
+}
