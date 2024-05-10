@@ -27,19 +27,22 @@ Dashboard thong_1 {
       position: pos(750, 20, 270, 80)
     }
     block v3 {
-      position: pos(300, 190, 380, 140)
+      position: pos(300, 190, 350, 140)
     }
     block v4 {
-      position: pos(300, 420, 390, 320)
+      position: pos(300, 420, 330, 320)
     }
     block d1 {
       position: pos(1030, 20, 140, 80)
     }
     block v5 {
-      position: pos(750, 530, 590, 340)
+      position: pos(750, 530, 450, 340)
     }
     block t4 {
       position: pos(50, 150, 150, 390)
+    }
+    block v6 {
+      position: pos(1220, 530, 350, 340)
     }
   }
   block override_css: TextBlock {
@@ -242,7 +245,6 @@ Dashboard thong_1 {
           field: ref('dim_dates', 'date_key')
           duration: 1
           granularity: 'year'
-          show_growth_rate: true
         }
         row_limit: 5000
       }
@@ -255,6 +257,56 @@ Dashboard thong_1 {
       <li>Revenue</li>
       <li>Products</li>
     </ul>;;
+  }
+  block v6: VizBlock {
+    label: 'GMV by Products (dup)'
+    viz: BarChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_merchants', 'name')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('order_master', 'price')
+            aggregation: 'sum'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_merchants', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: 'GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#1B2731FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        legend_label: 'hidden'
+      }
+    }
   }
   interactions: [
     FilterInteraction {
@@ -271,7 +323,8 @@ Dashboard thong_1 {
           block: [
             'v2',
             'v3',
-            'v5'
+            'v5',
+            'v6'
           ]
           field: ref('dim_dates', 'date_key')
         }
@@ -283,7 +336,8 @@ Dashboard thong_1 {
         CustomMapping {
           block: [
             'v2',
-            'v5'
+            'v5',
+            'v6'
           ]
           field: ref('dim_dates', 'date_key')
         }
