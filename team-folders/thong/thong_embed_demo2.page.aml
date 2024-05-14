@@ -37,8 +37,8 @@ Dashboard thong_embed_demo2 {
       }
       .card-box {
         background: rgba(255,255,255, 1);
-        border-radius: 16px;
-        border: 2px solid rgba(0,0,0,0.08);
+        border-radius: 14px;
+        border: 2px solid #eeeeee;
         width: 100%; height: 100%;
         
       }
@@ -50,7 +50,7 @@ Dashboard thong_embed_demo2 {
         font-weight: 500;
       }
       .h-line {
-        border-left: 1px solid rgba(0,0,0,0.08);
+        border-left: 2px solid #eeeeee;
         height: 200px;
         margin-left: 50%;
         display: block;
@@ -121,7 +121,7 @@ Dashboard thong_embed_demo2 {
 </div>;;
   }
   block t2: TextBlock {
-    content: @md <div class="card-title">Product Performance</div>;;
+    content: @md <div class="card-title">Sales Performance</div>;;
   }
   block v3: VizBlock {
     label: 'Users'
@@ -354,12 +354,134 @@ ecommerce_users.sign_up_date
   block t11: TextBlock {
     content: @md <div class="h-line"></div>;;
   }
+  block t12: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block t13: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block v9: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_products', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        group_values_into: 3
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field {
+            label: 'GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field {
+            label: 'Trend line of GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            label: 'Total Orders'
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field {
+            label: 'AOV'
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1440
     height: 1080
     block v1 {
-      position: pos(140, 20, 280, 50)
+      position: pos(150, 30, 280, 50)
     }
     block override_css {
       position: pos(-490, 100, 465, 160)
@@ -368,7 +490,7 @@ ecommerce_users.sign_up_date
       position: pos(-320, 10, 300, 80)
     }
     block v2 {
-      position: pos(750, 390, 650, 300)
+      position: pos(750, 780, 650, 240)
     }
     block t1 {
       position: pos(730, 330, 690, 710)
@@ -378,13 +500,13 @@ ecommerce_users.sign_up_date
       position: pos(750, 350, 650, 40)
     }
     block v3 {
-      position: pos(30, 780, 660, 240)
+      position: pos(40, 780, 650, 240)
     }
     block v4 {
-      position: pos(50, 150, 260, 140)
+      position: pos(390, 150, 260, 140)
     }
     block v5 {
-      position: pos(390, 150, 260, 140)
+      position: pos(50, 150, 260, 140)
     }
     block v6 {
       position: pos(750, 150, 260, 140)
@@ -401,13 +523,13 @@ ecommerce_users.sign_up_date
       layer: -1
     }
     block v8 {
-      position: pos(40, 430, 650, 320)
+      position: pos(40, 390, 650, 360)
     }
     block f2 {
-      position: pos(1090, 20, 320, 80)
+      position: pos(1000, 20, 420, 80)
     }
     block t5 {
-      position: pos(30, 20, 130, 70)
+      position: pos(30, 30, 130, 70)
     }
     block t9 {
       position: pos(40, 350, 650, 40)
@@ -417,7 +539,19 @@ ecommerce_users.sign_up_date
       layer: -1
     }
     block t11 {
-      position: pos(320, 150, 40, 130)
+      position: pos(340, 120, 40, 190)
+    }
+    block t12 {
+      position: pos(700, 120, 40, 190)
+    }
+    block t13 {
+      position: pos(1050, 120, 40, 190)
+    }
+    block v9 {
+      position: pos(1480, 590, 410, 330)
+    }
+    block v11 {
+      position: pos(750, 400, 650, 360)
     }
   }
   interactions: [
