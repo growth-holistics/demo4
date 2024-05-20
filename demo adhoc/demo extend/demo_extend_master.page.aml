@@ -28,7 +28,7 @@ Dashboard demo_extend_master {
   title: 'eCommerce Business Metrics'
   view: CanvasLayout {
     label: 'View 1'
-    height: 1500
+    height: 1200
     block t1 {
       position: pos(20, 10, 690, 90)
     }
@@ -38,27 +38,31 @@ Dashboard demo_extend_master {
     block t3 {
       position: pos(20, 140, 361, 40)
     }
-    block v6 {
-      position: pos(170, 260, 830, 760)
+    block v1 {
+      position: pos(500, 200, 700, 500)
     }
     block f1 {
-      position: pos(690, 60, 300, 80)
+      position: pos(600, 60, 300, 80)
     }
     block f2 {
-      position: pos(330, 60, 300, 80)
+      position: pos(850, 60, 300, 80)
+    }
+    block v2 {
+      position: pos(150, 180, 300, 200)
+    }
+    block v3 {
+      position: pos(150, 380, 250, 170)
+    }
+    block v4 {
+      position: pos(150, 580, 300, 170)
     }
   }
   block t1: TextBlock {
     content: @md <h1> eCommerce Business Metrics</h1>;;
   }
-  block t2: TextBlock {
-    content: @md    <h2>Orders and Sales</h2>
-;;
-  }
-  block t3: TextBlock {
-    content: @md <h2>User Distribution </h2>;;
-  }
-  block v6: VizBlock {
+
+
+  block v1: VizBlock {
     label: 'Product Category by Revenue Share'
     viz: PieChart {
       dataset: demo_ecommerce
@@ -108,6 +112,60 @@ Dashboard demo_extend_master {
       }
     }
   }
+  
+  block v2: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Revenue (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        label: '# of Orders'
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v4: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'aov')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
   block f1: demo_extend_country_filter;
 
   block f2: demo_extend_city_filter;
