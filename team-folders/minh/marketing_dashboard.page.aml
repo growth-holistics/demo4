@@ -23,16 +23,16 @@ Dashboard marketing_analysis {
       position: pos(370, 130, 200, 90)
     }
     block v10 {
-      position: pos(370, 500, 190, 100)
+      position: pos(370, 500, 200, 100)
     }
     block v11 {
-      position: pos(370, 360, 190, 100)
+      position: pos(370, 360, 200, 100)
     }
     block v12 {
       position: pos(660, 360, 320, 100)
     }
     block v13 {
-      position: pos(370, 640, 200, 110)
+      position: pos(370, 640, 200, 100)
     }
     block t1 {
       position: pos(40, 110, 290, 420)
@@ -145,12 +145,12 @@ Dashboard marketing_analysis {
   }
   block v3: VizBlock {
     label: 'Conversions'
-    description: 'Conversion Rate from Leads to Orders'
+    description: 'Conversion Rate from Clicks to Orders'
     viz: CustomChart {
       dataset: marketing_demo
       custom_chart_id: 16582
       field max: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'leads')
+        ref: ref('minhminh_marketing_kpi', 'clicks')
         aggregation: 'sum'
         format {
           type: 'number'
@@ -165,8 +165,13 @@ Dashboard marketing_analysis {
           pattern: 'inherited'
         }
       }
+      setting ring_gap: 5
+      setting ring_max: 120
+      setting label_size: 48
+      setting ring_width: 25
       setting label_color: '#53586A'
       setting ring1_color: '#5425D8'
+      setting ring_corner: 10
     }
   }
   block f1: FilterBlock {
@@ -238,23 +243,6 @@ Dashboard marketing_analysis {
     }
   }
   block v10: VizBlock {
-    label: 'Conversion rate'
-    viz: MetricKpi {
-      dataset: marketing_demo
-      value: VizFieldFull {
-        label: 'Conversion rate'
-        ref: ref('minhminh_marketing_kpi', 'conversion_rate')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v11: VizBlock {
     label: 'CPC'
     viz: MetricKpi {
       dataset: marketing_demo
@@ -270,16 +258,36 @@ Dashboard marketing_analysis {
       hide_label: true
     }
   }
+  block v11: VizBlock {
+    label: 'CPM'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Cost per Mile'
+        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   block v12: VizBlock {
     label: 'Cost per thousand impressions'
     viz: MetricKpi {
       dataset: marketing_demo
       value: VizFieldFull {
-        label: 'Cost per thousand impressions'
-        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        label: 'Revenue'
+        ref: ref('minhminh_marketing_kpi', 'revenue')
+        aggregation: 'sum'
         format {
           type: 'number'
-          pattern: 'inherited'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
         }
       }
     }
@@ -357,7 +365,7 @@ Dashboard marketing_analysis {
           }
           settings {
             color: '#5425D8FF'
-            line_interpolation: 'smooth'
+            line_interpolation: 'step'
           }
         }
       }
