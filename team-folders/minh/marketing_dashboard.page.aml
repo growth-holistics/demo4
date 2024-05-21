@@ -5,7 +5,7 @@ Dashboard marketing_analysis {
     label: 'View 1'
     height: 800
     block v1 {
-      position: pos(70, 120, 190, 130)
+      position: pos(70, 140, 180, 110)
     }
     block v3 {
       position: pos(40, 480, 270, 270)
@@ -79,7 +79,7 @@ Dashboard marketing_analysis {
       position: pos(640, 210, 230, 120)
     }
     block v17 {
-      position: pos(50, 240, 250, 210)
+      position: pos(50, 220, 250, 230)
     }
     block v18 {
       position: pos(920, 210, 230, 120)
@@ -129,11 +129,6 @@ Dashboard marketing_analysis {
     label: 'Sum of Mark Spent'
     viz: MetricKpi {
       dataset: marketing_demo
-      filter {
-        field: ref('minhminh_marketing_kpi', 'c_date')
-        operator: 'matches'
-        value: '2021-02-22 - 2021-02-28'
-      }
       value: VizFieldFull {
         label: 'Cost'
         ref: ref('minhminh_marketing_kpi', 'mark_spent')
@@ -142,14 +137,6 @@ Dashboard marketing_analysis {
           type: 'number'
           pattern: 'inherited'
         }
-      }
-      compare_value: VizPopSettings {
-        field: ref('minhminh_marketing_kpi', 'c_date')
-        duration: 2
-        granularity: 'day'
-      }
-      settings {
-        reverse_color: true
       }
     }
     settings {
@@ -466,20 +453,15 @@ Dashboard marketing_analysis {
   }
   block v17: VizBlock {
     label: 'Cost graph'
-    viz: ColumnChart {
+    viz: AreaChart {
       dataset: marketing_demo
-      filter {
-        field: ref('minhminh_marketing_kpi', 'c_date')
-        operator: 'matches'
-        value: '2021-02-24 - 2021-03-01'
-      }
       x_axis: VizFieldFull {
         label: ' '
         ref: ref('minhminh_marketing_kpi', 'c_date')
         transformation: 'datetrunc day'
         format {
           type: 'date'
-          pattern: 'dd LLL'
+          pattern: 'LL/dd'
         }
       }
       y_axis {
@@ -496,7 +478,8 @@ Dashboard marketing_analysis {
             }
           }
           settings {
-            color: '#AAADFEFF'
+            color: '#6430F7FF'
+            line_interpolation: 'smooth'
           }
         }
       }
