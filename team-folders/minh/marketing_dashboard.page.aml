@@ -1,38 +1,37 @@
 Dashboard marketing_analysis {
   title: 'Marketing Analysis'
-  description: ''''''
   view: CanvasLayout {
     label: 'View 1'
     height: 800
     block v1 {
-      position: pos(70, 140, 180, 110)
+      position: pos(60, 140, 230, 110)
     }
     block v3 {
-      position: pos(-10, 470, 370, 310)
+      position: pos(40, 480, 270, 270)
     }
     block f1 {
       position: pos(480, 10, 690, 80)
     }
     block v6 {
-      position: pos(930, 130, 200, 100)
+      position: pos(930, 130, 210, 100)
     }
     block v7 {
-      position: pos(650, 130, 180, 110)
+      position: pos(650, 130, 210, 110)
     }
     block v8 {
-      position: pos(370, 130, 200, 90)
+      position: pos(370, 130, 210, 90)
     }
     block v10 {
-      position: pos(370, 500, 190, 100)
+      position: pos(370, 500, 200, 100)
     }
     block v11 {
-      position: pos(370, 360, 190, 100)
+      position: pos(370, 360, 200, 100)
     }
     block v12 {
       position: pos(660, 360, 320, 100)
     }
     block v13 {
-      position: pos(370, 640, 200, 110)
+      position: pos(370, 640, 200, 100)
     }
     block t1 {
       position: pos(40, 110, 290, 420)
@@ -135,11 +134,10 @@ Dashboard marketing_analysis {
         aggregation: 'sum'
         format {
           type: 'number'
-          pattern: 'inherited'
+          pattern: '[$$]#,###0.000,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
         }
-      }
-      settings {
-        row_limit: 5000
       }
     }
     settings {
@@ -147,30 +145,34 @@ Dashboard marketing_analysis {
     }
   }
   block v3: VizBlock {
-    label: 'Conversions gauge chart'
-    viz: GaugeChart {
+    label: 'Conversions'
+    description: 'Conversion Rate from Clicks to Orders'
+    viz: CustomChart {
       dataset: marketing_demo
-      value: VizFieldFull {
+      custom_chart_id: 16582
+      field max: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'clicks')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field current: VizFieldFull {
         ref: ref('minhminh_marketing_kpi', 'orders')
         aggregation: 'sum'
         format {
           type: 'number'
-          pattern: '#,###'
+          pattern: 'inherited'
         }
       }
-      max_value: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'leads')
-        aggregation: 'sum'
-        format {
-          type: 'number'
-          pattern: '#,###0.00,"K"'
-        }
-      }
-      settings {
-        label: 'Conversions'
-        suffix: ''
-        row_limit: 5000
-      }
+      setting ring_gap: 5
+      setting ring_max: 120
+      setting label_size: 48
+      setting ring_width: 25
+      setting label_color: '#53586A'
+      setting ring1_color: '#5425D8'
+      setting ring_corner: 10
     }
     settings {
       hide_label: true
@@ -185,7 +187,7 @@ Dashboard marketing_analysis {
     }
     default {
       operator: 'is'
-      value: 'youtube_blogger'
+      value: 'facebook_retargeting'
     }
     settings {
       input_type: 'single'
@@ -203,9 +205,6 @@ Dashboard marketing_analysis {
           pattern: 'inherited'
         }
       }
-      settings {
-        row_limit: 5000
-      }
     }
     settings {
       hide_label: true
@@ -215,12 +214,6 @@ Dashboard marketing_analysis {
     label: 'Cost (dup) (dup)'
     viz: MetricKpi {
       dataset: marketing_demo
-      calculation f_7b41f2c {
-        label: 'CTR'
-        formula: @aml minhminh_marketing_kpi.clicks / minhminh_marketing_kpi.impressions;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
       value: VizFieldFull {
         label: 'Impressions'
         ref: ref('minhminh_marketing_kpi', 'impressions')
@@ -229,9 +222,6 @@ Dashboard marketing_analysis {
           type: 'number'
           pattern: 'inherited'
         }
-      }
-      settings {
-        row_limit: 5000
       }
     }
     settings {
@@ -251,35 +241,12 @@ Dashboard marketing_analysis {
           pattern: '#,###'
         }
       }
-      settings {
-        row_limit: 5000
-      }
     }
     settings {
       hide_label: true
     }
   }
   block v10: VizBlock {
-    label: 'Conversion rate'
-    viz: MetricKpi {
-      dataset: marketing_demo
-      value: VizFieldFull {
-        label: 'Conversion rate'
-        ref: ref('minhminh_marketing_kpi', 'conversion_rate')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v11: VizBlock {
     label: 'CPC'
     viz: MetricKpi {
       dataset: marketing_demo
@@ -290,8 +257,22 @@ Dashboard marketing_analysis {
           pattern: 'inherited'
         }
       }
-      settings {
-        row_limit: 5000
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'CPM'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Cost per Mile'
+        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
       }
     }
     settings {
@@ -303,15 +284,15 @@ Dashboard marketing_analysis {
     viz: MetricKpi {
       dataset: marketing_demo
       value: VizFieldFull {
-        label: 'Cost per thousand impressions'
-        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        label: 'Revenue'
+        ref: ref('minhminh_marketing_kpi', 'revenue')
+        aggregation: 'sum'
         format {
           type: 'number'
-          pattern: 'inherited'
+          pattern: '[$$]#,###0.000,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
         }
-      }
-      settings {
-        row_limit: 5000
       }
     }
     settings {
@@ -328,9 +309,6 @@ Dashboard marketing_analysis {
           type: 'number'
           pattern: 'inherited'
         }
-      }
-      settings {
-        row_limit: 5000
       }
     }
     settings {
@@ -391,13 +369,12 @@ Dashboard marketing_analysis {
           }
           settings {
             color: '#5425D8FF'
-            line_interpolation: 'smooth'
+            line_interpolation: 'step'
           }
         }
       }
       settings {
         show_data_points: true
-        row_limit: 5000
         legend_label: 'hidden'
       }
     }
@@ -435,7 +412,6 @@ Dashboard marketing_analysis {
         }
       }
       settings {
-        row_limit: 5000
         legend_label: 'hidden'
         x_axis_label: ' '
       }
@@ -478,7 +454,6 @@ Dashboard marketing_analysis {
         }
       }
       settings {
-        row_limit: 5000
         legend_label: 'hidden'
         x_axis_label: ' '
       }
@@ -521,7 +496,6 @@ Dashboard marketing_analysis {
         }
       }
       settings {
-        row_limit: 5000
         legend_label: 'hidden'
         x_axis_label: ' '
       }
@@ -565,7 +539,6 @@ Dashboard marketing_analysis {
         }
       }
       settings {
-        row_limit: 5000
         legend_label: 'hidden'
         x_axis_label: ' '
       }
@@ -906,5 +879,9 @@ Dashboard marketing_analysis {
       ]
     }
   ]
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 10
+  }
 
 }
