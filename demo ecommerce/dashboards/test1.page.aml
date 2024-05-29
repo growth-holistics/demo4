@@ -1,9 +1,47 @@
-Dashboard test_1 {
-  title: 'Test 1'
-  description: ''''''
+Func get_ratings_bar(genre: String) {
+  VizBlock {
+    label: 'Proportion of Ratings for Genre: ${genre}'
+    viz: ColumnChart {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_movies', 'genres')
+        operator: 'contains'
+        value: '${genre}'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'rating')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('public_ratings', 'rating')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+}
 
+Dashboard test2 {
+  title: 'Test2 Dashboard'
+  description: ''''''
   block text_block: TextBlock {
-    content: @md   #  Welcome to Canvas Dashboard 🚀
+    content: @md    #  Welcome to Canvas Dashboard 🚀
 
 <div class="flex space-x-6">
   <div class="flex-1">
@@ -24,17 +62,7 @@ Choose from three editing modes: **Visual Editor** for beginner-friendly customi
 
 👉 With [Markdown](https://www.markdownguide.org/) supported.
   </div>
-
-  <div class="flex-1">
-    <div class="wistia_responsive_padding" style="padding:56.25% 0 0 0;position:relative;">
-      <div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;">
-        <iframe src="https://fast.wistia.net/embed/iframe/tq88si3c3b?seo=true&videoFoam=true" title="Holistics Canvas Dashboard Video" allow="autoplay; fullscreen" allowtransparency="true" frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" msallowfullscreen width="100%" height="100%">
-        </iframe>
-      </div>
-    </div>
-    <script src="https://fast.wistia.net/assets/external/E-v1.js" async></script>
-  </div>
-</div>;;
+;;
   }
 
   block filter_block: FilterBlock {
@@ -45,15 +73,27 @@ Choose from three editing modes: **Visual Editor** for beginner-friendly customi
       value: 'default'
     }
   }
+
+  block v1: get_ratings_bar('Action')
+  block v2: get_ratings_bar('Animation')
+  block v3: get_ratings_bar('Sci-Fi')
   view: CanvasLayout {
     label: 'View 1'
-    width: 1190
-    height: 790
+    height: 800
+    block text_block {
+      position: pos(40, 30, 1120, 420)
+    }
     block filter_block {
       position: pos(40, 460, 400, 80)
     }
-    block text_block {
-      position: pos(40, 30, 1120, 420)
+    block v1 {
+      position: pos(30, 530, 400, 300)
+    }
+    block v2 {
+      position: pos(480, 190, 400, 300)
+    }
+    block v3 {
+      position: pos(480, 500, 400, 300)
     }
   }
 
