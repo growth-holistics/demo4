@@ -1,0 +1,64 @@
+Dashboard unnamed {
+  title: 'Unnamed Dashboard'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 800
+    block v1 {
+      position: pos(35, 115, 1030, 680)
+    }
+    block t1 {
+      position: pos(50, 50, 210, 105)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Test'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'status')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div style="background: white; width: 100%; height: 200px"></div>;;
+  }
+
+}
