@@ -1,3 +1,112 @@
+Func getRevenueShareBarChart(dataset) {
+  VizBlock {
+    label: 'Revenue Delivered by Country Name'
+    viz: BarChart {
+      dataset: dataset
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'revenue_delivered')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+}
+
+Func getRevenueSharePieChart(dataset) {
+  VizBlock {
+    label: 'Revenue Share by Product Category'
+    viz: PieChart {
+      dataset: dataset
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: 'Revenue delivered'
+          ref: ref('order_master', 'revenue_delivered')
+        }
+        settings {
+          point {
+            value: 'Clothes'
+            color: '#255DD4'
+          }
+          point {
+            value: 'Groceries'
+            color: '#18A59E'
+          }
+          point {
+            value: 'Home Entertainment'
+            color: '#07326C'
+          }
+          point {
+            value: 'Home Furniture'
+            color: '#AF7DED'
+          }
+          point {
+            value: 'Mobiles & Tablets'
+            color: '#A50E43'
+          }
+          point {
+            value: 'Skin Care'
+            color: '#F2B602'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+      }
+    }
+  }
+}
+
+const demo_extend_country_filter = FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+const demo_extend_city_filter = FilterBlock {
+    label: 'City'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+
 Dashboard demo_extend_master {
   title: 'eCommerce Business Metrics'
   view: CanvasLayout {

@@ -64,6 +64,32 @@ Dashboard demo_extend_playground {
       hide_label: true
     }
   }
+  block v4: VizBlock {
+    label: 'Revenue Delivered by Country Name'
+    viz: BarChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'revenue_delivered')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     height: 800
@@ -77,23 +103,11 @@ Dashboard demo_extend_playground {
       position: pos(520, 150, 250, 170)
     }
     block v3 {
-      position: pos(570, 410, 250, 170)
+      position: pos(400, 390, 250, 170)
+    }
+    block v4 {
+      position: pos(750, 340, 400, 300)
     }
   }
-  interactions: [
-    FilterInteraction {
-      from: 'filter_block'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v2',
-            'v3'
-          ]
-          disabled: false
-        }
-      ]
-    }
-  ]
 
 }
