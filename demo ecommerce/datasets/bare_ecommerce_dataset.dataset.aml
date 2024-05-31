@@ -1,0 +1,31 @@
+Dataset bare_ecommerce_dataset {
+  label: 'Bare Ecommerce Dataset'
+  __engine__: 'aql'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    ecommerce_products,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_order_items
+  ]
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true)
+    ,
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true)
+    ,
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true)
+  ]
+  owner: 'ha.pham@holistics.io'
+
+  metric revenue {
+    label: 'Revenue'
+    type: 'number'
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+  }
+  metric moving_avg_revenue_3m {
+    label: 'Moving Avg. Revenue (3 months)'
+    type: 'number'
+    definition: @aql window_avg(revenue, -3..0, order: ecommerce_orders.created_at);;
+  }
+}
