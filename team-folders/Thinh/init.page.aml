@@ -1,16 +1,77 @@
 Dashboard init {
   title: 'Init'
   description: ''''''
-  block text_block: TextBlock {
-    content: @md # Your title goes here
-  ---
-  Add visualization and text to make your Canvas more meaningful. [Learn more](https://docs.holistics.io/as-code/canvas-dashboard/create-edit-canvas-dashboard#working-with-analytics-blocks).;;
-  }
   view: CanvasLayout {
     label: 'View 1'
     height: 800
-    block text_block {
-      position: pos(40, 40, 340, 160)
+    block v1 {
+      position: pos(60, 90, 610, 460)
+    }
+    block v2 {
+      position: pos(720, 90, 460, 460)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Custom Line'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 17284
+      field date: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      field legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      field measure: VizFieldFull {
+        ref: ref('order_master', 'quantity')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting legend: false
+      setting tooltip: true
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Custom Line (dup)'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 17284
+      field date: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      field legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      field measure: VizFieldFull {
+        ref: ref('order_master', 'quantity')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting legend: false
+      setting tooltip: true
     }
   }
 
