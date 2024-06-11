@@ -1,0 +1,222 @@
+Dashboard cohort_retention {
+  title: 'Cohort Retention'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1410
+    block v1 {
+      position: pos(350, 20, 500, 390)
+    }
+    block t1 {
+      position: pos(20, 20, 310, 150)
+    }
+    block t2 {
+      position: pos(20, 410, 1160, 40)
+    }
+    block v2 {
+      position: pos(870, 20, 310, 200)
+    }
+    block v3 {
+      position: pos(350, 450, 830, 390)
+    }
+    block t3 {
+      position: pos(20, 450, 310, 200)
+    }
+    block t4 {
+      position: pos(20, 840, 1160, 40)
+    }
+    block v4 {
+      position: pos(350, 890, 830, 390)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Orders'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'user_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'amount')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md  # Set up
+
+`id`: order id
+
+`user_id`: ID of the user
+
+`created_at`: when the order is made;;
+  }
+  block t2: TextBlock {
+    content: @md ---;;
+  }
+  block v2: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          label: 'User Id'
+          ref: ref('ecommerce_users', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Orders'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation cohort {
+        label: 'Cohort Month'
+        formula: @aql    order_master
+| min(order_master.order_created_at | month())
+| exact_grains(ecommerce_users.id);;
+        calc_type: 'dimension'
+        data_type: 'date'
+        model: ecommerce_users
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'user_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'amount')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'cohort')
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md   # Define Cohort
+
+```
+orders
+| min(orders.created_at | year())
+| exact_grains(users.id)
+```;;
+  }
+  block t4: TextBlock {
+    content: @md ---;;
+  }
+  block v4: VizBlock {
+    label: 'Orders (dup)'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation cohort {
+        label: 'Cohort Month'
+        formula: @aql   order_master
+| min(order_master.order_created_at | month())
+| exact_grains(ecommerce_users.id);;
+        calc_type: 'dimension'
+        data_type: 'date'
+        model: ecommerce_users
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'cohort')
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Cohort Size | Sum of Amount'
+          ref: ref('order_master', 'amount')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'user_id')
+          aggregation: 'count distinct'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+
+}

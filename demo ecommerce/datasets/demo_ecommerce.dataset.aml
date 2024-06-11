@@ -16,12 +16,25 @@ Dataset demo_ecommerce {
     map_categories,
     user_cohort_retention,
     dim_dates,
-    transform_order_items
-    ,
+    transform_order_items,
     ecommerce_product_images
   ]
   
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'datetime'
+    definition: @aql exact_grains(min(order_master, order_master.order_created_at | month()), ecommerce_users.id)
+    ;;
+  }
 
+  dimension month_no {
+    model: order_master
+    label: 'Month No'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at)
+    ;;
+  }
 
   // view: Arranging view in dataset for business users
 
