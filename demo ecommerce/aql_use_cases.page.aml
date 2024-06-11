@@ -1,0 +1,115 @@
+Dashboard aql_use_cases {
+  title: 'AQL Use Cases'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Percent of Total'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_2f31156 {
+        label: 'total_order_per_category'
+        formula: @aql count_distinct(order_master.order_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_a7855dd {
+        label: 'total_orders'
+        formula: @aql (count_distinct(order_master.order_id) | of_all(order_master));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_50259ff {
+        label: 'percent_of_total'
+        formula: @aql count_distinct(order_master.order_id) * 1.0
+/ (count_distinct(order_master.order_id) | of_all(order_master));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_2f31156'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_a7855dd'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_50259ff'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <h2> Percent of Total </h2>
+
+The Percent of Total analysis is a commonly used reporting technique that helps understand the contribution of each row value to the overall population.;;
+  }
+  block t2: TextBlock {
+    content: @md  <h1> AQL Use Cases </h1>
+<div> This Canvas Dashboard contains examples of using AQL to solve advanced analytics use cases </div>;;
+  }
+  block t3: TextBlock {
+    content: @md <b> Setup </b>
+
+We're going to be using the table `order_master` which contains all orders over made, and their relevant details.
+
+<b> Outcome </b>
+
+We want to know how much each category contributes to the number of total orders.
+
+<b> Step by step calculation </b>
+<ol>
+<li>
+<b> total_order_per_category </b>: <code>count_distinct(order_master.order_id)</code>.
+</li>
+<li>
+<b> total_order </b>: <code>count_distinct(order_master.order_id) | of_all(order_master)</code>. 
+</li>
+<li>
+<b> percent_of_total </b>: <code>total_order_per_category / total_order </code>
+</li>
+</ol>
+
+In step (1),  Holistics automatically assumes the count is per category because <code>category</code> field is dropped in as the first column.
+
+In step (2), why do we ned to use <code>of_all</code>? Because we don't want Holistics to assume the above. We want to explicitly count all unique orders in the table, instead of being grouped by <code>category</code>,;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1350
+    height: 990
+    block v1 {
+      position: pos(650, 210, 680, 290)
+    }
+    block t1 {
+      position: pos(30, 120, 1200, 90)
+    }
+    block t2 {
+      position: pos(30, 10, 670, 90)
+    }
+    block t3 {
+      position: pos(30, 210, 600, 480)
+    }
+  }
+
+}
