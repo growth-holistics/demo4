@@ -1,0 +1,118 @@
+Dashboard test_syntax {
+  title: 'Test Syntax'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 710
+    block v1 {
+      position: pos(200, 60, 640, 390)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Order Count by Month Order Created At and Status'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      filter_groups: [
+        OrFilters {
+          filters: [
+            VizFilter {
+              field: ref('order_master', 'status')
+              operator: 'contains'
+              value: 'a'
+            },
+            VizFilter {
+              field: ref('order_master', 'status')
+              operator: 'does_not_contain'
+              value: 'b'
+            },
+            AndFilters {
+              filters: [
+                VizFilter {
+                  field: ref('order_master', 'status')
+                  operator: 'starts_with'
+                  value: 'c'
+                },
+                VizFilter {
+                  field: ref('order_master', 'status')
+                  operator: 'contains'
+                  value: 'l'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('order_master', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('order_master', 'order_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            point {
+              value: 'cancelled'
+              line_interpolation: 'smooth'
+            }
+            point {
+              value: 'delivered'
+              line_style: 'dashed'
+            }
+            point {
+              value: 'refunded'
+              line_interpolation: 'step'
+            }
+          }
+        }
+        series {
+          field {
+            label: 'Trend line of Order Count'
+            ref: ref('order_master', 'order_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: RegressionLine {
+              type: 'linear'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+            point {
+              value: 'cancelled'
+              line_style: 'dashed'
+            }
+            point {
+              value: 'delivered'
+              line_style: 'dashed'
+            }
+            point {
+              value: 'refunded'
+              line_style: 'dashed'
+              hidden: true
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+
+}

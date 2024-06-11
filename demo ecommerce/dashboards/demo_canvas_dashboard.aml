@@ -1,0 +1,1292 @@
+Dashboard ecom_dashboard {
+  title: '[Demo] Ecommerce Overview 4.0'
+  block hd1: TextBlock {
+    content: @md <picture>
+    <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
+    <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
+    " height="35">
+  </picture>
+;;
+  }
+  block hd2: TextBlock {
+    content: @md  <div id="heading">
+<h1  style="font-size:40px; color:#FFFFFF; text-align: right">Ecommerce Dashboard</h1>
+</div>;;
+  }
+  block hd3: TextBlock {
+    content: @md <div style="width: 1450px; height: 500px; background-image: linear-gradient(45deg, #0B325B,#0B325B, #1B7CE4);"></div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div style="color:white; text-align: right; font-size: 16px">
+<p>
+This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors.</a>
+</p>
+<br />
+<p>Dashboard Content
+</p>
+</div>;;
+  }
+  block v1: VizBlock {
+    label: ' KPI Overview'
+    viz: MetricSheet {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'matches'
+        value: '12 months ago to last month end'
+      }
+      date_field: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: '🎯Orders'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#E9EFFB'
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('ecommerce_orders', 'refunded_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('ecommerce_orders', 'delivered_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricHeading {
+          label: '💰 Revenue'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#E9EFFB'
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('order_master', 'nmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: 'Gross Merchandise Value'
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v2_dup_dup: VizBlock {
+    label: 'Top selling product category'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: ' '
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+        settings {
+          point {
+            value: 'Clothes'
+            color: '#255DD4'
+          }
+          point {
+            value: 'Groceries'
+            color: '#18A59E'
+          }
+          point {
+            value: 'Skin Care'
+            color: '#F2B602'
+          }
+          point {
+            value: 'Home Furniture'
+            color: '#AF7DED'
+          }
+          point {
+            value: 'Mobiles & Tablets'
+            color: '#A50E43'
+          }
+          point {
+            value: 'Home Entertainment'
+            color: '#07326C'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+      }
+    }
+  }
+  block v3: age_demographic
+  block v6: VizBlock {
+    label: 'Top selling products'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_28374b6 {
+        label: 'Product Image'
+        formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="float:left;width:100px;height:100px;object-fit:contain" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'f_28374b6'
+          format {
+            type: 'html'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        row_height: 'multiple_lines'
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'gmv')
+            aggregation: 'custom'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#E9EFFB'
+              }
+              max {
+                value: 150000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Cohort Retention'
+    viz: RetentionHeatmap {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('user_cohort_retention', 'cohort_month')
+        operator: 'matches'
+        value: '2023'
+      }
+      cohort: VizFieldFull {
+        label: 'Cohort Month'
+        ref: ref('user_cohort_retention', 'cohort_month')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      cohort_size: VizFieldFull {
+        ref: ref('user_cohort_retention', 'cohort_size')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      cohort_duration: VizFieldFull {
+        ref: ref('user_cohort_retention', 'relative_month_disp')
+        format {
+          type: 'text'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: ref('user_cohort_retention', 'active_users_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Users vs Orders Growth'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('ecommerce_users', 'total_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#74C9C5'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field {
+            ref: ref('order_master', 'delivered_orders_count')
+            format {
+              type: 'number'
+            }
+          }
+          settings {
+            color: '#255DD4'
+          }
+        }
+      }
+    }
+  }
+  block v10: VizBlock {
+    label: 'Total Users compared with Target Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_d80427a {
+        label: 'Target Users'
+        formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: ref('ecommerce_users', 'total_users')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'f_d80427a'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Gross Merchandise Value'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      calculation f_2fb1cc3 {
+        label: 'GMT last year'
+        formula: @aml order_master.gmv * 0.87;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            label: ''
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      hide_label: true
+      input_type: 'nullable-single'
+    }
+  }
+  block t5: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="overview">Overview</h1>;;
+  }
+  block t6: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
+  }
+  block t7: TextBlock {
+    content: @md   <p style="font-size: 16px; color: #18345E "> Click on Pivot table to Cross-filter other charts
+
+</p>;;
+  }
+  block t8: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="users-analysis">Users Analysis</h1>;;
+  }
+  block t9: TextBlock {
+    content: @md <h3 style="color: #18345E">Filter by Country</h3>;;
+  }
+  block t10: TextBlock {
+    content: @md <a href="#overview">
+ <button style="
+  background-color: white;
+  color: gray;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+"><svg width="24" height="24">
+	<path fill="gray" d="M1.729,9.212h14.656l-4.184-4.184c-0.307-0.306-0.307-0.801,0-1.107c0.305-0.306,0.801-0.306,1.106,0
+	l5.481,5.482c0.018,0.014,0.037,0.019,0.053,0.034c0.181,0.181,0.242,0.425,0.209,0.66c-0.004,0.038-0.012,0.071-0.021,0.109
+	c-0.028,0.098-0.075,0.188-0.143,0.271c-0.021,0.026-0.021,0.061-0.045,0.085c-0.015,0.016-0.034,0.02-0.051,0.033l-5.483,5.483
+	c-0.306,0.307-0.802,0.307-1.106,0c-0.307-0.305-0.307-0.801,0-1.105l4.184-4.185H1.729c-0.436,0-0.788-0.353-0.788-0.788
+	S1.293,9.212,1.729,9.212z"></path>
+</svg>
+  Overview</button>
+</a>;;
+  }
+  block t11: TextBlock {
+    content: @md   <a href="#regional-analysis">
+  <button style="
+  background-color: #47B881;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+"><svg width="24" height="24">
+	<path fill="white" d="M1.729,9.212h14.656l-4.184-4.184c-0.307-0.306-0.307-0.801,0-1.107c0.305-0.306,0.801-0.306,1.106,0
+	l5.481,5.482c0.018,0.014,0.037,0.019,0.053,0.034c0.181,0.181,0.242,0.425,0.209,0.66c-0.004,0.038-0.012,0.071-0.021,0.109
+	c-0.028,0.098-0.075,0.188-0.143,0.271c-0.021,0.026-0.021,0.061-0.045,0.085c-0.015,0.016-0.034,0.02-0.051,0.033l-5.483,5.483
+	c-0.306,0.307-0.802,0.307-1.106,0c-0.307-0.305-0.307-0.801,0-1.105l4.184-4.185H1.729c-0.436,0-0.788-0.353-0.788-0.788
+	S1.293,9.212,1.729,9.212z"></path>
+</svg>
+  Regional Analysis</button>
+  </a>;;
+  }
+  block t12: TextBlock {
+    content: @md <a href="#users-analysis">
+<button style="
+  background-color: #5EA3ED;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+"><svg width="24" height="24">
+	<path fill="white" d="M1.729,9.212h14.656l-4.184-4.184c-0.307-0.306-0.307-0.801,0-1.107c0.305-0.306,0.801-0.306,1.106,0
+	l5.481,5.482c0.018,0.014,0.037,0.019,0.053,0.034c0.181,0.181,0.242,0.425,0.209,0.66c-0.004,0.038-0.012,0.071-0.021,0.109
+	c-0.028,0.098-0.075,0.188-0.143,0.271c-0.021,0.026-0.021,0.061-0.045,0.085c-0.015,0.016-0.034,0.02-0.051,0.033l-5.483,5.483
+	c-0.306,0.307-0.802,0.307-1.106,0c-0.307-0.305-0.307-0.801,0-1.105l4.184-4.185H1.729c-0.436,0-0.788-0.353-0.788-0.788
+	S1.293,9.212,1.729,9.212z"></path>
+</svg>
+  Users Analysis</button>
+</a>;;
+  }
+  block t13: TextBlock {
+    content: @md   <style>
+.container {
+  width: 155px;
+  height: 155px;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.image {
+  transform: scale(1.5);
+  margin-top: 2.3rem;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+}
+</style>
+<div class="container">
+  <img src="https://media.tenor.com/pqNv8zPEuvIAAAAM/jonah-hill-excited.gif" 
+  alt="Image" class="image">
+</div>;;
+  }
+  block t14: TextBlock {
+    content: @md <div style="width: 295px; height: 265px; background-color:#DBEDEB; border-radius: 24px;">
+</div>;;
+  }
+  block t15: TextBlock {
+    content: @md <div style="width: 100%; height:197px; background-color: white; border-radius: 0px 100px 100px 0px;
+border: 3px solid #BBD7F7;">
+</div>;;
+  }
+  block t16: TextBlock {
+    content: @md <p> </p>
+  
+<p style="color: #0B325B; letter-spacing: 0rem;font-weight: bold; font-size:24px; line-height: 12px">
+ William Davis </p>
+  <p style="color: #BEC1CB; letter-spacing: 0rem; font-weight: regular; font-size: 16px;">
+ DATA ANALYST </p>
+<p style="color:#53586A; letter-spacing: 0rem; font-size:16px; line-height: 8px"> 
+Got a question? 
+<p style="color:#53586A; letter-spacing: 0rem; font-size:16px;"> Reach me at
+<a style= "color: #1B7CE4; "> 
+william_da_vis@mycompany.com </a> 
+<p style="color: #53586A; letter-spacing: 0rem; font-weight: regular; font-size: 16px; line-height: 8px">Have an awesome day!</p>
+</p>;;
+  }
+  block t17: TextBlock {
+    content: @md  <div style="width: 295px; height: 265px; background-color:#DBEDEB; border-radius: 24px;">
+</div>;;
+  }
+  block v13: VizBlock {
+    label: 'GMV by Country'
+    viz: BarChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          axis_max: 12000000
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            label: '  '
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#255DD4'
+            point {
+              value: 'United Kingdom'
+              color: '#7C9EE5'
+            }
+            point {
+              value: 'United States'
+              color: '#74C9C5'
+            }
+            point {
+              value: 'Vietnam'
+              color: '#FCB8B8'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'left'
+      }
+    }
+  }
+  block t18: TextBlock {
+    content: @md <svg width="361" height="82" viewBox="0 0 361 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="359" height="80" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
+</svg>
+;;
+  }
+  block v14: VizBlock {
+    label: 'Orders by Country Name and Status'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      calculation f_7be4e9b {
+        label: 'Status'
+        formula: @aml  case(
+  when: ecommerce_orders.status == 'cancelled', then: 'Cancelled',
+  when: ecommerce_orders.status == 'delivered', then: 'Delivered',
+  when: ecommerce_orders.status == 'refunded', then: 'Refunded'
+  , else: 'others'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: 'f_7be4e9b'
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field {
+            label: 'orders'
+            ref: ref('ecommerce_orders', 'total_order')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+      }
+    }
+  }
+  block t19: TextBlock {
+    content: @md <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="49.7598" cy="49.7598" r="49.7598" fill="#1B7CE4"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M68.5521 72.9431C68.5521 73.5268 68.0788 74 67.4952 74H35.0569C34.4732 74 34 73.5268 34 72.9431V27.0569C34 26.4732 34.4732 26 35.0569 26H53.2041V37.2113C53.2041 38.9744 54.6375 40.4087 56.3994 40.4087H68.5521V72.9431ZM55.5525 28.4416V37.2113C55.5525 37.6794 55.9323 38.0601 56.3994 38.0601H65.8401L55.5525 28.4416ZM66 62.9062C66 62.5453 65.7047 62.25 65.3438 62.25H39.75V43.6562C39.75 43.2953 39.4547 43 39.0938 43H38.6562C38.2953 43 38 43.2953 38 43.6562V63.3438C38 63.7047 38.2953 64 38.6562 64H65.3438C65.7047 64 66 63.7047 66 63.3438V62.9062ZM53.75 51.3125L58.3438 48.3594C58.6828 48.1352 59.1477 48.2719 59.3117 48.6492L64.25 60.5H41.5V55.25L48.0406 46.7461C48.2867 46.4398 48.7406 46.4125 49.0195 46.6914L53.75 51.3125ZM48.6477 48.682L43.25 55.8625V58.75H61.5977L58.2234 50.4375L53.5312 53.5656L48.6477 48.682Z" fill="white"/>
+</svg>
+;;
+  }
+  block t20: TextBlock {
+    content: @md <svg width="1139" height="309" viewBox="0 0 1139 309" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1139" height="309" fill="url(#paint0_radial_1074_1417)"/>
+<defs>
+<radialGradient id="paint0_radial_1074_1417" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(570 -154.156) rotate(90) scale(350.656 564.112)">
+<stop stop-color="#D1E5FA"/>
+<stop offset="1" stop-color="#D1E5FA" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>
+;;
+  }
+  block t21: TextBlock {
+    content: @md <div id="regional-analysis">  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="49.7598" cy="49.7598" r="49.7598" fill="#1B7CE4"/>
+<path d="M39.2641 56.5871C33.6879 48.5033 32.6528 47.6736 32.6528 44.7027C32.6528 40.6332 35.9518 37.3342 40.0213 37.3342C44.0909 37.3342 47.3899 40.6332 47.3899 44.7027C47.3899 47.6736 46.3548 48.5033 40.7786 56.5871C40.4127 57.1157 39.63 57.1157 39.2641 56.5871ZM40.0213 47.7729C41.717 47.7729 43.0916 46.3983 43.0916 44.7027C43.0916 43.0071 41.717 41.6325 40.0213 41.6325C38.3257 41.6325 36.9511 43.0071 36.9511 44.7027C36.9511 46.3983 38.3257 47.7729 40.0213 47.7729Z" fill="white"/>
+<path d="M54.0011 46.7624C48.4249 38.6786 47.3899 37.849 47.3899 34.878C47.3899 30.8085 50.6888 27.5095 54.7584 27.5095C58.8279 27.5095 62.1269 30.8085 62.1269 34.878C62.1269 37.849 61.0918 38.6786 55.5156 46.7624C55.1497 47.291 54.367 47.291 54.0011 46.7624ZM54.7584 37.9482C56.454 37.9482 57.8286 36.5737 57.8286 34.878C57.8286 33.1824 56.454 31.8078 54.7584 31.8078C53.0627 31.8078 51.6881 33.1824 51.6881 34.878C51.6881 36.5737 53.0627 37.9482 54.7584 37.9482Z" fill="white"/>
+<path d="M51.5777 48.44L51.5749 48.436C51.0899 47.7329 50.6341 47.0776 50.2068 46.466C50.1505 46.809 50.0726 47.1567 49.9671 47.5131C49.6852 48.4651 49.2472 49.3386 48.7011 50.2466C48.0331 51.3573 47.0331 52.7823 45.6642 54.7331C44.9473 55.7547 44.1293 56.9204 43.2048 58.2607L43.202 58.2647C41.664 60.4865 38.3785 60.4863 36.8407 58.2647L36.8379 58.2607C35.9135 56.9206 35.0956 55.7551 34.3789 54.7336C33.0099 52.7829 32.0096 51.3573 31.3416 50.2466C30.7955 49.3386 30.3575 48.4651 30.0756 47.5131C29.787 46.5385 29.7054 45.6296 29.7054 44.7027C29.7054 42.4528 30.4257 40.3711 31.6483 38.6756L31.5947 38.6221C31.2668 38.2941 30.8035 38.1397 30.3443 38.2053L23.5932 39.1697C22.9279 39.2648 22.4112 39.7979 22.3369 40.4659L21.8547 44.8058C21.8181 45.1357 21.8938 45.4682 22.0697 45.7496L26.524 52.8765L24.8146 58.0047C24.6381 58.5342 24.7759 59.1181 25.1707 59.5128L28.5462 62.8883C28.7415 63.0836 28.9877 63.2201 29.2569 63.2822L34.5411 64.5016L34.8804 66.8768C34.9255 67.1925 35.0718 67.485 35.2972 67.7105L36.0492 68.4624C36.5549 68.9681 37.3507 69.0378 37.9365 68.6276L41.7612 65.9495L44.7584 70.2299C45.0043 70.5812 45.3911 70.8079 45.8178 70.8509L51.2426 71.3974C51.7871 71.4523 52.3171 71.2009 52.6192 70.7445L56.128 65.4435L70.6645 59.3475C71.0371 59.1913 71.3292 58.8889 71.4725 58.5111L76.7769 44.5268C76.9541 44.0596 76.8825 43.5345 76.5868 43.1318C76.291 42.729 75.8113 42.5036 75.3125 42.533L68.084 42.9582L64.9377 36.678C64.8819 37.0091 64.8059 37.3447 64.7041 37.6885C64.4222 38.6404 63.9842 39.5139 63.4381 40.4219C62.7701 41.5326 61.7701 42.9577 60.4012 44.9085C59.6843 45.93 58.8663 47.0957 57.9418 48.436L57.939 48.44C56.401 50.6618 53.1155 50.6616 51.5777 48.44Z" fill="white"/>
+</svg>
+</div>;;
+  }
+  block t22: TextBlock {
+    content: @md <svg width="1139" height="309" viewBox="0 0 1139 309" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1139" height="309" fill="url(#paint0_radial_1074_1417)"/>
+<defs>
+<radialGradient id="paint0_radial_1074_1417" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(570 -154.156) rotate(90) scale(350.656 564.112)">
+<stop stop-color="#D1E5FA"/>
+<stop offset="1" stop-color="#D1E5FA" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>
+;;
+  }
+  block t23: TextBlock {
+    content: @md <div id="users-analysis"> <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="49.7598" cy="49.7598" r="49.7598" fill="#1B7CE4"/>
+<path d="M75.7544 48.0729C76.4299 46.7786 76.8125 45.3082 76.8125 43.75C76.8125 38.5806 72.6069 34.375 67.4375 34.375C64.866 34.375 62.5341 35.4166 60.8387 37.099C58.5926 33.5383 54.6725 31.25 50.25 31.25C45.8369 31.25 41.9124 33.5305 39.6613 37.099C37.966 35.4166 35.634 34.375 33.0625 34.375C27.8931 34.375 23.6875 38.5806 23.6875 43.75C23.6875 45.3082 24.0701 46.7786 24.7456 48.0729C21.3755 49.4797 19 52.8077 19 56.6818V59.7656C19 62.9965 21.6285 65.625 24.8594 65.625H33.7419C34.726 67.4817 36.6781 68.75 38.9219 68.75H61.5781C63.8219 68.75 65.774 67.4817 66.7581 65.625H75.6406C78.8715 65.625 81.5 62.9965 81.5 59.7656V56.6818C81.5 52.8077 79.1245 49.4797 75.7544 48.0729ZM67.4375 39.0625C70.0264 39.0625 72.125 41.1611 72.125 43.75C72.125 46.3389 70.0264 48.4375 67.4375 48.4375C64.8486 48.4375 62.75 46.3389 62.75 43.75C62.75 41.1611 64.8486 39.0625 67.4375 39.0625ZM50.25 35.9375C54.5647 35.9375 58.0625 39.4353 58.0625 43.75C58.0625 48.0647 54.5647 51.5625 50.25 51.5625C45.9353 51.5625 42.4375 48.0647 42.4375 43.75C42.4375 39.4353 45.9353 35.9375 50.25 35.9375ZM33.0625 39.0625C35.6514 39.0625 37.75 41.1611 37.75 43.75C37.75 46.3389 35.6514 48.4375 33.0625 48.4375C30.4736 48.4375 28.375 46.3389 28.375 43.75C28.375 41.1611 30.4736 39.0625 33.0625 39.0625ZM23.6875 59.7656V56.6818C23.6875 54.3601 25.4022 52.0433 28.6948 52.0433C30.651 53.0776 32.8241 53.3418 34.8297 52.9572C33.7163 54.58 33.0625 56.5415 33.0625 58.6538V60.9375H24.8594C24.2122 60.9375 23.6875 60.4128 23.6875 59.7656ZM62.75 62.8906C62.75 63.5379 62.2253 64.0625 61.5781 64.0625H38.9219C38.2747 64.0625 37.75 63.5379 37.75 62.8906V58.6538C37.75 55.9876 39.6797 53.7736 42.2183 53.3283C46.8429 57.2195 53.6405 57.2334 58.2816 53.3283C60.8203 53.7736 62.75 55.9877 62.75 58.6538V62.8906ZM76.8125 59.7656C76.8125 60.4128 76.2878 60.9375 75.6406 60.9375H67.4375V58.6538C67.4375 56.5415 66.7837 54.5799 65.6702 52.9572C67.675 53.3417 69.8482 53.078 71.8051 52.0433C75.0249 52.0433 76.8124 54.2904 76.8124 56.6818V59.7656H76.8125Z" fill="white"/>
+</svg>
+</div>;;
+  }
+  block t24: TextBlock {
+    content: @md  <svg width="1139" height="309" viewBox="0 0 1139 309" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1139" height="309" fill="url(#paint0_radial_1074_1417)"/>
+<defs>
+<radialGradient id="paint0_radial_1074_1417" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(570 -154.156) rotate(90) scale(350.656 564.112)">
+<stop stop-color="#D1E5FA"/>
+<stop offset="1" stop-color="#D1E5FA" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>;;
+  }
+  block t25: TextBlock {
+    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#1B7CE4"/>
+<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
+</svg>
+;;
+  }
+  block t26: TextBlock {
+    content: @md <svg width="361" height="130" viewBox="0 0 361 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="359" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
+</svg>
+;;
+  }
+  block t27: TextBlock {
+    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#1B7CE4"/>
+<rect width="36" height="36" transform="translate(2 2)" fill="#1B7CE4"/>
+<path d="M19.5157 7.94066L19.1273 8.32902C18.8699 8.58643 18.8699 9.0038 19.1273 9.26127L28.9323 19.0662H8.28418C7.92015 19.0662 7.625 19.3614 7.625 19.7254V20.2747C7.625 20.6388 7.92015 20.9339 8.28418 20.9339H28.9323L19.1273 30.7389C18.8699 30.9963 18.8699 31.4137 19.1273 31.6711L19.5157 32.0595C19.7731 32.3169 20.1905 32.3169 20.4479 32.0595L32.0413 20.4662C32.2987 20.2088 32.2987 19.7914 32.0413 19.5339L20.4479 7.94066C20.1905 7.68319 19.7731 7.68319 19.5157 7.94066Z" fill="white"/>
+</svg>
+;;
+  }
+  block t28: TextBlock {
+    content: @md <h3 style="color: #18345E">Filter by Age Group</h3>;;
+  }
+  block f2: FilterBlock {
+    label: 'Age Group'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      hide_label: true
+      input_type: 'nullable-single'
+    }
+  }
+  block t29: TextBlock {
+    content: @md <svg width="361" height="130" viewBox="0 0 361 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="359" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
+</svg>
+;;
+  }
+  block t30: TextBlock {
+    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#1B7CE4"/>
+<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
+</svg>
+;;
+  }
+  block t31: TextBlock {
+    content: @md  <svg width="361" height="130" viewBox="0 0 361 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="359" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
+</svg>;;
+  }
+  block f3: FilterBlock {
+    label: 'City'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      hide_label: true
+      input_type: 'nullable-single'
+    }
+  }
+  block t32: TextBlock {
+    content: @md <h3 style="color: #18345E">Filter by City</h3>;;
+  }
+  block t33: TextBlock {
+    content: @md  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#1B7CE4"/>
+<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
+</svg>;;
+  }
+  block t34: TextBlock {
+    content: @md   <p style="font-size: 20px; font-weight: 300; color: #858B9D "> 
+  Company GMV Data
+
+</p>
+  <p style="font-size: 12px; color: #858B9D "> 
+  This is a collection of sales data categorized by geographic location (Continent, Country, City), demographic information (Age, Gender), and economic metrics (Gross Merchandise Value)
+</p>
+
+ <p style="font-size: 15px; font-weight: 300; color: #858B9D "> 
+  Examples on How to Use This Data
+
+</p>
+<ul style="font-size: 12px; color: #858B9D; line-height: 24px" id="random-list">
+  <li>
+    <h3>Analyzing Trends</h3>
+    <p>Analyze trends in Gross Merchandise Value (GMV) across different demographics and regions.</p>
+  </li>
+  <li>
+    <h3>Comparative Analysis</h3>
+    <p>Compare the GMV across different continents, countries, and cities. Look for patterns or outliers. </p>
+  </li>
+</ul>;;
+  }
+  block t36: TextBlock {
+    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#1B7CE4"/>
+<rect width="36" height="36" transform="translate(2 2)" fill="#1B7CE4"/>
+<path d="M20 7.75202C26.7262 7.75202 32.248 13.1998 32.248 20C32.248 26.7642 26.7698 32.248 20 32.248C13.2384 32.248 7.75202 26.7726 7.75202 20C7.75202 13.2408 13.2297 7.75202 20 7.75202ZM20 5.9375C12.234 5.9375 5.9375 12.2363 5.9375 20C5.9375 27.7682 12.234 34.0625 20 34.0625C27.766 34.0625 34.0625 27.7682 34.0625 20C34.0625 12.2363 27.766 5.9375 20 5.9375ZM17.9587 25.4435H18.6391V18.6391H17.9587C17.5829 18.6391 17.2782 18.3344 17.2782 17.9587V17.505C17.2782 17.1293 17.5829 16.8246 17.9587 16.8246H20.6804C21.0562 16.8246 21.3609 17.1293 21.3609 17.505V25.4435H22.0413C22.4171 25.4435 22.7218 25.7482 22.7218 26.124V26.5776C22.7218 26.9534 22.4171 27.2581 22.0413 27.2581H17.9587C17.5829 27.2581 17.2782 26.9534 17.2782 26.5776V26.124C17.2782 25.7482 17.5829 25.4435 17.9587 25.4435ZM20 11.8347C18.9979 11.8347 18.1855 12.6471 18.1855 13.6492C18.1855 14.6513 18.9979 15.4637 20 15.4637C21.0021 15.4637 21.8145 14.6513 21.8145 13.6492C21.8145 12.6471 21.0021 11.8347 20 11.8347Z" fill="white"/>
+</svg>
+;;
+  }
+  block t35: TextBlock {
+    content: @md <svg width="361" height="361" viewBox="0 0 361 361" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1" y="1" width="359" height="359" rx="6" fill="#FAFAFA" stroke="#BEC1CB" stroke-dasharray="4 4"/>
+</svg>
+;;
+  }
+  block v15: VizBlock {
+    label: 'Average Order Value over time'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A50E43'
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('order_master', 'order_created_at')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block t37: TextBlock {
+    content: @md <iframe style="border-radius: 12px;" src="https://free.timeanddate.com/clock/i97d6qp0/n218/fn9/fs20/fc1357a0/tce8f2fd/pa16/tt0/td1" frameborder="0" width="515" height="55"></iframe>;;
+  }
+  block t38: TextBlock {
+    content: @md <div style="width: 1450px; height: 500px; background-image: linear-gradient(45deg, #0B325B,#0B325B, #1B7CE4);"></div>;;
+  }
+  block t39: TextBlock {
+    content: @md <picture>
+   <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
+   <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
+   " height="35">
+ </picture>;;
+  }
+  block t40: TextBlock {
+    content: @md <style>
+.footer {
+color: white;
+text-align: right;
+}
+</style>
+
+<h2 class="footer"> Contact Us </h2>
+
+<p class="footer">Email:<a class="footer" href="mailto:support@holistics.io"> support@holistics.io </a><br>  </p>
+<p class="footer">Website: <a class="footer" href="https://www.holistics.io/"> www.holistics.io </a> </p>;;
+  }
+  block t41: TextBlock {
+    content: @md   <div>
+  <a href="#heading">
+<svg width="92" height="106" viewBox="0 0 92 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="92" height="104.609" transform="translate(0 0.765625)" fill="white"/>
+<path d="M33.9407 25.4843L34.329 25.8727C34.5864 26.1301 35.0038 26.1301 35.2613 25.8727L45.0662 16.0677L45.0662 50.7158C45.0662 51.0799 45.3614 51.375 45.7254 51.375L46.2747 51.375C46.6388 51.375 46.9339 51.0799 46.9339 50.7158L46.9339 16.0677L56.7389 25.8727C56.9963 26.1301 57.4137 26.1301 57.6711 25.8727L58.0595 25.4843C58.3169 25.2269 58.3169 24.8095 58.0595 24.5521L46.4662 12.9587C46.2088 12.7013 45.7914 12.7013 45.5339 12.9587L33.9407 24.5521C33.6832 24.8095 33.6832 25.2269 33.9407 25.4843Z" fill="#B5E3CD"/>
+<path d="M18.63 75.375V63.7386H22.8913C23.7171 63.7386 24.4008 63.875 24.9425 64.1477C25.4841 64.4167 25.8894 64.7822 26.1584 65.2443C26.4273 65.7027 26.5618 66.2197 26.5618 66.7955C26.5618 67.2803 26.4728 67.6894 26.2947 68.0227C26.1167 68.3523 25.8781 68.6174 25.5788 68.8182C25.2834 69.0152 24.9576 69.1591 24.6016 69.25V69.3636C24.9879 69.3826 25.3648 69.5076 25.7322 69.7386C26.1035 69.9659 26.4103 70.2898 26.6527 70.7102C26.8951 71.1307 27.0163 71.642 27.0163 72.2443C27.0163 72.839 26.8762 73.3731 26.5959 73.8466C26.3194 74.3163 25.8913 74.6894 25.3118 74.9659C24.7322 75.2386 23.9917 75.375 23.0902 75.375H18.63ZM20.3857 73.8693H22.9197C23.7607 73.8693 24.3629 73.7064 24.7266 73.3807C25.0902 73.0549 25.272 72.6477 25.272 72.1591C25.272 71.7917 25.1792 71.4545 24.9936 71.1477C24.808 70.8409 24.5429 70.5966 24.1982 70.4148C23.8572 70.233 23.4519 70.142 22.9822 70.142H20.3857V73.8693ZM20.3857 68.7727H22.7379C23.1319 68.7727 23.486 68.697 23.8004 68.5455C24.1186 68.3939 24.3705 68.1818 24.5561 67.9091C24.7455 67.6326 24.8402 67.3068 24.8402 66.9318C24.8402 66.4508 24.6716 66.0473 24.3345 65.7216C23.9974 65.3958 23.4804 65.233 22.7834 65.233H20.3857V68.7727ZM31.5021 75.5682C30.9491 75.5682 30.4491 75.4659 30.0021 75.2614C29.5552 75.053 29.201 74.7519 28.9396 74.358C28.6821 73.964 28.5533 73.4811 28.5533 72.9091C28.5533 72.4167 28.648 72.0114 28.8374 71.6932C29.0268 71.375 29.2824 71.1231 29.6044 70.9375C29.9264 70.7519 30.2862 70.6117 30.6839 70.517C31.0817 70.4223 31.487 70.3504 31.8999 70.3011C32.4226 70.2405 32.8468 70.1913 33.1726 70.1534C33.4983 70.1117 33.7351 70.0455 33.8828 69.9545C34.0305 69.8636 34.1044 69.7159 34.1044 69.5114V69.4716C34.1044 68.9754 33.9643 68.5909 33.6839 68.3182C33.4074 68.0455 32.9946 67.9091 32.4453 67.9091C31.8733 67.9091 31.4226 68.036 31.093 68.2898C30.7673 68.5398 30.5419 68.8182 30.4169 69.125L28.8203 68.7614C29.0097 68.2311 29.2862 67.803 29.6499 67.4773C30.0173 67.1477 30.4396 66.9091 30.9169 66.7614C31.3942 66.6098 31.8961 66.5341 32.4226 66.5341C32.7711 66.5341 33.1404 66.5758 33.5305 66.6591C33.9245 66.7386 34.2919 66.8864 34.6328 67.1023C34.9775 67.3182 35.2597 67.6269 35.4794 68.0284C35.6991 68.4261 35.8089 68.9432 35.8089 69.5795V75.375H34.1499V74.1818H34.0817C33.9718 74.4015 33.8071 74.6174 33.5874 74.8295C33.3677 75.0417 33.0855 75.2178 32.7408 75.358C32.3961 75.4981 31.9832 75.5682 31.5021 75.5682ZM31.8714 74.2045C32.3411 74.2045 32.7427 74.1117 33.076 73.9261C33.4131 73.7405 33.6688 73.4981 33.843 73.1989C34.0211 72.8958 34.1101 72.572 34.1101 72.2273V71.1023C34.0495 71.1629 33.9321 71.2197 33.7578 71.2727C33.5874 71.322 33.3923 71.3655 33.1726 71.4034C32.9529 71.4375 32.7389 71.4697 32.5305 71.5C32.3222 71.5265 32.148 71.5492 32.0078 71.5682C31.6783 71.6098 31.3771 71.6799 31.1044 71.7784C30.8355 71.8769 30.6196 72.0189 30.4567 72.2045C30.2976 72.3864 30.218 72.6288 30.218 72.9318C30.218 73.3523 30.3733 73.6705 30.6839 73.8864C30.9946 74.0985 31.3904 74.2045 31.8714 74.2045ZM41.7479 75.5511C40.9032 75.5511 40.1759 75.3598 39.5661 74.9773C38.96 74.5909 38.4941 74.0587 38.1683 73.3807C37.8426 72.7027 37.6797 71.9261 37.6797 71.0511C37.6797 70.1648 37.8464 69.3826 38.1797 68.7045C38.513 68.0227 38.9827 67.4905 39.5888 67.108C40.1948 66.7254 40.9089 66.5341 41.7308 66.5341C42.3937 66.5341 42.9846 66.6572 43.5036 66.9034C44.0225 67.1458 44.4411 67.4867 44.7592 67.9261C45.0812 68.3655 45.2725 68.8788 45.3331 69.4659H43.6797C43.5888 69.0568 43.3804 68.7045 43.0547 68.4091C42.7327 68.1136 42.3009 67.9659 41.7592 67.9659C41.2857 67.9659 40.871 68.0909 40.5149 68.3409C40.1626 68.5871 39.888 68.9394 39.6911 69.3977C39.4941 69.8523 39.3956 70.3902 39.3956 71.0114C39.3956 71.6477 39.4922 72.197 39.6854 72.6591C39.8786 73.1212 40.1513 73.4792 40.5036 73.733C40.8596 73.9867 41.2782 74.1136 41.7592 74.1136C42.0812 74.1136 42.3729 74.0549 42.6342 73.9375C42.8994 73.8163 43.121 73.6439 43.299 73.4205C43.4808 73.197 43.6077 72.928 43.6797 72.6136H45.3331C45.2725 73.178 45.0888 73.6818 44.782 74.125C44.4751 74.5682 44.0642 74.9167 43.549 75.1705C43.0376 75.4242 42.4373 75.5511 41.7479 75.5511ZM48.7124 72.4148L48.701 70.3409H48.9964L52.4737 66.6477H54.5078L50.5419 70.8523H50.2749L48.7124 72.4148ZM47.1499 75.375V63.7386H48.8487V75.375H47.1499ZM52.6612 75.375L49.5362 71.2273L50.7067 70.0398L54.7464 75.375H52.6612ZM64.3643 66.6477V68.0114H59.5973V66.6477H64.3643ZM60.8757 64.5568H62.5746V72.8125C62.5746 73.142 62.6238 73.3902 62.7223 73.5568C62.8208 73.7197 62.9477 73.8314 63.103 73.892C63.2621 73.9489 63.4344 73.9773 63.62 73.9773C63.7564 73.9773 63.8757 73.9678 63.978 73.9489C64.0803 73.9299 64.1598 73.9148 64.2166 73.9034L64.5234 75.3068C64.425 75.3447 64.2848 75.3826 64.103 75.4205C63.9212 75.4621 63.6939 75.4848 63.4212 75.4886C62.9742 75.4962 62.5575 75.4167 62.1712 75.25C61.7848 75.0833 61.4723 74.8258 61.2337 74.4773C60.995 74.1288 60.8757 73.6913 60.8757 73.1648V64.5568ZM69.826 75.5511C69.0078 75.5511 68.2938 75.3636 67.6839 74.9886C67.0741 74.6136 66.6006 74.089 66.2635 73.4148C65.9264 72.7405 65.7578 71.9527 65.7578 71.0511C65.7578 70.1458 65.9264 69.3542 66.2635 68.6761C66.6006 67.9981 67.0741 67.4716 67.6839 67.0966C68.2938 66.7216 69.0078 66.5341 69.826 66.5341C70.6442 66.5341 71.3582 66.7216 71.968 67.0966C72.5779 67.4716 73.0514 67.9981 73.3885 68.6761C73.7256 69.3542 73.8942 70.1458 73.8942 71.0511C73.8942 71.9527 73.7256 72.7405 73.3885 73.4148C73.0514 74.089 72.5779 74.6136 71.968 74.9886C71.3582 75.3636 70.6442 75.5511 69.826 75.5511ZM69.8317 74.125C70.362 74.125 70.8014 73.9848 71.1499 73.7045C71.4983 73.4242 71.7559 73.0511 71.9226 72.5852C72.093 72.1193 72.1783 71.6061 72.1783 71.0455C72.1783 70.4886 72.093 69.9773 71.9226 69.5114C71.7559 69.0417 71.4983 68.6648 71.1499 68.3807C70.8014 68.0966 70.362 67.9545 69.8317 67.9545C69.2976 67.9545 68.8544 68.0966 68.5021 68.3807C68.1536 68.6648 67.8942 69.0417 67.7237 69.5114C67.5571 69.9773 67.4737 70.4886 67.4737 71.0455C67.4737 71.6061 67.5571 72.1193 67.7237 72.5852C67.8942 73.0511 68.1536 73.4242 68.5021 73.7045C68.8544 73.9848 69.2976 74.125 69.8317 74.125ZM38.5284 82.6477V84.0114H33.7614V82.6477H38.5284ZM35.0398 80.5568H36.7386V88.8125C36.7386 89.142 36.7879 89.3902 36.8864 89.5568C36.9848 89.7197 37.1117 89.8314 37.267 89.892C37.4261 89.9489 37.5985 89.9773 37.7841 89.9773C37.9205 89.9773 38.0398 89.9678 38.142 89.9489C38.2443 89.9299 38.3239 89.9148 38.3807 89.9034L38.6875 91.3068C38.589 91.3447 38.4489 91.3826 38.267 91.4205C38.0852 91.4621 37.858 91.4848 37.5852 91.4886C37.1383 91.4962 36.7216 91.4167 36.3352 91.25C35.9489 91.0833 35.6364 90.8258 35.3977 90.4773C35.1591 90.1288 35.0398 89.6913 35.0398 89.1648V80.5568ZM43.9901 91.5511C43.1719 91.5511 42.4579 91.3636 41.848 90.9886C41.2382 90.6136 40.7647 90.089 40.4276 89.4148C40.0904 88.7405 39.9219 87.9527 39.9219 87.0511C39.9219 86.1458 40.0904 85.3542 40.4276 84.6761C40.7647 83.9981 41.2382 83.4716 41.848 83.0966C42.4579 82.7216 43.1719 82.5341 43.9901 82.5341C44.8082 82.5341 45.5223 82.7216 46.1321 83.0966C46.742 83.4716 47.2154 83.9981 47.5526 84.6761C47.8897 85.3542 48.0582 86.1458 48.0582 87.0511C48.0582 87.9527 47.8897 88.7405 47.5526 89.4148C47.2154 90.089 46.742 90.6136 46.1321 90.9886C45.5223 91.3636 44.8082 91.5511 43.9901 91.5511ZM43.9957 90.125C44.526 90.125 44.9654 89.9848 45.3139 89.7045C45.6624 89.4242 45.92 89.0511 46.0866 88.5852C46.2571 88.1193 46.3423 87.6061 46.3423 87.0455C46.3423 86.4886 46.2571 85.9773 46.0866 85.5114C45.92 85.0417 45.6624 84.6648 45.3139 84.3807C44.9654 84.0966 44.526 83.9545 43.9957 83.9545C43.4616 83.9545 43.0185 84.0966 42.6662 84.3807C42.3177 84.6648 42.0582 85.0417 41.8878 85.5114C41.7211 85.9773 41.6378 86.4886 41.6378 87.0455C41.6378 87.6061 41.7211 88.1193 41.8878 88.5852C42.0582 89.0511 42.3177 89.4242 42.6662 89.7045C43.0185 89.9848 43.4616 90.125 43.9957 90.125ZM49.9545 94.6477V82.6477H51.6136V84.0625H51.7557C51.8542 83.8807 51.9962 83.6705 52.1818 83.4318C52.3674 83.1932 52.625 82.9848 52.9545 82.8068C53.2841 82.625 53.7197 82.5341 54.2614 82.5341C54.9659 82.5341 55.5947 82.7121 56.1477 83.0682C56.7008 83.4242 57.1345 83.9375 57.4489 84.608C57.767 85.2784 57.9261 86.0852 57.9261 87.0284C57.9261 87.9716 57.7689 88.7803 57.4545 89.4545C57.1402 90.125 56.7083 90.642 56.1591 91.0057C55.6098 91.3655 54.983 91.5455 54.2784 91.5455C53.7481 91.5455 53.3144 91.4564 52.9773 91.2784C52.6439 91.1004 52.3826 90.892 52.1932 90.6534C52.0038 90.4148 51.858 90.2027 51.7557 90.017H51.6534V94.6477H49.9545ZM51.6193 87.0114C51.6193 87.625 51.7083 88.1629 51.8864 88.625C52.0644 89.0871 52.322 89.4489 52.6591 89.7102C52.9962 89.9678 53.4091 90.0966 53.8977 90.0966C54.4053 90.0966 54.8295 89.9621 55.1705 89.6932C55.5114 89.4205 55.7689 89.0511 55.9432 88.5852C56.1212 88.1193 56.2102 87.5947 56.2102 87.0114C56.2102 86.4356 56.1231 85.9186 55.9489 85.4602C55.7784 85.0019 55.5208 84.6402 55.1761 84.375C54.8352 84.1098 54.4091 83.9773 53.8977 83.9773C53.4053 83.9773 52.9886 84.1042 52.6477 84.358C52.3106 84.6117 52.0549 84.9659 51.8807 85.4205C51.7064 85.875 51.6193 86.4053 51.6193 87.0114Z" fill="#91D4B3"/>
+</svg>
+</a>
+
+
+</div>;;
+  }
+  block t42: TextBlock {
+    content: @md   <div>
+  <a href="#heading">
+<svg width="92" height="106" viewBox="0 0 92 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="92" height="104.609" transform="translate(0 0.765625)" fill="white"/>
+<path d="M33.9407 25.4843L34.329 25.8727C34.5864 26.1301 35.0038 26.1301 35.2613 25.8727L45.0662 16.0677L45.0662 50.7158C45.0662 51.0799 45.3614 51.375 45.7254 51.375L46.2747 51.375C46.6388 51.375 46.9339 51.0799 46.9339 50.7158L46.9339 16.0677L56.7389 25.8727C56.9963 26.1301 57.4137 26.1301 57.6711 25.8727L58.0595 25.4843C58.3169 25.2269 58.3169 24.8095 58.0595 24.5521L46.4662 12.9587C46.2088 12.7013 45.7914 12.7013 45.5339 12.9587L33.9407 24.5521C33.6832 24.8095 33.6832 25.2269 33.9407 25.4843Z" fill="#B5E3CD"/>
+<path d="M18.63 75.375V63.7386H22.8913C23.7171 63.7386 24.4008 63.875 24.9425 64.1477C25.4841 64.4167 25.8894 64.7822 26.1584 65.2443C26.4273 65.7027 26.5618 66.2197 26.5618 66.7955C26.5618 67.2803 26.4728 67.6894 26.2947 68.0227C26.1167 68.3523 25.8781 68.6174 25.5788 68.8182C25.2834 69.0152 24.9576 69.1591 24.6016 69.25V69.3636C24.9879 69.3826 25.3648 69.5076 25.7322 69.7386C26.1035 69.9659 26.4103 70.2898 26.6527 70.7102C26.8951 71.1307 27.0163 71.642 27.0163 72.2443C27.0163 72.839 26.8762 73.3731 26.5959 73.8466C26.3194 74.3163 25.8913 74.6894 25.3118 74.9659C24.7322 75.2386 23.9917 75.375 23.0902 75.375H18.63ZM20.3857 73.8693H22.9197C23.7607 73.8693 24.3629 73.7064 24.7266 73.3807C25.0902 73.0549 25.272 72.6477 25.272 72.1591C25.272 71.7917 25.1792 71.4545 24.9936 71.1477C24.808 70.8409 24.5429 70.5966 24.1982 70.4148C23.8572 70.233 23.4519 70.142 22.9822 70.142H20.3857V73.8693ZM20.3857 68.7727H22.7379C23.1319 68.7727 23.486 68.697 23.8004 68.5455C24.1186 68.3939 24.3705 68.1818 24.5561 67.9091C24.7455 67.6326 24.8402 67.3068 24.8402 66.9318C24.8402 66.4508 24.6716 66.0473 24.3345 65.7216C23.9974 65.3958 23.4804 65.233 22.7834 65.233H20.3857V68.7727ZM31.5021 75.5682C30.9491 75.5682 30.4491 75.4659 30.0021 75.2614C29.5552 75.053 29.201 74.7519 28.9396 74.358C28.6821 73.964 28.5533 73.4811 28.5533 72.9091C28.5533 72.4167 28.648 72.0114 28.8374 71.6932C29.0268 71.375 29.2824 71.1231 29.6044 70.9375C29.9264 70.7519 30.2862 70.6117 30.6839 70.517C31.0817 70.4223 31.487 70.3504 31.8999 70.3011C32.4226 70.2405 32.8468 70.1913 33.1726 70.1534C33.4983 70.1117 33.7351 70.0455 33.8828 69.9545C34.0305 69.8636 34.1044 69.7159 34.1044 69.5114V69.4716C34.1044 68.9754 33.9643 68.5909 33.6839 68.3182C33.4074 68.0455 32.9946 67.9091 32.4453 67.9091C31.8733 67.9091 31.4226 68.036 31.093 68.2898C30.7673 68.5398 30.5419 68.8182 30.4169 69.125L28.8203 68.7614C29.0097 68.2311 29.2862 67.803 29.6499 67.4773C30.0173 67.1477 30.4396 66.9091 30.9169 66.7614C31.3942 66.6098 31.8961 66.5341 32.4226 66.5341C32.7711 66.5341 33.1404 66.5758 33.5305 66.6591C33.9245 66.7386 34.2919 66.8864 34.6328 67.1023C34.9775 67.3182 35.2597 67.6269 35.4794 68.0284C35.6991 68.4261 35.8089 68.9432 35.8089 69.5795V75.375H34.1499V74.1818H34.0817C33.9718 74.4015 33.8071 74.6174 33.5874 74.8295C33.3677 75.0417 33.0855 75.2178 32.7408 75.358C32.3961 75.4981 31.9832 75.5682 31.5021 75.5682ZM31.8714 74.2045C32.3411 74.2045 32.7427 74.1117 33.076 73.9261C33.4131 73.7405 33.6688 73.4981 33.843 73.1989C34.0211 72.8958 34.1101 72.572 34.1101 72.2273V71.1023C34.0495 71.1629 33.9321 71.2197 33.7578 71.2727C33.5874 71.322 33.3923 71.3655 33.1726 71.4034C32.9529 71.4375 32.7389 71.4697 32.5305 71.5C32.3222 71.5265 32.148 71.5492 32.0078 71.5682C31.6783 71.6098 31.3771 71.6799 31.1044 71.7784C30.8355 71.8769 30.6196 72.0189 30.4567 72.2045C30.2976 72.3864 30.218 72.6288 30.218 72.9318C30.218 73.3523 30.3733 73.6705 30.6839 73.8864C30.9946 74.0985 31.3904 74.2045 31.8714 74.2045ZM41.7479 75.5511C40.9032 75.5511 40.1759 75.3598 39.5661 74.9773C38.96 74.5909 38.4941 74.0587 38.1683 73.3807C37.8426 72.7027 37.6797 71.9261 37.6797 71.0511C37.6797 70.1648 37.8464 69.3826 38.1797 68.7045C38.513 68.0227 38.9827 67.4905 39.5888 67.108C40.1948 66.7254 40.9089 66.5341 41.7308 66.5341C42.3937 66.5341 42.9846 66.6572 43.5036 66.9034C44.0225 67.1458 44.4411 67.4867 44.7592 67.9261C45.0812 68.3655 45.2725 68.8788 45.3331 69.4659H43.6797C43.5888 69.0568 43.3804 68.7045 43.0547 68.4091C42.7327 68.1136 42.3009 67.9659 41.7592 67.9659C41.2857 67.9659 40.871 68.0909 40.5149 68.3409C40.1626 68.5871 39.888 68.9394 39.6911 69.3977C39.4941 69.8523 39.3956 70.3902 39.3956 71.0114C39.3956 71.6477 39.4922 72.197 39.6854 72.6591C39.8786 73.1212 40.1513 73.4792 40.5036 73.733C40.8596 73.9867 41.2782 74.1136 41.7592 74.1136C42.0812 74.1136 42.3729 74.0549 42.6342 73.9375C42.8994 73.8163 43.121 73.6439 43.299 73.4205C43.4808 73.197 43.6077 72.928 43.6797 72.6136H45.3331C45.2725 73.178 45.0888 73.6818 44.782 74.125C44.4751 74.5682 44.0642 74.9167 43.549 75.1705C43.0376 75.4242 42.4373 75.5511 41.7479 75.5511ZM48.7124 72.4148L48.701 70.3409H48.9964L52.4737 66.6477H54.5078L50.5419 70.8523H50.2749L48.7124 72.4148ZM47.1499 75.375V63.7386H48.8487V75.375H47.1499ZM52.6612 75.375L49.5362 71.2273L50.7067 70.0398L54.7464 75.375H52.6612ZM64.3643 66.6477V68.0114H59.5973V66.6477H64.3643ZM60.8757 64.5568H62.5746V72.8125C62.5746 73.142 62.6238 73.3902 62.7223 73.5568C62.8208 73.7197 62.9477 73.8314 63.103 73.892C63.2621 73.9489 63.4344 73.9773 63.62 73.9773C63.7564 73.9773 63.8757 73.9678 63.978 73.9489C64.0803 73.9299 64.1598 73.9148 64.2166 73.9034L64.5234 75.3068C64.425 75.3447 64.2848 75.3826 64.103 75.4205C63.9212 75.4621 63.6939 75.4848 63.4212 75.4886C62.9742 75.4962 62.5575 75.4167 62.1712 75.25C61.7848 75.0833 61.4723 74.8258 61.2337 74.4773C60.995 74.1288 60.8757 73.6913 60.8757 73.1648V64.5568ZM69.826 75.5511C69.0078 75.5511 68.2938 75.3636 67.6839 74.9886C67.0741 74.6136 66.6006 74.089 66.2635 73.4148C65.9264 72.7405 65.7578 71.9527 65.7578 71.0511C65.7578 70.1458 65.9264 69.3542 66.2635 68.6761C66.6006 67.9981 67.0741 67.4716 67.6839 67.0966C68.2938 66.7216 69.0078 66.5341 69.826 66.5341C70.6442 66.5341 71.3582 66.7216 71.968 67.0966C72.5779 67.4716 73.0514 67.9981 73.3885 68.6761C73.7256 69.3542 73.8942 70.1458 73.8942 71.0511C73.8942 71.9527 73.7256 72.7405 73.3885 73.4148C73.0514 74.089 72.5779 74.6136 71.968 74.9886C71.3582 75.3636 70.6442 75.5511 69.826 75.5511ZM69.8317 74.125C70.362 74.125 70.8014 73.9848 71.1499 73.7045C71.4983 73.4242 71.7559 73.0511 71.9226 72.5852C72.093 72.1193 72.1783 71.6061 72.1783 71.0455C72.1783 70.4886 72.093 69.9773 71.9226 69.5114C71.7559 69.0417 71.4983 68.6648 71.1499 68.3807C70.8014 68.0966 70.362 67.9545 69.8317 67.9545C69.2976 67.9545 68.8544 68.0966 68.5021 68.3807C68.1536 68.6648 67.8942 69.0417 67.7237 69.5114C67.5571 69.9773 67.4737 70.4886 67.4737 71.0455C67.4737 71.6061 67.5571 72.1193 67.7237 72.5852C67.8942 73.0511 68.1536 73.4242 68.5021 73.7045C68.8544 73.9848 69.2976 74.125 69.8317 74.125ZM38.5284 82.6477V84.0114H33.7614V82.6477H38.5284ZM35.0398 80.5568H36.7386V88.8125C36.7386 89.142 36.7879 89.3902 36.8864 89.5568C36.9848 89.7197 37.1117 89.8314 37.267 89.892C37.4261 89.9489 37.5985 89.9773 37.7841 89.9773C37.9205 89.9773 38.0398 89.9678 38.142 89.9489C38.2443 89.9299 38.3239 89.9148 38.3807 89.9034L38.6875 91.3068C38.589 91.3447 38.4489 91.3826 38.267 91.4205C38.0852 91.4621 37.858 91.4848 37.5852 91.4886C37.1383 91.4962 36.7216 91.4167 36.3352 91.25C35.9489 91.0833 35.6364 90.8258 35.3977 90.4773C35.1591 90.1288 35.0398 89.6913 35.0398 89.1648V80.5568ZM43.9901 91.5511C43.1719 91.5511 42.4579 91.3636 41.848 90.9886C41.2382 90.6136 40.7647 90.089 40.4276 89.4148C40.0904 88.7405 39.9219 87.9527 39.9219 87.0511C39.9219 86.1458 40.0904 85.3542 40.4276 84.6761C40.7647 83.9981 41.2382 83.4716 41.848 83.0966C42.4579 82.7216 43.1719 82.5341 43.9901 82.5341C44.8082 82.5341 45.5223 82.7216 46.1321 83.0966C46.742 83.4716 47.2154 83.9981 47.5526 84.6761C47.8897 85.3542 48.0582 86.1458 48.0582 87.0511C48.0582 87.9527 47.8897 88.7405 47.5526 89.4148C47.2154 90.089 46.742 90.6136 46.1321 90.9886C45.5223 91.3636 44.8082 91.5511 43.9901 91.5511ZM43.9957 90.125C44.526 90.125 44.9654 89.9848 45.3139 89.7045C45.6624 89.4242 45.92 89.0511 46.0866 88.5852C46.2571 88.1193 46.3423 87.6061 46.3423 87.0455C46.3423 86.4886 46.2571 85.9773 46.0866 85.5114C45.92 85.0417 45.6624 84.6648 45.3139 84.3807C44.9654 84.0966 44.526 83.9545 43.9957 83.9545C43.4616 83.9545 43.0185 84.0966 42.6662 84.3807C42.3177 84.6648 42.0582 85.0417 41.8878 85.5114C41.7211 85.9773 41.6378 86.4886 41.6378 87.0455C41.6378 87.6061 41.7211 88.1193 41.8878 88.5852C42.0582 89.0511 42.3177 89.4242 42.6662 89.7045C43.0185 89.9848 43.4616 90.125 43.9957 90.125ZM49.9545 94.6477V82.6477H51.6136V84.0625H51.7557C51.8542 83.8807 51.9962 83.6705 52.1818 83.4318C52.3674 83.1932 52.625 82.9848 52.9545 82.8068C53.2841 82.625 53.7197 82.5341 54.2614 82.5341C54.9659 82.5341 55.5947 82.7121 56.1477 83.0682C56.7008 83.4242 57.1345 83.9375 57.4489 84.608C57.767 85.2784 57.9261 86.0852 57.9261 87.0284C57.9261 87.9716 57.7689 88.7803 57.4545 89.4545C57.1402 90.125 56.7083 90.642 56.1591 91.0057C55.6098 91.3655 54.983 91.5455 54.2784 91.5455C53.7481 91.5455 53.3144 91.4564 52.9773 91.2784C52.6439 91.1004 52.3826 90.892 52.1932 90.6534C52.0038 90.4148 51.858 90.2027 51.7557 90.017H51.6534V94.6477H49.9545ZM51.6193 87.0114C51.6193 87.625 51.7083 88.1629 51.8864 88.625C52.0644 89.0871 52.322 89.4489 52.6591 89.7102C52.9962 89.9678 53.4091 90.0966 53.8977 90.0966C54.4053 90.0966 54.8295 89.9621 55.1705 89.6932C55.5114 89.4205 55.7689 89.0511 55.9432 88.5852C56.1212 88.1193 56.2102 87.5947 56.2102 87.0114C56.2102 86.4356 56.1231 85.9186 55.9489 85.4602C55.7784 85.0019 55.5208 84.6402 55.1761 84.375C54.8352 84.1098 54.4091 83.9773 53.8977 83.9773C53.4053 83.9773 52.9886 84.1042 52.6477 84.358C52.3106 84.6117 52.0549 84.9659 51.8807 85.4205C51.7064 85.875 51.6193 86.4053 51.6193 87.0114Z" fill="#91D4B3"/>
+</svg>
+</a>
+
+
+</div>;;
+  }
+  block t43: TextBlock {
+    content: @md   <div>
+  <a href="#heading">
+<svg width="92" height="106" viewBox="0 0 92 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="92" height="104.609" transform="translate(0 0.765625)" fill="white"/>
+<path d="M33.9407 25.4843L34.329 25.8727C34.5864 26.1301 35.0038 26.1301 35.2613 25.8727L45.0662 16.0677L45.0662 50.7158C45.0662 51.0799 45.3614 51.375 45.7254 51.375L46.2747 51.375C46.6388 51.375 46.9339 51.0799 46.9339 50.7158L46.9339 16.0677L56.7389 25.8727C56.9963 26.1301 57.4137 26.1301 57.6711 25.8727L58.0595 25.4843C58.3169 25.2269 58.3169 24.8095 58.0595 24.5521L46.4662 12.9587C46.2088 12.7013 45.7914 12.7013 45.5339 12.9587L33.9407 24.5521C33.6832 24.8095 33.6832 25.2269 33.9407 25.4843Z" fill="#B5E3CD"/>
+<path d="M18.63 75.375V63.7386H22.8913C23.7171 63.7386 24.4008 63.875 24.9425 64.1477C25.4841 64.4167 25.8894 64.7822 26.1584 65.2443C26.4273 65.7027 26.5618 66.2197 26.5618 66.7955C26.5618 67.2803 26.4728 67.6894 26.2947 68.0227C26.1167 68.3523 25.8781 68.6174 25.5788 68.8182C25.2834 69.0152 24.9576 69.1591 24.6016 69.25V69.3636C24.9879 69.3826 25.3648 69.5076 25.7322 69.7386C26.1035 69.9659 26.4103 70.2898 26.6527 70.7102C26.8951 71.1307 27.0163 71.642 27.0163 72.2443C27.0163 72.839 26.8762 73.3731 26.5959 73.8466C26.3194 74.3163 25.8913 74.6894 25.3118 74.9659C24.7322 75.2386 23.9917 75.375 23.0902 75.375H18.63ZM20.3857 73.8693H22.9197C23.7607 73.8693 24.3629 73.7064 24.7266 73.3807C25.0902 73.0549 25.272 72.6477 25.272 72.1591C25.272 71.7917 25.1792 71.4545 24.9936 71.1477C24.808 70.8409 24.5429 70.5966 24.1982 70.4148C23.8572 70.233 23.4519 70.142 22.9822 70.142H20.3857V73.8693ZM20.3857 68.7727H22.7379C23.1319 68.7727 23.486 68.697 23.8004 68.5455C24.1186 68.3939 24.3705 68.1818 24.5561 67.9091C24.7455 67.6326 24.8402 67.3068 24.8402 66.9318C24.8402 66.4508 24.6716 66.0473 24.3345 65.7216C23.9974 65.3958 23.4804 65.233 22.7834 65.233H20.3857V68.7727ZM31.5021 75.5682C30.9491 75.5682 30.4491 75.4659 30.0021 75.2614C29.5552 75.053 29.201 74.7519 28.9396 74.358C28.6821 73.964 28.5533 73.4811 28.5533 72.9091C28.5533 72.4167 28.648 72.0114 28.8374 71.6932C29.0268 71.375 29.2824 71.1231 29.6044 70.9375C29.9264 70.7519 30.2862 70.6117 30.6839 70.517C31.0817 70.4223 31.487 70.3504 31.8999 70.3011C32.4226 70.2405 32.8468 70.1913 33.1726 70.1534C33.4983 70.1117 33.7351 70.0455 33.8828 69.9545C34.0305 69.8636 34.1044 69.7159 34.1044 69.5114V69.4716C34.1044 68.9754 33.9643 68.5909 33.6839 68.3182C33.4074 68.0455 32.9946 67.9091 32.4453 67.9091C31.8733 67.9091 31.4226 68.036 31.093 68.2898C30.7673 68.5398 30.5419 68.8182 30.4169 69.125L28.8203 68.7614C29.0097 68.2311 29.2862 67.803 29.6499 67.4773C30.0173 67.1477 30.4396 66.9091 30.9169 66.7614C31.3942 66.6098 31.8961 66.5341 32.4226 66.5341C32.7711 66.5341 33.1404 66.5758 33.5305 66.6591C33.9245 66.7386 34.2919 66.8864 34.6328 67.1023C34.9775 67.3182 35.2597 67.6269 35.4794 68.0284C35.6991 68.4261 35.8089 68.9432 35.8089 69.5795V75.375H34.1499V74.1818H34.0817C33.9718 74.4015 33.8071 74.6174 33.5874 74.8295C33.3677 75.0417 33.0855 75.2178 32.7408 75.358C32.3961 75.4981 31.9832 75.5682 31.5021 75.5682ZM31.8714 74.2045C32.3411 74.2045 32.7427 74.1117 33.076 73.9261C33.4131 73.7405 33.6688 73.4981 33.843 73.1989C34.0211 72.8958 34.1101 72.572 34.1101 72.2273V71.1023C34.0495 71.1629 33.9321 71.2197 33.7578 71.2727C33.5874 71.322 33.3923 71.3655 33.1726 71.4034C32.9529 71.4375 32.7389 71.4697 32.5305 71.5C32.3222 71.5265 32.148 71.5492 32.0078 71.5682C31.6783 71.6098 31.3771 71.6799 31.1044 71.7784C30.8355 71.8769 30.6196 72.0189 30.4567 72.2045C30.2976 72.3864 30.218 72.6288 30.218 72.9318C30.218 73.3523 30.3733 73.6705 30.6839 73.8864C30.9946 74.0985 31.3904 74.2045 31.8714 74.2045ZM41.7479 75.5511C40.9032 75.5511 40.1759 75.3598 39.5661 74.9773C38.96 74.5909 38.4941 74.0587 38.1683 73.3807C37.8426 72.7027 37.6797 71.9261 37.6797 71.0511C37.6797 70.1648 37.8464 69.3826 38.1797 68.7045C38.513 68.0227 38.9827 67.4905 39.5888 67.108C40.1948 66.7254 40.9089 66.5341 41.7308 66.5341C42.3937 66.5341 42.9846 66.6572 43.5036 66.9034C44.0225 67.1458 44.4411 67.4867 44.7592 67.9261C45.0812 68.3655 45.2725 68.8788 45.3331 69.4659H43.6797C43.5888 69.0568 43.3804 68.7045 43.0547 68.4091C42.7327 68.1136 42.3009 67.9659 41.7592 67.9659C41.2857 67.9659 40.871 68.0909 40.5149 68.3409C40.1626 68.5871 39.888 68.9394 39.6911 69.3977C39.4941 69.8523 39.3956 70.3902 39.3956 71.0114C39.3956 71.6477 39.4922 72.197 39.6854 72.6591C39.8786 73.1212 40.1513 73.4792 40.5036 73.733C40.8596 73.9867 41.2782 74.1136 41.7592 74.1136C42.0812 74.1136 42.3729 74.0549 42.6342 73.9375C42.8994 73.8163 43.121 73.6439 43.299 73.4205C43.4808 73.197 43.6077 72.928 43.6797 72.6136H45.3331C45.2725 73.178 45.0888 73.6818 44.782 74.125C44.4751 74.5682 44.0642 74.9167 43.549 75.1705C43.0376 75.4242 42.4373 75.5511 41.7479 75.5511ZM48.7124 72.4148L48.701 70.3409H48.9964L52.4737 66.6477H54.5078L50.5419 70.8523H50.2749L48.7124 72.4148ZM47.1499 75.375V63.7386H48.8487V75.375H47.1499ZM52.6612 75.375L49.5362 71.2273L50.7067 70.0398L54.7464 75.375H52.6612ZM64.3643 66.6477V68.0114H59.5973V66.6477H64.3643ZM60.8757 64.5568H62.5746V72.8125C62.5746 73.142 62.6238 73.3902 62.7223 73.5568C62.8208 73.7197 62.9477 73.8314 63.103 73.892C63.2621 73.9489 63.4344 73.9773 63.62 73.9773C63.7564 73.9773 63.8757 73.9678 63.978 73.9489C64.0803 73.9299 64.1598 73.9148 64.2166 73.9034L64.5234 75.3068C64.425 75.3447 64.2848 75.3826 64.103 75.4205C63.9212 75.4621 63.6939 75.4848 63.4212 75.4886C62.9742 75.4962 62.5575 75.4167 62.1712 75.25C61.7848 75.0833 61.4723 74.8258 61.2337 74.4773C60.995 74.1288 60.8757 73.6913 60.8757 73.1648V64.5568ZM69.826 75.5511C69.0078 75.5511 68.2938 75.3636 67.6839 74.9886C67.0741 74.6136 66.6006 74.089 66.2635 73.4148C65.9264 72.7405 65.7578 71.9527 65.7578 71.0511C65.7578 70.1458 65.9264 69.3542 66.2635 68.6761C66.6006 67.9981 67.0741 67.4716 67.6839 67.0966C68.2938 66.7216 69.0078 66.5341 69.826 66.5341C70.6442 66.5341 71.3582 66.7216 71.968 67.0966C72.5779 67.4716 73.0514 67.9981 73.3885 68.6761C73.7256 69.3542 73.8942 70.1458 73.8942 71.0511C73.8942 71.9527 73.7256 72.7405 73.3885 73.4148C73.0514 74.089 72.5779 74.6136 71.968 74.9886C71.3582 75.3636 70.6442 75.5511 69.826 75.5511ZM69.8317 74.125C70.362 74.125 70.8014 73.9848 71.1499 73.7045C71.4983 73.4242 71.7559 73.0511 71.9226 72.5852C72.093 72.1193 72.1783 71.6061 72.1783 71.0455C72.1783 70.4886 72.093 69.9773 71.9226 69.5114C71.7559 69.0417 71.4983 68.6648 71.1499 68.3807C70.8014 68.0966 70.362 67.9545 69.8317 67.9545C69.2976 67.9545 68.8544 68.0966 68.5021 68.3807C68.1536 68.6648 67.8942 69.0417 67.7237 69.5114C67.5571 69.9773 67.4737 70.4886 67.4737 71.0455C67.4737 71.6061 67.5571 72.1193 67.7237 72.5852C67.8942 73.0511 68.1536 73.4242 68.5021 73.7045C68.8544 73.9848 69.2976 74.125 69.8317 74.125ZM38.5284 82.6477V84.0114H33.7614V82.6477H38.5284ZM35.0398 80.5568H36.7386V88.8125C36.7386 89.142 36.7879 89.3902 36.8864 89.5568C36.9848 89.7197 37.1117 89.8314 37.267 89.892C37.4261 89.9489 37.5985 89.9773 37.7841 89.9773C37.9205 89.9773 38.0398 89.9678 38.142 89.9489C38.2443 89.9299 38.3239 89.9148 38.3807 89.9034L38.6875 91.3068C38.589 91.3447 38.4489 91.3826 38.267 91.4205C38.0852 91.4621 37.858 91.4848 37.5852 91.4886C37.1383 91.4962 36.7216 91.4167 36.3352 91.25C35.9489 91.0833 35.6364 90.8258 35.3977 90.4773C35.1591 90.1288 35.0398 89.6913 35.0398 89.1648V80.5568ZM43.9901 91.5511C43.1719 91.5511 42.4579 91.3636 41.848 90.9886C41.2382 90.6136 40.7647 90.089 40.4276 89.4148C40.0904 88.7405 39.9219 87.9527 39.9219 87.0511C39.9219 86.1458 40.0904 85.3542 40.4276 84.6761C40.7647 83.9981 41.2382 83.4716 41.848 83.0966C42.4579 82.7216 43.1719 82.5341 43.9901 82.5341C44.8082 82.5341 45.5223 82.7216 46.1321 83.0966C46.742 83.4716 47.2154 83.9981 47.5526 84.6761C47.8897 85.3542 48.0582 86.1458 48.0582 87.0511C48.0582 87.9527 47.8897 88.7405 47.5526 89.4148C47.2154 90.089 46.742 90.6136 46.1321 90.9886C45.5223 91.3636 44.8082 91.5511 43.9901 91.5511ZM43.9957 90.125C44.526 90.125 44.9654 89.9848 45.3139 89.7045C45.6624 89.4242 45.92 89.0511 46.0866 88.5852C46.2571 88.1193 46.3423 87.6061 46.3423 87.0455C46.3423 86.4886 46.2571 85.9773 46.0866 85.5114C45.92 85.0417 45.6624 84.6648 45.3139 84.3807C44.9654 84.0966 44.526 83.9545 43.9957 83.9545C43.4616 83.9545 43.0185 84.0966 42.6662 84.3807C42.3177 84.6648 42.0582 85.0417 41.8878 85.5114C41.7211 85.9773 41.6378 86.4886 41.6378 87.0455C41.6378 87.6061 41.7211 88.1193 41.8878 88.5852C42.0582 89.0511 42.3177 89.4242 42.6662 89.7045C43.0185 89.9848 43.4616 90.125 43.9957 90.125ZM49.9545 94.6477V82.6477H51.6136V84.0625H51.7557C51.8542 83.8807 51.9962 83.6705 52.1818 83.4318C52.3674 83.1932 52.625 82.9848 52.9545 82.8068C53.2841 82.625 53.7197 82.5341 54.2614 82.5341C54.9659 82.5341 55.5947 82.7121 56.1477 83.0682C56.7008 83.4242 57.1345 83.9375 57.4489 84.608C57.767 85.2784 57.9261 86.0852 57.9261 87.0284C57.9261 87.9716 57.7689 88.7803 57.4545 89.4545C57.1402 90.125 56.7083 90.642 56.1591 91.0057C55.6098 91.3655 54.983 91.5455 54.2784 91.5455C53.7481 91.5455 53.3144 91.4564 52.9773 91.2784C52.6439 91.1004 52.3826 90.892 52.1932 90.6534C52.0038 90.4148 51.858 90.2027 51.7557 90.017H51.6534V94.6477H49.9545ZM51.6193 87.0114C51.6193 87.625 51.7083 88.1629 51.8864 88.625C52.0644 89.0871 52.322 89.4489 52.6591 89.7102C52.9962 89.9678 53.4091 90.0966 53.8977 90.0966C54.4053 90.0966 54.8295 89.9621 55.1705 89.6932C55.5114 89.4205 55.7689 89.0511 55.9432 88.5852C56.1212 88.1193 56.2102 87.5947 56.2102 87.0114C56.2102 86.4356 56.1231 85.9186 55.9489 85.4602C55.7784 85.0019 55.5208 84.6402 55.1761 84.375C54.8352 84.1098 54.4091 83.9773 53.8977 83.9773C53.4053 83.9773 52.9886 84.1042 52.6477 84.358C52.3106 84.6117 52.0549 84.9659 51.8807 85.4205C51.7064 85.875 51.6193 86.4053 51.6193 87.0114Z" fill="#91D4B3"/>
+</svg>
+</a>
+
+
+</div>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1330
+    height: 4700
+    block hd1 {
+      position: pos(50, 40, 280, 90)
+    }
+    block hd2 {
+      position: pos(650, 40, 630, 60)
+    }
+    block hd3 {
+      position: pos(0, 0, 1490, 370)
+      layer: -1
+    }
+    block t2 {
+      position: pos(650, 100, 630, 120)
+    }
+    block v1 {
+      position: pos(40, 930, 1240, 390)
+    }
+    block v2 {
+      position: pos(650, 690, 270, 180)
+    }
+    block v2_dup_dup {
+      position: pos(410, 2490, 400, 520)
+    }
+    block v3 {
+      position: pos(40, 2010, 630, 420)
+    }
+    block v6 {
+      position: pos(820, 2490, 480, 520)
+    }
+    block v7 {
+      position: pos(40, 4000, 1250, 430)
+    }
+    block v8 {
+      position: pos(40, 3460, 610, 510)
+    }
+    block v10 {
+      position: pos(970, 690, 270, 180)
+    }
+    block v12 {
+      position: pos(30, 640, 600, 280)
+      layer: -1
+    }
+    block f1 {
+      position: pos(90, 3380, 330, 50)
+    }
+    block t5 {
+      position: pos(450, 550, 390, 60)
+    }
+    block t6 {
+      position: pos(470, 1430, 348, 60)
+    }
+    block t7 {
+      position: pos(60, 2510, 220, 70)
+      layer: 1
+    }
+    block t8 {
+      position: pos(450, 3190, 390, 60)
+    }
+    block t9 {
+      position: pos(150, 3330, 270, 50)
+    }
+    block t10 {
+      position: pos(790, 210, 150, 60)
+    }
+    block t11 {
+      position: pos(930, 210, 190, 60)
+    }
+    block t12 {
+      position: pos(1120, 210, 170, 60)
+    }
+    block t13 {
+      position: pos(30, 150, 210, 180)
+    }
+    block t14 {
+      position: pos(640, 640, 340, 290)
+      layer: -1
+    }
+    block t15 {
+      position: pos(-10, 130, 630, 250)
+      layer: -1
+    }
+    block t16 {
+      position: pos(240, 150, 290, 170)
+    }
+    block t17 {
+      position: pos(960, 640, 310, 290)
+      layer: -1
+    }
+    block v13 {
+      position: pos(30, 1490, 1260, 480)
+    }
+    block t18 {
+      position: pos(30, 2490, 380, 120)
+    }
+    block v14 {
+      position: pos(710, 2000, 590, 420)
+    }
+    block t19 {
+      position: pos(600, 430, 110, 120)
+    }
+    block t20 {
+      position: pos(20, 490, 1290, 330)
+      layer: -2
+    }
+    block t21 {
+      position: pos(590, 1320, 110, 120)
+    }
+    block t22 {
+      position: pos(30, 1370, 1270, 340)
+      layer: -1
+    }
+    block t23 {
+      position: pos(590, 3080, 110, 130)
+    }
+    block t24 {
+      position: pos(50, 3130, 1350, 370)
+      layer: -4
+    }
+    block t25 {
+      position: pos(90, 3320, 70, 70)
+    }
+    block t26 {
+      position: pos(70, 3300, 390, 150)
+      layer: -2
+    }
+    block t27 {
+      position: pos(330, 2510, 60, 60)
+    }
+    block t28 {
+      position: pos(960, 3330, 270, 50)
+    }
+    block f2 {
+      position: pos(910, 3380, 330, 80)
+    }
+    block t29 {
+      position: pos(480, 3300, 380, 150)
+      layer: -3
+    }
+    block t30 {
+      position: pos(500, 3320, 60, 60)
+    }
+    block t31 {
+      position: pos(890, 3300, 400, 160)
+      layer: -1
+    }
+    block f3 {
+      position: pos(500, 3380, 330, 30)
+    }
+    block t32 {
+      position: pos(550, 3330, 270, 50)
+    }
+    block t33 {
+      position: pos(910, 3320, 60, 60)
+    }
+    block t34 {
+      position: pos(40, 2610, 340, 440)
+      layer: -3
+    }
+    block t36 {
+      position: pos(340, 2610, 70, 60)
+    }
+    block t35 {
+      position: pos(30, 2590, 410, 380)
+      layer: -4
+    }
+    block v15 {
+      position: pos(670, 3460, 620, 510)
+    }
+    block t37 {
+      position: pos(780, 290, 530, 70)
+    }
+    block t38 {
+      position: pos(-10, 4540, 1360, 250)
+      layer: -1
+    }
+    block t39 {
+      position: pos(30, 4590, 200, 70)
+    }
+    block t40 {
+      position: pos(910, 4560, 390, 110)
+    }
+    block t41 {
+      position: pos(1200, 1330, 100, 130)
+    }
+    block t42 {
+      position: pos(1210, 3080, 100, 130)
+    }
+    block t43 {
+      position: pos(650, 4410, 100, 130)
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v6'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v2_dup_dup',
+            'v7',
+            'v8',
+            'v10',
+            'v12',
+            'v15'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v2_dup_dup',
+            'v3',
+            'v6',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
+          ]
+          disabled: true
+        },
+        CustomMapping {
+          block: 'f3'
+          field: ref('ecommerce_countries', 'name')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v13'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v10',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v2_dup_dup',
+            'v3',
+            'v6',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v2_dup_dup',
+            'v3',
+            'v6',
+            'v10',
+            'v12',
+            'v13',
+            'v14'
+          ]
+          disabled: true
+        },
+        CustomMapping {
+          block: 'f1'
+          field: ref('ecommerce_cities', 'name')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 10
+  }
+}

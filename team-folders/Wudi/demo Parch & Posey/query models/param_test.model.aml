@@ -1,0 +1,32 @@
+Model param_test {
+  type: 'query'
+  label: 'Param Test'
+  description: ''
+  data_source_name: 'demodb'
+  dimension account_id {
+    label: 'Account Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.account_id }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension total_amt_usd {
+    label: 'Total Amt Usd'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_amt_usd }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql
+    select {{ #parch_posey_orders.account_id }}, {{ #parch_posey_orders.id }}, {{ #parch_posey_orders.total_amt_usd }}
+    from  {{ #parch_posey_orders }};;
+  models: [
+    parch_posey_orders
+  ]
+}
