@@ -45,12 +45,18 @@ Model bq_dim_users {
     hidden: false
     definition: @sql {{ #SOURCE.birth_date }};;
   }
+
   dimension gender {
     label: 'Gender'
     type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.gender }};;
+    definition: @sql            case
+        when {{#SOURCE.gender}} = 'f' then 'Female'
+        when {{#SOURCE.gender}} = 'm' then 'Male' 
+        else null
+      end;;
   }
+
   dimension full_name {
     label: 'Full Name'
     type: 'text'
