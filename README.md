@@ -1,4 +1,4 @@
-To all team members,
+To all team members, 
 
 Please do not create new definitions (data models, datasets, reports) in the root folder as these are meant for demo purpose. 
 
