@@ -27,7 +27,7 @@ Model order_master {
     ecommerce_order_items,
     ecommerce_products
   ]
-  
+
 
   query: @sql                
   select 
@@ -46,7 +46,7 @@ Model order_master {
   left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
   left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}}
   ;;
-  
+
   dimension order_id {
     label: "Order Id"
     type: "number"
@@ -178,6 +178,12 @@ Model order_master {
             ELSE 'The quantity is under 30'
         END
       ;;
+  }
+  dimension amount {
+    label: "Amount"
+    type: "number"
+    definition: @sql {{ quantity }} * {{ price }} * (1 - {{ discount }});;
+    format: "[\$\$]#,###"
   }
 
   // Custom measures
