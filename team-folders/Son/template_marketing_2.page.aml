@@ -39,7 +39,7 @@ Dashboard template_marketing_2 {
       layer: -1
     }
     block t7 {
-      position: pos(30, 190, 1290, 180)
+      position: pos(30, 190, 1290, 170)
       layer: -1
     }
     block t9 {
@@ -82,42 +82,58 @@ Dashboard template_marketing_2 {
   }
   block v3: VizBlock {
     label: 'General'
-    viz: RetentionHeatmap {
+    viz: DataTable {
       dataset: marketing_demo
-      filter {
-        field: ref('minhminh_marketing_kpi', 'leads')
-        operator: 'greater_than'
-        value: '100'
-      }
-      cohort: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'c_date')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
+      fields: [
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'c_date')
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'orders')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'revenue')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00'
+          }
         }
-      }
-      cohort_size: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'leads')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      cohort_duration: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'c_date')
-        transformation: 'datetrunc week'
-        format {
-          type: 'date'
-        }
-      }
-      cohort_value: VizFieldFull {
-        ref: ref('minhminh_marketing_kpi', 'revenue')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
+      ]
       settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('minhminh_marketing_kpi', 'revenue')
+            format: ScaleFormat {
+              min {
+                value: 700000
+                color: '#FFFFFF'
+              }
+              mid {
+                value: 1000000
+                color: '#64309380'
+              }
+              max {
+                value: 2000000
+                color: '#643093FF'
+              }
+            }
+          }
+        ]
         row_limit: 5000
       }
     }
