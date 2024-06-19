@@ -112,12 +112,19 @@ Dashboard cohort_retention {
       dataset: demo_ecommerce
       calculation cohort {
         label: 'Cohort Month'
-        formula: @aql    order_master
+        formula: @aql      order_master
 | min(order_master.order_created_at | month())
 | exact_grains(ecommerce_users.id);;
         calc_type: 'dimension'
         data_type: 'date'
         model: ecommerce_users
+      }
+      calculation f_a0c5b08 {
+        label: 'Month Number'
+        formula: @aql date_diff('month', order_master.order_created_month, order_master.cohort_month) - 1;;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: order_master
       }
       fields: [
         VizFieldFull {
@@ -152,6 +159,13 @@ Dashboard cohort_retention {
           format {
             type: 'date'
             pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'f_a0c5b08')
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
