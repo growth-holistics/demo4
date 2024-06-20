@@ -23,8 +23,8 @@ Dataset demo_ecommerce {
   dimension cohort_month {
     model: order_master
     label: 'Cohort Month'
-    type: 'datetime'
-    definition: @aql exact_grains(min(order_master, order_master.order_created_at | month()), ecommerce_users.id)
+    type: 'date'
+    definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
     ;;
   }
 
@@ -32,8 +32,14 @@ Dataset demo_ecommerce {
     model: order_master
     label: 'Month No'
     type: 'number'
-    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at)
-    ;;
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month());;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
   // view: Arranging view in dataset for business users
@@ -58,6 +64,7 @@ Dataset demo_ecommerce {
         field email
         field full_name
         field email_pii
+        field email_user
       }
 
       group activity {

@@ -1,5 +1,5 @@
-Dashboard pg_ecomax {
-  title: '[Demo PG]🛍️ Ecomax'
+Dashboard bq_ecomax {
+  title: '🛍️ [Demo] Ecomax'
   owner: 'triet.lq@holistics.io'
   description: ''''''
   view: CanvasLayout {
@@ -98,7 +98,7 @@ Dashboard pg_ecomax {
   block v1: VizBlock {
     label: 'Total Users'
     viz: MetricKpi {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
         ref: 'count_users'
         format {
@@ -107,7 +107,7 @@ Dashboard pg_ecomax {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('pg_dim_users', 'sign_up_date')
+        field: ref('bq_dim_users', 'sign_up_date')
         duration: 1
         granularity: 'year'
       }
@@ -119,9 +119,9 @@ Dashboard pg_ecomax {
   block v2: VizBlock {
     label: 'GMV Overtime'
     viz: ColumnChart {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       x_axis: VizFieldFull {
-        ref: ref('pg_dim_dates', 'date_key')
+        ref: ref('bq_dim_dates', 'date_key')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -144,7 +144,7 @@ Dashboard pg_ecomax {
       settings {
         row_limit: 5000
         pop {
-          field: ref('pg_dim_dates', 'date_key')
+          field: ref('bq_dim_dates', 'date_key')
           duration: 1
           granularity: 'year'
           show_growth_rate: true
@@ -166,7 +166,7 @@ Dashboard pg_ecomax {
   block v3: VizBlock {
     label: 'GMV'
     viz: MetricKpi {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
         label: 'GMV'
         ref: 'gmv'
@@ -178,7 +178,7 @@ Dashboard pg_ecomax {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('pg_dim_dates', 'date_key')
+        field: ref('bq_dim_dates', 'date_key')
         duration: 1
         granularity: 'year'
       }
@@ -190,9 +190,9 @@ Dashboard pg_ecomax {
   block v4: VizBlock {
     label: 'Count Users by Gender'
     viz: PieChart {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       legend: VizFieldFull {
-        ref: ref('pg_dim_users', 'gender')
+        ref: ref('bq_dim_users', 'gender')
         format {
           type: 'text'
         }
@@ -229,10 +229,10 @@ Dashboard pg_ecomax {
   block v5: VizBlock {
     label: 'GMV by Products'
     viz: DataTable {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('pg_dim_products', 'name')
+          ref: ref('bq_dim_products', 'name')
           format {
             type: 'text'
           }
@@ -248,7 +248,7 @@ Dashboard pg_ecomax {
           }
         }
       ]
-       settings {
+      settings {
         show_row_number: true
         sorts: [
           SortSetting {
@@ -261,18 +261,18 @@ Dashboard pg_ecomax {
             ref: 'gmv'
             format: ScaleFormat {
               min {
-                value: 50000
+                value: 600000
                 color: '#FFFFFF'
               }
               max {
-                value: 90000
+                value: 1000000
                 color: '#2F3E4AFF'
               }
             }
           }
         ]
         pop {
-          field: ref('pg_dim_dates', 'date_key')
+          field: ref('bq_dim_dates', 'date_key')
           duration: 1
           granularity: 'year'
         }
@@ -291,21 +291,21 @@ Dashboard pg_ecomax {
   block v6: VizBlock {
     label: 'GMV by Merchants'
     viz: BarChart {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       filter {
-        field: ref('pg_dim_merchants', 'name')
+        field: ref('bq_dim_merchants', 'name')
         operator: 'top'
         value: 10
         options {
           rank_by {
-            field: ref('pg_fct_order_items', 'value')
+            field: ref('bq_fct_order_items', 'value')
             aggregation: 'sum'
             logic: 'standard'
           }
         }
       }
       x_axis: VizFieldFull {
-        ref: ref('pg_dim_merchants', 'name')
+        ref: ref('bq_dim_merchants', 'name')
         format {
           type: 'text'
         }
@@ -344,7 +344,7 @@ Dashboard pg_ecomax {
   block v7: VizBlock {
     label: 'AOV'
     viz: MetricKpi {
-      dataset: demo_pg_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
         label: 'AOV'
         ref: 'aov'
@@ -354,7 +354,7 @@ Dashboard pg_ecomax {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('pg_dim_dates', 'date_key')
+        field: ref('bq_dim_dates', 'date_key')
         duration: 1
         granularity: 'year'
       }
@@ -384,7 +384,7 @@ Dashboard pg_ecomax {
       to: [
         CustomMapping {
           block: 'v1'
-          field: ref('pg_dim_users', 'sign_up_date')
+          field: ref('bq_dim_users', 'sign_up_date')
         },
         CustomMapping {
           block: [
@@ -395,7 +395,7 @@ Dashboard pg_ecomax {
             'v6',
             'v7'
           ]
-          field: ref('pg_dim_dates', 'date_key')
+          field: ref('bq_dim_dates', 'date_key')
         }
       ]
     }

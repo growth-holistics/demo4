@@ -3,7 +3,8 @@ Dashboard cohort_retention {
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    height: 1410
+    width: 1270
+    height: 1910
     block v1 {
       position: pos(350, 20, 500, 390)
     }
@@ -27,6 +28,9 @@ Dashboard cohort_retention {
     }
     block v4 {
       position: pos(350, 890, 830, 390)
+    }
+    block v5 {
+      position: pos(0, 1320, 1220, 520)
     }
   }
   block v1: VizBlock {
@@ -69,9 +73,9 @@ Dashboard cohort_retention {
     }
   }
   block t1: TextBlock {
-    content: @md # Set up
+    content: @md  # Set up
 
-`order_id`: order id
+`id`: order id
 
 `user_id`: ID of the user
 
@@ -112,12 +116,19 @@ Dashboard cohort_retention {
       dataset: demo_ecommerce
       calculation cohort {
         label: 'Cohort Month'
-        formula: @aql    order_master
+        formula: @aql      order_master
 | min(order_master.order_created_at | month())
 | exact_grains(ecommerce_users.id);;
         calc_type: 'dimension'
         data_type: 'date'
         model: ecommerce_users
+      }
+      calculation f_a0c5b08 {
+        label: 'Month Number'
+        formula: @aql date_diff('month', order_master.order_created_month, order_master.cohort_month) - 1;;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: order_master
       }
       fields: [
         VizFieldFull {
@@ -152,6 +163,13 @@ Dashboard cohort_retention {
           format {
             type: 'date'
             pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'f_a0c5b08')
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
@@ -214,6 +232,94 @@ orders
       ]
       settings {
         show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Orders'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation f_d421e9a {
+        label: 'Cohort Size'
+        formula: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: order_master
+      }
+      calculation f_dec681f {
+        label: '%'
+        formula: @aql  safe_divide(
+  count_distinct(order_master.user_id) * 1.0,
+  count_distinct(order_master.user_id) | of_all(order_master.month_no)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'cohort_month')
+        operator: 'matches'
+        value: 'last 12 months - this month'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('order_master', 'cohort_month')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'f_d421e9a')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('order_master', 'month_no')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: '# RU'
+          ref: ref('order_master', 'user_id')
+          aggregation: 'count distinct'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_dec681f'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        }
+      ]
+      settings {
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'f_dec681f'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              max {
+                value: 1
+                color: '#47B881'
+              }
+            }
+          }
+        ]
         row_limit: 5000
       }
     }

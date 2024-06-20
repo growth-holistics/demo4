@@ -1,6 +1,6 @@
 Model bq_dim_users {
   type: 'table'
-  label: 'Users'
+  label: 'Dim Users'
   description: ''
   data_source_name: 'data_staging'
   dimension id {
@@ -45,18 +45,12 @@ Model bq_dim_users {
     hidden: false
     definition: @sql {{ #SOURCE.birth_date }};;
   }
-
   dimension gender {
     label: 'Gender'
     type: 'text'
     hidden: false
-    definition: @sql            case
-        when {{#SOURCE.gender}} = 'f' then 'Female'
-        when {{#SOURCE.gender}} = 'm' then 'Male' 
-        else null
-      end;;
+    definition: @sql {{ #SOURCE.gender }};;
   }
-
   dimension full_name {
     label: 'Full Name'
     type: 'text'
