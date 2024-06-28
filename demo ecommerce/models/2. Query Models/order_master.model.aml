@@ -232,7 +232,7 @@ Model order_master {
     type: "number"
     definition: @sql sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float;;
     description: "Total values of orders cancelled"
-    format: "#,###0.00"
+    format: "[$$]#,###0.00"
   }
   measure completed_order_count {
     label: "Completed Order Count"
@@ -255,7 +255,7 @@ Model order_master {
     type: "number"
     definition: @sql sum({{ #SOURCE.price }});;
     description: "Total value regardless of order status"
-    format: "#,###0.00"
+    format: "[$$]#,###0.00"
   }
   measure nmv {
     label: "NMV - Net Merchandise Value"
@@ -266,12 +266,14 @@ Model order_master {
     label: "Refunded Orders Count"
     type: "number"
     definition: @sql count(distinct case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.order_id }} else null end);;
+    format: "[$$]#,###0.00"
   }
   measure revenue {
     label: "Revenue"
     type: "number"
     definition: @sql sum({{ #SOURCE.price }}*{{ #SOURCE.quantity }});;
     description: "P x Q"
+    format: "[$$]#,###0.00"
   }
   measure revenue_delivered {
     label: "Revenue Delivered"
