@@ -8,6 +8,11 @@ Dataset bare_ecommerce_dataset {
     ecommerce_orders,
     ecommerce_users,
     ecommerce_order_items
+    ,
+    ecommerce_countries,
+    ecommerce_cities,
+    ecommerce_categories,
+    ecommerce_merchants
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true)
@@ -15,6 +20,14 @@ Dataset bare_ecommerce_dataset {
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true)
     ,
     relationship(ecommerce_orders.user_id > ecommerce_users.id, true)
+    ,
+    relationship(ecommerce_products.category_id > ecommerce_categories.id, true)
+    ,
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
+    ,
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
+    ,
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true)
   ]
   owner: 'ha.pham@holistics.io'
 
@@ -23,9 +36,14 @@ Dataset bare_ecommerce_dataset {
     type: 'number'
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
   }
-  metric moving_avg_revenue_3m {
-    label: 'Moving Avg. Revenue (3 months)'
+  metric moving_avg_revenue_3m_tp {
+    label: 'trailing_period - 3M Moving Avg. Revenue'
     type: 'number'
-    definition: @aql window_avg(revenue, -3..0, order: ecommerce_orders.created_at);;
+    definition: @aql trailing_period(revenue, ecommerce_orders.created_at, interval(3 months)) / 3;;
+  }
+  metric moving_avg_revenue_3m_ma {
+    label: 'moving_avg - 3M Moving Avg. Revenue'
+    type: 'number'
+    definition: @aql window_avg(revenue, -2..0, order: ecommerce_orders.created_at | month());;
   }
 }

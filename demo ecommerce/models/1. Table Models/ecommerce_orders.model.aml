@@ -19,12 +19,6 @@ Model ecommerce_orders {
     definition: @sql {{ #SOURCE.status }};;
     description: "Delivered / Refunded / Canceled"
   }
-  dimension created_at {
-    label: 'Created At'
-    type: 'datetime'
-    hidden: false
-    definition: @sql {{ #SOURCE.created_at }};;
-  }
   dimension user_id {
     label: 'User Id'
     type: 'number'
@@ -43,6 +37,12 @@ Model ecommerce_orders {
     hidden: false
     definition: @sql {{ #SOURCE.delivery_attempts }};;
   }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
   dimension created_date {
     label: 'Created Date'
     type: 'date'
@@ -53,6 +53,12 @@ Model ecommerce_orders {
     label: "Order Month"
     type: "text"
     definition: @sql LPAD((DATE_PART('month', {{ created_at }}))::text, 2, '0') || ' ' || TO_CHAR({{ created_at }}, 'Month');;
+  }
+  measure total_order {
+    label: "total_orders_count"
+    type: "number"
+    definition: @sql {{ id }};;
+    aggregation_type: "count"
   }
   measure cumm_orders {
     label: 'Cummulative Orders'
@@ -80,12 +86,6 @@ Model ecommerce_orders {
     definition: @sql count(distinct case when {{status}} = 'refunded' then {{id}} else null end);;
     description: "The total number of orders we refunded this period."
     aggregation_type: "custom"
-  }
-  measure total_order {
-    label: "total_orders_count"
-    type: "number"
-    definition: @sql {{ id }};;
-    aggregation_type: "count"
   }
   measure total_orders_count {
     label: "Total Orders Count"
