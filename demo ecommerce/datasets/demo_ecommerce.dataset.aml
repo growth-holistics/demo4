@@ -110,6 +110,14 @@ Dataset demo_ecommerce {
     model dim_dates
   }
 
+  // Cross model metric
+  metric end_product_cost {
+  label: 'End Product Cost'
+  type: 'number'
+  description: 'the end-price that customer pays at the end'
+  definition: @aql sum(order_items, products.price - product_discount) ;;
+  } 
+
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
     relationship(ecommerce_orders_ecommerce_users, true),
