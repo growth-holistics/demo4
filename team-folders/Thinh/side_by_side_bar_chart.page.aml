@@ -8,7 +8,7 @@ Dashboard custom_bar_chart {
       position: pos(30, 30, 380, 60)
     }
     block v1 {
-      position: pos(460, 30, 730, 680)
+      position: pos(440, 30, 750, 680)
     }
     block t2 {
       position: pos(30, 90, 380, 160)
@@ -22,18 +22,10 @@ Dashboard custom_bar_chart {
 ;;
   }
   block v1: VizBlock {
-    label: 'GMV & AOV by Month'
+    label: 'GMV & AOV by Country'
     viz: CustomChart {
       dataset: demo_ecommerce
       custom_chart_id: 18269
-      field dim: VizFieldFull {
-        ref: ref('order_master', 'order_created_month')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
       field m1: VizFieldFull {
         ref: ref('order_master', 'gmv')
         format {
@@ -48,6 +40,12 @@ Dashboard custom_bar_chart {
           pattern: 'inherited'
         }
       }
+      field dim: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
       setting width: 300
       setting height: 600
       setting tooltip: true
@@ -59,9 +57,9 @@ Dashboard custom_bar_chart {
     }
   }
   block t2: TextBlock {
-    content: @md A side-by-side bar chart is effective for comparing multiple metrics along the same dimension.
+    content: @md  A side-by-side bar chart is effective for comparing multiple metrics along the same dimension.
 
-This example illustrates both `Gross Merchandise Value` and `Average Order Value` by `Month`.
+This example illustrates both `Gross Merchandise Value` and `Average Order Value` by `Country`.
 
 👇 Use the template below to create this chart using [Custom Charts](https://docs.holistics.io/docs/charts/custom-charts).;;
   }
