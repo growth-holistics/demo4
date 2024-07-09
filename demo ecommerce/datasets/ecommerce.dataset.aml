@@ -1,0 +1,95 @@
+Dataset simple_dataset {
+  __engine__: 'aql'
+  label: '[Demo] Ecommerce (Official)'
+  description: "Official dataset for demoing E-commerce use cases test"
+  owner: 'ha.pham+demo4@holistics.io'
+  data_source_name: 'demodb'
+
+  models: [
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_users,
+    ecommerce_products,
+    ecommerce_categories
+  ]
+
+  relationships: [
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true)
+    ,
+    relationship(ecommerce_products.category_id > ecommerce_categories.id, true)
+  ]
+
+  metric count_orders {
+    label: 'Count Orders'
+    type: 'number'
+    definition: @aql ecommerce_orders.id | count() ;;
+  }
+
+  metric sum_order_value {
+    label: 'Sum Order Values'
+    type: 'number'
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price) ;;
+  // definition: @aql  (ecommerce_order_items.quantity * ecommerce_products.price) | sum() ;;
+  }
+
+  metric average_order_value {
+    label: 'Average Order Value'
+    type: 'number'
+    definition: @aql sum_order_value / count_orders;;
+  }
+
+  metric aov_last3m {
+    label: 'AOV Last 3 Months'
+    type: 'number'
+    definition: @aql average_order_value | where(ecommerce_orders.created_at matches @(last 3 months)) ;;
+  }
+
+  view {
+
+    model ecommerce_orders {
+      field status
+      field created_at
+      field discount
+      field total_orders_count
+      field delivered_orders_count
+      field cumm_orders
+    }
+    model ecommerce_users {
+      // Display selected fields from Users 
+      field id
+      field email
+      field age
+
+
+      // Create group "Customer Name" containing fields within model Users
+      group customer_name {
+        field first_name
+        field last_name
+        field full_name
+      }
+    }
+
+    // Create group "Order Master" containing two models Orders and Dates 
+
+    group relevant_models {
+      model ecommerce_products {
+        group field_group {
+          field name
+          field id
+        }
+      }
+      model ecommerce_categories
+    }
+
+    group business_metrics {
+      metric sum_order_value
+      metric average_order_value
+    }
+
+  }
+
+
+
+}
