@@ -1,0 +1,324 @@
+Func genSymbol(symbol: String) {
+  VizBlock {
+    label: symbol
+    viz: DataTable {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'is'
+        value: symbol
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('persisted_models_big_tech_stock', 'symbol')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+}
+
+Func genClosing(symbol: String) {
+  VizBlock {
+    label: 'Closing Price of ' + symbol
+    viz: MetricKpi {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'date')
+        operator: 'matches'
+        value: '2021-12-31'
+      }
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'is'
+        value: symbol
+      }
+      value: VizFieldFull {
+        label: 'Closing Price'
+        ref: ref('persisted_models_big_tech_stock', 'close')
+        aggregation: 'max'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('persisted_models_big_tech_stock', 'date')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+}
+
+
+Dashboard big_tech_stock_dashboard {
+  title: 'Big Tech Stock Dashboard'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1980
+    block v2 {
+      position: pos(540, 150, 520, 220)
+    }
+    block s1 {
+      position: pos(20, 20, 200, 120)
+    }
+    block s2 {
+      position: pos(20, 160, 200, 120)
+    }
+    block s3 {
+      position: pos(20, 300, 200, 120)
+    }
+    block s4 {
+      position: pos(20, 440, 200, 120)
+    }
+    block s5 {
+      position: pos(20, 580, 200, 120)
+    }
+    block s6 {
+      position: pos(20, 720, 200, 120)
+    }
+    block s7 {
+      position: pos(20, 860, 200, 120)
+    }
+    block s8 {
+      position: pos(20, 1000, 200, 120)
+    }
+    block s9 {
+      position: pos(20, 1140, 200, 120)
+    }
+    block s10 {
+      position: pos(20, 1280, 200, 120)
+    }
+    block s11 {
+      position: pos(20, 1420, 200, 120)
+    }
+    block s12 {
+      position: pos(20, 1560, 200, 120)
+    }
+    block s13 {
+      position: pos(20, 1700, 200, 120)
+    }
+    block s14 {
+      position: pos(20, 1840, 200, 120)
+    }
+    block c1 {
+      position: pos(240, 20, 200, 120)
+    }
+    block c2 {
+      position: pos(240, 160, 200, 120)
+    }
+    block c3 {
+      position: pos(240, 300, 200, 120)
+    }
+    block c4 {
+      position: pos(240, 440, 200, 120)
+    }
+    block c5 {
+      position: pos(240, 580, 200, 120)
+    }
+    block c6 {
+      position: pos(240, 720, 200, 120)
+    }
+    block c7 {
+      position: pos(240, 860, 200, 120)
+    }
+    block c8 {
+      position: pos(240, 1000, 200, 120)
+    }
+    block c9 {
+      position: pos(240, 1140, 200, 120)
+    }
+    block c10 {
+      position: pos(240, 1280, 200, 120)
+    }
+    block c11 {
+      position: pos(240, 1420, 200, 120)
+    }
+    block c12 {
+      position: pos(240, 1560, 200, 120)
+    }
+    block c13 {
+      position: pos(240, 1700, 200, 120)
+    }
+    block c14 {
+      position: pos(240, 1840, 200, 120)
+    }
+    block t2 {
+      position: pos(720, 0, 140, 60)
+    }
+    block t3 {
+      position: pos(980, 0, 140, 60)
+    }
+    block v3 {
+      position: pos(540, 380, 520, 220)
+    }
+    block f1 {
+      position: pos(540, 20, 300, 80)
+    }
+    block d1 {
+      position: pos(540, 100, 210, 80)
+    }
+  }
+  block v2: VizBlock {
+    label: 'Sum of Close by Date'
+    viz: ColumnChart {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'is'
+        value: 'AAPL'
+      }
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'diff')
+        operator: 'greater_than'
+        value: '0'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'date')
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('persisted_models_big_tech_stock', 'diff')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  // macro: for i in 1..10: block s{$i}
+  block s1: genSymbol('AAPL')
+  block s2: genSymbol('ADBE')
+  block s3: genSymbol('AMZN')
+  block s4: genSymbol('CSCO')
+  block s5: genSymbol('CRM')
+  block s6: genSymbol('GOOGL')
+  block s7: genSymbol('IBM')
+  block s8: genSymbol('INTC')
+  block s9: genSymbol('META')
+  block s10: genSymbol('MSFT')
+  block s11: genSymbol('NFLX')
+  block s12: genSymbol('NVDA')
+  block s13: genSymbol('ORCL')
+  block s14: genSymbol('TSLA')
+  block c1: genClosing('AAPL')
+  block c2: genClosing('ADBE')
+  block c3: genClosing('AMZN')
+  block c4: genClosing('CSCO')
+  block c5: genClosing('CRM')
+  block c6: genClosing('GOOGL')
+  block c7: genClosing('IBM')
+  block c8: genClosing('INTC')
+  block c9: genClosing('META')
+  block c10: genClosing('MSFT')
+  block c11: genClosing('NFLX')
+  block c12: genClosing('NVDA')
+  block c13: genClosing('ORCL')
+  block c14: genClosing('TSLA')
+  block t2: TextBlock {
+    content: @md ## 6 MONTH;;
+  }
+  block t3: TextBlock {
+    content: @md ## 6 MONTH;;
+  }
+  block v3: VizBlock {
+    label: 'Sum of Close by Date (dup)'
+    viz: ColumnChart {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'is'
+        value: 'AAPL'
+      }
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'diff')
+        operator: 'less_than'
+        value: '0'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'date')
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('persisted_models_big_tech_stock', 'diff')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A50E43'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: big_tech_stock
+      field: ref('persisted_models_big_tech_stock', 'date')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v2'
+          field: ref('persisted_models_big_tech_stock', 'date')
+        }
+      ]
+    }
+  ]
+
+}

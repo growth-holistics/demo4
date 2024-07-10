@@ -1,0 +1,111 @@
+Model persisted_clinical_analytics {
+  type: 'table'
+  label: 'Clinical Analytics'
+  description: ''
+  data_source_name: 'demodb'
+  dimension admit_source {
+    label: 'Admit source'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Admit Source }};;
+  }
+  dimension admit_type {
+    label: 'Admit type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Admit Type }};;
+  }
+  dimension appt_start_time {
+    label: 'Appt start time'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.Appt Start Time }};;
+  }
+  dimension care_score {
+    label: 'Care score'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Care Score }};;
+  }
+  dimension check_in_time {
+    label: 'Check In time'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.Check-In Time }};;
+  }
+  dimension clinic_name {
+    label: 'Clinic name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Clinic Name }};;
+  }
+  dimension department {
+    label: 'Department'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Department }};;
+  }
+  dimension diagnosis_primary {
+    label: 'Diagnosis primary'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Diagnosis Primary }};;
+  }
+  dimension discharge_datetime_new {
+    label: 'Discharge datetime new'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.Discharge Datetime new }};;
+  }
+  dimension encounter_number {
+    label: 'Encounter number'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Encounter Number }};;
+  }
+  dimension encounter_status {
+    label: 'Encounter status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Encounter Status }};;
+  }
+  dimension number_of_records {
+    label: 'Number of records'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Number of Records }};;
+  }
+  dimension wait_time_min {
+    label: 'Wait time min'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Wait Time Min }};;
+  }
+  dimension check_in_day_of_week {
+    label: "Check In Day of Week"
+    type: "text"
+    definition: @sql  concat(
+  to_char({{ check_in_time }}, 'ID'),
+  ' - ',
+  to_char({{ check_in_time }}, 'Day')
+);;
+  }
+  dimension check_in_hour_of_day {
+    label: "Check In Hour of Day"
+    type: "text"
+    definition: @sql to_char({{ check_in_time }}, 'HH24 AM');;
+  }
+  dimension appt_day_of_week {
+    label: "Appt Day of Week"
+    type: "text"
+    definition: @sql to_char({{ appt_start_time }}, 'Day');;
+  }
+  dimension appt_hour_of_day {
+    label: "Appt Hour of Day"
+    type: "text"
+    definition: @sql to_char({{ appt_start_time }}, 'HH24 AM');;
+  }
+
+  owner: 'thinh.nt@holistics.io'
+  table_name: '"persisted_models"."clinical_analytics"'
+}

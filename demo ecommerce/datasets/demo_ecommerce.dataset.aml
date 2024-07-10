@@ -15,9 +15,33 @@ Dataset demo_ecommerce {
     map_categories,
     user_cohort_retention,
     dim_dates,
-    transform_order_items
+    transform_order_items,
+    ecommerce_product_images
   ]
   
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'date'
+    definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
+    ;;
+  }
+
+  dimension month_no {
+    model: order_master
+    label: 'Month No'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+
   // view: Arranging view in dataset for business users
 
   view {
@@ -39,6 +63,8 @@ Dataset demo_ecommerce {
         field last_name
         field email
         field full_name
+        field email_pii
+        field email_user
       }
 
       group activity {
@@ -59,12 +85,14 @@ Dataset demo_ecommerce {
       field discount
       field status
       field days_since_last_order
+      field cumm_orders
 
       group order_status_tracking {
         field created_date
         field delivered_orders_count
         field cancelled_orders_count
         field refunded_orders_count
+        field order_month
       }
       group others {
         field delivery_attempts
@@ -80,7 +108,15 @@ Dataset demo_ecommerce {
     model user_cohort_retention
     model dim_dates
   }
-    
+
+  // Cross model metric
+  metric end_product_cost {
+  label: 'End Product Cost'
+  type: 'number'
+  description: 'the end-price that customer pays at the end'
+  definition: @aql sum(order_items, products.price - product_discount) ;;
+  } 
+
   relationships: [
     // relationship(cities_countries, true),
     // relationship(orders_dim_dates, true),

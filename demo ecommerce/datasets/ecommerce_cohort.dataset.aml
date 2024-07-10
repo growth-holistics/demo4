@@ -1,0 +1,43 @@
+Dataset ecommerce_cohort {
+  label: 'Ecommerce Cohort'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    order_master,
+    ecommerce_users
+  ]
+
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'date'
+    definition: @aql order_master
+| min(order_master.order_created_month)
+| exact_grains(ecommerce_users.id);;
+  }
+
+  dimension month_num {
+    model: order_master
+    label: 'Month Number'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_month) - 1;;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  metric percent_revenue {
+    label: 'Percent of Revenue'
+    type: 'number'
+    definition: @aql (order_master.revenue *1.0) / (order_master.revenue | of_all(order_master.cohort_month));;
+  }
+
+  relationships: [
+    relationship(order_master.user_id > ecommerce_users.id, true)
+  ]
+  owner: 'thinh.nt@holistics.io'
+}
