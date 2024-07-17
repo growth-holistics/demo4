@@ -1,3 +1,21 @@
+PreAggregate aggr_movie_ratings_daily {
+  dimension movie_id {
+    for: ref('public_ratings', 'movie_id')
+  }
+  dimension timestamp {
+    for: ref('public_ratings', 'timestamp')
+    time_granularity: 'day'
+  }
+  measure count {
+    for: ref('public_ratings', 'id')
+    aggregation_type: 'count'
+  }
+  persistence: IncrementalPersistence {
+    schema: 'persisted'
+    incremental_column: 'timestamp'
+  }
+}
+
 Dataset movie_ratings_analysis {
   label: 'Movie Ratings Analysis'
   description: "This dataset contains information of film ratings from users collected from MovieLens - a movie recommendation service.\nTimeframe: between January 09, 1995 and September 26, 2018"
@@ -6,14 +24,24 @@ Dataset movie_ratings_analysis {
     public_ratings,
     public_movies,
     public_tags,
-    public_links
-    ,
-    aggr_movie_ratings_daily
-    ,
-    aggr_movie_ratings_monthly
-    ,
-    aggr_movie_ratings_yearly
+    public_links,
   ]
-  relationships: [relationship(public_ratings.movie_id > public_movies.movie_id, true), relationship(public_tags.movie_id > public_movies.movie_id, true), relationship(public_links.movie_id - public_movies.movie_id, true), relationship(aggr_movie_ratings_daily.movie_id > public_movies.movie_id, true), relationship(aggr_movie_ratings_monthly.movie_id > public_movies.movie_id, true), relationship(aggr_movie_ratings_yearly.movie_id > public_movies.movie_id, true)]
+  relationships: [relationship(public_ratings.movie_id > public_movies.movie_id, true), relationship(public_tags.movie_id > public_movies.movie_id, true), relationship(public_links.movie_id - public_movies.movie_id, true)]
   owner: 'huong.le+demo4@holistics.io'
+
+  pre_aggregates: {
+    aggr_movie_ratings_daily: aggr_movie_ratings_daily
+    aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend({
+      dimension timestamp {
+        for: ref('public_ratings', 'timestamp')
+        time_granularity: 'month'
+      }
+    })
+    aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend({
+      dimension timestamp {
+        for: ref('public_ratings', 'timestamp')
+        time_granularity: 'year'
+      }
+    })
+  }
 }
