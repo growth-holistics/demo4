@@ -43,6 +43,25 @@ PreAggregate aggr_movie_ratings_daily {
   }
 }
 
+PreAggregate aggr_movie_ratings_counts_daily {
+  dimension timestamp {
+    for: ref('public_ratings', 'timestamp')
+    time_granularity: 'day'
+  }
+  measure count_movies {
+    for: ref('public_ratings', 'movie_id')
+    aggregation_type: 'count distinct'
+  }
+  measure count_users {
+    for: ref('public_ratings', 'user_id')
+    aggregation_type: 'count distinct'
+  }
+  persistence: IncrementalPersistence {
+    schema: 'persisted'
+    incremental_column: 'timestamp'
+  }
+}
+
 Dataset movie_ratings_analysis {
   label: 'Movie Ratings Analysis'
   description: "This dataset contains information of film ratings from users collected from MovieLens - a movie recommendation service.\nTimeframe: between January 09, 1995 and September 26, 2018"
@@ -70,5 +89,19 @@ Dataset movie_ratings_analysis {
       }
     })
     aggr_movie_ratings_daily: aggr_movie_ratings_daily
+
+    aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend({
+      dimension timestamp {
+        for: ref('public_ratings', 'timestamp')
+        time_granularity: 'year'
+      }
+    })
+    aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend({
+      dimension timestamp {
+        for: ref('public_ratings', 'timestamp')
+        time_granularity: 'month'
+      }
+    })
+    aggr_movie_ratings_counts_daily: aggr_movie_ratings_counts_daily
   }
 }
