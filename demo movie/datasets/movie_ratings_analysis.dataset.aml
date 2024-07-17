@@ -6,6 +6,9 @@ PreAggregate aggr_movie_ratings_daily {
     for: ref('public_ratings', 'timestamp')
     time_granularity: 'day'
   }
+  dimension genre {
+    for: ref('public_movies', 'genre')
+  }
   measure count {
     for: ref('public_ratings', 'id')
     aggregation_type: 'count'
@@ -13,6 +16,26 @@ PreAggregate aggr_movie_ratings_daily {
   measure count_movies {
     for: ref('public_ratings', 'movie_id')
     aggregation_type: 'count distinct'
+  }
+  measure count_users {
+    for: ref('public_ratings', 'user_id')
+    aggregation_type: 'count distinct'
+  }
+  measure highest_rating {
+    for: ref('public_ratings', 'rating')
+    aggregation_type: 'max'
+  }
+  measure lowest_rating {
+    for: ref('public_ratings', 'rating')
+    aggregation_type: 'min'
+  }
+  measure sum_rating {
+    for: ref('public_ratings', 'rating')
+    aggregation_type: 'sum'
+  }
+  measure count_rating {
+    for: ref('public_ratings', 'rating')
+    aggregation_type: 'count'
   }
   persistence: IncrementalPersistence {
     schema: 'persisted'
