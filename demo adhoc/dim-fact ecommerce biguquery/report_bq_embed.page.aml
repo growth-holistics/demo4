@@ -1,0 +1,605 @@
+Dashboard report_bq_embed {
+  title: '[Demo BQ] Ecommerce Embedded Analytics'
+  owner: 'triet.lq@holistics.io'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Merchant'
+    viz: DataTable {
+      dataset: demo_bigquery_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('bq_dim_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block override_css: TextBlock {
+    content: @md <style>
+      .dac-text-block {
+        overflow: hidden !important;
+      }
+      .dac-canvas {
+        background: #fbfbfb;
+      }
+      .card-box {
+        background: rgba(255,255,255, 1);
+        border-radius: 14px;
+        border: 2px solid #eeeeee;
+        width: 100%; height: 100%;
+        
+      }
+      .text-widget-content {
+        height: 100% !important
+      }
+      .card-title {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      .h-line {
+        border-left: 2px solid #eeeeee;
+        height: 200px;
+        margin-left: 50%;
+        display: block;
+      }
+    </style>;;
+  }
+  block f1: FilterBlock {
+    label: 'Merchant Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_bigquery_ecommerce
+      field: ref('bq_dim_merchants', 'name')
+    }
+    default {
+      operator: 'is'
+      value: 'Abernathy Group'
+    }
+  }
+  block v2: VizBlock {
+    label: 'Product Performance'
+    viz: DataTable {
+      dataset: demo_bigquery_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('bq_dim_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: 'count_distinct_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div class="card-box">
+</div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div class="card-title">Sales Performance</div>;;
+  }
+  block v3: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_bigquery_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('bq_dim_users', 'email')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: 'count_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'aov'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 700
+              }
+              text_color: '#005A32FF'
+              background_color: '#D0E7DDFF'
+              apply_to_row: true
+            }
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_bigquery_ecommerce
+      value: VizFieldFull {
+        ref: 'count_users'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('bq_dim_users', 'sign_up_date')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v5: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_bigquery_ecommerce
+      value: VizFieldFull {
+        ref: 'count_orders'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('bq_dim_dates', 'date_key')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v6: VizBlock {
+    label: 'Total GMV'
+    viz: MetricKpi {
+      dataset: demo_bigquery_ecommerce
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: 'gmv'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('bq_dim_dates', 'date_key')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v7: VizBlock {
+    label: 'Metric AOV'
+    viz: MetricKpi {
+      dataset: demo_bigquery_ecommerce
+      value: VizFieldFull {
+        label: 'AOV'
+        ref: 'aov'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('bq_dim_dates', 'date_key')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t3: TextBlock {
+    content: @md   <div class="card-box">
+</div>;;
+  }
+  block t4: TextBlock {
+    content: @md  <div class="card-box">
+</div>;;
+  }
+  block v8: VizBlock {
+    label: 'User Growth'
+    viz: CombinationChart {
+      dataset: demo_bigquery_ecommerce
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql          running_total!(
+bq_dim_users.id | count() ,
+bq_dim_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('bq_dim_users', 'sign_up_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field {
+            ref: 'count_users'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#005A32FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#41ab5d'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('bq_dim_users', 'sign_up_date')
+          duration: 3
+          granularity: 'month'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 2 years'
+    }
+  }
+  block t5: TextBlock {
+    content: @md <img src="https://cdn.holistics.io/landing/logo-color.svg"/>;;
+  }
+  block t9: TextBlock {
+    content: @md <div class="card-title">User Growth</div>;;
+  }
+  block t10: TextBlock {
+    content: @md <div class="card-box">
+</div>;;
+  }
+  block t11: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block t12: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block t13: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block v11: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: CombinationChart {
+      dataset: demo_bigquery_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('bq_dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field {
+            label: 'Total Orders'
+            ref: 'count_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#005A32FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field {
+            label: 'GMV'
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#D9F0A3FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field {
+            label: 'AOV'
+            ref: 'aov'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#41AB5DFF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Total Products'
+    viz: MetricKpi {
+      dataset: demo_bigquery_ecommerce
+      value: VizFieldFull {
+        ref: 'count_distinct_products'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t14: TextBlock {
+    content: @md <div class="h-line"></div>;;
+  }
+  block t15: TextBlock {
+    content: @md <div style="width: 1px; height: 32px; background: rgba(0,0,0,0.1); margin: 0 auto"><div>;;
+  }
+  block f3: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_bigquery_ecommerce
+      field: ref('bq_dim_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1440
+    height: 1080
+    block v1 {
+      position: pos(238, 16, 302, 60)
+    }
+    block override_css {
+      position: pos(-490, 100, 465, 160)
+    }
+    block f1 {
+      position: pos(-290, 320, 300, 80)
+    }
+    block v2 {
+      position: pos(750, 780, 650, 240)
+    }
+    block t1 {
+      position: pos(730, 330, 690, 710)
+      layer: -1
+    }
+    block t2 {
+      position: pos(750, 350, 650, 40)
+    }
+    block v3 {
+      position: pos(40, 780, 650, 240)
+    }
+    block v4 {
+      position: pos(50, 150, 190, 140)
+    }
+    block v5 {
+      position: pos(610, 150, 260, 140)
+    }
+    block v6 {
+      position: pos(890, 150, 220, 140)
+    }
+    block v7 {
+      position: pos(1160, 150, 220, 140)
+    }
+    block t3 {
+      position: pos(20, 120, 1400, 190)
+      layer: -1
+    }
+    block t4 {
+      position: pos(20, 330, 690, 710)
+      layer: -1
+    }
+    block v8 {
+      position: pos(40, 390, 650, 370)
+    }
+    block f2 {
+      position: pos(1110, 10, 310, 80)
+    }
+    block t5 {
+      position: pos(27, 23, 190, 50)
+    }
+    block t9 {
+      position: pos(40, 350, 650, 40)
+    }
+    block t10 {
+      position: pos(-20, -10, 1470, 110)
+      layer: -1
+    }
+    block t11 {
+      position: pos(280, 120, 40, 190)
+    }
+    block t12 {
+      position: pos(560, 120, 40, 190)
+    }
+    block t13 {
+      position: pos(1120, 120, 40, 190)
+    }
+    block v11 {
+      position: pos(750, 400, 650, 360)
+    }
+    block v12 {
+      position: pos(330, 150, 200, 140)
+    }
+    block t14 {
+      position: pos(840, 120, 40, 190)
+    }
+    block t15 {
+      position: pos(149, 29, 169, 53)
+    }
+    block f3 {
+      position: pos(800, 10, 300, 80)
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v11',
+            'v12',
+            'v7',
+            'v6',
+            'v5'
+          ]
+          field: ref('bq_dim_dates', 'date_key')
+        },
+        CustomMapping {
+          block: [
+            'v4',
+            'v3',
+            'v8'
+          ]
+          field: ref('bq_dim_users', 'sign_up_date')
+        }
+      ]
+    }
+  ]
+
+}
