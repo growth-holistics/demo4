@@ -19,12 +19,20 @@ Model ecommerce_users {
     description: "This is signup date"
   }
 
-  dimension email_user {
-    label: 'Email User'
-    type: 'text'
-    definition: @aql concat(
-      'mailto:', ecommerce_users.email
-    );;
+  dimension reply_in_email_url {
+        label: 'Reply via Email URL'
+        type: 'text'
+        definition: @aql
+          concat(
+                'mailto:',
+              ecommerce_users.email,
+              '?subject=[Promo] We have exciting offers!!! ',
+              '?cc=janice@holistics.io',
+              '?body=Hi ',
+              ecommerce_users.first_name,
+              'We miss you and hope to see you shop with us again'
+            )
+        ;;
   }
 
   dimension sign_up_at {
