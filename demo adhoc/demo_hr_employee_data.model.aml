@@ -1,0 +1,92 @@
+Model minhminh_hr_employee_data {
+  type: 'query'
+  label: 'Hr Employee Data'
+  description: ''
+  data_source_name: 'demodb'
+
+  owner: 'minh.ntn@holistics.io'
+  // table_name: '"minhminh"."HR-employee-data"'
+  query: @sql 
+    select 
+      *,
+      row_number() over () as employee_number
+    from "minhminh"."HR-employee-data"
+  ;;
+  
+  dimension employee_number {
+    label: 'Employee Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.employee_number }};;
+  }
+
+  dimension emp_id {
+    label: 'Emp Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Emp_Id }};;
+  }
+  dimension satisfaction_level {
+    label: 'Satisfaction Level'
+    type: 'number'
+    definition: @sql SELECT CAST({{ #SOURCE.satisfaction_level }} AS DECIMAL);;
+    description: "Satisfaction level of employee in percentage. 100% or 1 is very satisfied. 0% or 0 is not satisfied"
+
+  }
+  dimension last_evaluation {
+    label: 'Last Evaluation'
+    type: 'number'
+    definition: @sql {{ #SOURCE.last_evaluation }};;
+    description: "Time from last evaluation in years"
+  }
+
+  dimension number_project {
+    label: 'Number Project'
+    type: 'number'
+    definition: @sql SELECT CAST({{ #SOURCE.number_project }} as INT);;
+    description: "Number of projects an employee is working on"
+  }
+  dimension average_monthly_hours {
+    label: 'Average Monthly Hours'
+    type: 'number'
+    definition: @sql {{ #SOURCE.average_montly_hours }};;
+    description: "Average hours worked by employee in last 3 months"
+  }
+  dimension time_spend_company {
+    label: 'Time Spend Company'
+    type: 'number'
+    definition: @sql SELECT CAST({{ #SOURCE.time_spend_company }} as DECIMAL);;
+    description: "Time spend my employee commuting to office"
+  }
+  dimension work_accident {
+    label: 'Work Accident'
+    type: 'number'
+    definition: @sql {{ #SOURCE.Work_accident }};;
+    description: "If the employee was involved in a work accident"
+  }
+  dimension left {
+    label: 'Left'
+    type: 'number'
+    definition: @sql SELECT CAST ({{#SOURCE.left}} as INT);;
+    description: "If the employee has left the company"
+  }
+  dimension promotion_last_5years {
+    label: 'Promotion Last 5 years'
+    type: 'number'
+    definition: @sql {{ #SOURCE.promotion_last_5years }};;
+    description: "If the employee has a promotion in past 5 years"
+  }
+  dimension department {
+    label: 'Department'
+    type: 'text'
+    definition: @sql {{ #SOURCE.Department }};;
+    description: "Department employee is working in"
+  }
+  dimension salary {
+    label: 'Salary'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.salary }};;
+  }
+
+}

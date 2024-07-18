@@ -1,72 +1,41 @@
-Dashboard new_dashboard {
-  title: 'New Dashboard'
+Dashboard test_syntax {
+  title: 'Test Syntax'
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    height: 800
+    height: 710
     block v1 {
-      position: pos(40, 30, 560, 400)
+      position: pos(170, 180, 180, 130)
     }
-    block d1 {
-      position: pos(630, 30, 300, 80)
+    block override_css {
+      position: pos(0, 0, 130, 110)
     }
   }
   block v1: VizBlock {
-    label: 'Total Products and Sum of Cost by Month Created At'
-    viz: CombinationChart {
-      dataset: demo_ecommerce_metrics
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_products', 'created_at')
-        transformation: 'datetrunc month'
+    label: 'Order Count by Month Order Created At and Status'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'order_count')
         format {
-          type: 'date'
+          type: 'number'
+          pattern: 'inherited'
         }
-      }
-      y_axis {
-        series {
-          field {
-            ref: ref('ecommerce_products', 'total_products')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-        }
-        series {
-          mark_type: 'line'
-          field {
-            ref: ref('ecommerce_products', 'cost')
-            aggregation: 'sum'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
       }
     }
-  }
-  block d1: DateDrillBlock {
-    label: 'Date Drill'
-  }
-  interactions: [
-    DateDrillInteraction {
-      from: 'd1'
-      to: [
-        CustomMapping {
-          block: 'v1'
-          field: ref('ecommerce_products', 'created_at')
-        }
-      ]
+    settings {
+      hide_label: true
     }
-  ]
+  }
+  block override_css: TextBlock {
+    content: @md  <style>
+    .h-kpi-metric-kpi, .h-kpi-metric-label {
+      overflow: hidden !important;
+      font-family: serif;
+      color: red;
+      text-align: right;
+    }
+    </style>;;
+  }
 
 }

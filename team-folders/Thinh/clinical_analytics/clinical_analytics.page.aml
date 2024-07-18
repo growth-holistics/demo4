@@ -1,0 +1,234 @@
+Dashboard clinical_analytics {
+  title: 'Clinical Analytics'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1160
+    height: 960
+    block v1 {
+      position: pos(40, 170, 1080, 360)
+      layer: 1
+    }
+    block f1 {
+      position: pos(30, 30, 300, 60)
+    }
+    block f2 {
+      position: pos(350, 30, 300, 60)
+    }
+    block f3 {
+      position: pos(670, 30, 450, 60)
+    }
+    block v2 {
+      position: pos(600, 630, 520, 280)
+      layer: 1
+    }
+    block v3 {
+      position: pos(40, 630, 560, 280)
+    }
+    block t1 {
+      position: pos(40, 140, 720, 70)
+    }
+    block t2 {
+      position: pos(40, 580, 580, 60)
+    }
+    block t3 {
+      position: pos(-10, -10, 1480, 970)
+      layer: -1
+    }
+    block t4 {
+      position: pos(20, 20, 1120, 90)
+      layer: -1
+    }
+    block t5 {
+      position: pos(20, 120, 1120, 440)
+      layer: -1
+    }
+    block t6 {
+      position: pos(20, 570, 1120, 370)
+      layer: -1
+    }
+  }
+  block v1: VizBlock {
+    label: 'Patient Volume'
+    viz: CustomChart {
+      dataset: clinical_analytics_dataset
+      custom_chart_id: 16652
+      field date: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'appt_start_time')
+        transformation: 'datetrunc hour'
+        format {
+          type: 'datetime'
+        }
+      }
+      field measure: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'wait_time_min')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Select Clinic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'clinic_name')
+    }
+    default {
+      operator: 'is'
+      value: 'Madison Center'
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Select Period'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'check_in_time')
+    }
+    default {
+      operator: 'matches'
+      value: '2014-03-02 - 2014-03-29'
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Select Admit Source'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: clinical_analytics_dataset
+      field: ref('persisted_clinical_analytics', 'admit_source')
+    }
+    default {
+      operator: 'is'
+      value: 'Emergency Room'
+    }
+  }
+  block v2: VizBlock {
+    label: 'Care Score & Wait Time Min by Department'
+    viz: CustomChart {
+      dataset: clinical_analytics_dataset
+      custom_chart_id: 5795
+      field a: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      field b: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'care_score')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting font: 'sans-serif'
+      setting bckgrnd: 'white'
+      setting tooltip: true
+      setting box_size: '20'
+      setting box_color: '#255DD4'
+      setting median_color: '#F2B602'
+      setting outlier_scale: '1.5'
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Care Score & Wait Time Min by Department (dup)'
+    viz: CustomChart {
+      dataset: clinical_analytics_dataset
+      custom_chart_id: 5795
+      field a: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'department')
+        format {
+          type: 'text'
+        }
+      }
+      field b: VizFieldFull {
+        ref: ref('persisted_clinical_analytics', 'wait_time_min')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting font: 'sans-serif'
+      setting bckgrnd: 'white'
+      setting tooltip: true
+      setting box_size: '20'
+      setting box_color: '#255DD4'
+      setting median_color: '#F2B602'
+      setting outlier_scale: '1.5'
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md  ### Patient Volume;;
+  }
+  block t2: TextBlock {
+    content: @md ### Patient Wait Time and Satisfactory Scores
+;;
+  }
+  block t3: TextBlock {
+    content: @md <div style="width: 1550px; height: 1000px; background-color: #f4f4f4">
+</div>;;
+  }
+  block t4: TextBlock {
+    content: @md   <div style="width: 1400px; height: 80px; background-color: #ffffff">
+</div>;;
+  }
+  block t5: TextBlock {
+    content: @md  <div style="width: 1400px; height: 430px; background-color: #ffffff; ">
+</div>;;
+  }
+  block t6: TextBlock {
+    content: @md  <div style="width: 1400px; height: 360px; background-color: #ffffff">
+</div>;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+
+}
