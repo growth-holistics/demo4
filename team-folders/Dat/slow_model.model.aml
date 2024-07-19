@@ -1,0 +1,39 @@
+Model slow_model {
+  type: 'query'
+  label: 'Slow Model'
+  description: ''
+  data_source_name: 'demodb'
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension quantity {
+    label: 'Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity }};;
+  }
+  dimension time {
+    label: 'Time'
+    type: 'datetime'
+    hidden: false
+    definition: @sql now();;
+  }
+
+  owner: 'scott.bui@holistics.io'
+  query: @sql
+    with v(name, quantity) as (
+      values ('alice', 1)
+        , ('bob', 2)
+    )
+    , s as (
+      select pg_sleep(100)
+    )
+    select v.*
+    from v
+      inner join s on 1 = 1;;
+  models: [
+  ]
+}

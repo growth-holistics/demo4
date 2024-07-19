@@ -1,0 +1,26 @@
+Dataset bikes {
+  label: 'Bikes'
+  __engine__: 'aql' //turn this Dataset to using AQL Engine
+  description: 'Test for Valentin C.'
+  data_source_name: 'demo_bike_valentin'
+  models: [
+    fct_avaibility,
+    dtm_station_distance,
+    dim_station
+    ,
+    station_density
+  ]
+  relationships: [
+    relationship(fct_avaibility.station_code > dim_station.station_code, true)
+    ,
+    relationship(station_density.stationcode - dim_station.station_code, true)
+  ]
+  metric test {
+    label: 'test'
+    type: 'number'
+    definition: @aql
+    coalesce(count(fct_avaibility.station_code) | where(fct_avaibility.bikes_available > 40),0)
+    ;;
+  }
+  owner: 'valentin@holistics.io'
+}

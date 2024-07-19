@@ -1,0 +1,172 @@
+Dashboard custom_bar_chart {
+  title: 'Side-by-side Bar Chart'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 740
+    block t1 {
+      position: pos(30, 30, 380, 60)
+    }
+    block v1 {
+      position: pos(440, 30, 750, 680)
+    }
+    block t2 {
+      position: pos(30, 90, 380, 160)
+    }
+    block t3 {
+      position: pos(30, 250, 380, 460)
+    }
+  }
+  block t1: TextBlock {
+    content: @md # Side-by-side Bar Chart
+;;
+  }
+  block v1: VizBlock {
+    label: 'GMV & AOV by Country'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 18269
+      field m1: VizFieldFull {
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field m2: VizFieldFull {
+        ref: ref('order_master', 'aov')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field dim: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      setting width: 300
+      setting height: 600
+      setting tooltip: true
+      setting m1_color: '#255dd4'
+      setting m2_color: '#18a59e'
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md  A side-by-side bar chart is effective for comparing multiple metrics along the same dimension.
+
+This example illustrates both `Gross Merchandise Value` and `Average Order Value` by `Country`.
+
+👇 Use the template below to create this chart using [Custom Charts](https://docs.holistics.io/docs/charts/custom-charts).;;
+  }
+  block t3: TextBlock {
+    content: @md ```
+CustomChart {
+  fields {
+    field dim {
+      type: "dimension"
+      label: "Dimension"
+    }
+
+    field m1 {
+      type: "measure"
+      label: "Measure 1"
+    }
+
+    field m2 {
+      type: "measure"
+      label: "Measure 2"
+    }
+
+  }
+
+  options {
+    option width {
+      label: "Width"
+      type: "number-input"
+      default_value: 240
+    }
+    option height {
+      label: "Height"
+      type: "number-input"
+      default_value: 300
+    }
+    option tooltip {
+      type: 'toggle'
+      label: 'Show tooltip'
+      default_value: true
+    }
+    option m1_color {
+      label: "Measure 1 Color"
+      type: "color-picker"
+      default_value: "#255dd4"
+    }
+    option m2_color {
+      label: "Measure 1 Color"
+      type: "color-picker"
+      default_value: "#18a59e"
+    }
+    
+  }
+
+  template: @vgl {
+    "data": {
+      "values": @{values}
+    },
+    "hconcat": [
+      { 
+        "width": @{options.width.value},
+        "height": @{options.height.value},
+        "mark": {"type": "bar", "tooltip": @{options.tooltip.value}},
+        "encoding": {
+          "y": {
+            "field": @{fields.dim.name},
+            "axis": {
+              "ticks": false,
+              "labelPadding": 15,
+              "format": @{fields.dim.format},
+              "formatType": "holisticsFormat"
+            }
+          },
+          "x": {
+            "field": @{fields.m1.name},
+            "type": "quantitative",
+            "axis": {
+              "format": @{fields.m1.format},
+              "formatType": "holisticsFormat"
+            }
+          },
+          "color": {"value": @{options.m1_color.value}}
+        },
+      },
+      { 
+        "width": @{options.width.value},
+        "height": @{options.height.value},
+        "mark": {"type": "bar", "tooltip": @{options.tooltip.value}},
+        "encoding": {
+          "y": {
+            "field": @{fields.dim.name},
+            "axis": null
+          },
+          "x": {
+            "field": @{fields.m2.name},
+            "type": "quantitative",
+            "axis": {
+              "format": @{fields.m2.format},
+              "formatType": "holisticsFormat"
+            }
+          },
+          "color": {"value": @{options.m2_color.value}}
+        }
+      }
+    ]
+  }\;;
+}
+```;;
+  }
+
+}

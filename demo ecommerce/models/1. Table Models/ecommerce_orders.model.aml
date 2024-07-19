@@ -16,8 +16,8 @@ Model ecommerce_orders {
   dimension status {
     label: 'Status'
     type: 'text'
-    hidden: false
     definition: @sql {{ #SOURCE.status }};;
+    description: "Delivered / Refunded / Canceled"
   }
   dimension created_at {
     label: 'Created At'
@@ -43,12 +43,24 @@ Model ecommerce_orders {
     hidden: false
     definition: @sql {{ #SOURCE.delivery_attempts }};;
   }
-  // Custom fields
   dimension created_date {
     label: 'Created Date'
     type: 'date'
-    hidden: false
     definition: @sql {{ #SOURCE.created_at }}::date;;
+    description: "Date-stamp of the order when it was created"
+  }
+  dimension order_month {
+    label: "Order Month"
+    type: "text"
+    definition: @sql LPAD((DATE_PART('month', {{ created_at }}))::text, 2, '0') || ' ' || TO_CHAR({{ created_at }}, 'Month');;
+    description: "Month created of order"
+  }
+  measure cumm_orders {
+    label: 'Cumulative Orders'
+    type: 'number'
+    definition: @aql running_total(ecommerce_orders.total_order, ecommerce_orders.order_month) ;;
+    description: "The cumulative total of orders."
+    aggregation_type: "custom"
   }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
@@ -61,26 +73,27 @@ Model ecommerce_orders {
     label: 'Cancelled Orders Count'
     type: 'number'
     definition: @sql count( case when {{#SOURCE.status}} = 'cancelled' then 1 else null end);;
+    description: "The total number of orders we canceled this period."
+    aggregation_type: "custom"
   }
   measure refunded_orders_count {
     label: 'Refunded Orders Count'
     type: 'number'
     definition: @sql count(distinct case when {{status}} = 'refunded' then {{id}} else null end);;
+    description: "The total number of orders we refunded this period."
+    aggregation_type: "custom"
   }
-
   measure total_order {
     label: "total_orders_count"
     type: "number"
     definition: @sql {{ id }};;
-    description: "This is the description"
+    description: "The total number of orders"
     aggregation_type: "count"
   }
-
   measure total_orders_count {
     label: "Total Orders Count"
     type: "number"
     definition: @sql {{ id }};;
-    description: "This is the description"
     aggregation_type: "count"
   }
 

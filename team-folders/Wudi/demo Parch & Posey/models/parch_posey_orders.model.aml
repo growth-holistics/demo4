@@ -75,6 +75,11 @@ Model parch_posey_orders {
     definition: @sql To_Char(date({{ occurred_at }}), 'DAY');;
     format: "LLL dd yyyy"
   }
+  measure test_sd {
+    label: "Test Sd"
+    type: "number"
+    definition: @aql safe_divide(sum(parch_posey_orders.standard_qty)+sum(parch_posey_orders.gloss_qty),sum(parch_posey_orders.poster_qty));;
+  }
 
   owner: 'chukwudi+demo4@holistics.io'
   table_name: '"parch_posey"."orders"'
