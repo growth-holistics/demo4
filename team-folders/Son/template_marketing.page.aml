@@ -1,0 +1,399 @@
+Dashboard template_marketing {
+  title: 'Template Marketing Dashboard'
+  description: '# some description'
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1330
+    height: 910
+    block v3 {
+      position: pos(360, 330, 240, 240)
+    }
+    block f1 {
+      position: pos(990, 30, 310, 80)
+    }
+    block v10 {
+      position: pos(50, 180, 200, 80)
+    }
+    block v11 {
+      position: pos(360, 180, 200, 80)
+    }
+    block v12 {
+      position: pos(990, 180, 200, 80)
+    }
+    block v13 {
+      position: pos(670, 180, 200, 80)
+    }
+    block t7 {
+      position: pos(20, 150, 1290, 150)
+      layer: -1
+    }
+    block t9 {
+      position: pos(30, 40, 390, 50)
+    }
+    block v14 {
+      position: pos(360, 630, 920, 230)
+    }
+    block v15 {
+      position: pos(50, 330, 240, 230)
+    }
+    block v16 {
+      position: pos(670, 330, 610, 230)
+    }
+    block v18 {
+      position: pos(50, 630, 240, 230)
+    }
+    block t10 {
+      position: pos(0, 0, 1330, 130)
+      layer: -1
+    }
+    block override_css {
+      position: pos(-20, 650, 170, 120)
+    }
+    block t2 {
+      position: pos(20, 300, 300, 290)
+      layer: -1
+    }
+    block t3 {
+      position: pos(640, 300, 670, 290)
+      layer: -1
+    }
+    block t4 {
+      position: pos(20, 600, 300, 300)
+      layer: -1
+    }
+    block t11 {
+      position: pos(330, 600, 980, 300)
+      layer: -1
+    }
+    block t12 {
+      position: pos(330, 300, 300, 290)
+      layer: -1
+    }
+  }
+  block v3: VizBlock {
+    label: 'Conversions gauge chart'
+    viz: GaugeChart {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'orders')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      max_value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'leads')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+        }
+      }
+      settings {
+        label: 'Conversions'
+        suffix: ''
+        row_limit: 5000
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Campaign'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: marketing_demo
+      field: ref('minhminh_marketing_kpi', 'campaign_name')
+    }
+    default {
+      operator: 'is'
+      value: 'youtube_blogger'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block v10: VizBlock {
+    label: 'Conversion rate'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Conversion rate'
+        ref: ref('minhminh_marketing_kpi', 'conversion_rate')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'CPC'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'cost_per_click')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'CP1kI'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'CP1kI'
+        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v13: VizBlock {
+    label: 'Cost per conversion'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'cost_per_conversion')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block t7: TextBlock {
+    content: @md <div style="height:122px;" class="shadow-light"></div>;;
+  }
+  block t9: TextBlock {
+    content: @md <div id="heading"><h2 style="font-size:32px; text-align: left;color:#fff">Marketing Dashboard</h2></div>;;
+  }
+  block v14: VizBlock {
+    label: 'Cost per conversion'
+    viz: CombinationChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field {
+            ref: ref('minhminh_marketing_kpi', 'cost_per_conversion')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block v15: VizBlock {
+    label: 'Clicks graph'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        label: ' '
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'clicks')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_label: ' '
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block v16: VizBlock {
+    label: 'Impressions graph'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        label: ' '
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'impressions')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,,"M"'
+            }
+          }
+          settings {
+            color: '#18A59E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_label: ' '
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block v18: VizBlock {
+    label: 'CTR graph'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        label: ' '
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LL/dd'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'ctr')
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+              group_separator: '.'
+              decimal_separator: ','
+            }
+          }
+          settings {
+            color: '#18A59E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_label: ' '
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block t10: TextBlock {
+    content: @md <div style="width:100%;height:200px;background-color:#012A49"></div>;;
+  }
+  block override_css: TextBlock {
+    content: @md <style>
+      .dac-text-block {
+        overflow: hidden !important;
+      }
+      .h-kpi-metric .text-blue-gray-800{
+        font-size: 36px;
+        color: #012A49;
+      }
+      .dac-viz-block .text-blue-gray-800 {
+        color: #012A49;
+        overflow: hidden !important;
+      }
+      .h-kpi-metric .h-6 {
+        color: #012A49;
+        font-size: 18px;
+      }
+      .h-kpi-metric .text-blue-gray-800:not(.h-6)  {
+        line-height: 3.5rem !important;
+      }
+      .h-dynamic-filter-metadata > span {
+        color: #fff;
+      }
+      .highcharts-pane {
+        stroke: #323435;
+        stroke-width: 0px;
+        filter: none;
+      }
+      .highcharts-color-0 {
+        fill: #18a59e;
+      }
+      .highcharts-axis text {
+        display: none;
+      }
+    </style>;;
+  }
+
+  block t2: shadowLight
+  block t3: shadowLight
+  block t4: shadowLight
+  block t11: shadowLight
+  block t12: shadowLight
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 10
+  }
+}
