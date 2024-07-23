@@ -1,10 +1,10 @@
 Dashboard ecommerce_cua_minh {
-  theme: HolisticsLight
-  title: 'Ecommerce Dashboard'
+  theme: Macchiato
+  title: 'Ecommerce Dashboard (test Themes)'
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    width: 1560
+    width: 1580
     height: 1080
     block v1 {
       position: pos(330, 30, 280, 120)
@@ -19,10 +19,10 @@ Dashboard ecommerce_cua_minh {
       position: pos(1280, 30, 230, 120)
     }
     block v5 {
-      position: pos(330, 190, 570, 250)
+      position: pos(330, 180, 1180, 260)
     }
     block v7 {
-      position: pos(330, 470, 570, 270)
+      position: pos(330, 470, 580, 270)
     }
     block f1 {
       position: pos(20, 380, 240, 100)
@@ -40,16 +40,10 @@ Dashboard ecommerce_cua_minh {
       position: pos(30, 30, 210, 160)
     }
     block v6 {
-      position: pos(960, 630, 580, 410)
-    }
-    block t5 {
-      position: pos(20, 990, 200, 80)
+      position: pos(940, 470, 600, 570)
     }
     block d1 {
-      position: pos(730, 220, 150, 80)
-    }
-    block v11 {
-      position: pos(960, 190, 580, 410)
+      position: pos(1340, 220, 150, 80)
     }
   }
   block v1: VizBlock {
@@ -171,7 +165,7 @@ Dashboard ecommerce_cua_minh {
       y_axis {
         series {
           mark_type: 'column'
-          field {
+          field: VizFieldFull {
             label: 'Net Merchandise Value'
             ref: ref('order_master', 'nmv')
             format {
@@ -182,7 +176,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#255DD4'
+            color: '#8D773BFF'
           }
         }
       }
@@ -193,7 +187,7 @@ Dashboard ecommerce_cua_minh {
         }
         series {
           mark_type: 'line'
-          field {
+          field: VizFieldFull {
             label: 'Growth Rate'
             ref: ref('order_master', 'cancelled_order_ratio')
             format {
@@ -202,7 +196,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#18A59E'
+            color: '#EDC04AFF'
           }
         }
       }
@@ -210,6 +204,10 @@ Dashboard ecommerce_cua_minh {
         show_data_points: true
         row_limit: 5000
         legend_label: 'right'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -230,7 +228,7 @@ Dashboard ecommerce_cua_minh {
           scale: 'logarithmic'
         }
         series {
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'aov')
             format {
               type: 'number'
@@ -238,7 +236,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#255DD4'
+            color: '#897844FF'
             line_interpolation: 'step'
           }
         }
@@ -251,6 +249,10 @@ Dashboard ecommerce_cua_minh {
           duration: 3
           granularity: 'month'
           show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -304,7 +306,7 @@ Dashboard ecommerce_cua_minh {
       y_axis {
         series {
           mark_type: 'area'
-          field {
+          field: VizFieldFull {
             ref: ref('ecommerce_users', 'users_signed_up_count')
             format {
               type: 'number'
@@ -312,13 +314,13 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#255DD4'
+            color: '#897844FF'
             line_interpolation: 'smooth'
           }
         }
         series {
           mark_type: 'area'
-          field {
+          field: VizFieldFull {
             label: 'Users Purchased'
             ref: ref('order_master', 'user_id')
             aggregation: 'count distinct'
@@ -328,7 +330,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#18A59E'
+            color: '#D1B259FF'
             line_interpolation: 'smooth'
           }
         }
@@ -336,12 +338,16 @@ Dashboard ecommerce_cua_minh {
       settings {
         row_limit: 5000
         legend_label: 'top'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
   block t3: TextBlock {
-    theme: Clear
     content: @md # Ecommerce Dashboard;;
+    theme: Clear
   }
   block v6: VizBlock {
     label: 'Top selling product categories'
@@ -385,19 +391,18 @@ Dashboard ecommerce_cua_minh {
         conditional_formats: [
           ConditionalFormat {
             ref: ref('order_master', 'nmv')
-            aggregation: 'custom'
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#E8F6F5'
+                color: '#FBF5E3FF'
               }
               mid {
                 value: 160000
-                color: '#74C9C5'
+                color: '#D1BE87FF'
               }
               max {
                 value: 320000
-                color: '#18A59E'
+                color: '#D1B259FF'
               }
             }
           }
@@ -408,59 +413,16 @@ Dashboard ecommerce_cua_minh {
             direction: 'desc'
           }
         ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
-  }
-  block t5: TextBlock {
-    theme: Clear
-    content: @md  <center>
-  <picture>
-    <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
-    <img src="holisticswhitelabeldemo.jpg" alt="demo" width="300
-    " height="35">
-  </picture>
-</center>;;
   }
   block d1: DateDrillBlock {
     label: 'Time Period'
     default: 'month'
-  }
-
-  block v11: VizBlock {
-    label: 'User Retention'
-    viz: ScatterChart {
-      dataset: demo_ecommerce_users
-      x_col: VizFieldFull {
-        label: 'NMV'
-        ref: ref('user_facts_aggr', 'nmv')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      y_col: VizFieldFull {
-        ref: ref('user_facts_aggr', 'days_from_last_order')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      group_col: VizFieldFull {
-        ref: ref('ecommerce_users', 'age_group')
-        format {
-          type: 'text'
-        }
-      }
-      label_col: VizFieldFull {
-        ref: ref('ecommerce_countries', 'continent_name')
-        format {
-          type: 'text'
-        }
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
   }
   interactions: [
     FilterInteraction {
@@ -482,15 +444,6 @@ Dashboard ecommerce_cua_minh {
       ]
     },
     FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: 'v11'
-          field: ref('ecommerce_countries', 'continent_name')
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
@@ -507,8 +460,7 @@ Dashboard ecommerce_cua_minh {
         CustomMapping {
           block: [
             'v10',
-            'v4',
-            'v11'
+            'v4'
           ]
           field: ref('ecommerce_users', 'sign_up_date')
         }
