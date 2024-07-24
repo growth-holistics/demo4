@@ -1,0 +1,117 @@
+Model pg_fct_order_items = bq_fct_order_items.extend({
+    table_name: 'ecommerce.fct_order_items'
+}),
+Model pg_fct_orders = bq_fct_orders.extend({
+    table_name: 'ecommerce.fct_orders'
+}),
+Model pg_dim_products = bq_dim_products.extend({
+    table_name: 'ecommerce.dim_products'
+}),
+Model pg_dim_users = bq_dim_users.extend({
+    table_name: 'ecommerce.dim_users'
+}),
+Model pg_dim_categories = bq_dim_categories.extend({
+    table_name: 'ecommerce.dim_categories'
+}),
+Model pg_dim_merchants = bq_dim_merchants.extend({
+  table_name: 'ecommerce.dim_merchants'
+}),
+Model pg_dim_dates = bq_dim_dates.extend({
+  table_name: 'ecommerce.dim_dates'
+}),
+
+
+// ------------------------ CUSTOM MODEL ---------------------------------------
+Model pg_dim_product_cities =  bq_dim_product_cities.extend({
+    table_name: 'ecommerce.dim_products'
+}),
+Model pg_dim_product_countries = bq_dim_product_countries.extend({
+    table_name: 'ecommerce.dim_products'
+}),
+Model pg_dim_user_cities = bq_dim_user_cities.extend({
+    table_name: 'ecommerce.dim_users'
+}),
+Model pg_dim_user_countries = bq_dim_user_countries.extend({
+    table_name: 'ecommerce.dim_users'
+  }),
+
+
+Dataset demo_pg_ecommerce {
+  label: 'Demo Postgres Ecommerce'
+  description: 'Ecommerce dataset in BigQuery. ERD can be found [here](https://dbdiagram.io/e/658b9f1289dea62799972ec8/665fedfcb65d933879884fa8)'
+  data_source_name: 'demodb'
+  
+  models: [
+    pg_fct_order_items,
+    pg_fct_orders,
+    pg_dim_products,
+    pg_dim_users,
+    pg_dim_categories,
+    pg_dim_merchants,
+    pg_dim_dates,
+
+    pg_dim_product_cities,
+    pg_dim_user_cities,
+    pg_dim_product_countries,
+    pg_dim_user_countries,
+    
+  ]
+  relationships: [
+    relationship(pg_fct_order_items.product_id > pg_dim_products.id, true),
+    relationship(pg_fct_order_items.category_id >  pg_dim_categories.id, true),
+    
+    relationship(pg_fct_order_items.merchant_id >  pg_dim_merchants.id, true),
+    relationship(pg_fct_order_items.merchant_city_id >  pg_dim_product_cities.id, true),
+    relationship(pg_fct_order_items.merchant_country_code >  pg_dim_product_countries.code, true),
+    relationship(pg_fct_order_items.user_id >  pg_dim_users.id, true),
+    relationship(pg_fct_order_items.created_date >  pg_dim_dates.date_key, true),
+    relationship(pg_fct_order_items.order_id >  pg_fct_orders.id, false),
+
+
+    relationship(pg_fct_orders.user_city_id >  pg_dim_user_cities.id, true),
+    relationship(pg_fct_orders.user_country_code >  pg_dim_user_countries.code, true),
+    relationship(pg_fct_orders.created_date >  pg_dim_dates.date_key, true),
+    relationship(pg_fct_orders.user_id >  pg_dim_users.id, false),
+
+  ]
+
+
+  metric count_users {
+    label: 'Count Users'
+    type: 'number'
+    definition: @aql count(pg_dim_users.id);;
+  }
+
+  metric count_orders {
+    label: 'Count Orders'
+    type: 'number'
+    definition: @aql count(pg_fct_orders.id) | with_relationships(pg_fct_orders.user_id >  pg_dim_users.id);;
+  }
+
+  metric count_distinct_orders {
+    label: 'Count Distinct Orders'
+    type: 'number'
+    definition: @aql count_distinct(pg_fct_order_items.order_id) ;;
+  }
+
+  metric count_distinct_products {
+    label: 'Count Distinct Products'
+    type: 'number'
+    definition: @aql count_distinct(pg_fct_order_items.product_id) ;;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    description: "Total value regardless of order status"
+    definition: @aql sum(pg_fct_order_items.value);;
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: 'number'
+    definition: @aql gmv/count_orders;;
+  }
+
+  owner: 'triet.lq@holistics.io'
+}

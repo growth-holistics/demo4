@@ -34,13 +34,19 @@ Model public_ratings {
     definition: @sql {{ #SOURCE.timestamp }};;
   }
 
+  measure count_distinct_movies {
+    label: "Count Movies"
+    type: "number"
+    definition: @aml count_distinct(public_ratings.movie_id);;
+    format: "#,###"
+  }
+
   owner: 'huong.le+demo4@holistics.io'
   table_name: '"public"."ratings"'
   measure count_all_ratings {
     label: "Count All Ratings"
     type: "number"
-    definition: @sql {{ id }};;
-    aggregation_type: "count"
+    definition: @aml count(public_ratings.id);;
     format: "#,###"
   }
 }
