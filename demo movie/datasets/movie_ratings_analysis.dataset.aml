@@ -1,47 +1,47 @@
-PreAggregate aggr_movie_ratings_daily {
-  dimension movie_id {
-    for: ref('public_ratings', 'movie_id')
-  }
-  dimension timestamp {
-    for: ref('public_ratings', 'timestamp')
-    time_granularity: 'day'
-  }
-  // dimension genre {
-  //   for: ref('public_movies', 'genres')
-  // }
-  measure count {
-    for: ref('public_ratings', 'id')
-    aggregation_type: 'count'
-  }
-  // measure count_movies {
-  //   for: ref('public_ratings', 'movie_id')
-  //   aggregation_type: 'count distinct'
-  // }
-  // measure count_users {
-  //   for: ref('public_ratings', 'user_id')
-  //   aggregation_type: 'count distinct'
-  // }
-  measure highest_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'max'
-  }
-  measure lowest_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'min'
-  }
-  measure sum_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'sum'
-  }
-  measure count_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'count'
-  }
-  persistence: IncrementalPersistence {
-    schema: 'persisted'
-    incremental_column: 'timestamp'
-  }
-}
+// PreAggregate aggr_movie_ratings_daily {
+//   dimension movie_id {
+//     for: ref('public_ratings', 'movie_id')
+//   }
+//   dimension timestamp {
+//     for: ref('public_ratings', 'timestamp')
+//     time_granularity: 'day'
+//   }
+//   // dimension genre {
+//   //   for: ref('public_movies', 'genres')
+//   // }
+//   measure count {
+//     for: ref('public_ratings', 'id')
+//     aggregation_type: 'count'
+//   }
+//   // measure count_movies {
+//   //   for: ref('public_ratings', 'movie_id')
+//   //   aggregation_type: 'count distinct'
+//   // }
+//   // measure count_users {
+//   //   for: ref('public_ratings', 'user_id')
+//   //   aggregation_type: 'count distinct'
+//   // }
+//   measure highest_rating {
+//     for: ref('public_ratings', 'rating')
+//     aggregation_type: 'max'
+//   }
+//   measure lowest_rating {
+//     for: ref('public_ratings', 'rating')
+//     aggregation_type: 'min'
+//   }
+//   measure sum_rating {
+//     for: ref('public_ratings', 'rating')
+//     aggregation_type: 'sum'
+//   }
+//   measure count_rating {
+//     for: ref('public_ratings', 'rating')
+//     aggregation_type: 'count'
+//   }
+//   persistence: IncrementalPersistence {
+//     schema: 'persisted'
+//     incremental_column: 'timestamp'
+//   }
+// }
 
 PreAggregate aggr_movie_ratings_counts_daily {
   dimension timestamp {
@@ -75,33 +75,33 @@ Dataset movie_ratings_analysis {
   relationships: [relationship(public_ratings.movie_id > public_movies.movie_id, true), relationship(public_tags.movie_id > public_movies.movie_id, true), relationship(public_links.movie_id - public_movies.movie_id, true)]
   owner: 'huong.le+demo4@holistics.io'
 
-  pre_aggregates: {
-    aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'year'
-      }
-    })
-    aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'month'
-      }
-    })
-    aggr_movie_ratings_daily: aggr_movie_ratings_daily
+  // pre_aggregates: {
+  //   aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend({
+  //     dimension timestamp {
+  //       for: ref('public_ratings', 'timestamp')
+  //       time_granularity: 'year'
+  //     }
+  //   })
+  //   aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend({
+  //     dimension timestamp {
+  //       for: ref('public_ratings', 'timestamp')
+  //       time_granularity: 'month'
+  //     }
+  //   })
+  //   aggr_movie_ratings_daily: aggr_movie_ratings_daily
 
-    aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'year'
-      }
-    })
-    aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'month'
-      }
-    })
-    aggr_movie_ratings_counts_daily: aggr_movie_ratings_counts_daily
-  }
+  //   aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend({
+  //     dimension timestamp {
+  //       for: ref('public_ratings', 'timestamp')
+  //       time_granularity: 'year'
+  //     }
+  //   })
+  //   aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend({
+  //     dimension timestamp {
+  //       for: ref('public_ratings', 'timestamp')
+  //       time_granularity: 'month'
+  //     }
+  //   })
+  //   aggr_movie_ratings_counts_daily: aggr_movie_ratings_counts_daily
+  // }
 }
