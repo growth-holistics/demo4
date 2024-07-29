@@ -2,7 +2,6 @@ Dashboard ecommerce_cua_minh {
   title: 'Ecommerce Dashboard (test Themes)'
   description: ''''''
 
-  // theme: Classic
   theme: PageTheme {
     background {
       bg_color: "#FFFFFF"
@@ -56,6 +55,19 @@ Dashboard ecommerce_cua_minh {
       padding: 12
       shadow: "none"
       opacity: 1
+    }
+  }
+
+  block t1: TextBlock {
+    content: @md # Ecommerce Dashboard;;
+    theme: BlockTheme {
+      padding: 1
+      border {
+        border_color: "transparent"
+      }
+      background {
+        bg_color: "transparent"
+      }
     }
   }
 
@@ -189,7 +201,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#8D773BFF'
+            color: '#255DD4'
           }
         }
       }
@@ -209,7 +221,7 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#EDC04AFF'
+            color: '#F2B602'
           }
         }
       }
@@ -226,19 +238,25 @@ Dashboard ecommerce_cua_minh {
   }
   block v7: VizBlock {
     label: 'AOV Trend'
-    viz: AreaChart {
+    viz: BarChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
+        transformation: 'datetrunc quarter'
         format {
           type: 'date'
-          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
         }
       }
       y_axis {
         settings {
-          scale: 'logarithmic'
+          reverse_stack: true
+          stack_series_by: 'value'
         }
         series {
           field: VizFieldFull {
@@ -249,20 +267,18 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#897844FF'
-            line_interpolation: 'step'
+            color: '#255DD4'
           }
         }
       }
       settings {
         row_limit: 5000
-        legend_label: 'hidden'
-        pop {
-          field: ref('order_master', 'order_created_at')
-          duration: 3
-          granularity: 'month'
-          show_growth_rate: true
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'xaxis'
         }
+        legend_label: 'hidden'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -270,13 +286,12 @@ Dashboard ecommerce_cua_minh {
       }
     }
   }
-
   block f1: FilterBlock {
     label: 'Date Range'
     type: 'date'
     default {
       operator: 'last'
-      value: '12'
+      value: '36'
       modifier: 'month'
     }
   }
@@ -301,7 +316,12 @@ Dashboard ecommerce_cua_minh {
     }
     default {
       operator: 'is'
-      value: 'Europe'
+      value: [
+        'Europe',
+        'America',
+        'Australia',
+        'Asia'
+      ]
     }
   }
   block v10: VizBlock {
@@ -313,12 +333,20 @@ Dashboard ecommerce_cua_minh {
         transformation: 'datetrunc month'
         format {
           type: 'date'
-          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'continent_name')
+        format {
+          type: 'text'
         }
       }
       y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
         series {
-          mark_type: 'area'
+          mark_type: 'column'
           field: VizFieldFull {
             ref: ref('ecommerce_users', 'users_signed_up_count')
             format {
@@ -327,30 +355,13 @@ Dashboard ecommerce_cua_minh {
             }
           }
           settings {
-            color: '#897844FF'
-            line_interpolation: 'smooth'
-          }
-        }
-        series {
-          mark_type: 'area'
-          field: VizFieldFull {
-            label: 'Users Purchased'
-            ref: ref('order_master', 'user_id')
-            aggregation: 'count distinct'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#D1B259FF'
-            line_interpolation: 'smooth'
+            color: '#18A59E'
           }
         }
       }
       settings {
         row_limit: 5000
-        legend_label: 'top'
+        legend_label: 'hidden'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -358,14 +369,16 @@ Dashboard ecommerce_cua_minh {
       }
     }
   }
-  block t3: TextBlock {
-    content: @md # Ecommerce Dashboard;;
-    theme: Clear
-  }
+
   block v6: VizBlock {
     label: 'Top selling product categories'
     viz: PivotTable {
       dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last 1 year'
+      }
       rows: [
         VizFieldFull {
           ref: ref('map_categories', 'category')
@@ -407,15 +420,11 @@ Dashboard ecommerce_cua_minh {
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#FBF5E3FF'
-              }
-              mid {
-                value: 160000
-                color: '#D1BE87FF'
+                color: '#FFFFFF'
               }
               max {
-                value: 320000
-                color: '#D1B259FF'
+                value: 400000
+                color: '#47B881'
               }
             }
           }
@@ -436,6 +445,64 @@ Dashboard ecommerce_cua_minh {
   block d1: DateDrillBlock {
     label: 'Time Period'
     default: 'month'
+  }
+  block t4: TextBlock {
+    content: @md **Description:** Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
+
+---
+
+# h1 Heading 8-)
+## h2 Heading
+### h3 Heading
+#### h4 Heading
+##### h5 Heading
+###### h6 Heading
+
+
+## Horizontal Rules
+
+___
+
+---
+
+***
+
+
+## Typographic replacements
+
+Enable typographer option to see result.
+
+(c) (C) (r) (R) (tm) (TM) (p) (P) +-
+
+test.. test... test..... test?..... test!....
+
+!!!!!! ???? ,,  -- ---
+
+"Smartypants, double quotes" and 'single quotes'
+
+
+## Emphasis
+
+**This is bold text**
+
+__This is bold text__
+
+*This is italic text*
+
+_This is italic text_
+
+~~Strikethrough~~
+
+
+## Blockquotes
+
+
+> Blockquotes can also be nested...
+>> ...by using additional greater-than signs right next to each other...
+> > > ...or with spaces between arrows.
+
+
+## Lists;;
   }
   interactions: [
     FilterInteraction {
@@ -483,46 +550,49 @@ Dashboard ecommerce_cua_minh {
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 1580
+    width: 1530
     height: 1080
+    block t1 {
+      position: pos(20, 30, 290, 90)
+    }
     block v1 {
-      position: pos(330, 30, 280, 120)
+      position: pos(330, 30, 300, 120)
     }
     block v2 {
-      position: pos(650, 30, 240, 120)
+      position: pos(650, 30, 290, 120)
     }
     block v3 {
       position: pos(960, 30, 280, 120)
     }
     block v4 {
-      position: pos(1280, 30, 230, 120)
+      position: pos(1260, 30, 250, 120)
     }
     block v5 {
-      position: pos(330, 180, 1180, 260)
+      position: pos(330, 170, 1180, 270)
     }
     block v7 {
       position: pos(330, 470, 580, 270)
     }
     block f1 {
-      position: pos(20, 380, 290, 100)
+      position: pos(20, 130, 290, 100)
     }
     block f2 {
-      position: pos(20, 600, 290, 80)
+      position: pos(20, 370, 290, 100)
     }
     block f3 {
-      position: pos(20, 500, 290, 80)
+      position: pos(20, 250, 290, 100)
     }
     block v10 {
       position: pos(330, 770, 580, 270)
     }
-    block t3 {
-      position: pos(30, 30, 210, 160)
-    }
     block v6 {
-      position: pos(940, 470, 600, 570)
+      position: pos(930, 470, 580, 570)
     }
     block d1 {
-      position: pos(1340, 220, 150, 80)
+      position: pos(1330, 190, 160, 90)
+    }
+    block t4 {
+      position: pos(20, 490, 290, 550)
     }
   }
 }
