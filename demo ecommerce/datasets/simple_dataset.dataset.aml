@@ -1,0 +1,72 @@
+Dataset demo_simple {
+   __engine__: 'aql' //turn this Dataset to using AQL Engine
+  label: '[Demo] Simple Dataset'
+  description: ""
+  owner: 'ha.pham+demo4@holistics.io'
+  data_source_name: 'demodb'
+
+  models: [
+    ecommerce_orders,
+    ecommerce_order_items,
+    ecommerce_users,
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_cities,
+    ecommerce_countries,
+  ]
+  
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'date'
+    definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
+    ;;
+  }
+
+  dimension month_no {
+    model: order_master
+    label: 'Month No'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  // Cross model metric
+  metric end_product_cost {
+  label: 'End Product Cost'
+  type: 'number'
+  description: 'the end-price that customer pays at the end'
+  definition: @aql sum(order_items, products.price - product_discount) ;;
+  } 
+
+  relationships: [
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_merchants.city_id > ecommerce_cities.id,false)
+  ]
+  
+  metric total_orders_users {
+    label: 'Total orders (User Countries))'
+    type: 'number'
+    definition: @aql ecommerce_orders | count(ecommerce_orders.id) ;;
+  }
+
+  metric total_orders_merchants {
+    label: 'Total orders (User Countries))'
+    type: 'number'
+        definition: @aql ecommerce_orders 
+          | count(ecommerce_orders.id) 
+          | with_relationships(ecommerce_merchants.city_id > ecommerce_cities.id);;
+  }
+
+}
