@@ -6,21 +6,10 @@ PreAggregate aggr_movie_ratings_daily {
     for: ref('public_ratings', 'timestamp')
     time_granularity: 'day'
   }
-  // dimension genre {
-  //   for: ref('public_movies', 'genres')
-  // }
   measure count {
     for: ref('public_ratings', 'id')
     aggregation_type: 'count'
   }
-  // measure count_movies {
-  //   for: ref('public_ratings', 'movie_id')
-  //   aggregation_type: 'count distinct'
-  // }
-  // measure count_users {
-  //   for: ref('public_ratings', 'user_id')
-  //   aggregation_type: 'count distinct'
-  // }
   measure highest_rating {
     for: ref('public_ratings', 'rating')
     aggregation_type: 'max'
@@ -63,6 +52,7 @@ PreAggregate aggr_movie_ratings_counts_daily {
 }
 
 Dataset movie_ratings_analysis {
+  __engine__: 'aql' 
   label: 'Movie Ratings Analysis'
   description: "This dataset contains information of film ratings from users collected from MovieLens - a movie recommendation service.\nTimeframe: between January 09, 1995 and September 26, 2018"
   data_source_name: 'movies_lens'
@@ -70,38 +60,50 @@ Dataset movie_ratings_analysis {
     public_ratings,
     public_movies,
     public_tags,
-    public_links,
+    public_links
   ]
-  relationships: [relationship(public_ratings.movie_id > public_movies.movie_id, true), relationship(public_tags.movie_id > public_movies.movie_id, true), relationship(public_links.movie_id - public_movies.movie_id, true)]
+  relationships: [
+    relationship(public_ratings.movie_id > public_movies.movie_id, true),
+    relationship(public_tags.movie_id > public_movies.movie_id, true),
+    relationship(public_links.movie_id - public_movies.movie_id, true)
+  ]
   owner: 'huong.le+demo4@holistics.io'
 
   pre_aggregates: {
-    aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'year'
+    aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend(
+      {
+        dimension timestamp {
+          for: ref('public_ratings', 'timestamp')
+          time_granularity: 'year'
+        }
       }
-    })
-    aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'month'
+    )
+    aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend(
+      {
+        dimension timestamp {
+          for: ref('public_ratings', 'timestamp')
+          time_granularity: 'month'
+        }
       }
-    })
+    )
     aggr_movie_ratings_daily: aggr_movie_ratings_daily
 
-    aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'year'
+    aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend(
+      {
+        dimension timestamp {
+          for: ref('public_ratings', 'timestamp')
+          time_granularity: 'year'
+        }
       }
-    })
-    aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend({
-      dimension timestamp {
-        for: ref('public_ratings', 'timestamp')
-        time_granularity: 'month'
+    )
+    aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend(
+      {
+        dimension timestamp {
+          for: ref('public_ratings', 'timestamp')
+          time_granularity: 'month'
+        }
       }
-    })
+    )
     aggr_movie_ratings_counts_daily: aggr_movie_ratings_counts_daily
   }
 }
