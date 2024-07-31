@@ -42,6 +42,15 @@ Dataset demo_ecommerce {
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
+  dimension open_ai_search {
+    model: countries
+    label: 'Open AI Search'
+    type: 'text'
+    definition: @aql concat(
+      'https://chat.openai.com/chat?q=give+me+pictures+of+and+tell+me+what+special+about+',ecommerce_countries.name
+      );;
+  }
+
   // view: Arranging view in dataset for business users
 
   view {
