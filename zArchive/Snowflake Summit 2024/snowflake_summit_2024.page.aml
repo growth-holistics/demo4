@@ -1,0 +1,189 @@
+Dashboard snowflake_summit_2024_dashboard {
+  title: 'snowflake_summit_2024_dashboard'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Count of Location Name and Min of Description by Latitude and Longitude'
+    viz: PointMap {
+      dataset: snowflake_summit_2024
+      lng: VizFieldFull {
+        ref: ref('snowflake_party_locs', 'longitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('snowflake_party_locs', 'latitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field {
+            label: 'Location Name'
+            ref: ref('snowflake_party_locs', 'location_name')
+            aggregation: 'min'
+            format {
+              type: 'text'
+            }
+          }
+        },
+        VizTooltip {
+          field {
+            label: 'Description'
+            ref: ref('snowflake_party_locs', 'description')
+            aggregation: 'min'
+            format {
+              type: 'text'
+            }
+          }
+        },
+        VizTooltip {
+          field {
+            label: 'Day'
+            ref: ref('snowflake_party_locs', 'day')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        map_background: 'street'
+        point_size: 4
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md ### All you need to know about
+
+# <span style="color: #29B5E8; font-weight: bold">Snowflake Data Cloud Summit 2024 </span>;;
+  }
+  block v2: VizBlock {
+    label: 'Day'
+    viz: DataTable {
+      dataset: snowflake_summit_2024
+      fields: [
+        VizFieldFull {
+          ref: ref('snowflake_party_days', 'day')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('snowflake_party_days', 'full_date')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Agenda'
+    viz: DataTable {
+      dataset: snowflake_summit_2024
+      fields: [
+        VizFieldFull {
+          ref: ref('snowflake_party_agenda', 'day')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('snowflake_party_agenda', 'time')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('snowflake_party_agenda', 'details')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          },
+          SortSetting {
+            field_index: 1
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Parties'
+    viz: DataTable {
+      dataset: snowflake_summit_2024
+      fields: [
+        VizFieldFull {
+          ref: ref('snowflake_party_locs', 'location_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('snowflake_party_locs', 'description')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('snowflake_party_locs', 'day')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1330
+    height: 800
+    block v1 {
+      position: pos(40, 120, 630, 610)
+    }
+    block t1 {
+      position: pos(40, 20, 630, 120)
+    }
+    block v2 {
+      position: pos(700, 30, 360, 180)
+    }
+    block v3 {
+      position: pos(700, 230, 480, 400)
+    }
+    block v4 {
+      position: pos(710, 640, 590, 170)
+    }
+  }
+
+}

@@ -1,0 +1,58 @@
+Model snowflake_party_locs {
+  type: 'query'
+  label: 'snowflake_party_locs'
+  description: ''
+  data_source_name: 'demodb'
+  dimension location_name {
+    label: 'Location Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.location_name }};;
+  }
+  dimension latitude {
+    label: 'Latitude'
+    type: 'number'
+    definition: @sql {{ #SOURCE.latitude }};;
+  }
+  dimension longitude {
+    label: 'Longitude'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.longitude }};;
+  }
+  dimension description {
+    label: 'Description'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.description }};;
+  }
+  dimension day {
+    label: 'day'
+    type: 'number'
+    definition: @sql {{ #SOURCE.day }};;
+  }
+
+  owner: 'thong.do@holistics.io'
+  query: @sql 
+    SELECT 
+      'Moscone Center' AS location_name, 
+      37.78433812759099  AS latitude, 
+      -122.40063050157019 AS longitude, 
+      'Conference (Snowflake Summit)' AS description,
+      1 AS day
+    UNION ALL
+    SELECT 
+      'MotherDuck’ing Party', 
+      37.78734323250998, -122.399298383062, 
+      '6-9PM',
+      1
+      UNION ALL
+    SELECT 
+      'Moscone Center', 
+      37.78734323250998, -122.399298383062, 
+      '6-9PM',
+      2
+    ;;;
+  models: [
+  ]
+}

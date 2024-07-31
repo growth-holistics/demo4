@@ -1,0 +1,96 @@
+Model bq_dim_product_cities = bq_dim_cities.extend({
+  label: 'Product Cities'
+})
+Model bq_dim_product_countries = bq_dim_countries.extend({
+  label: 'Product Countries'
+})
+
+Model bq_dim_user_cities = bq_dim_cities.extend({
+  label: 'User Cities'
+})
+Model bq_dim_user_countries = bq_dim_countries.extend({
+  label: 'User Countries'
+})
+
+
+Dataset demo_bigquery_ecommerce {
+  label: 'Demo Bigquery Ecommerce'
+  description: 'Ecommerce dataset in BigQuery. ERD can be found [here](https://dbdiagram.io/e/658b9f1289dea62799972ec8/665fedfcb65d933879884fa8)'
+  data_source_name: 'data_staging'
+  
+  models: [
+    bq_fct_order_items,
+    bq_fct_orders,
+
+    bq_dim_products,
+    bq_dim_users,
+    bq_dim_categories,
+    bq_dim_merchants,
+    
+
+    bq_dim_product_cities,
+    bq_dim_product_countries,
+    bq_dim_user_cities,
+    bq_dim_user_countries,
+    bq_dim_dates,
+    
+  ]
+  relationships: [
+    relationship(bq_fct_order_items.product_id > bq_dim_products.id, true),
+    relationship(bq_fct_order_items.category_id >  bq_dim_categories.id, true),
+    
+    relationship(bq_fct_order_items.merchant_id >  bq_dim_merchants.id, true),
+    relationship(bq_fct_order_items.merchant_city_id >  bq_dim_product_cities.id, true),
+    relationship(bq_fct_order_items.merchant_country_code >  bq_dim_product_countries.code, true),
+    relationship(bq_fct_order_items.user_id >  bq_dim_users.id, true),
+    relationship(bq_fct_order_items.created_date >  bq_dim_dates.date_key, true),
+    relationship(bq_fct_order_items.order_id >  bq_fct_orders.id, false),
+
+
+    relationship(bq_fct_orders.user_city_id >  bq_dim_user_cities.id, true),
+    relationship(bq_fct_orders.user_country_code >  bq_dim_user_countries.code, true),
+    relationship(bq_fct_orders.created_date >  bq_dim_dates.date_key, true),
+    relationship(bq_fct_orders.user_id >  bq_dim_users.id, false),
+
+  ]
+
+
+  metric count_users {
+    label: 'Count Users'
+    type: 'number'
+    definition: @aql count(bq_dim_users.id);;
+  }
+
+  metric count_orders {
+    label: 'Count Orders'
+    type: 'number'
+    definition: @aql count(bq_fct_orders.id) | with_relationships(bq_fct_orders.user_id >  bq_dim_users.id);;
+  }
+
+  metric count_distinct_orders {
+    label: 'Count Distinct Orders'
+    type: 'number'
+    definition: @aql count_distinct(bq_fct_order_items.order_id) ;;
+  }
+
+  metric count_distinct_products {
+    label: 'Count Distinct Products'
+    type: 'number'
+    definition: @aql count_distinct(bq_fct_order_items.product_id) ;;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    description: "Total value regardless of order status"
+    definition: @aql sum(bq_fct_order_items.value);;
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: 'number'
+    definition: @aql gmv/count_orders;;
+  }
+
+  owner: 'triet.lq@holistics.io'
+}
