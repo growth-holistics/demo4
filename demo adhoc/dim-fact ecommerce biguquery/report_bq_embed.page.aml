@@ -1,14 +1,14 @@
-Dashboard embed_demo_landing_page {
-  title: 'Ecommerce Embedded Analytics'
-  owner: 'thong.do@holistics.io'
+Dashboard report_bq_embed {
+  title: '[Demo BQ] Ecommerce Embedded Analytics'
+  owner: 'triet.lq@holistics.io'
   description: ''''''
   block v1: VizBlock {
     label: 'Merchant'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_merchants', 'name')
+          ref: ref('bq_dim_merchants', 'name')
           format {
             type: 'text'
           }
@@ -58,8 +58,8 @@ Dashboard embed_demo_landing_page {
     label: 'Merchant Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_merchants', 'name')
+      dataset: demo_bigquery_ecommerce
+      field: ref('bq_dim_merchants', 'name')
     }
     default {
       operator: 'is'
@@ -69,17 +69,17 @@ Dashboard embed_demo_landing_page {
   block v2: VizBlock {
     label: 'Product Performance'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: ref('bq_dim_products', 'name')
           format {
             type: 'text'
           }
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: 'count_distinct_orders'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -87,7 +87,7 @@ Dashboard embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -97,7 +97,7 @@ Dashboard embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: ref('order_master', 'aov')
+          ref: 'aov'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -123,17 +123,17 @@ Dashboard embed_demo_landing_page {
   block v3: VizBlock {
     label: 'Users'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'email')
+          ref: ref('bq_dim_users', 'email')
           format {
             type: 'text'
           }
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: 'count_orders'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -141,7 +141,7 @@ Dashboard embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -151,7 +151,7 @@ Dashboard embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: ref('order_master', 'aov')
+          ref: 'aov'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -162,7 +162,7 @@ Dashboard embed_demo_landing_page {
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
@@ -184,16 +184,16 @@ Dashboard embed_demo_landing_page {
   block v4: VizBlock {
     label: 'Total Users'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
-        ref: ref('ecommerce_users', 'total_users')
+        ref: 'count_users'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('ecommerce_users', 'sign_up_date')
+        field: ref('bq_dim_users', 'sign_up_date')
         duration: 1
         granularity: 'month'
       }
@@ -205,16 +205,16 @@ Dashboard embed_demo_landing_page {
   block v5: VizBlock {
     label: 'Total Orders'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
+        ref: 'count_orders'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('bq_dim_dates', 'date_key')
         duration: 1
         granularity: 'month'
       }
@@ -226,10 +226,10 @@ Dashboard embed_demo_landing_page {
   block v6: VizBlock {
     label: 'Total GMV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
         label: 'GMV'
-        ref: ref('order_master', 'gmv')
+        ref: 'gmv'
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,"K"'
@@ -238,7 +238,7 @@ Dashboard embed_demo_landing_page {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('bq_dim_dates', 'date_key')
         duration: 1
         granularity: 'month'
       }
@@ -250,17 +250,17 @@ Dashboard embed_demo_landing_page {
   block v7: VizBlock {
     label: 'Metric AOV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
         label: 'AOV'
-        ref: ref('order_master', 'aov')
+        ref: 'aov'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('bq_dim_dates', 'date_key')
         duration: 1
         granularity: 'month'
       }
@@ -280,18 +280,18 @@ Dashboard embed_demo_landing_page {
   block v8: VizBlock {
     label: 'User Growth'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       calculation f_3f16a1c {
         label: 'Running Total'
         formula: @aql          running_total!(
-ecommerce_users.id | count() ,
-ecommerce_users.sign_up_date
+bq_dim_users.id | count() ,
+bq_dim_users.sign_up_date
 );;
         calc_type: 'measure'
         data_type: 'number'
       }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_users', 'sign_up_date')
+        ref: ref('bq_dim_users', 'sign_up_date')
         transformation: 'datetrunc quarter'
         format {
           type: 'date'
@@ -301,7 +301,7 @@ ecommerce_users.sign_up_date
         series {
           mark_type: 'column'
           field {
-            ref: ref('ecommerce_users', 'total_users')
+            ref: 'count_users'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -333,7 +333,7 @@ ecommerce_users.sign_up_date
       }
       settings {
         pop {
-          field: ref('ecommerce_users', 'sign_up_date')
+          field: ref('bq_dim_users', 'sign_up_date')
           duration: 3
           granularity: 'month'
         }
@@ -370,44 +370,12 @@ ecommerce_users.sign_up_date
   block t13: TextBlock {
     content: @md <div class="h-line"></div>;;
   }
-  block v9: VizBlock {
-    label: 'Product Performance (dup)'
-    viz: PieChart {
-      dataset: demo_ecommerce
-      legend: VizFieldFull {
-        ref: ref('ecommerce_products', 'name')
-        format {
-          type: 'text'
-        }
-      }
-      series {
-        field {
-          label: 'GMV'
-          ref: ref('order_master', 'gmv')
-          format {
-            type: 'number'
-            pattern: '[$$]#,###0.00,"K"'
-            group_separator: ','
-            decimal_separator: '.'
-          }
-        }
-      }
-      settings {
-        display_as_donut: true
-        row_limit: 5000
-        group_values_into: 3
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block v11: VizBlock {
     label: 'Product Performance (dup)'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'date_key')
+        ref: ref('bq_dim_dates', 'date_key')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -418,7 +386,7 @@ ecommerce_users.sign_up_date
           mark_type: 'column'
           field {
             label: 'Total Orders'
-            ref: ref('ecommerce_orders', 'total_orders_count')
+            ref: 'count_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -437,7 +405,7 @@ ecommerce_users.sign_up_date
           mark_type: 'line'
           field {
             label: 'GMV'
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -456,7 +424,7 @@ ecommerce_users.sign_up_date
           mark_type: 'line'
           field {
             label: 'AOV'
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -479,9 +447,9 @@ ecommerce_users.sign_up_date
   block v12: VizBlock {
     label: 'Total Products'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_bigquery_ecommerce
       value: VizFieldFull {
-        ref: ref('ecommerce_products', 'total_products')
+        ref: 'count_distinct_products'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -502,8 +470,8 @@ ecommerce_users.sign_up_date
     label: 'Product'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_products', 'name')
+      dataset: demo_bigquery_ecommerce
+      field: ref('bq_dim_products', 'name')
     }
     default {
       operator: 'is'
@@ -521,7 +489,7 @@ ecommerce_users.sign_up_date
       position: pos(-490, 100, 465, 160)
     }
     block f1 {
-      position: pos(-320, 10, 300, 80)
+      position: pos(-290, 320, 300, 80)
     }
     block v2 {
       position: pos(750, 780, 650, 240)
@@ -581,9 +549,6 @@ ecommerce_users.sign_up_date
     block t13 {
       position: pos(1120, 120, 40, 190)
     }
-    block v9 {
-      position: pos(1480, 590, 410, 330)
-    }
     block v11 {
       position: pos(750, 400, 650, 360)
     }
@@ -615,27 +580,23 @@ ecommerce_users.sign_up_date
       to: [
         CustomMapping {
           block: [
-            'v3',
-            'v4',
-            'v8',
-            'v12'
-          ]
-          field: ref('ecommerce_users', 'sign_up_date')
-        },
-        CustomMapping {
-          block: [
-            'v5',
+            'v1',
+            'v2',
+            'v11',
+            'v12',
+            'v7',
             'v6',
-            'v7'
+            'v5'
           ]
-          field: ref('order_master', 'order_created_at')
+          field: ref('bq_dim_dates', 'date_key')
         },
         CustomMapping {
           block: [
-            'v9',
-            'v11'
+            'v4',
+            'v3',
+            'v8'
           ]
-          field: ref('dim_dates', 'date_key')
+          field: ref('bq_dim_users', 'sign_up_date')
         }
       ]
     }

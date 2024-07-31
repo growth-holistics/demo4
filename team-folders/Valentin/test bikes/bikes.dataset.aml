@@ -15,6 +15,12 @@ Dataset bikes {
     ,
     relationship(station_density.stationcode - dim_station.station_code, true)
   ]
-
+  metric test {
+    label: 'test'
+    type: 'number'
+    definition: @aql
+    coalesce(count(fct_avaibility.station_code) | where(fct_avaibility.bikes_available > 40),0)
+    ;;
+  }
   owner: 'valentin@holistics.io'
 }
