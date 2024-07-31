@@ -13,7 +13,7 @@ Dashboard e_commerce_business_metrics {
       position: pos(330, 90, 300, 80)
     }
     block t2 {
-      position: pos(20, 150, 1160, 210)
+      position: pos(20, 180, 1160, 210)
     }
     block f2 {
       position: pos(670, 90, 300, 80)
@@ -55,7 +55,7 @@ Dashboard e_commerce_business_metrics {
       position: pos(20, 1090, 1160, 300)
     }
   }
-  theme: classic
+
   block t1: TextBlock {
     content: @md <h1> eCommerce Business Metrics Dashboard </h1>
 Published  <strong>November 23rd, 2023</strong> by <strong>Nam Tran</strong>;;
@@ -144,8 +144,8 @@ See more:
   block t3: TextBlock {
     content: @md <h2>User Distribution </h2>;;
   }
-  // temporarily disable this to fix bug
-  // block v2: age_demographic
+
+  block v2: age_demographic
 
   block v3: VizBlock {
     label: 'Geographic Distribution'
@@ -191,10 +191,17 @@ See more:
           format {
             type: 'text'
           }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Linkedin Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'search')
+              aggregation: 'min'
+            }
+          }
         },
         VizFieldFull {
           ref: ref('ecommerce_orders', 'total_orders_count')
-          aggregation: 'custom'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -203,7 +210,6 @@ See more:
         VizFieldFull {
           label: 'Total Orders Value'
           ref: ref('order_master', 'revenue_delivered')
-          aggregation: 'custom'
           format {
             type: 'number'
           }
@@ -219,6 +225,14 @@ See more:
           format {
             type: 'text'
           }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Map Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_countries', 'map_search')
+              aggregation: 'min'
+            }
+          }
         },
         VizFieldFull {
           ref: ref('ecommerce_users', 'gender')
@@ -229,6 +243,10 @@ See more:
       ]
       settings {
         show_row_number: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
