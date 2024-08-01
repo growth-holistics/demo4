@@ -60,7 +60,7 @@ Dataset demo_ecommerce {
       );;
   }
 
-    dimension recommendation {
+  dimension recommendation {
     model: order_master
     label: 'Claude AI Recommendation'
     type: 'text'
@@ -79,82 +79,6 @@ Dataset demo_ecommerce {
       '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
       );;
   }
-
-  // view: Arranging view in dataset for business users
-
-  view {
-    model ecommerce_users {
-
-      group ID {
-        field id
-        field city_id
-      }
-
-      group demographics {
-        field age_group
-        field age
-        field gender
-      }
-
-      group PII {
-        field first_name
-        field last_name
-        field email
-        field full_name
-        field email_pii
-        field email_user
-      }
-
-      group activity {
-        field sign_up_at
-        field sign_up_date
-      }
-
-      group metrics {
-        field total_users
-        field users_signed_up_count
-      }
-
-    }
-
-    model ecommerce_orders {
-      field total_orders_count
-      field created_at
-      field discount
-      field status
-      field days_since_last_order
-      field cumm_orders
-
-      group order_status_tracking {
-        field created_date
-        field delivered_orders_count
-        field cancelled_orders_count
-        field refunded_orders_count
-        field order_month
-      }
-      group others {
-        field delivery_attempts
-        field id
-      }
-    }
-
-    model order_master
-    model ecommerce_products
-    model ecommerce_merchants
-    model ecommerce_cities
-    model ecommerce_countries
-    model map_categories
-    model user_cohort_retention
-    model dim_dates
-  }
-
-  // Cross model metric
-  metric end_product_cost {
-  label: 'End Product Cost'
-  type: 'number'
-  description: 'the end-price that customer pays at the end'
-  definition: @aql sum(order_items, products.price - product_discount) ;;
-  } 
 
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
