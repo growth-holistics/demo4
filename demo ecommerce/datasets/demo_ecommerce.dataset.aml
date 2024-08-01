@@ -42,9 +42,9 @@ Dataset demo_ecommerce {
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
-  dimension open_ai_search {
+  dimension location_recommendation {
     model: order_master
-    label: 'Open AI Search'
+    label: 'Make Location Recommendation'
     type: 'text'
     definition: @aql concat(
       'https://chat.openai.com/chat?q=give+a+recommendation+(+3+recommendations+max+for+each+category+)+for+a+',
@@ -60,7 +60,20 @@ Dataset demo_ecommerce {
       );;
   }
 
-  dimension recommendation {
+  dimension experience {
+    model: order_master
+    label: 'Experience Recommendation'
+    type: 'text'
+    definition: @aql concat(
+    'https://www.airbnb.com/s/',
+    ecommerce_cities.name,
+    '--',
+    ecommerce_cities.name,
+    '/experiences',
+    );;
+  }
+
+  dimension write_recommendation {
     model: order_master
     label: 'Claude AI Recommendation'
     type: 'text'
