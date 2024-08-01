@@ -1,0 +1,103 @@
+Dashboard Travel_Agent {
+  title: 'Travel Agent'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 800
+    grid_size: 20
+    block v4 {
+      position: pos(40, 40, 1140, 300)
+    }
+  }
+
+  block v4: VizBlock {
+    label: 'Big Customers (Whales) '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Linkedin Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'linkedin_search')
+              aggregation: 'min'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'email_user')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Call Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'phone')
+              aggregation: 'min'
+            }
+          }
+          action a_4: VizAction {
+            type: 'GoToUrl'
+            label: 'Write Recommendation'
+            url: ActionFieldInput {
+              ref: ref('order_master', 'recommendation')
+              aggregation: 'min'
+            }
+          }
+        },
+        VizFieldFull {
+          label: 'City Destination'
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Recommendation based on Location, Age Demographic and Gender'
+            url: ActionFieldInput {
+              ref: ref('order_master', 'open_ai_search')
+              aggregation: 'min'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Map Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'map_search')
+              aggregation: 'min'
+            }
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 50
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
