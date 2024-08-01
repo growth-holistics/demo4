@@ -188,9 +188,17 @@ See more:
     }
   }
   block v4: VizBlock {
-    label: 'Big Customers (Whales) '
+    label: 'Customers'
     viz: DataTable {
       dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'age_group')
+        operator: 'is_not'
+        value: [
+          '1. Under 20',
+          '3. From 40 to 49'
+        ]
+      }
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_users', 'full_name')
@@ -274,7 +282,13 @@ See more:
       ]
       settings {
         show_row_number: true
-        row_limit: 50
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+        row_limit: 200
         aggregate_awareness {
           enabled: true
           debug_comments: true
