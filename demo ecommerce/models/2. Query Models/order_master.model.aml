@@ -196,7 +196,7 @@ Model order_master {
     label: "AOV - Average Order Value"
     type: "number"
     definition: @sql sum({{ #SOURCE.price }}) / count(distinct {{ #SOURCE.order_id }});;
-    format: "[$$]#,###0.00"
+    format: "[$$]#,###0"
   }
   measure cancel_value_ratio {
     label: "Cancel Value Ratio"
@@ -232,7 +232,7 @@ Model order_master {
     type: "number"
     definition: @sql sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float;;
     description: "Total values of orders cancelled"
-    format: "#,###0.00"
+    format: "[$$]#,###0"
   }
   measure completed_order_count {
     label: "Completed Order Count"
@@ -255,12 +255,13 @@ Model order_master {
     type: "number"
     definition: @sql sum({{ #SOURCE.price }});;
     description: "Total value regardless of order status"
-    format: "#,###0.00"
+    format: "[$$]#,###0"
   }
   measure nmv {
     label: "NMV - Net Merchandise Value"
     type: "number"
     definition: @sql sum(case when {{ #SOURCE.status }} in ('cancelled', 'refunded') then 0 else {{ #SOURCE.price }} end);;
+    format: "[$$]#,###0"
   }
   measure refunded_orders_count {
     label: "Refunded Orders Count"
@@ -272,12 +273,14 @@ Model order_master {
     type: "number"
     definition: @sql sum({{ #SOURCE.price }}*{{ #SOURCE.quantity }});;
     description: "P x Q"
+    format: "[$$]#,###0"
   }
   measure revenue_delivered {
     label: "Revenue Delivered"
     type: "number"
     definition: @sql sum(case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.price }} else 0 end);;
     description: "Revenue of delivered items only"
+    format: "[$$]#,###0"
   }
   measure users_count {
     label: "Users Count"

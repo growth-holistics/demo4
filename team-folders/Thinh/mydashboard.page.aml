@@ -1,0 +1,162 @@
+Dashboard myDashboard {
+  title: 'My Dashboard'
+
+  block t1: TextBlock {
+    content: @md # Hello World!;;
+  }
+  block v1: VizBlock {
+    label: 'GMV over time'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#005A32FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D9F0A3FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Table'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'status')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'quantity')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Order Created At'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('order_master', 'order_created_at')
+    }
+    default {
+      operator: 'matches'
+      value: 'last 2 years'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Drill by'
+    default: 'month'
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1050
+    height: 650
+    block t1 {
+      position: pos(20, 20, 240, 80)
+    }
+    block v1 {
+      position: pos(270, 20, 760, 260)
+    }
+    block v2 {
+      position: pos(20, 290, 1010, 340)
+    }
+    block f1 {
+      position: pos(20, 200, 240, 80)
+    }
+    block d1 {
+      position: pos(20, 110, 240, 80)
+    }
+  }
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 360
+  }
+}

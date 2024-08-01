@@ -2,7 +2,7 @@ Dashboard e_commerce_business_metrics {
   title: 'eCommerce Business Metrics (Notebook)'
   view: CanvasLayout {
     label: 'View 1'
-    height: 2740
+    height: 2780
     block t1 {
       position: pos(20, 10, 690, 90)
     }
@@ -13,28 +13,28 @@ Dashboard e_commerce_business_metrics {
       position: pos(330, 90, 300, 80)
     }
     block t2 {
-      position: pos(20, 150, 1160, 210)
+      position: pos(20, 180, 1160, 210)
     }
     block f2 {
       position: pos(670, 90, 300, 80)
     }
     block v1 {
-      position: pos(20, 370, 1160, 270)
+      position: pos(20, 410, 1160, 220)
     }
     block t3 {
-      position: pos(20, 640, 361, 40)
+      position: pos(20, 650, 361, 40)
     }
     block v2 {
-      position: pos(20, 760, 510, 310)
+      position: pos(20, 770, 510, 310)
     }
     block v3 {
-      position: pos(530, 760, 650, 310)
+      position: pos(530, 770, 650, 310)
     }
     block v4 {
       position: pos(20, 1410, 1160, 330)
     }
     block t4 {
-      position: pos(20, 690, 1160, 60)
+      position: pos(20, 700, 1160, 60)
     }
     block v5 {
       position: pos(20, 2350, 1160, 370)
@@ -55,6 +55,7 @@ Dashboard e_commerce_business_metrics {
       position: pos(20, 1090, 1160, 300)
     }
   }
+
   block t1: TextBlock {
     content: @md <h1> eCommerce Business Metrics Dashboard </h1>
 Published  <strong>November 23rd, 2023</strong> by <strong>Nam Tran</strong>;;
@@ -119,14 +120,26 @@ See more:
         series {
           field {
             ref: ref('ecommerce_orders', 'total_orders_count')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#5CC863'
+            color: '#008000'
+          }
+        }
+        series {
+          field {
+            label: 'Trend line of Total Orders Count'
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_style: 'dashed'
           }
         }
       }
@@ -143,6 +156,7 @@ See more:
   block t3: TextBlock {
     content: @md <h2>User Distribution </h2>;;
   }
+
   block v2: age_demographic
 
   block v3: VizBlock {
@@ -179,41 +193,68 @@ See more:
       dataset: demo_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('order_master', 'user_id')
-          format {
-            type: 'number'
-          }
-        },
-        VizFieldFull {
           ref: ref('ecommerce_users', 'full_name')
           format {
             type: 'text'
           }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'total_orders_count')
-          aggregation: 'custom'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Linkedin Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'linkedin_search')
+              aggregation: 'min'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'email_user')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Call Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'phone')
+              aggregation: 'min'
+            }
+          }
+          action a_4: VizAction {
+            type: 'GoToUrl'
+            label: 'Write Recommendation'
+            url: ActionFieldInput {
+              ref: ref('order_master', 'recommendation')
+              aggregation: 'min'
+            }
           }
         },
         VizFieldFull {
-          label: 'Total Orders Value'
-          ref: ref('order_master', 'revenue_delivered')
-          aggregation: 'custom'
+          label: 'City Destination'
+          ref: ref('ecommerce_cities', 'name')
           format {
-            type: 'number'
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Recommendation based on Location, Age Demographic and Gender'
+            url: ActionFieldInput {
+              ref: ref('order_master', 'open_ai_search')
+              aggregation: 'min'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Map Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'map_search')
+              aggregation: 'min'
+            }
           }
         },
         VizFieldFull {
           ref: ref('ecommerce_users', 'age_group')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
           format {
             type: 'text'
           }
@@ -227,6 +268,11 @@ See more:
       ]
       settings {
         show_row_number: true
+        row_limit: 50
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -385,9 +431,9 @@ Our product margin keep upflow at <strong>60-70%</strong>;;
       values: [
         VizFieldFull {
           ref: ref('order_master', 'gmv')
-          aggregation: 'custom'
           format {
             type: 'number'
+            pattern: '#,###'
           }
         }
       ]
@@ -397,7 +443,6 @@ Our product margin keep upflow at <strong>60-70%</strong>;;
         conditional_formats: [
           ConditionalFormat {
             ref: ref('order_master', 'gmv')
-            aggregation: 'custom'
             format: SingleFormat {
               condition {
                 operator: 'greater_than'
@@ -408,6 +453,10 @@ Our product margin keep upflow at <strong>60-70%</strong>;;
             }
           }
         ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }

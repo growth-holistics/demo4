@@ -1,5 +1,5 @@
-Dashboard ecommerce_dashboard_public {
-  title: 'Ecommerce Dashboard'
+Dashboard ecommerce_dashboard {
+  title: 'eCommerce Dashboard'
   view: CanvasLayout {
     label: 'View 1'
     width: 1560
@@ -17,13 +17,13 @@ Dashboard ecommerce_dashboard_public {
       position: pos(1280, 60, 230, 120)
     }
     block v5 {
-      position: pos(60, 230, 560, 240)
+      position: pos(330, 230, 560, 240)
     }
     block v6 {
       position: pos(330, 500, 560, 250)
     }
     block v7 {
-      position: pos(-20, 790, 560, 260)
+      position: pos(330, 780, 560, 260)
     }
     block v8 {
       position: pos(920, 230, 610, 380)
@@ -47,11 +47,11 @@ Dashboard ecommerce_dashboard_public {
       position: pos(1360, 230, 170, 80)
     }
     block t1 {
-      position: pos(400, 200, 270, 1100)
+      position: pos(-10, 0, 270, 1100)
       layer: -1
     }
     block t2 {
-      position: pos(410, 130, 210, 110)
+      position: pos(30, 160, 210, 110)
     }
     block t3 {
       position: pos(20, 990, 200, 70)
@@ -435,15 +435,12 @@ Dashboard ecommerce_dashboard_public {
       }
     }
   }
-
-  // Control
   block f1: FilterBlock {
     label: 'Date Range'
     type: 'date'
     default {
-      operator: 'last'
-      value: '12'
-      modifier: 'month'
+      operator: 'matches'
+      value: '2023 to 2024'
     }
   }
   block f2: FilterBlock {
@@ -467,7 +464,7 @@ Dashboard ecommerce_dashboard_public {
     }
     default {
       operator: 'is'
-      value: 'Europe'
+      value: 'America'
     }
   }
   block d1: DateDrillBlock {
@@ -539,7 +536,6 @@ Dashboard ecommerce_dashboard_public {
     </svg>
   ;;
   }
-
   interactions: [
     FilterInteraction {
       from: 'f2'
@@ -556,6 +552,24 @@ Dashboard ecommerce_dashboard_public {
         CustomMapping {
           block: 'v5'
           field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_countries', 'continent_name')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_countries', 'name')
         }
       ]
     },
@@ -582,29 +596,6 @@ Dashboard ecommerce_dashboard_public {
           field: ref('ecommerce_users', 'sign_up_date')
         }
       ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: 'v8'
-          field: ref('ecommerce_countries', 'continent_name')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: 'v8'
-          field: ref('ecommerce_countries', 'name')
-        }
-      ]
     }
   ]
-  settings {
-    timezone: 'America/Los_Angeles'
-    cache_duration: 1440
-  }
-
 }
