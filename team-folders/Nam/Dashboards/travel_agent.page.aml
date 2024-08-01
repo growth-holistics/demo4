@@ -67,10 +67,13 @@ Dashboard Travel_Agent {
       position: pos(40, 140, 1140, 300)
     }
     block f1 {
-      position: pos(40, 40, 300, 80)
+      position: pos(40, 60, 300, 80)
     }
     block f2 {
-      position: pos(380, 40, 300, 80)
+      position: pos(340, 60, 300, 80)
+    }
+    block f3 {
+      position: pos(660, 60, 300, 80)
     }
   }
   block v4: VizBlock {
@@ -221,7 +224,37 @@ Dashboard Travel_Agent {
       value: []
     }
   }
+  block f3: FilterBlock {
+    label: 'Country Origin'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'origin')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f3'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'f1'
       to: [
