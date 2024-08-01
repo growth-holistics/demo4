@@ -7,7 +7,7 @@ Dashboard Travel_Agent {
       bg_color: "#FFFFFF"
       bg_repeat: false
       bg_size: "cover"
-      // bg_image:
+  // bg_image:
     }
     canvas {
       border {
@@ -20,7 +20,7 @@ Dashboard Travel_Agent {
         bg_color: 'green'
         bg_repeat: true
         bg_size: "contain"
-        // bg_image:
+  // bg_image:
       }
       shadow: "none"
       opacity: 1
@@ -50,7 +50,7 @@ Dashboard Travel_Agent {
         bg_color: "#FFFFFF"
         bg_repeat: false
         bg_size: "cover"
-        // bg_image:
+  // bg_image:
       }
       padding: 12
       shadow: "none"
@@ -60,10 +60,17 @@ Dashboard Travel_Agent {
 
   view: CanvasLayout {
     label: 'View 1'
+    width: 1220
     height: 800
     grid_size: 20
     block v4 {
-      position: pos(40, 200, 1140, 300)
+      position: pos(40, 120, 1140, 300)
+    }
+    block v5 {
+      position: pos(40, 440, 1140, 300)
+    }
+    block f1 {
+      position: pos(40, 20, 300, 80)
     }
   }
   block v4: VizBlock {
@@ -182,4 +189,64 @@ Dashboard Travel_Agent {
       }
     }
   }
+  block v5: VizBlock {
+    label: 'Events In City By Month'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'visit_time')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Visit Time'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_users
+      field: ref('ecommerce_users', 'visit_time')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v4',
+            'v5'
+          ]
+          field: ref('ecommerce_users', 'visit_time')
+        }
+      ]
+    }
+  ]
 }
