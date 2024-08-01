@@ -1,0 +1,416 @@
+Dashboard template_marketing_2 {
+  title: 'Template Marketing Dashboard 2'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1320
+    height: 970
+    block override_css {
+      position: pos(-20, 650, 170, 120)
+    }
+    block v3 {
+      position: pos(360, 390, 910, 230)
+    }
+    block f1 {
+      position: pos(660, 120, 630, 60)
+    }
+    block v10 {
+      position: pos(50, 220, 200, 100)
+    }
+    block v11 {
+      position: pos(360, 220, 200, 100)
+    }
+    block v12 {
+      position: pos(970, 220, 200, 100)
+    }
+    block v13 {
+      position: pos(660, 220, 200, 100)
+    }
+    block t1 {
+      position: pos(30, 900, 300, 520)
+      layer: -1
+    }
+    block t9 {
+      position: pos(30, 40, 390, 50)
+    }
+    block v14 {
+      position: pos(360, 690, 910, 230)
+    }
+    block v15 {
+      position: pos(50, 390, 240, 230)
+    }
+    block v18 {
+      position: pos(50, 690, 240, 230)
+    }
+    block t15 {
+      position: pos(30, 20, 1320, 930)
+      layer: -3
+    }
+    block t16 {
+      position: pos(30, 100, 510, 80)
+    }
+    block t2 {
+      position: pos(20, 360, 300, 300)
+      layer: -1
+    }
+    block t4 {
+      position: pos(20, 660, 300, 300)
+      layer: -1
+    }
+    block t12 {
+      position: pos(330, 660, 970, 300)
+      layer: -1
+    }
+    block t13 {
+      position: pos(330, 360, 970, 300)
+      layer: -1
+    }
+    block t14 {
+      position: pos(100, 10, 400, 310)
+    }
+  }
+  block override_css: TextBlock {
+    content: @md <style>
+      .dac-text-block {
+        overflow: hidden !important;
+      }
+      .h-kpi-metric .h-6 {
+        font-size: 18px;
+      }
+      .h-kpi-metric .text-blue-gray-800:not(.h-6){
+        color: #5425D8FF;
+      }
+    </style>;;
+  }
+  block v3: VizBlock {
+    label: 'General'
+    viz: DataTable {
+      dataset: marketing_demo
+      fields: [
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'c_date')
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'campaign_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'orders')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('minhminh_marketing_kpi', 'revenue')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 3
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('minhminh_marketing_kpi', 'revenue')
+            format: ScaleFormat {
+              min {
+                value: 500000
+                color: '#FFFFFF'
+              }
+              mid {
+                value: 1200000
+                color: '#6430934D'
+              }
+              max {
+                value: 2000000
+                color: '#643093FF'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Campaign'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: marketing_demo
+      field: ref('minhminh_marketing_kpi', 'campaign_name')
+    }
+    default {
+      operator: 'is'
+      value: 'youtube_blogger'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block v10: VizBlock {
+    label: 'Conversion rate'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'Conversion rate'
+        ref: ref('minhminh_marketing_kpi', 'conversion_rate')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'CPC'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'cost_per_click')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'CP1kI'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        label: 'CP1kI'
+        ref: ref('minhminh_marketing_kpi', 'cost_per_thousand_impressions')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v13: VizBlock {
+    label: 'Cost per conversion'
+    viz: MetricKpi {
+      dataset: marketing_demo
+      value: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'cost_per_conversion')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div style="width: 295px; height: 380px; border-radius: 4px;"></div>;;
+  }
+
+  block t9: TextBlock {
+    content: @md <div><h2 style="font-size:32px;font-weight:bold;text-align: left;color:#5425D8FF;">Marketing Dashboard</h2></div>;;
+  }
+  block v14: VizBlock {
+    label: 'Cost per conversion'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'cost_per_conversion')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#5425D8FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        legend_label: 'hidden'
+      }
+    }
+  }
+  block v15: VizBlock {
+    label: 'Clicks graph'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        label: ' '
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LL/dd'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'clicks')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,,"M"'
+            }
+          }
+          settings {
+            color: '#6430F7FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_label: ' '
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block v18: VizBlock {
+    label: 'CTR graph'
+    viz: AreaChart {
+      dataset: marketing_demo
+      x_axis: VizFieldFull {
+        label: ' '
+        ref: ref('minhminh_marketing_kpi', 'c_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LL/dd'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field {
+            ref: ref('minhminh_marketing_kpi', 'ctr')
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+              group_separator: '.'
+              decimal_separator: ','
+            }
+          }
+          settings {
+            color: '#6430F7FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_label: ' '
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block t15: TextBlock {
+    content: @md <svg width="1259" height="898" viewBox="0 0 1259 898" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M539.104 92.934C539.104 92.934 664.032 32.2038 820.7 25.7822" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M766.314 704.688C770.288 703.465 774.287 702.15 778.31 700.743" stroke="#B78CFC" stroke-miterlimit="10"/>
+<path d="M802.252 691.355C982.216 613.714 1205.84 361.252 1139.63 133.56C1078.43 -76.8863 598.469 -34.5647 236.577 244.868" stroke="#B78CFC" stroke-miterlimit="10" stroke-dasharray="10.12 10.12"/>
+<path d="M225.998 253.186C222.521 255.938 219.044 258.72 215.592 261.503" stroke="#B78CFC" stroke-miterlimit="10"/>
+<path d="M540.926 145C537.151 146.682 533.276 148.486 529.327 150.413" stroke="#B78CFC" stroke-miterlimit="10"/>
+<path d="M506.652 162.125C358.379 243.068 126.407 450.334 107.63 612.22C72.9338 911.224 753.899 800.435 1020.39 678.975" stroke="#B78CFC" stroke-miterlimit="10" stroke-dasharray="9.9 9.9"/>
+<path d="M1031.89 673.592C1035.84 671.696 1039.69 669.8 1043.42 667.904" stroke="#B78CFC" stroke-miterlimit="10"/>
+<path d="M899.093 25.6149C899.093 25.6149 1058.82 24.0859 1095.52 114.784" stroke="#F1FAF5" stroke-miterlimit="10"/>
+<path d="M298.491 381.112C325.115 348.637 359.862 313.716 402.779 286.592" stroke="#F1FAF5" stroke-miterlimit="10"/>
+<path d="M233.716 475.633C237.069 472.025 252.517 442.118 280.11 404.72" stroke="#F1FAF5" stroke-miterlimit="10"/>
+<path d="M189.605 725.434C189.605 725.434 290.789 773.749 420.808 758.979" stroke="#F1FAF5" stroke-miterlimit="10"/>
+<path d="M1137.34 685.682C1132.97 687.853 876.159 872.826 673.444 897.167" stroke="#F1FAF5" stroke-miterlimit="10"/>
+<path d="M268.783 280.613C225.816 315.626 175.274 361.556 143.434 406.386" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M346.475 203.05C346.475 203.05 321.365 220.021 287.513 246.442" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M791.467 793.014C826.039 782.647 859.891 770.385 892.03 755.891" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M317.887 847.598C317.887 847.598 531.505 857.903 739.237 807.172" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M187.745 624.431C187.745 624.431 166.262 724.119 349.803 725.465" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M1151.15 29.3906C1151.15 29.3906 1232.07 105.777 1214.85 244.515" stroke="#6430F7" stroke-miterlimit="10"/>
+<path d="M1246.2 228.192C1253.06 228.192 1258.62 221.347 1258.62 212.903C1258.62 204.459 1253.06 197.613 1246.2 197.613C1239.34 197.613 1233.78 204.459 1233.78 212.903C1233.78 221.347 1239.34 228.192 1246.2 228.192Z" fill="#B78CFC"/>
+<path d="M258.204 392.548C261.317 392.548 263.842 389.44 263.842 385.607C263.842 381.773 261.317 378.665 258.204 378.665C255.09 378.665 252.566 381.773 252.566 385.607C252.566 389.44 255.09 392.548 258.204 392.548Z" fill="#B78CFC"/>
+<path d="M958.543 76.7876C962.452 76.7876 965.621 72.8857 965.621 68.0725C965.621 63.2593 962.452 59.3574 958.543 59.3574C954.633 59.3574 951.464 63.2593 951.464 68.0725C951.464 72.8857 954.633 76.7876 958.543 76.7876Z" fill="#B78CFC"/>
+<path d="M395.898 674.916C403.113 674.916 408.962 667.715 408.962 658.832C408.962 649.948 403.113 642.747 395.898 642.747C388.683 642.747 382.834 649.948 382.834 658.832C382.834 667.715 388.683 674.916 395.898 674.916Z" fill="#B78CFC"/>
+<path d="M174.132 706.72C178.851 706.72 182.676 702.01 182.676 696.201C182.676 690.391 178.851 685.682 174.132 685.682C169.414 685.682 165.588 690.391 165.588 696.201C165.588 702.01 169.414 706.72 174.132 706.72Z" fill="#B78CFC"/>
+<path d="M7.9918 538C12.34 538 15.865 533.66 15.865 528.307C15.865 522.953 12.34 518.613 7.9918 518.613C3.64358 518.613 0.118652 522.953 0.118652 528.307C0.118652 533.66 3.64358 538 7.9918 538Z" fill="#6430F7"/>
+<path d="M1238.87 422.003C1247.75 422.003 1254.94 413.145 1254.94 402.218C1254.94 391.291 1247.75 382.434 1238.87 382.434C1230 382.434 1222.8 391.291 1222.8 402.218C1222.8 413.145 1230 422.003 1238.87 422.003Z" fill="#6430F7"/>
+<path d="M1250.57 344.393C1252.98 344.393 1254.94 341.983 1254.94 339.011C1254.94 336.038 1252.98 333.629 1250.57 333.629C1248.16 333.629 1246.2 336.038 1246.2 339.011C1246.2 341.983 1248.16 344.393 1250.57 344.393Z" fill="#6430F7"/>
+<path d="M1103.24 81.0085C1109.12 81.0085 1113.89 75.1352 1113.89 67.89C1113.89 60.6449 1109.12 54.7715 1103.24 54.7715C1097.35 54.7715 1092.58 60.6449 1092.58 67.89C1092.58 75.1352 1097.35 81.0085 1103.24 81.0085Z" fill="#6430F7"/>
+<path d="M209.972 159.413C216.858 159.413 222.44 152.541 222.44 144.063C222.44 135.585 216.858 128.712 209.972 128.712C203.086 128.712 197.504 135.585 197.504 144.063C197.504 152.541 203.086 159.413 209.972 159.413Z" fill="#6430F7"/>
+<path d="M137.126 184.458C139.266 184.458 141.001 182.322 141.001 179.687C141.001 177.053 139.266 174.917 137.126 174.917C134.987 174.917 133.252 177.053 133.252 179.687C133.252 182.322 134.987 184.458 137.126 184.458Z" fill="#F1FAF5"/>
+<path d="M452.227 238.368C457.439 238.368 461.665 233.166 461.665 226.748C461.665 220.33 457.439 215.128 452.227 215.128C447.015 215.128 442.789 220.33 442.789 226.748C442.789 233.166 447.015 238.368 452.227 238.368Z" fill="#F1FAF5"/>
+<path d="M442.839 68.0722C445.925 68.0722 448.427 64.9917 448.427 61.1918C448.427 57.392 445.925 54.3115 442.839 54.3115C439.752 54.3115 437.25 57.392 437.25 61.1918C437.25 64.9917 439.752 68.0722 442.839 68.0722Z" fill="#F1FAF5"/>
+<path d="M1038.52 128.038C1050.01 128.038 1059.33 116.565 1059.33 102.413C1059.33 88.26 1050.01 76.7871 1038.52 76.7871C1027.02 76.7871 1017.7 88.26 1017.7 102.413C1017.7 116.565 1027.02 128.038 1038.52 128.038Z" fill="#F1FAF5"/>
+<path d="M1031.71 595.289C1037.46 595.289 1042.12 589.553 1042.12 582.477C1042.12 575.4 1037.46 569.664 1031.71 569.664C1025.96 569.664 1021.3 575.4 1021.3 582.477C1021.3 589.553 1025.96 595.289 1031.71 595.289Z" fill="#F1FAF5"/>
+<path d="M952.234 335.305C956.925 335.305 960.728 330.623 960.728 324.847C960.728 319.071 956.925 314.389 952.234 314.389C947.543 314.389 943.74 319.071 943.74 324.847C943.74 330.623 947.543 335.305 952.234 335.305Z" fill="#F1FAF5"/>
+</svg>
+;;
+  }
+  block t16: TextBlock {
+
+
+    content: @md <div style="padding:8px 0;background-color:#fff"><p style="font-size:16px; text-align: left;">The dashboard's primary goal is to offer marketers a quick, comprehensive view of their campaign performance, allowing for data-driven decision-making and strategy adjustments.</p></div>;;
+  }
+
+  block t2: bgGray
+  block t4: bgGray
+  block t12: bgGray
+  block t13: bgGray
+}
