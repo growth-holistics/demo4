@@ -61,16 +61,16 @@ Dashboard Travel_Agent {
   view: CanvasLayout {
     label: 'View 1'
     width: 1220
-    height: 800
+    height: 480
     grid_size: 20
     block v4 {
-      position: pos(40, 120, 1140, 300)
-    }
-    block v5 {
-      position: pos(40, 440, 1140, 300)
+      position: pos(40, 140, 1140, 300)
     }
     block f1 {
-      position: pos(40, 20, 300, 80)
+      position: pos(40, 40, 300, 80)
+    }
+    block f2 {
+      position: pos(380, 40, 300, 80)
     }
   }
   block v4: VizBlock {
@@ -125,13 +125,6 @@ Dashboard Travel_Agent {
           }
         },
         VizFieldFull {
-          label: 'Country of Origin'
-          ref: ref('ecommerce_countries', 'origin')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
           label: 'City Destination'
           ref: ref('ecommerce_cities', 'name')
           format {
@@ -160,6 +153,13 @@ Dashboard Travel_Agent {
               ref: ref('order_master', 'experience')
               aggregation: 'min'
             }
+          }
+        },
+        VizFieldFull {
+          label: 'Country of Origin'
+          ref: ref('ecommerce_countries', 'origin')
+          format {
+            type: 'text'
           }
         },
         VizFieldFull {
@@ -197,40 +197,6 @@ Dashboard Travel_Agent {
       }
     }
   }
-  block v5: VizBlock {
-    label: 'Events In City By Month'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'visit_time')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_cities', 'name')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block f1: FilterBlock {
     label: 'Visit Time'
     type: 'field'
@@ -243,15 +209,24 @@ Dashboard Travel_Agent {
       value: []
     }
   }
+  block f2: FilterBlock {
+    label: 'City Destination'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
-          block: [
-            'v4',
-            'v5'
-          ]
+          block: 'v4'
           field: ref('ecommerce_users', 'visit_time')
         }
       ]
