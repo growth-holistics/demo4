@@ -1,0 +1,54 @@
+Dashboard test_disable_autorun {
+  title: '[Test] disable auto-run'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 800
+    block v1 {
+      position: pos(210, 220, 200, 110)
+    }
+    block f1 {
+      position: pos(200, 110, 300, 80)
+    }
+  }
+  block v1: VizBlock {
+    label: 'order count'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'time'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  settings {
+    timezone: 'America/Los_Angeles'
+    autorun: false
+    cache_duration: 10
+  }
+}

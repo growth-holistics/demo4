@@ -16,12 +16,69 @@ Dataset demo_ecommerce {
     map_categories,
     user_cohort_retention,
     dim_dates,
-    transform_order_items
-    ,
+    transform_order_items,
     ecommerce_product_images
   ]
   
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'date'
+    definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
+    ;;
+  }
 
+  dimension month_no {
+    model: order_master
+    label: 'Month No'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  dimension open_ai_search {
+    model: order_master
+    label: 'Open AI Search'
+    type: 'text'
+    definition: @aql concat(
+      'https://chat.openai.com/chat?q=give+a+recommendation+(+3+recommendations+max+for+each+category+)+for+a+',
+      ecommerce_users.gender,
+      '+tourist+from+',
+      ecommerce_countries.origin,
+      '+(+translate+to+his+or+her+language)+in+the+age+demographic+of+',
+      ecommerce_users.age_group,
+      '+who+is+going+to+',ecommerce_cities.name,
+      '+in+',
+      ecommerce_users.visit_time,
+      '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
+      );;
+  }
+
+    dimension recommendation {
+    model: order_master
+    label: 'Claude AI Recommendation'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+a+lively,+precise+and+personal+recommendation+email+(+3+recommendations+max+for+each+category+)+to+',
+      ecommerce_users.full_name,
+      '+,+a+',
+      ecommerce_users.gender,
+      '+tourist+from+',
+      ecommerce_countries.origin,
+      '+(+translate+to+his+or+her+language)+in+the+age+demographic+of+',
+      ecommerce_users.age_group,
+      '+who+is+going+to+',ecommerce_cities.name,
+      '+in+',
+      ecommerce_users.visit_time,
+      '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
+      );;
+  }
 
   // view: Arranging view in dataset for business users
 
@@ -45,6 +102,7 @@ Dataset demo_ecommerce {
         field email
         field full_name
         field email_pii
+        field email_user
       }
 
       group activity {
@@ -89,6 +147,14 @@ Dataset demo_ecommerce {
     model user_cohort_retention
     model dim_dates
   }
+
+  // Cross model metric
+  metric end_product_cost {
+  label: 'End Product Cost'
+  type: 'number'
+  description: 'the end-price that customer pays at the end'
+  definition: @aql sum(order_items, products.price - product_discount) ;;
+  } 
 
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
