@@ -1,0 +1,228 @@
+Dashboard wip_demo_movie_ratings_monitoring_1 {
+  title: 'Movie Ratings Monitoring - Aggregate Awareness Performance Comparison Example'
+  block genres: FilterBlock {
+    label: 'Genres'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movie_ratings_analysis
+      field: ref('public_movies', 'genres')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  // ---------- Visualization section  ---------- 
+  // WITH Pre-aggregate
+  block v1: VizBlock {
+    label: 'Ratings over time (With Aggregate Awareness)'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings_yearly', 'timestamp')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings_yearly', 'sum_count_rating')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  block v3: VizBlock {
+    label: 'Total Scanned Rows'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_ratings_yearly', 'count_all_year_rows')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Ratings over time (Without Aggregate Awareness)'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: false
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+
+  block v4: VizBlock {
+    label: 'Total Scanned Rows'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_ratings', 'count_all_ratings')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md #### Dataset <br/>
+**Ratings**: 27.8M rows <br/>
+**Widget**: Ratings over time <br/> <br/>
+
+<br/>
+
+#### Performance
+**Without Aggregate Awareness**:
+27.8M rows to process <br/>
+**With Aggregate Awareness**:
+295K rows to process <br/>;;
+  }
+  block t5: TextBlock {
+    content: @md #### Description
+
+This demo illustrates the capability of Aggregate Awareness in Holistics<br/>
+**It is expected to be slower when you use it without Aggregate Awareness.** <br/>
+
+---
+See How pre-aggregates are set up in [`demo movie/datasets/movie_ratings_analysis.dataset.aml`](https://demo4.holistics.io/studio/projects/7/explore/demo%20movie/datasets/movie_ratings_analysis.dataset.aml)
+<br/>
+Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or 
+different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).<br/>
+
+---
+
+Click `Run Dashboard` to see the result <br/>
+**For the illustration purpose:** Let's Refresh Cache after a run to see the significant impact of Aggregate Awareness on the query;;
+  }
+  block t6: TextBlock {
+    content: @md # Yearly Movie Ratings Monitoring;;
+  }
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1460
+    height: 930
+    block genres {
+      position: pos(70, 390, 300, 80)
+      layer: 1
+    }
+    block v1 {
+      position: pos(70, 670, 1000, 200)
+      layer: 1
+    }
+    block v3 {
+      position: pos(1070, 670, 270, 200)
+      layer: 1
+    }
+    block v2 {
+      position: pos(70, 470, 1000, 200)
+      layer: 1
+    }
+    block v4 {
+      position: pos(1070, 470, 270, 200)
+      layer: 1
+    }
+    block t1 {
+      position: pos(50, 130, 510, 210)
+    }
+    block t5 {
+      position: pos(580, 130, 850, 230)
+    }
+    block t6 {
+      position: pos(50, 40, 520, 40)
+    }
+  }
+  settings {
+    timezone: 'America/Los_Angeles'
+    autorun: false
+    cache_duration: 10
+  }
+  description: @md This demo illustrates the capability of Aggregate Awareness in Holistics
+
+---
+
+Aggregate Awareness is the capability of automatically identifying eligible pre-aggregates (transformed by tools like dbt, Airflow, BI like Holistics, etc.) and substituting them into queries, making the queries use smaller pre-aggregated tables while still producing accurate results. It can reduce the time to analyze gigabytes-to-terabytes of data from several minutes to a few seconds.
+
+This feature has impacts on everyone in the team:
+
+- Analysts can maintain the pre-aggregates better with less effort (improved process).
+- Business users will get the same insights faster by pre-aggregated tables instead of raw data (improved timeliness).
+
+Aggregate Awareness is now in **Closed Beta**. You can [Request Beta Access](https://form.jotform.com/230511857392457/prefill/664c2fcc633961c7bed679d6969e) to try it out!
+Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
+  interactions: [
+    FilterInteraction {
+      from: 'genres'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v4'
+          ]
+          field: ref('public_movies', 'genres')
+        }
+      ]
+    }
+  ]
+}
