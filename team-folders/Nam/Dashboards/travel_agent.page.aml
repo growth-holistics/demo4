@@ -70,14 +70,14 @@ Dashboard Travel_Agent {
       position: pos(100, 120, 300, 80)
     }
     block f2 {
-      position: pos(420, 120, 300, 80)
-    }
-    block f3 {
-      position: pos(740, 120, 300, 80)
+      position: pos(440, 120, 300, 80)
     }
     block t1 {
       position: pos(360, 20, 460, 80)
       layer: 1
+    }
+    block f4 {
+      position: pos(780, 120, 300, 80)
     }
   }
   block v4: VizBlock {
@@ -244,18 +244,6 @@ Dashboard Travel_Agent {
       value: []
     }
   }
-  block f3: FilterBlock {
-    label: 'Country Origin'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_countries', 'origin')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-  }
   block t1: TextBlock {
     content: @md <p> </p>
  <p> </p> 
@@ -263,18 +251,30 @@ Dashboard Travel_Agent {
 Action Dashboard</p>
 </p>;;
   }
+  block f4: FilterBlock {
+    label: 'Customer Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'full_name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'f3'
+          block: 'f4'
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'f3'
+      from: 'f4'
       to: [
         CustomMapping {
           block: 'f2'
