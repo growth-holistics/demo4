@@ -124,6 +124,35 @@ Dataset demo_ecommerce {
       );;
   }
 
+  dimension aov_by_product {
+    model: order_master
+    label: 'AOV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
+  }
+
+  dimension gmv_by_product {
+    model: order_master
+    label: 'GMV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
+  }
+
+  dimension product_performance_analysis {
+    model: order_master
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      order_master.gmv_by_product,
+      '+and+the+AOV+for+this+product+is+',
+      order_master.aov_by_product,
+      )
+     ;;
+  }
+
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
     relationship(ecommerce_orders_ecommerce_users, true),
