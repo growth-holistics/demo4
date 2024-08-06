@@ -1,5 +1,5 @@
 Dashboard aggregate_awareness_demo_dashboard_lite {
- // ------------------------------------------------
+  // ------------------------------------------------
   // -------------- 0. Table of Content -------------
   // ------------------------------------------------
 
@@ -10,66 +10,81 @@ Dashboard aggregate_awareness_demo_dashboard_lite {
   // -- 2.3. Group - Widgets NOT using Aggregate Awareness
   // -- 2.4. Group - Widgets using Aggregate Awareness
   // 3. Dashboard Customization
-  // -- 3.1. Theme Custom
+  // -- 3.1. Custom Theme
   // -- 3.2. Layout & Positions
   // -- 3.3. Dashboard Settings
 
   // ------------------------------------------------
   // ---------- 1. Dashboard File Metadata ----------
   // ------------------------------------------------
+
+  title: 'Aggregate Awareness - Simple Example'
+  description: @md
+    This demo illustrates the capability of Aggregate Awareness in Holistics
+
+    ---
+
+    Aggregate Awareness is the capability of automatically identifying eligible pre-aggregates (transformed by tools like dbt, Airflow, BI like Holistics, etc.) and substituting them into queries, making the queries use smaller pre-aggregated tables while still producing accurate results. It can reduce the time to analyze gigabytes-to-terabytes of data from several minutes to a few seconds.
+
+    This feature has impacts on everyone in the team:
+
+    - Analysts can maintain the pre-aggregates better with less effort (improved process).
+    - Business users will get the same insights faster by pre-aggregated tables instead of raw data (improved timeliness).
+
+    Aggregate Awareness is now in **Closed Beta**. You can [Request Beta Access](https://form.jotform.com/230511857392457/prefill/664c2fcc633961c7bed679d6969e) to try it out!
+    Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
   
-  title: 'Aggregate Awareness - Performance Comparison Example'
-  description: @md This demo illustrates the capability of Aggregate Awareness in Holistics
-
----
-
-Aggregate Awareness is the capability of automatically identifying eligible pre-aggregates (transformed by tools like dbt, Airflow, BI like Holistics, etc.) and substituting them into queries, making the queries use smaller pre-aggregated tables while still producing accurate results. It can reduce the time to analyze gigabytes-to-terabytes of data from several minutes to a few seconds.
-
-This feature has impacts on everyone in the team:
-
-- Analysts can maintain the pre-aggregates better with less effort (improved process).
-- Business users will get the same insights faster by pre-aggregated tables instead of raw data (improved timeliness).
-
-Aggregate Awareness is now in **Closed Beta**. You can [Request Beta Access](https://form.jotform.com/230511857392457/prefill/664c2fcc633961c7bed679d6969e) to try it out!
-Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
-
   // ------------------------------------------------
   // ----------- 2. Visualization Widgets -----------
   // ------------------------------------------------
 
   // 2.1. Group - Introduction
   block info_intro: TextBlock {
-    content: @md ### Dataset <br/>
-- **Ratings**: 27.8M rows <br/>
-- **Widget**: Ratings over time <br/>
+    content: @md
+      ### Dataset <br/>
+      - **Ratings**: 27.8M rows <br/>
+      - **Widget**: Ratings over time <br/>
 
----
+      ---
 
-### Performance
-- **Without Aggregate Awareness**:
-27.8M rows to process <br/>
-- **With Aggregate Awareness**:
-295K rows to process <br/>
+      ### Performance
+      - **Without Aggregate Awareness**:
+      27.8M rows to process <br/>
+      - **With Aggregate Awareness**:
+      295K rows to process <br/>
 
----
+      ---
 
-### Description
+      ### Description
 
-- This demo illustrates the capability of Aggregate Awareness in Holistics.<br/>
+      - This demo illustrates the capability of Aggregate Awareness in Holistics<br/>
 
-- See How pre-aggregates are set up in [`demo movie/datasets/movie_ratings_analysis.dataset.aml`](https://demo4.holistics.io/studio/projects/7/explore/demo%20movie/datasets/movie_ratings_analysis.dataset.aml)
-- Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or 
-different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).<br/>
+      - See How pre-aggregates are set up in [`demo movie/datasets/movie_ratings_analysis.dataset.aml`](https://demo4.holistics.io/studio/projects/7/explore/demo%20movie/datasets/movie_ratings_analysis.dataset.aml)
+      - Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or 
+      different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).<br/>
 
----
+      ---
 
-### Notice
+      ### Notice
 
-- Click `Run Dashboard` to see the result <br/>
-- **It is expected to be slower when you use the demo without Aggregate Awareness.**;;
+      - Click `Run Dashboard` to see the result <br/>
+      - **It is expected to be slower when you use the demo without Aggregate Awareness.**;;
   }
   block info_title: TextBlock {
-    content: @md # Anually Movie Ratings Monitoring;;
+    content: @md # Annual Movie Ratings Monitoring;;
+  }
+  block cta_btn: TextBlock {
+    content: @md 
+    <div class="flex items-center justify-center h-full">
+      <a
+        href="https://demo4.holistics.io/dashboards/v4/87176-aggregate-awareness-full-example"
+        class="hui-btn hui-btn-primary-highlight hui-btn-lg"
+        style="text-decoration: none"
+        target="_blank"
+      >
+        Aggregate Awareness - Full Example
+      </a>
+    </div>;;
   }
 
   // 2.2. Group - Filter
@@ -146,23 +161,17 @@ different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.i
       }
     }
   }
-
+  
   // 2.4. Group - Widgets using Aggregate Awareness
   block agg_viz: VizBlock {
     label: 'Ratings over time (With Aggregate Awareness ⚡️⚡️⚡️)'
     viz: LineChart {
       dataset: movie_ratings_analysis
-      filter {
-        field: ref('public_ratings', 'dummy_timestamp')
-        operator: 'matches'
-        value: '2000 - now'
-      }
       x_axis: VizFieldFull {
-        ref: ref('public_ratings_yearly', 'timestamp')
+        ref: ref('public_ratings', 'timestamp')
         transformation: 'datetrunc year'
         format {
           type: 'date'
-          pattern: 'yyyy'
         }
       }
       y_axis {
@@ -171,7 +180,7 @@ different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.i
         }
         series {
           field: VizFieldFull {
-            ref: ref('public_ratings_yearly', 'sum_count_rating')
+            ref: ref('public_ratings', 'count_all_ratings')
             format {
               type: 'number'
               pattern: 'inherited'
@@ -212,7 +221,7 @@ different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.i
   // ---------- 3. Dashboard Customization ----------
   // ------------------------------------------------ 
 
-  // 3.1. Theme Custom
+  // 3.1. Custom Theme
   theme: PageTheme {
     background {
       bg_color: "#FFFFFF"
@@ -272,33 +281,36 @@ different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.i
   // 3.2. Layout & Positions
   view: CanvasLayout {
     label: 'Canvas Layout'
-    width: 2020
-    height: 820
+    width: 1950
+    height: 910
+    block info_intro {
+      position: pos(30, 160, 560, 570)
+    }
+    block info_title {
+      position: pos(30, 30, 560, 100)
+    }
     block genres_filter {
-      position: pos(650, 60, 1300, 100)
-      layer: 1
-    }
-    block agg_viz {
-      position: pos(650, 490, 960, 270)
-      layer: 1
-    }
-    block agg_count_rows {
-      position: pos(1640, 490, 310, 270)
+      position: pos(620, 30, 1300, 100)
       layer: 1
     }
     block raw_viz {
-      position: pos(650, 190, 960, 270)
+      position: pos(620, 160, 960, 340)
       layer: 1
     }
     block raw_count_rows {
-      position: pos(1640, 190, 310, 270)
+      position: pos(1610, 160, 310, 340)
       layer: 1
     }
-    block info_intro {
-      position: pos(60, 190, 560, 570)
+    block agg_viz {
+      position: pos(620, 530, 960, 350)
+      layer: 1
     }
-    block info_title {
-      position: pos(60, 60, 560, 100)
+    block agg_count_rows {
+      position: pos(1610, 530, 310, 350)
+      layer: 1
+    }
+    block cta_btn {
+      position: pos(30, 760, 560, 120)
     }
   }
   

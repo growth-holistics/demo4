@@ -94,6 +94,15 @@ Dataset demo_ecommerce {
     );;
   }
 
+  dimension x {
+    model: ecommerce_users
+    label: 'X search'
+    type: 'text'
+    definition: @aql concat(
+    'https://x.com/search?q=%40',
+    ecommerce_users.first_name,
+    );;
+  }
 
   dimension write_recommendation {
     model: ecommerce_users
@@ -113,6 +122,35 @@ Dataset demo_ecommerce {
       ecommerce_users.visit_time,
       '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
       );;
+  }
+
+  dimension aov_by_product {
+    model: order_master
+    label: 'AOV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
+  }
+
+  dimension gmv_by_product {
+    model: order_master
+    label: 'GMV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
+  }
+
+  dimension product_performance_analysis {
+    model: order_master
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      order_master.gmv_by_product,
+      '+and+the+AOV+for+this+product+is+',
+      order_master.aov_by_product,
+      )
+     ;;
   }
 
   relationships: [
