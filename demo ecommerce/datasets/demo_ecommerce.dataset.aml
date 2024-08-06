@@ -42,16 +42,15 @@ Dataset demo_ecommerce {
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
-  dimension open_ai_search {
-    model: order_master
-    label: 'Open AI Search'
+  dimension location_recommendation {
+    model: ecommerce_users
+    label: 'Make Location Recommendation'
     type: 'text'
     definition: @aql concat(
       'https://chat.openai.com/chat?q=give+a+recommendation+(+3+recommendations+max+for+each+category+)+for+a+',
       ecommerce_users.gender,
-      '+tourist+from+',
-      ecommerce_countries.origin,
-      '+(+translate+to+his+or+her+language)+in+the+age+demographic+of+',
+      '+tourist+',
+      '+in+the+age+demographic+of+',
       ecommerce_users.age_group,
       '+who+is+going+to+',ecommerce_cities.name,
       '+in+',
@@ -60,12 +59,57 @@ Dataset demo_ecommerce {
       );;
   }
 
-    dimension recommendation {
-    model: order_master
+  dimension experience {
+    model: ecommerce_cities
+    label: 'Experience Recommendation'
+    type: 'text'
+    definition: @aql concat(
+    'https://www.airbnb.com/s/',
+    ecommerce_cities.name,
+    '--',
+    ecommerce_countries.name,
+    '/experiences',
+    );;
+  }
+
+  dimension ig {
+    model: ecommerce_users
+    label: 'IG search'
+    type: 'text'
+    definition: @aql concat(
+    'https://www.instagram.com/explore/search/keyword/?q=',
+    ecommerce_users.first_name,
+    );;
+  }
+
+  dimension fb {
+    model: ecommerce_users
+    label: 'Facebook search'
+    type: 'text'
+    definition: @aql concat(
+    'https://www.facebook.com/search/top/?q=',
+    ecommerce_users.first_name,
+    '%20',
+    ecommerce_users.last_name,
+    );;
+  }
+
+  dimension x {
+    model: ecommerce_users
+    label: 'X search'
+    type: 'text'
+    definition: @aql concat(
+    'https://x.com/search?q=%40',
+    ecommerce_users.first_name,
+    );;
+  }
+
+  dimension write_recommendation {
+    model: ecommerce_users
     label: 'Claude AI Recommendation'
     type: 'text'
     definition: @aql concat(
-      'https://claude.ai/new?q=write+a+lively,+precise+and+personal+recommendation+email+(+3+recommendations+max+for+each+category+)+to+',
+      'https://claude.ai/new?q=write+a+lively,+precise+and+personal+recommendation+email+with+email+title+(+3+recommendations+max+for+each+category+)+to+',
       ecommerce_users.full_name,
       '+,+a+',
       ecommerce_users.gender,
@@ -80,81 +124,34 @@ Dataset demo_ecommerce {
       );;
   }
 
-  // view: Arranging view in dataset for business users
-
-  view {
-    model ecommerce_users {
-
-      group ID {
-        field id
-        field city_id
-      }
-
-      group demographics {
-        field age_group
-        field age
-        field gender
-      }
-
-      group PII {
-        field first_name
-        field last_name
-        field email
-        field full_name
-        field email_pii
-        field email_user
-      }
-
-      group activity {
-        field sign_up_at
-        field sign_up_date
-      }
-
-      group metrics {
-        field total_users
-        field users_signed_up_count
-      }
-
-    }
-
-    model ecommerce_orders {
-      field total_orders_count
-      field created_at
-      field discount
-      field status
-      field days_since_last_order
-      field cumm_orders
-
-      group order_status_tracking {
-        field created_date
-        field delivered_orders_count
-        field cancelled_orders_count
-        field refunded_orders_count
-        field order_month
-      }
-      group others {
-        field delivery_attempts
-        field id
-      }
-    }
-
-    model order_master
-    model ecommerce_products
-    model ecommerce_merchants
-    model ecommerce_cities
-    model ecommerce_countries
-    model map_categories
-    model user_cohort_retention
-    model dim_dates
+  dimension aov_by_product {
+    model: order_master
+    label: 'AOV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
   }
 
-  // Cross model metric
-  metric end_product_cost {
-  label: 'End Product Cost'
-  type: 'number'
-  description: 'the end-price that customer pays at the end'
-  definition: @aql sum(order_items, products.price - product_discount) ;;
-  } 
+  dimension gmv_by_product {
+    model: order_master
+    label: 'GMV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
+  }
+
+  dimension product_performance_analysis {
+    model: order_master
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      order_master.gmv_by_product,
+      '+and+the+AOV+for+this+product+is+',
+      order_master.aov_by_product,
+      )
+     ;;
+  }
 
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
