@@ -72,6 +72,19 @@ Dataset movie_ratings_analysis {
   owner: 'huong.le+demo4@holistics.io'
 
   pre_aggregates: {
+    aggr_movie_rating_count: PreAggregate {
+      dimension movie_id {
+        for: ref('public_ratings', 'movie_id')
+      }
+      measure count {
+        for: ref('public_ratings', 'id')
+        aggregation_type: 'count'
+      }
+      persistence: FullPersistence {
+        schema: 'persisted'
+      }
+    }
+
     aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend(
       {
         dimension timestamp {
