@@ -1,16 +1,16 @@
 Model public_movies {
-  type: 'table'
+  type: 'query'
   label: 'Movies'
   description: ''
   data_source_name: 'movies_lens'
   dimension id {
-    label: 'Id'
+    label: 'ID'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
   }
   dimension movie_id {
-    label: 'Movie Id'
+    label: 'Movie ID'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.movie_id }};;
@@ -21,19 +21,22 @@ Model public_movies {
     hidden: false
     definition: @sql {{ #SOURCE.title }};;
   }
-  dimension genres {
-    label: 'Genres'
+  dimension genre {
+    label: 'Genre'
     type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.genres }};;
+    definition: @sql {{ #SOURCE.genre }};;
   }
 
-  owner: 'huong.le+demo4@holistics.io'
-  table_name: '"public"."movies"'
   measure count_all_movies {
-    label: "Count All Movies"
+    label: "Count Movies"
     type: "number"
     definition: @aml count(public_movies.id);;
     format: "#,###"
   }
+
+  query: @sql
+    select id, movie_id, title, split_part(genres, '|', 1) genre
+    from public.movies
+   ;;
 }

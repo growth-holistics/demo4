@@ -1,0 +1,58 @@
+Dashboard product_image_alert {
+  title: 'Product Image Alert'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 800
+    block v6 {
+      position: pos(90, 140, 820, 450)
+    }
+  }
+  block v6: VizBlock {
+    label: 'Top selling products'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_82dedc1 {
+        label: 'Image'
+        formula: @aql concat('<img src="', ecommerce_product_images.url, '" style="float:left;width:100px;height:100px;object-fit:contain" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_products
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_product_images', 'url')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'f_82dedc1')
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        row_height: 'multiple_lines'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
