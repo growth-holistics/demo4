@@ -9,12 +9,6 @@ Model public_movies {
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
   }
-  dimension movie_id {
-    label: 'Movie ID'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.movie_id }};;
-  }
   dimension title {
     label: 'Title'
     type: 'text'
@@ -31,14 +25,14 @@ Model public_movies {
   owner: 'huong.le+demo4@holistics.io'
 
   measure count_all_movies {
-    label: "Count All Movies"
+    label: "Count Movies"
     type: "number"
     definition: @aml count(public_movies.id);;
     format: "#,###"
   }
 
   query: @sql
-    select id, movie_id, title, split_part(genres, '|', 1) genre
+    select id, title, split_part(genres, '|', 1) genre
     from public.movies
    ;;
 }
