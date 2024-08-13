@@ -10,15 +10,19 @@ Dashboard hartford_fund {
 
   block general_css: TextBlock {
     content: @md <style>
+        
         .pivot-table-wrapper .h-table, .data-table-wrapper .h-table {
+        font-family: 'Time New Roman';
         }
 
         .pivot-table-wrapper .h-table .ag-header .ag-header-cell, .data-table-wrapper .h-table .ag-header .ag-header-cell{
           background-color: #2596be;
           color: white;
+          font-family: 'Time New Roman';
         }
 
         .pivot-table-wrapper .h-table .ag-row-odd, .data-table-wrapper .h-table .ag-row-odd {
+          font-family: 'Time New Roman';
         }
 
         .pivot-table-wrapper .h-table .ag-row:not(.ag-row-last,.ag-row-pinned:last-child) .ag-cell:not(.h-range-selection-cell.h-bottom-border,.h-last-cell-in-row-group,:focus), .data-table-wrapper .h-table .ag-row:not(.ag-row-last,.ag-row-pinned:last-child) .ag-cell:not(.h-range-selection-cell.h-bottom-border,.h-last-cell-in-row-group,:focus) {
@@ -28,11 +32,19 @@ Dashboard hartford_fund {
           background-color: #3e2d82;
         }
 
-        
-        
-        .header-text {
-          color: black;
+        .header-text-top {
+          color: white;
+          font-family: 'Time New Roman';
+          font-size: 24px;
+          font-weight: bold;
         }
+        
+        .header-text-bottom {
+          color: black;
+          font-size: 20px;
+          font-family: 'Time New Roman';
+        }
+
       </style>;;
   }
 
@@ -43,13 +55,13 @@ Dashboard hartford_fund {
   </picture>;;
   }
   block t3: TextBlock {
-    content: @md <p class="header-text">Hartford XXX Fund</p>
+    content: @md 
 
-<p class="header-text">Total Net Asset:</p>
+<p class="header-text-bottom">Total Net Asset:</p>
 
-<p class="header-text">Fund Inception:</p>
+<p class="header-text-bottom">Fund Inception:</p>
 
-<p class="header-text">Benchmark:</p>;;
+<p class="header-text-bottom">Benchmark:</p>;;
   }
   block v1: VizBlock {
     label: 'Funding Stats'
@@ -210,6 +222,89 @@ Dashboard hartford_fund {
       hide_label: true
     }
   }
+  block v5: VizBlock {
+    label: 'gmv'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('transform_order_items', 'gross_merchandise_value')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v6: VizBlock {
+    label: 'date'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          format {
+            type: 'date'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block t4: TextBlock {
+    content: @md <p class="header-text-top">Hartford XXX Fund</p>;;
+  }
+  block v7: VizBlock {
+    label: 'benchmark'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
 
   theme: PageTheme {
     block {
@@ -249,7 +344,7 @@ Dashboard hartford_fund {
     label: 'View 1'
     width: 1220
     height: 840
-    grid_size: 20
+    grid_size: 5
     block title {
       position: pos(0, 0, 1240, 280)
     }
@@ -260,10 +355,10 @@ Dashboard hartford_fund {
       position: pos(780, 80, 420, 120)
     }
     block t3 {
-      position: pos(40, 100, 520, 140)
+      position: pos(40, 145, 520, 85)
     }
     block v1 {
-      position: pos(20, 300, 460, 520)
+      position: pos(20, 300, 460, 480)
     }
     block v2 {
       position: pos(500, 300, 700, 180)
@@ -272,7 +367,19 @@ Dashboard hartford_fund {
       position: pos(500, 500, 700, 180)
     }
     block v4 {
-      position: pos(40, 20, 200, 60)
+      position: pos(40, 75, 110, 20)
+    }
+    block v5 {
+      position: pos(175, 140, 70, 25)
+    }
+    block v6 {
+      position: pos(175, 175, 110, 20)
+    }
+    block t4 {
+      position: pos(40, 105, 610, 40)
+    }
+    block v7 {
+      position: pos(175, 210, 40, 20)
     }
   }
 }
