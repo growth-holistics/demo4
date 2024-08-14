@@ -1,19 +1,14 @@
 Model public_movies {
-  type: 'query'
+  type: 'table'
   label: 'Movies'
   description: ''
   data_source_name: 'movies_lens'
+  table_name: '"public"."movies"'
   dimension id {
     label: 'ID'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
-  }
-  dimension movie_id {
-    label: 'Movie ID'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.movie_id }};;
   }
   dimension title {
     label: 'Title'
@@ -34,9 +29,4 @@ Model public_movies {
     definition: @aml count(public_movies.id);;
     format: "#,###"
   }
-
-  query: @sql
-    select id, movie_id, title, split_part(genres, '|', 1) genre
-    from public.movies
-   ;;
 }
