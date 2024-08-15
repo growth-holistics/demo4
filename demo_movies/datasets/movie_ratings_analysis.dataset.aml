@@ -6,10 +6,6 @@ PreAggregate aggr_movie_ratings_daily {
     for: ref('public_ratings', 'timestamp')
     time_granularity: 'day'
   }
-  measure count {
-    for: ref('public_ratings', 'id')
-    aggregation_type: 'count'
-  }
   measure highest_rating {
     for: ref('public_ratings', 'rating')
     aggregation_type: 'max'
@@ -23,7 +19,7 @@ PreAggregate aggr_movie_ratings_daily {
     aggregation_type: 'sum'
   }
   measure count_rating {
-    for: ref('public_ratings', 'rating')
+    for: ref('public_ratings', 'id')
     aggregation_type: 'count'
   }
   persistence: IncrementalPersistence {
@@ -64,10 +60,10 @@ Dataset movie_ratings_analysis {
     public_ratings_yearly
   ]
   relationships: [
-    relationship(public_ratings.movie_id > public_movies.movie_id, true),
-    relationship(public_ratings_yearly.movie_id > public_movies.movie_id, true),
-    relationship(public_tags.movie_id > public_movies.movie_id, true),
-    relationship(public_links.movie_id - public_movies.movie_id, true)
+    relationship(public_ratings.movie_id > public_movies.id, true),
+    relationship(public_ratings_yearly.movie_id > public_movies.id, true),
+    relationship(public_tags.movie_id > public_movies.id, true),
+    relationship(public_links.movie_id - public_movies.id, true)
   ]
   owner: 'huong.le+demo4@holistics.io'
 
@@ -76,7 +72,7 @@ Dataset movie_ratings_analysis {
       dimension movie_id {
         for: ref('public_ratings', 'movie_id')
       }
-      measure count {
+      measure count_rating {
         for: ref('public_ratings', 'id')
         aggregation_type: 'count'
       }
