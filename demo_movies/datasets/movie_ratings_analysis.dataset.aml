@@ -1,120 +1,51 @@
-PreAggregate aggr_movie_ratings_daily {
-  dimension movie_id {
-    for: ref('public_ratings', 'movie_id')
-  }
+PreAggregate agg_daily {
   dimension timestamp {
     for: ref('public_ratings', 'timestamp')
     time_granularity: 'day'
   }
-  measure highest_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'max'
-  }
-  measure lowest_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'min'
-  }
-  measure sum_rating {
-    for: ref('public_ratings', 'rating')
-    aggregation_type: 'sum'
-  }
+
   measure count_rating {
     for: ref('public_ratings', 'id')
     aggregation_type: 'count'
   }
+
   persistence: IncrementalPersistence {
     schema: 'persisted'
     incremental_column: 'timestamp'
   }
 }
 
-PreAggregate aggr_movie_ratings_counts_daily {
+const agg_movies_daily = agg_daily.extend({
+  dimension movie_id {
+    for: ref('public_ratings', 'movie_id')
+  }
+})
+
+const agg_movies_monthly = agg_movies_daily.extend({
   dimension timestamp {
     for: ref('public_ratings', 'timestamp')
-    time_granularity: 'day'
+    time_granularity: 'month'
   }
-  measure count_movies {
-    for: ref('public_ratings', 'movie_id')
-    aggregation_type: 'count distinct'
-  }
-  measure count_users {
-    for: ref('public_ratings', 'user_id')
-    aggregation_type: 'count distinct'
-  }
-  persistence: IncrementalPersistence {
-    schema: 'persisted'
-    incremental_column: 'timestamp'
-  }
-}
+})
+
 
 Dataset movie_ratings_analysis {
   __engine__: 'aql' 
-  label: 'Movie Ratings Analysis'
+  label: 'Movie Ratings Dataset'
   description: "This dataset contains information of film ratings from users collected from MovieLens - a movie recommendation service.\nTimeframe: between January 09, 1995 and September 26, 2018"
   data_source_name: 'movies_lens'
   models: [
     public_ratings,
     public_movies,
-    public_tags,
-    public_links,
-    public_ratings_yearly
   ]
   relationships: [
     relationship(public_ratings.movie_id > public_movies.id, true),
-    relationship(public_ratings_yearly.movie_id > public_movies.id, true),
-    relationship(public_tags.movie_id > public_movies.id, true),
-    relationship(public_links.movie_id - public_movies.id, true)
   ]
-  owner: 'huong.le+demo4@holistics.io'
 
   pre_aggregates: {
-    aggr_movie_rating_count: PreAggregate {
-      dimension movie_id {
-        for: ref('public_ratings', 'movie_id')
-      }
-      measure count_rating {
-        for: ref('public_ratings', 'id')
-        aggregation_type: 'count'
-      }
-      persistence: FullPersistence {
-        schema: 'persisted'
-      }
-    }
-
-    aggr_movie_ratings_yearly: aggr_movie_ratings_daily.extend(
-      {
-        dimension timestamp {
-          for: ref('public_ratings', 'timestamp')
-          time_granularity: 'year'
-        }
-      }
-    )
-    aggr_movie_ratings_monthly: aggr_movie_ratings_daily.extend(
-      {
-        dimension timestamp {
-          for: ref('public_ratings', 'timestamp')
-          time_granularity: 'month'
-        }
-      }
-    )
-    aggr_movie_ratings_daily: aggr_movie_ratings_daily
-
-    aggr_movie_ratings_counts_yearly: aggr_movie_ratings_counts_daily.extend(
-      {
-        dimension timestamp {
-          for: ref('public_ratings', 'timestamp')
-          time_granularity: 'year'
-        }
-      }
-    )
-    aggr_movie_ratings_counts_monthly: aggr_movie_ratings_counts_daily.extend(
-      {
-        dimension timestamp {
-          for: ref('public_ratings', 'timestamp')
-          time_granularity: 'month'
-        }
-      }
-    )
-    aggr_movie_ratings_counts_daily: aggr_movie_ratings_counts_daily
+    agg_daily: agg_daily,
+    agg_movies_daily: agg_movies_daily
+    agg_movies_monthly: agg_movies_monthly
   }
+
 }
