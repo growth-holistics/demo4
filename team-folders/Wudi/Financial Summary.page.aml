@@ -159,6 +159,210 @@ Dashboard metric_kpi {
       }
     }
   }
+  block v4: VizBlock {
+    label: 'Orders Processed (dup)'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation year {
+        label: 'Year'
+        formula: @aql case(
+  when: true
+  , then: "Year"
+  , else: "Year"
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation _2023 {
+        label: '2023'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation _2024 {
+        label: '2024'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'year')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: '_2024'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Orders Processed (dup) (dup)'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation year {
+        label: 'Year'
+        formula: @aql case(
+  when: true
+  , then: "Year"
+  , else: "Year"
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation _2023 {
+        label: '2023'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation _2024 {
+        label: '2024'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'year')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: '_2024'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Orders Processed (dup) (dup) (dup)'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation year {
+        label: 'Year'
+        formula: @aql case(
+  when: true
+  , then: "Year"
+  , else: "Year"
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation _2023 {
+        label: '2023'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation _2024 {
+        label: '2024'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'year')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: '_2024'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   block f1: FilterBlock {
     label: 'This is a Filter Block (dup)'
     type: 'text'
@@ -171,20 +375,20 @@ Dashboard metric_kpi {
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 1590
-    height: 1450
+    width: 1300
+    height: 740
     block filter_block {
-      position: pos(1170, 20, 400, 80)
+      position: pos(970, 0, 320, 60)
     }
     block t1 {
-      position: pos(20, 40, 910, 100)
+      position: pos(20, 40, 750, 60)
     }
     block t2 {
-      position: pos(10, 10, 1120, 170)
+      position: pos(10, 10, 810, 110)
       layer: -1
     }
     block v1 {
-      position: pos(20, 130, 560, 450)
+      position: pos(20, 130, 310, 450)
     }
     block v2 {
       position: pos(20, 490, 560, 140)
@@ -194,8 +398,17 @@ Dashboard metric_kpi {
       position: pos(20, 530, 560, 250)
       layer: -2
     }
+    block v4 {
+      position: pos(340, 130, 310, 450)
+    }
+    block v5 {
+      position: pos(660, 130, 310, 450)
+    }
+    block v6 {
+      position: pos(980, 130, 310, 450)
+    }
     block f1 {
-      position: pos(1170, 90, 400, 80)
+      position: pos(970, 60, 320, 60)
     }
   }
 }
