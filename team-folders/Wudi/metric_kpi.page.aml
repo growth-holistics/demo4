@@ -2,41 +2,6 @@ Dashboard metric_kpi {
   title: 'Metric Kpi'
   description: ''''''
 
-  block text_block: TextBlock {
-    content: @md   #  Welcome to Canvas Dashboard 🚀
-
-<div class="flex space-x-6">
-  <div class="flex-1">
-
-###  Getting Started
-
-Canvas Dashboard offers a flexible workspace with a drag-and-drop "Canvas Layout," letting you arrange and resize data blocks to personalize your view.
-
-Choose from three editing modes: **Visual Editor** for beginner-friendly customization, **Code Editor** for advanced control, or **Dual Editor** to see both code and visual changes side-by-side. [Learn more](https://docs.holistics.io/as-code/canvas-dashboard)
-
-###  Canvas Dashboard Checklist
-
-- [x] Add a Filter block
-- [x] Add a Text block
-- [ ] Add a Visualization block
-
-###  This is a Text block
-
-👉 With [Markdown](https://www.markdownguide.org/) supported.
-  </div>
-
-  <div class="flex-1">
-    <div class="wistia_responsive_padding" style="padding:56.25% 0 0 0;position:relative;">
-      <div class="wistia_responsive_wrapper" style="height:100%;left:0;position:absolute;top:0;width:100%;">
-        <iframe src="https://fast.wistia.net/embed/iframe/tq88si3c3b?seo=true&videoFoam=true" title="Holistics Canvas Dashboard Video" allow="autoplay; fullscreen" allowtransparency="true" frameborder="0" scrolling="no" class="wistia_embed" name="wistia_embed" msallowfullscreen width="100%" height="100%">
-        </iframe>
-      </div>
-    </div>
-    <script src="https://fast.wistia.net/assets/external/E-v1.js" async></script>
-  </div>
-</div>;;
-  }
-
   block filter_block: FilterBlock {
     label: 'This is a Filter Block'
     type: 'text'
@@ -46,186 +11,73 @@ Choose from three editing modes: **Visual Editor** for beginner-friendly customi
     }
   }
   block v1: VizBlock {
-    label: 'Total Orders (Ytd)'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this year'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block v2: VizBlock {
-    label: 'Week Over Week'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this week'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 1
-        granularity: 'week'
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block v3: VizBlock {
-    label: 'Month Over Month'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this month'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 1
-        granularity: 'month'
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block v4: VizBlock {
-    label: 'Quarter Over Quarter'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this quarter'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 3
-        granularity: 'month'
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block v5: VizBlock {
-    label: 'Year Over Year'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this year'
-      }
-      value: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 1
-        granularity: 'year'
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block v6: VizBlock {
-    label: 'Product Listings'
+    label: 'Orders Processed'
     viz: DataTable {
-      dataset: pokedex
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql count(order_master.order_id) | where(order_master.order_created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation _2024 {
+        label: '2024'
+        formula: @aql count(order_master.order_id) | where(order_master.order_created_at matches @2024);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023 until august 2024'
+      }
       fields: [
         VizFieldFull {
-          ref: ref('sample_pokemon_gif', 'pokemon')
+          ref: ref('ecommerce_orders', 'order_month')
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('sample_pokemon_gif', 'description')
+          ref: '_2023'
           format {
-            type: 'text'
+            type: 'number'
+            pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('sample_pokemon_gif', 'gif_cleaned')
+          ref: '_2024'
           format {
-            type: 'html'
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
       settings {
+        show_sum_row: true
         show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          }
+        ]
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
   view: CanvasLayout {
     label: 'View 1'
     height: 1450
-    block text_block {
-      position: pos(40, 30, 1120, 420)
-    }
     block filter_block {
-      position: pos(40, 460, 400, 80)
+      position: pos(790, 10, 400, 80)
     }
     block v1 {
-      position: pos(40, 570, 150, 90)
-    }
-    block v2 {
-      position: pos(200, 570, 140, 90)
-    }
-    block v3 {
-      position: pos(350, 570, 160, 90)
-    }
-    block v4 {
-      position: pos(510, 570, 170, 90)
-    }
-    block v5 {
-      position: pos(690, 570, 130, 90)
-    }
-    block v6 {
-      position: pos(40, 680, 660, 630)
+      position: pos(30, 80, 400, 430)
     }
   }
 }
