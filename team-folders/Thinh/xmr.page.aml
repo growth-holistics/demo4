@@ -1,0 +1,92 @@
+Dashboard xmr {
+  title: 'Xmr'
+  description: ''''''
+  block title: TextBlock {
+    content: @md # XmR
+;;
+  }
+  block v1: VizBlock {
+    label: 'XmR'
+    viz: CustomChart {
+      dataset: demo_ecommerce_metrics
+      custom_chart_id: 19194
+      field date: VizFieldFull {
+        label: 'Date'
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      field metric: VizFieldFull {
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting width_1: 1000
+      setting width_2: 696
+    }
+  }
+  block v2: VizBlock {
+    label: 'GMV - Gross Merchandise Value by Day Date Key'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_metrics
+      x_axis: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+          pattern: "yyyy-'W'WW"
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        pop {
+          field: ref('dim_dates', 'date_key')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    block title {
+      position: pos(20, 20, 1160, 80)
+    }
+    block v1 {
+      position: pos(20, 120, 1160, 300)
+    }
+    block v2 {
+      position: pos(20, 440, 1160, 300)
+    }
+  }
+
+  theme: H.themes.classic
+}
