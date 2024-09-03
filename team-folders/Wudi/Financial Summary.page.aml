@@ -1,5 +1,5 @@
 Dashboard metric_kpi {
-  title: 'Metric Kpi'
+  title: 'Financial Summary'
   description: ''''''
 
   block filter_block: FilterBlock {
@@ -11,358 +11,52 @@ Dashboard metric_kpi {
     }
   }
   block t1: TextBlock {
-    content: @md   <div id="heading">
-<h1  style="font-size:40px; color:black; text-align: left"> ID - Comparison Report (2023-2024)</h2>
+    content: @md
+<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);text-align:center;">
+  <h1 style="font-size:36px; color:black;"> ID - Comparison Report (2023-2024)</h1>
 </div>;;
+    theme: BlockTheme {
+      background {
+        bg_color: "#87CEEB"
+      }
+      border {
+        border_radius: 15
+      }
+    }
   }
   block t2: TextBlock {
-    content: @md <div style="width: 800px; height: 100px; border-radius: 8px; background-color: #87CEEB"></div>;;
+    content: @md <style>
+.h-kpi-metric {
+  text-align:center;
+}
+.h-kpi-metric-kpi {
+  font-size: 36px;
+  margin: 0 auto
+}
+.header {
+  position: absolute; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  text-align:center;
+  font-size: 16px;
+  font-weight: bold;
+}
+</style>;;
   }
-  block v1: VizBlock {
-    label: 'Orders Processed'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      calculation year {
-        label: 'Year'
-        formula: @aql case(
-  when: true
-  , then: "Year"
-  , else: "Year"
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'order_month')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+  block t3: TextBlock {
+    content: @md <p class="header">Grand Total</p>;;
   }
-  block v2: VizBlock {
-    label: ' '
-    viz: MetricSheet {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'last year until now'
-      }
-      date_field: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc year'
-        format {
-          type: 'date'
-        }
-      }
-      rows: [
-        MetricSeries {
-          field: VizFieldFull {
-            ref: ref('order_master', 'order_id')
-            aggregation: 'count'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+  block t4: TextBlock {
+    content: @md <p class="header">YTD Total</p>;;
   }
-  block v3: VizBlock {
-    label: ' '
-    viz: MetricSheet {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'last year until now'
-      }
-      date_field: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc year to date'
-        format {
-          type: 'date'
-        }
-      }
-      rows: [
-        MetricSeries {
-          field: VizFieldFull {
-            label: 'YTD Total'
-            ref: ref('order_master', 'order_id')
-            aggregation: 'count'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+  block t5: TextBlock {
+    content: @md <p class="header">2023</p>;;
   }
-  block v4: VizBlock {
-    label: 'Orders Processed (dup)'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      calculation year {
-        label: 'Year'
-        formula: @aql case(
-  when: true
-  , then: "Year"
-  , else: "Year"
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'order_month')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+  block t6: TextBlock {
+    content: @md <p class="header">2024</p>;;
   }
-  block v5: VizBlock {
-    label: 'Orders Processed (dup) (dup)'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      calculation year {
-        label: 'Year'
-        formula: @aql case(
-  when: true
-  , then: "Year"
-  , else: "Year"
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'order_month')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v6: VizBlock {
-    label: 'Orders Processed (dup) (dup) (dup)'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      calculation year {
-        label: 'Year'
-        formula: @aql case(
-  when: true
-  , then: "Year"
-  , else: "Year"
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'order_month')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
+
   block f1: FilterBlock {
     label: 'This is a Filter Block (dup)'
     type: 'text'
@@ -371,44 +65,717 @@ Dashboard metric_kpi {
       value: 'default'
     }
   }
+  block v2: VizBlock {
+    label: 'Order Count'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.order_count | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_change {
+        label: '% change'
+        formula: @aql safe_divide(
+  (order_master.order_count - _2023)*1.0,
+  _2023
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_orders_order_month'
+        }
+      ]
+      columns: []
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: '2024'
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'percent_change'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#FFFFFF'
+            }
+          },
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#FFFFFF'
+            }
+          }
+        ]
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'custom__2023'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom__2024'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom_percent_change'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'ecommerce_orders_order_month'
+              width: 110
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v5: VizBlock {
+    label: 'Order Count 2023'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.order_count | where(order_master.order_created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v9: VizBlock {
+    label: 'Order Count 2023 (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.order_count | where(order_master.order_created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v10: VizBlock {
+    label: 'Order Count 2023 (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.order_count | where(order_master.order_created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v11: VizBlock {
+    label: 'Order Count 2023 (dup) (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.order_count | where(order_master.order_created_at matches @2023);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Average Order Count'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.aov | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_change {
+        label: '% change'
+        formula: @aql safe_divide(
+  (order_master.aov - _2023)*1.0,
+  _2023
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_orders_order_month'
+        }
+      ]
+      columns: []
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: '2024'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'percent_change'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#FFFFFF'
+            }
+          },
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#FFFFFF'
+            }
+          }
+        ]
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'custom__2023'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom__2024'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom_percent_change'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'ecommerce_orders_order_month'
+              width: 110
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v13: VizBlock {
+    label: 'Gross Merchandise Value'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.gmv | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_change {
+        label: '% change'
+        formula: @aql safe_divide(
+  (order_master.gmv - _2023)*1.0,
+  _2023
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_orders_order_month'
+        }
+      ]
+      columns: []
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: '2024'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'percent_change'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#FFFFFF'
+            }
+          },
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#FFFFFF'
+            }
+          }
+        ]
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'custom__2023'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom__2024'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom_percent_change'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'ecommerce_orders_order_month'
+              width: 110
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v14: VizBlock {
+    label: 'Net Merchandise Value'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation _2023 {
+        label: '2023'
+        formula: @aql order_master.nmv | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_change {
+        label: '% change'
+        formula: @aql safe_divide(
+  (order_master.nmv - _2023)*1.0,
+  _2023
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_orders_order_month'
+        }
+      ]
+      columns: []
+      values: [
+        VizFieldFull {
+          ref: '_2023'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: '2024'
+          ref: ref('order_master', 'nmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'percent_change'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#FFFFFF'
+            }
+          },
+          ConditionalFormat {
+            ref: 'percent_change'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#FFFFFF'
+            }
+          }
+        ]
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'custom__2023'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom__2024'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'custom_percent_change'
+              width: 100
+            },
+            ColumnWidth {
+              key: 'ecommerce_orders_order_month'
+              width: 110
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t7: TextBlock {
+    content: @md <p class="header">Order Count</p>;;
+    theme {
+      background {
+        bg_color: "#f4ac93"
+      }
+    }
+  }
+  block t8: TextBlock {
+    content: @md <p class="header">Average Order Value</p>;;
+    theme {
+      background {
+        bg_color: "#f8d458"
+      }
+    }
+  }
+  block t9: TextBlock {
+    content: @md <p class="header">Gross Merchandise Value</p>;;
+    theme {
+      background {
+        bg_color: "#8ec586"
+      }
+    }
+  }
+  block t10: TextBlock {
+    content: @md <p class="header">Net Merchandise Value</p>;;
+    theme {
+      background {
+        bg_color: "#71cfe0"
+      }
+    }
+  }
 
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 1300
-    height: 740
+    width: 1780
+    height: 880
+    grid_size: 20
     block filter_block {
-      position: pos(970, 0, 320, 60)
+      position: pos(1460, 20, 320, 60)
     }
     block t1 {
-      position: pos(20, 40, 750, 60)
+      position: pos(20, 20, 1300, 120)
     }
     block t2 {
-      position: pos(10, 10, 810, 110)
-      layer: -1
+      position: pos(-400, 140, 387, 250)
     }
-    block v1 {
-      position: pos(20, 130, 310, 450)
+    block t3 {
+      position: pos(20, 660, 100, 40)
     }
-    block v2 {
-      position: pos(20, 490, 560, 140)
-      layer: -1
+    block t4 {
+      position: pos(20, 800, 100, 40)
     }
-    block v3 {
-      position: pos(20, 530, 560, 250)
-      layer: -2
+    block t5 {
+      position: pos(140, 600, 120, 20)
     }
-    block v4 {
-      position: pos(340, 130, 310, 450)
-    }
-    block v5 {
-      position: pos(660, 130, 310, 450)
-    }
-    block v6 {
-      position: pos(980, 130, 310, 450)
+    block t6 {
+      position: pos(300, 600, 120, 20)
     }
     block f1 {
-      position: pos(970, 60, 320, 60)
+      position: pos(1460, 80, 320, 60)
+    }
+    block v2 {
+      position: pos(20, 200, 420, 380)
+    }
+    block v5 {
+      position: pos(120, 620, 160, 120)
+    }
+    block v9 {
+      position: pos(280, 620, 160, 120)
+    }
+    block v10 {
+      position: pos(120, 760, 160, 120)
+    }
+    block v11 {
+      position: pos(280, 760, 160, 120)
+    }
+    block v12 {
+      position: pos(460, 200, 420, 380)
+    }
+    block v13 {
+      position: pos(900, 200, 420, 380)
+    }
+    block v14 {
+      position: pos(1340, 200, 420, 380)
+    }
+    block t7 {
+      position: pos(20, 160, 420, 40)
+    }
+    block t8 {
+      position: pos(460, 160, 420, 40)
+    }
+    block t9 {
+      position: pos(900, 160, 420, 40)
+    }
+    block t10 {
+      position: pos(1340, 160, 420, 40)
     }
   }
 }
