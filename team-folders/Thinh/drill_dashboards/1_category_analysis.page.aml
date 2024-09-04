@@ -1,0 +1,177 @@
+Dashboard _1_category_analysis {
+  title: '[Target] Category Analysis'
+  description: ''''''
+  block title: TextBlock {
+    content: @md ## [Target] Category Analysis;;
+    theme: header
+  }
+  block v1: VizBlock {
+    label: 'Revenue by Year'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Quantity Order by City & Age Group'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        label: 'City'
+        ref: ref('ecommerce_cities', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        label: 'Age Group'
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 5
+          stack_series_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: ref('order_master', 'quantity')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F2B602'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        legend_label: 'top'
+        x_axis_label: 'City'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1920
+    height: 900
+    grid_size: 20
+    block title {
+      position: pos(0, 0, 1920, 80)
+    }
+    block v1 {
+      position: pos(20, 200, 820, 680)
+    }
+    block v2 {
+      position: pos(860, 200, 1040, 680)
+    }
+    block f1 {
+      position: pos(20, 100, 300, 80)
+    }
+    block f2 {
+      position: pos(340, 100, 300, 80)
+    }
+  }
+
+  theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+}
