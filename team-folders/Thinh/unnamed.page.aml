@@ -1,0 +1,216 @@
+Dashboard unnamed {
+  title: 'Unnamed'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    block v1 {
+      position: pos(200, 100, 320, 160)
+    }
+    block v2 {
+      position: pos(200, 350, 320, 160)
+    }
+    block v3 {
+      position: pos(550, 100, 320, 160)
+    }
+    block v4 {
+      position: pos(550, 350, 320, 160)
+    }
+    block t1 {
+      position: pos(210, 70, 180, 20)
+    }
+    block t2 {
+      position: pos(200, 320, 180, 20)
+    }
+    block t3 {
+      position: pos(550, 320, 180, 20)
+    }
+    block t4 {
+      position: pos(550, 70, 180, 20)
+    }
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Revenue (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Revenue (dup) (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Revenue (dup) (dup) (dup)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation target {
+        label: 'Target'
+        formula: @aql 5000000;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'target'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md Single Value;;
+    theme {
+      background {
+        bg_color: 'transparent'
+      }
+      border {
+        border_width: "0px"
+      }
+      padding: "0px"
+    }
+  }
+  block t2: TextBlock {
+    content: @md Compare By Percent;;
+    theme {
+      background {
+        bg_color: 'transparent'
+      }
+      border {
+        border_width: "0px"
+      }
+      padding: "0px"
+    }
+  }
+  block t3: TextBlock {
+    content: @md Progress;;
+    theme {
+      background {
+        bg_color: 'transparent'
+      }
+      border {
+        border_width: "0px"
+      }
+      padding: "0px"
+    }
+  }
+  block t4: TextBlock {
+    content: @md Compare By Number;;
+    theme {
+      background {
+        bg_color: 'transparent'
+      }
+      border {
+        border_width: "0px"
+      }
+      padding: "0px"
+    }
+  }
+}
