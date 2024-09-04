@@ -201,6 +201,27 @@ Dashboard _2_customer_demographic {
       }
     }
   }
+  block f2: FilterBlock {
+    label: 'Age Group'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
@@ -211,7 +232,7 @@ Dashboard _2_customer_demographic {
       position: pos(0, 0, 1920, 80)
     }
     block v1 {
-      position: pos(660, 200, 1240, 680)
+      position: pos(660, 100, 1240, 780)
     }
     block v2 {
       position: pos(20, 200, 300, 120)
@@ -225,7 +246,30 @@ Dashboard _2_customer_demographic {
     block f1 {
       position: pos(20, 100, 300, 80)
     }
+    block f2 {
+      position: pos(340, 100, 300, 80)
+    }
   }
 
   theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
 }
