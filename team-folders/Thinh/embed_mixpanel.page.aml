@@ -90,17 +90,22 @@ Dashboard embed_mixpanel {
   }
   block f1: FilterBlock {
     label: 'Genre'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: movie_ratings_analysis
-      field: ref('public_movies', 'genre')
-    }
+    type: 'number'
     default {
       operator: 'is'
       value: []
     }
     settings {
-      input_type: 'nullable-single'
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          CustomDrillthroughSource {
+            sources: [
+              'aggregate_awareness_demo_dashboard_lite'
+            ]
+          }
+        ]
+      }
     }
   }
   block v3: VizBlock {
