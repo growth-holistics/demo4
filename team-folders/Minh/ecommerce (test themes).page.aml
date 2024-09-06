@@ -369,6 +369,7 @@ Dashboard ecommerce_cua_minh {
       }
     }
   }
+
   block v6: VizBlock {
     label: 'Top selling product categories'
     viz: PivotTable {
@@ -380,41 +381,20 @@ Dashboard ecommerce_cua_minh {
       }
       rows: [
         VizFieldFull {
-          ref: ref('map_categories', 'parent_category')
-          format {
-            type: 'text'
-          }
-          uname: 'map_categories_parent_category'
-        },
-        VizFieldFull {
           ref: ref('map_categories', 'category')
           format {
             type: 'text'
           }
-          uname: 'map_categories_category'
         }
       ]
       columns: [
         VizFieldFull {
           label: 'Year'
           ref: ref('order_master', 'order_created_at')
-          transformation: 'datetrunc year'
-          format {
-            type: 'date'
-          }
-        },
-        VizFieldFull {
-          ref: ref('order_master', 'order_created_at')
           transformation: 'datetrunc quarter'
           format {
             type: 'date'
-          }
-        },
-        VizFieldFull {
-          ref: ref('order_master', 'order_created_at')
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
+            pattern: 'yyyy Qq'
           }
         }
       ]
@@ -428,10 +408,10 @@ Dashboard ecommerce_cua_minh {
             group_separator: ','
             decimal_separator: '.'
           }
-          uname: 'custom_nmv'
         }
       ]
       settings {
+        row_height: 'multiple_lines'
         pagination_size: 100
         show_row_with_no_data: true
         conditional_formats: [
@@ -451,26 +431,10 @@ Dashboard ecommerce_cua_minh {
         ]
         sorts: [
           SortSetting {
-            field_index: 1
+            field_index: 0
             direction: 'desc'
           }
         ]
-        column_width {
-          manual_widths: [
-            ColumnWidth {
-              key: 'map_categories_parent_category'
-              width: 147
-            },
-            ColumnWidth {
-              key: 'map_categories_category'
-              width: 79
-            },
-            ColumnWidth {
-              key: 'custom_nmv'
-              width: 52
-            }
-          ]
-        }
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -607,7 +571,7 @@ _This is italic text_
       position: pos(330, 170, 1180, 270)
     }
     block v7 {
-      position: pos(330, 470, 580, 280)
+      position: pos(330, 470, 580, 270)
     }
     block f1 {
       position: pos(20, 130, 290, 100)
