@@ -1,3 +1,28 @@
+PreAggregate agg_daily {
+
+  dimension timestamp {
+    for: ref('order_master','order_created_at')
+    time_granularity: 'day'
+  }
+
+  measure order_count {
+    for: ref('order_master','order_id')
+    aggregation_type: 'count'
+  }
+
+  persistence: IncrementalPersistence {
+    schema: 'persisted'
+    incremental_column: 'timestamp'
+  }
+}
+
+const agg_monthly = agg_daily.extend({
+   dimension timestamp {
+      for: ref('order_master','order_created_at')
+      time_granularity: 'month'
+    }
+})
+
 Dataset demo_ecommerce {
    __engine__: 'aql' //turn this Dataset to using AQL Engine
   label: '[Demo] Ecommerce (Official)'
@@ -79,6 +104,11 @@ Dataset demo_ecommerce {
     }
     model ecommerce_products
     model ecommerce_countries
+  }
+
+  pre_aggregates: {
+    daily: agg_daily,
+    monthly: agg_monthly
   }
 
   dimension cohort_month {
@@ -213,25 +243,6 @@ Dataset demo_ecommerce {
       )
      ;;
   }
-
-  // pre_aggregates: {
-  //   agg_orders: PreAggregate {
-  //     // This dimension is in the pre-aggregated table `agg_order`
-  //     dimension order_created_at {
-  //       // This reference is in the `order master` model
-  //       for: ref('order_master', 'order_created_at'),
-  //       time_granularity: "month"
-  //     }
-
-  //     measure order_count {
-  //       for: ref('order_master', 'order_count')
-  //       aggregation_type: 'count'
-  //     }
-  //     persistence: FullPersistence {
-  //       schema: 'persisted'
-  //     }
-  //   },
-  // }
 
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
