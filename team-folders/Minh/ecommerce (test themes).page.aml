@@ -1,5 +1,5 @@
 Dashboard ecommerce_cua_minh {
-  title: 'eCommerce Dashboard'
+  title: 'Ecommerce Dashboard (test Themes)'
   description: ''''''
 
   theme: PageTheme {
@@ -57,8 +57,18 @@ Dashboard ecommerce_cua_minh {
       opacity: 1
     }
   }
+
   block t1: TextBlock {
-    content: @md # eCommerce Dashboard;;
+    content: @md # Ecommerce Dashboard;;
+    theme: BlockTheme {
+      padding: 1
+      border {
+        border_color: "transparent"
+      }
+      background {
+        bg_color: "transparent"
+      }
+    }
   }
 
   block v1: VizBlock {
@@ -359,7 +369,6 @@ Dashboard ecommerce_cua_minh {
       }
     }
   }
-
   block v6: VizBlock {
     label: 'Top selling product categories'
     viz: PivotTable {
@@ -371,20 +380,41 @@ Dashboard ecommerce_cua_minh {
       }
       rows: [
         VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        },
+        VizFieldFull {
           ref: ref('map_categories', 'category')
           format {
             type: 'text'
           }
+          uname: 'map_categories_category'
         }
       ]
       columns: [
         VizFieldFull {
           label: 'Year'
           ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
           transformation: 'datetrunc quarter'
           format {
             type: 'date'
-            pattern: 'yyyy Qq'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
           }
         }
       ]
@@ -398,10 +428,10 @@ Dashboard ecommerce_cua_minh {
             group_separator: ','
             decimal_separator: '.'
           }
+          uname: 'custom_nmv'
         }
       ]
       settings {
-        row_height: 'multiple_lines'
         pagination_size: 100
         show_row_with_no_data: true
         conditional_formats: [
@@ -421,10 +451,26 @@ Dashboard ecommerce_cua_minh {
         ]
         sorts: [
           SortSetting {
-            field_index: 0
+            field_index: 1
             direction: 'desc'
           }
         ]
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'map_categories_parent_category'
+              width: 147
+            },
+            ColumnWidth {
+              key: 'map_categories_category'
+              width: 79
+            },
+            ColumnWidth {
+              key: 'custom_nmv'
+              width: 52
+            }
+          ]
+        }
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -540,50 +586,49 @@ _This is italic text_
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 1520
+    width: 1530
     height: 1080
-    grid_size: 20
     block t1 {
-      position: pos(20, 20, 300, 120)
+      position: pos(20, 30, 290, 90)
     }
     block v1 {
-      position: pos(340, 20, 300, 160)
+      position: pos(330, 30, 300, 120)
     }
     block v2 {
-      position: pos(660, 20, 280, 160)
+      position: pos(650, 30, 290, 120)
     }
     block v3 {
-      position: pos(960, 20, 280, 160)
+      position: pos(960, 30, 280, 120)
     }
     block v4 {
-      position: pos(1260, 20, 240, 160)
+      position: pos(1260, 30, 250, 120)
     }
     block v5 {
-      position: pos(340, 200, 1160, 260)
+      position: pos(330, 170, 1180, 270)
     }
     block v7 {
-      position: pos(340, 480, 580, 280)
+      position: pos(330, 470, 580, 270)
     }
     block f1 {
-      position: pos(20, 160, 300, 100)
+      position: pos(20, 130, 290, 100)
     }
     block f2 {
-      position: pos(20, 400, 300, 100)
+      position: pos(20, 370, 290, 100)
     }
     block f3 {
-      position: pos(20, 280, 300, 100)
+      position: pos(20, 250, 290, 100)
     }
     block v10 {
-      position: pos(340, 780, 580, 280)
+      position: pos(330, 770, 580, 270)
     }
     block v6 {
-      position: pos(940, 480, 560, 580)
+      position: pos(330, 470, 1180, 570)
     }
     block d1 {
-      position: pos(1340, 220, 160, 90)
+      position: pos(1330, 190, 160, 90)
     }
     block t4 {
-      position: pos(20, 520, 300, 540)
+      position: pos(20, 490, 290, 550)
     }
   }
 }
