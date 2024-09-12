@@ -1,5 +1,5 @@
-Dashboard country_breakdown {
-  title: 'Country Breakdown '
+Dashboard _1_country_breakdown {
+  title: '1. Country Breakdown '
   block created_at: FilterBlock {
     label: 'Created At'
     type: 'field'
@@ -10,6 +10,15 @@ Dashboard country_breakdown {
     default {
       operator: 'matches'
       value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
     }
   }
   block country: FilterBlock {
@@ -23,6 +32,15 @@ Dashboard country_breakdown {
       operator: 'is'
       value: []
     }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
   }
   block product_name: FilterBlock {
     label: 'Product Name'
@@ -34,6 +52,15 @@ Dashboard country_breakdown {
     default {
       operator: 'is'
       value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
     }
   }
   block customer_gender: FilterBlock {
@@ -47,6 +74,15 @@ Dashboard country_breakdown {
       operator: 'is'
       value: []
     }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
   }
   block city: FilterBlock {
     label: 'City'
@@ -58,6 +94,15 @@ Dashboard country_breakdown {
     default {
       operator: 'is'
       value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
     }
   }
   block age_demographic: FilterBlock {
@@ -76,7 +121,7 @@ Dashboard country_breakdown {
     label: 'Date Drill'
   }
   block v1: VizBlock {
-    label: 'GMV by Merchant'
+    label: 'Merchant x GMV'
     viz: PivotTable {
       dataset: demo_ecommerce
       rows: [
@@ -93,14 +138,12 @@ Dashboard country_breakdown {
           ref: ref('order_master', 'revenue')
           format {
             type: 'number'
-            pattern: '[$$]#,###'
           }
         },
         VizFieldFull {
           ref: ref('order_master', 'revenue_delivered')
           format {
             type: 'number'
-            pattern: '[$$]#,###'
           }
         }
       ]
@@ -153,10 +196,6 @@ Dashboard country_breakdown {
             }
           }
         ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
       }
     }
   }
@@ -203,15 +242,7 @@ Dashboard country_breakdown {
           }
           settings {
             color: '#479980'
-            line_interpolation: 'smooth'
           }
-        }
-      }
-      settings {
-        show_data_points: true
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
         }
       }
     }
@@ -578,7 +609,6 @@ Dashboard country_breakdown {
             'created_at',
             'product_name',
             'customer_gender',
-            'city',
             'age_demographic'
           ]
           disabled: true
@@ -644,20 +674,11 @@ Dashboard country_breakdown {
           disabled: true
         }
       ]
-    },
-    FilterInteraction {
-      from: 'country'
-      to: [
-        CustomMapping {
-          block: 'city'
-          field: ref('ecommerce_countries', 'name')
-        }
-      ]
     }
   ]
   view: CanvasLayout {
     label: 'Canvas Layout'
-    width: 1920
+    width: 1220
     height: 1410
     grid_size: 20
     block created_at {
@@ -677,15 +698,15 @@ Dashboard country_breakdown {
       layer: 1
     }
     block city {
-      position: pos(1220, 20, 280, 100)
+      position: pos(20, 140, 280, 100)
       layer: 1
     }
     block age_demographic {
-      position: pos(1520, 20, 280, 100)
+      position: pos(320, 140, 280, 100)
       layer: 1
     }
     block date_drill {
-      position: pos(20, 140, 280, 100)
+      position: pos(620, 140, 280, 100)
       layer: 1
     }
     block v1 {
@@ -693,7 +714,7 @@ Dashboard country_breakdown {
       layer: 1
     }
     block v2 {
-      position: pos(620, 260, 1280, 380)
+      position: pos(620, 260, 580, 380)
       layer: 1
     }
     block v3 {
@@ -701,11 +722,11 @@ Dashboard country_breakdown {
       layer: 1
     }
     block v4 {
-      position: pos(620, 660, 1280, 380)
+      position: pos(620, 660, 580, 380)
       layer: 1
     }
     block v5 {
-      position: pos(20, 1060, 1880, 330)
+      position: pos(20, 1060, 1180, 330)
       layer: 1
     }
   }
