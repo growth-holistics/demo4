@@ -113,14 +113,7 @@ Dashboard myDashboard {
         }
       ]
       settings {
-        column_width {
-          manual_widths: [
-            ColumnWidth {
-              key: 'order_master_order_created_at'
-              width: 86
-            }
-          ]
-        }
+
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -140,79 +133,12 @@ Dashboard myDashboard {
       value: 'last 2 years'
     }
     settings {
-      drillthrough: Drillthrough {
-        enabled: true
-        sources: [
-          AutoDrillthroughSource {
-          }
-        ]
-      }
+
     }
   }
   block d1: DateDrillBlock {
     label: 'Drill by'
     default: 'month'
-  }
-  block v3: VizBlock {
-    label: 'Monthly NMV'
-    viz: CombinationChart {
-      dataset: demo_ecommerce
-      x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
-      y_axis {
-        series {
-          mark_type: 'column'
-          field: VizFieldFull {
-            label: 'Net Merchandise Value'
-            ref: ref('order_master', 'nmv')
-            format {
-              type: 'number'
-              pattern: '[$$]#,###0.00,"K"'
-              group_separator: ','
-              decimal_separator: '.'
-            }
-          }
-          settings {
-            color: '#255DD4'
-          }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-          axis_min: 0
-        }
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            label: 'Growth Rate'
-            ref: ref('order_master', 'cancelled_order_ratio')
-            format {
-              type: 'number'
-              pattern: '#,###%'
-            }
-          }
-          settings {
-            color: '#F2B602'
-          }
-        }
-      }
-      settings {
-        show_data_points: true
-        row_limit: 5000
-        legend_label: 'right'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
   }
   interactions: [
     DateDrillInteraction {
@@ -228,16 +154,16 @@ Dashboard myDashboard {
   view: CanvasLayout {
     label: 'View 1'
     width: 1040
-    height: 1080
+    height: 650
     grid_size: 20
     block t1 {
       position: pos(20, 20, 240, 80)
     }
     block v1 {
-      position: pos(280, 20, 740, 260)
+      position: pos(280, 20, 750, 260)
     }
     block v2 {
-      position: pos(20, 300, 1000, 340)
+      position: pos(20, 290, 1000, 340)
     }
     block f1 {
       position: pos(20, 200, 240, 80)
@@ -245,13 +171,10 @@ Dashboard myDashboard {
     block d1 {
       position: pos(20, 110, 240, 80)
     }
-    block v3 {
-      position: pos(20, 660, 1000, 380)
-    }
   }
   settings {
     timezone: 'America/Los_Angeles'
     cache_duration: 360
   }
-  theme: H.themes.classic
+  theme: classic
 }

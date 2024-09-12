@@ -16,17 +16,11 @@ Model ref_station {
     definition: @sql {{ #SOURCE.ref_station_pt }};;
   }
 
-  param reference2 {
-    label: 'Reference Station'
-    type: 'text'
-  }
-
   owner: 'chukwudi@holistics.io'
   query: @sql
     select {{ #station_density.station_name }} as ref_station
       , ST_GEOGPOINT({{ #station_density.lon }}, {{ #station_density.lat }}) as ref_station_pt
-        from  {{ #station_density }}
-        where {% filter(reference2) %} {{ #ref_station.ref_station }} {% end %};;
+        from  {{ #station_density }};;
   models: [
     station_density
   ]
