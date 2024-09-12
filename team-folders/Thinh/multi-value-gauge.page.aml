@@ -570,7 +570,7 @@ CustomChart {
     option max_color {
       type: "color-picker"
       label: "Max Color"
-      default_value: "gray"
+      default_value: "lightgray"
     }
     option m1_color {
       type: "color-picker"
@@ -580,12 +580,12 @@ CustomChart {
     option m2_color {
       type: "color-picker"
       label: "Value 2 Color"
-      default_value: "red"
+      default_value: "orange"
     }
     option m3_color {
       type: "color-picker"
       label: "Value 3 Color"
-      default_value: "blue"
+      default_value: "red"
     }
     option target_color {
       type: "color-picker"
@@ -601,12 +601,6 @@ CustomChart {
       type: "number-input"
       label: "Percentage Font Size"
       default_value: 36
-    }
-    option percentage_display {
-      type: "select"
-      label: "Percentage Display"
-      options: ["m1", "m2", "m3"]
-      default_value: "m1"
     }
   }
 
@@ -634,8 +628,8 @@ CustomChart {
       {"calculate": "datum['_arc_end_radians'] - datum['_arc_start_radians']", "as": "_arc_total_radians"},
       {"calculate": "datum['_arc_start_radians']", "as": "_ring_start_radians"},
       {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * datum.m1_percentage)", "as": "m1_ring_end_radians"},
-      {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * (datum.m1_percentage + datum.m2_percentage))", "as": "m2_ring_end_radians"},
-      {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * (datum.m1_percentage + datum.m2_percentage + datum.m3_percentage))", "as": "m3_ring_end_radians"},
+      {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * datum.m2_percentage)", "as": "m2_ring_end_radians"},
+      {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * datum.m3_percentage)", "as": "m3_ring_end_radians"},
 
       {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * datum.target_percentage)", "as": "target_ring_start_radians"},
       {"calculate": "datum['_arc_start_radians'] + (datum['_arc_total_radians'] * datum.target_percentage) + (1 * (PI/180))", "as": "target_ring_end_radians"}
@@ -658,16 +652,15 @@ CustomChart {
       {"name": "m3_color", "value": @{options.m3_color.value}},
       {"name": "target_color", "value": @{options.target_color.value}},
       {"name": "label_font_size", "value": @{options.label_font_size.value}},
-      {"name": "percentage_font_size", "value": @{options.percentage_font_size.value}},
-      {"name": "percentage_display", "value": "@{options.percentage_display.value}"}
+      {"name": "percentage_font_size", "value": @{options.percentage_font_size.value}}
     ],
     "encoding": {
       "tooltip": [
-        {"field": "m1"},
-        {"field": "m2"},
-        {"field": "m3"},
-        {"field": "target"},
-        {"field": "max"}
+        {"field": @{fields.m1.name}, "format": @{fields.m1.format}, "formatType": "holisticsFormat"},
+        {"field": @{fields.m2.name}, "format": @{fields.m2.format}, "formatType": "holisticsFormat"},
+        {"field": @{fields.m3.name}, "format": @{fields.m3.format}, "formatType": "holisticsFormat"},
+        {"field": @{fields.target.name}, "format": @{fields.target.format}, "formatType": "holisticsFormat"},
+        {"field": @{fields.max.name}, "format": @{fields.max.format}, "formatType": "holisticsFormat"}
       ]
     },
     "layer": [
@@ -690,11 +683,11 @@ CustomChart {
           "radius": {"expr": "ring1_outer"},
           "radius2": {"expr": "ring1_inner"},
           "theta": {"expr": "datum._ring_start_radians"},
-          "theta2": {"expr": "datum.m1_ring_end_radians"},
+          "theta2": {"expr": "datum.m3_ring_end_radians"},
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "color": {"value": {"expr": "m1_color"}}
+          "color": {"value": {"expr": "m3_color"}}
         }
       },
       {
@@ -702,7 +695,7 @@ CustomChart {
           "type": "arc",
           "radius": {"expr": "ring1_outer"},
           "radius2": {"expr": "ring1_inner"},
-          "theta": {"expr": "datum.m1_ring_end_radians"},
+          "theta": {"expr": "datum._ring_start_radians"},
           "theta2": {"expr": "datum.m2_ring_end_radians"},
           "yOffset": {"expr": "ring_yOffset"}
         },
@@ -715,12 +708,12 @@ CustomChart {
           "type": "arc",
           "radius": {"expr": "ring1_outer"},
           "radius2": {"expr": "ring1_inner"},
-          "theta": {"expr": "datum.m2_ring_end_radians"},
-          "theta2": {"expr": "datum.m3_ring_end_radians"},
+          "theta": {"expr": "datum._ring_start_radians"},
+          "theta2": {"expr": "datum.m1_ring_end_radians"},
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "color": {"value": {"expr": "m3_color"}}
+          "color": {"value": {"expr": "m1_color"}}
         }
       },
       {
@@ -741,16 +734,16 @@ CustomChart {
           "type": "text",
           "fontSize": {"expr": "percentage_font_size"},
           "font": "Inter",
-          "fontWeight": 500,
+          "fontWeight": 700,
           "yOffset": {"expr": "ring_max-ring_width-ring_gap-35"}
         },
         "encoding": {
           "text": {
-            "field": {"expr": "percentage_display + '_percentage'"},
+            "field": "m1_percentage",
             "type": "quantitative",
             "format": ".2%"
           },
-          "color": {"value": {"expr": "percentage_display + '_color'"}}
+          "color": {"value": {"expr": "m1_color"}}
         }
       },
       {
@@ -766,7 +759,7 @@ CustomChart {
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "text": {"field": "m1", "type": "quantitative", "format": ".0f"},
+          "text": {"field": "m1", "type": "quantitative", "format": @{fields.m1.format}, "formatType": "holisticsFormat"},
           "color": {"value": {"expr": "m1_color"}}
         }
       },
@@ -783,7 +776,7 @@ CustomChart {
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "text": {"field": "m2", "type": "quantitative", "format": ".0f"},
+          "text": {"field": "m2", "type": "quantitative", "format": @{fields.m2.format}, "formatType": "holisticsFormat"},
           "color": {"value": {"expr": "m2_color"}}
         }
       },
@@ -800,7 +793,7 @@ CustomChart {
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "text": {"field": "m3", "type": "quantitative", "format": ".0f"},
+          "text": {"field": "m3", "type": "quantitative", "format": @{fields.m3.format}, "formatType": "holisticsFormat"},
           "color": {"value": {"expr": "m3_color"}}
         }
       },
@@ -817,7 +810,7 @@ CustomChart {
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "text": {"field": "target", "type": "quantitative", "format": ".0f"},
+          "text": {"field": "target", "type": "quantitative", "format": @{fields.targte.format}, "formatType": "holisticsFormat"},
           "color": {"value": {"expr": "target_color"}}
         }
       },
@@ -849,7 +842,7 @@ CustomChart {
           "yOffset": {"expr": "ring_yOffset"}
         },
         "encoding": {
-          "text": {"field": "max", "type": "quantitative", "format": ".0f"},
+          "text": {"field": "max", "type": "quantitative", "format": @{fields.max.format}, "formatType": "holisticsFormat"},
           "color": {"value": "black"}
         }
       }
