@@ -56,9 +56,6 @@ Dashboard metric_kpi {
   block t5: TextBlock {
     content: @md <p class="header">2023</p>;;
   }
-  block t6: TextBlock {
-    content: @md <p class="header">2024</p>;;
-  }
 
   block f1: FilterBlock {
     label: 'This is a Filter Block (dup)'
@@ -200,6 +197,7 @@ Dashboard metric_kpi {
         data_type: 'number'
       }
       value: VizFieldFull {
+        label: ' '
         ref: 'untitled_metric_50dd124'
         format {
           type: 'number'
@@ -273,13 +271,20 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2023'
+      calculation untitled_metric_c059d96 {
+        label: 'Untitled Metric'
+        formula: @aql count(order_master.order_id) | relative_period(order_master.order_created_at, interval(-1 year)) | period_to_date('year', order_master.order_created_at) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation untitled_metric_42fa706 {
+        label: 'Untitled Metric'
+        formula: @aql count(order_master.order_id) | period_to_date('year', order_master.order_created_at) | where(order_master.order_created_at  matches @(last year));;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       value: VizFieldFull {
-        ref: 'untitled_metric_9c624f9'
+        ref: 'untitled_metric_42fa706'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -732,7 +737,7 @@ Dashboard metric_kpi {
   view: CanvasLayout {
     label: 'View 1'
     width: 1780
-    height: 880
+    height: 920
     grid_size: 20
     block filter_block {
       position: pos(1460, 20, 320, 60)
@@ -751,9 +756,6 @@ Dashboard metric_kpi {
     }
     block t5 {
       position: pos(140, 600, 120, 20)
-    }
-    block t6 {
-      position: pos(300, 600, 120, 20)
     }
     block f1 {
       position: pos(1460, 80, 320, 60)
@@ -795,7 +797,7 @@ Dashboard metric_kpi {
       position: pos(1340, 160, 420, 40)
     }
     block v15 {
-      position: pos(640, 660, 200, 40)
+      position: pos(420, 600, 60, 40)
     }
   }
 }
