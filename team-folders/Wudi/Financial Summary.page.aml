@@ -1,13 +1,16 @@
 Dashboard metric_kpi {
   title: 'Financial Summary'
   description: ''''''
-
   block filter_block: FilterBlock {
-    label: 'This is a Filter Block'
-    type: 'text'
+    label: 'Year'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('order_master', 'order_created_at')
+    }
     default {
-      operator: 'is'
-      value: 'default'
+      operator: 'matches'
+      value: 'current year'
     }
   }
   block t1: TextBlock {
@@ -69,7 +72,6 @@ Dashboard metric_kpi {
     label: 'Order Count'
     viz: PivotTable {
       dataset: demo_ecommerce
-
       calculation _2023 {
         label: '2023'
         formula: @aql order_master.order_count | relative_period(order_master.order_created_at, interval(-1 year));;
@@ -85,11 +87,6 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2024'
-      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_orders', 'order_month')
@@ -99,7 +96,6 @@ Dashboard metric_kpi {
           uname: 'ecommerce_orders_order_month'
         }
       ]
-      columns: []
       values: [
         VizFieldFull {
           ref: '_2023'
@@ -192,14 +188,19 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2023'
+      calculation _ {
+        formula: @aql count_distinct(order_master.order_id) | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation untitled_metric_50dd124 {
+        label: 'Untitled Metric'
+        formula: @aql count_distinct(order_master.order_id) | relative_period(order_master.order_created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       value: VizFieldFull {
-        label: ' '
-        ref: ref('order_master', 'order_count')
+        ref: 'untitled_metric_50dd124'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -266,14 +267,19 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation untitled_metric_9c624f9 {
+        label: 'Untitled Metric'
+        formula: @aql count(order_master.order_id) | period_to_date('year', order_master.order_created_at);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
         value: '2023'
       }
       value: VizFieldFull {
-        label: ' '
-        ref: ref('order_master', 'order_count')
+        ref: 'untitled_metric_9c624f9'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -290,7 +296,6 @@ Dashboard metric_kpi {
       hide_label: true
     }
   }
-
   block v11: VizBlock {
     label: 'Order Count 2023 (dup) (dup)'
     viz: MetricKpi {
@@ -301,14 +306,14 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2024'
+      calculation untitled_metric_b4d9990 {
+        label: 'Untitled Metric'
+        formula: @aql count_distinct(order_master.order_id) | period_to_date('year', order_master.order_created_at);;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       value: VizFieldFull {
-        label: ' '
-        ref: ref('order_master', 'order_count')
+        ref: 'untitled_metric_b4d9990'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -349,11 +354,6 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2024'
-      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_orders', 'order_month')
@@ -363,7 +363,6 @@ Dashboard metric_kpi {
           uname: 'ecommerce_orders_order_month'
         }
       ]
-      columns: []
       values: [
         VizFieldFull {
           ref: '_2023'
@@ -465,11 +464,6 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2024'
-      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_orders', 'order_month')
@@ -479,7 +473,6 @@ Dashboard metric_kpi {
           uname: 'ecommerce_orders_order_month'
         }
       ]
-      columns: []
       values: [
         VizFieldFull {
           ref: '_2023'
@@ -581,11 +574,6 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: '2024'
-      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_orders', 'order_month')
@@ -595,7 +583,6 @@ Dashboard metric_kpi {
           uname: 'ecommerce_orders_order_month'
         }
       ]
-      columns: []
       values: [
         VizFieldFull {
           ref: '_2023'
@@ -710,6 +697,36 @@ Dashboard metric_kpi {
       }
     }
   }
+  block v15: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_ff64916 {
+        label: 'Untitled Metric'
+        formula: @aql date_trunc(ecommerce_orders.created_at, 'year');;
+        calc_type: 'measure'
+        data_type: 'datetime'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
 
   view: CanvasLayout {
@@ -776,6 +793,9 @@ Dashboard metric_kpi {
     }
     block t10 {
       position: pos(1340, 160, 420, 40)
+    }
+    block v15 {
+      position: pos(640, 660, 200, 40)
     }
   }
 }
