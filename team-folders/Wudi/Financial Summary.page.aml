@@ -37,6 +37,16 @@ Dashboard metric_kpi {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation pct_changes {
+        label: '%'
+        formula: @aql safe_divide(
+  relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) 
+  - count(ecommerce_orders.id) * 1.0,
+  count(ecommerce_orders.id)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_orders', 'order_month')
@@ -67,6 +77,13 @@ Dashboard metric_kpi {
           format {
             type: 'number'
             pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'pct_changes'
+          format {
+            type: 'number'
+            pattern: '#,###%'
           }
         }
       ]
