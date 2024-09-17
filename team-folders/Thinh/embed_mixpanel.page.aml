@@ -90,17 +90,12 @@ Dashboard embed_mixpanel {
   }
   block f1: FilterBlock {
     label: 'Genre'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: movie_ratings_analysis
-      field: ref('public_movies', 'genre')
-    }
+    type: 'number'
     default {
       operator: 'is'
       value: []
     }
     settings {
-      input_type: 'nullable-single'
     }
   }
   block v3: VizBlock {
@@ -220,6 +215,14 @@ Dashboard embed_mixpanel {
       }
     }
   }
+  block f2: FilterBlock {
+    label: 'date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
@@ -227,19 +230,24 @@ Dashboard embed_mixpanel {
     height: 1060
     grid_size: 20
     block v2 {
-      position: pos(20, 160, 940, 420)
+      position: pos(20, 300, 940, 420)
+      layer: 2
     }
     block f1 {
       position: pos(20, 20, 300, 120)
     }
     block v3 {
       position: pos(340, 20, 300, 120)
+      layer: 1
     }
     block v4 {
       position: pos(660, 20, 300, 120)
     }
     block v5 {
       position: pos(20, 620, 940, 420)
+    }
+    block f2 {
+      position: pos(20, 180, 300, 100)
     }
   }
 
