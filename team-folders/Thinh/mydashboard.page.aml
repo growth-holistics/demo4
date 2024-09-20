@@ -264,6 +264,67 @@ Dashboard myDashboard {
       hide_label: true
     }
   }
+  block v6: VizBlock {
+    label: 'Monthly NMV'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Net Merchandise Value'
+            ref: ref('order_master', 'nmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#255DD4'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          axis_min: 0
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Growth Rate'
+            ref: ref('order_master', 'cancelled_order_ratio')
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#F2B602'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        legend_label: 'right'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'f1'
@@ -271,6 +332,70 @@ Dashboard myDashboard {
         CustomMapping {
           block: 'v5'
           field: ref('ecommerce_users', 'sign_up_at')
+        },
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v4'
+      to: [
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+        CustomMapping {
+          block: 'v7'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v7'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v5'
+          ]
+          disabled: true
         }
       ]
     },
@@ -287,7 +412,7 @@ Dashboard myDashboard {
   view: CanvasLayout {
     label: 'View 1'
     width: 840
-    height: 660
+    height: 940
     block css {
       position: pos(-520, 0, 520, 130)
     }
@@ -314,6 +439,9 @@ Dashboard myDashboard {
     }
     block v5 {
       position: pos(560, 180, 260, 150)
+    }
+    block v6 {
+      position: pos(20, 650, 800, 280)
     }
   }
   settings {
