@@ -48,12 +48,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         MetricHeading {
           label: '🎯Orders'
           settings {
-            background_color: '#07326C'
-            text_color: '#E9EFFB'
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('ecommerce_orders', 'total_orders_count')
             format {
               type: 'number'
@@ -62,7 +62,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('ecommerce_orders', 'cancelled_orders_count')
             format {
               type: 'number'
@@ -71,7 +71,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('ecommerce_orders', 'refunded_orders_count')
             format {
               type: 'number'
@@ -80,7 +80,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('ecommerce_orders', 'delivered_orders_count')
             format {
               type: 'number'
@@ -91,12 +91,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         MetricHeading {
           label: '💰 Revenue'
           settings {
-            background_color: '#07326C'
-            text_color: '#E9EFFB'
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'nmv')
             format {
               type: 'number'
@@ -105,7 +105,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'gmv')
             format {
               type: 'number'
@@ -114,7 +114,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         MetricSeries {
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'aov')
             format {
               type: 'number'
@@ -123,6 +123,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         }
       ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
     settings {
       hide_label: true
@@ -179,7 +185,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       series {
-        field {
+        field: VizFieldFull {
           label: ' '
           ref: ref('order_master', 'gmv')
           format {
@@ -188,34 +194,39 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         }
         settings {
+          color_palette: 'seq-blue'
           point {
             value: 'Clothes'
-            color: '#022658FF'
+            color: '#255DD4'
           }
           point {
             value: 'Groceries'
-            color: '#394875FF'
+            color: '#517DDD'
           }
           point {
             value: 'Home Entertainment'
-            color: '#646D92FF'
+            color: '#7C9EE5'
           }
           point {
             value: 'Home Furniture'
-            color: '#8E94B0FF'
+            color: '#A8BEEE'
           }
           point {
             value: 'Mobiles & Tablets'
-            color: '#BABDCFFF'
+            color: '#D3DFF6'
           }
           point {
             value: 'Skin Care'
-            color: '#E8E9EFFF'
+            color: '#E9EFFB'
           }
         }
       }
       settings {
         display_as_donut: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -225,7 +236,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       dataset: demo_ecommerce
       calculation f_28374b6 {
         label: 'Product Image'
-        formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="float:left;width:100px;height:100px;object-fit:contain" />');;
+        formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />');;
         calc_type: 'dimension'
         data_type: 'text'
       }
@@ -236,15 +247,34 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       fields: [
         VizFieldFull {
+          label: 'Product Name'
+          ref: ref('ecommerce_products', 'product_google_link')
+          format {
+            type: 'html'
+          }
+          uname: 'ecommerce_products_product_google_link'
+        },
+        VizFieldFull {
           ref: 'f_28374b6'
           format {
             type: 'html'
           }
+          uname: 'f_28374b6_text'
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: ref('order_master', 'discount')
+          aggregation: 'avg'
           format {
-            type: 'text'
+            type: 'number'
+            pattern: '#,###%'
+          }
+        },
+        VizFieldFull {
+          label: 'Quantity Sold'
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         },
         VizFieldFull {
@@ -261,7 +291,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         row_height: 'multiple_lines'
         sorts: [
           SortSetting {
-            field_index: 2
+            field_index: 4
             direction: 'desc'
           }
         ]
@@ -271,15 +301,44 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#d1d3df'
+                color: '#E9EFFB'
               }
               max {
-                value: 150000
-                color: '#394875'
+                value: 100000
+                color: '#255DD4'
+              }
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'order_count')
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              max {
+                value: 600
+                color: '#47B881'
               }
             }
           }
         ]
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'ecommerce_products_product_google_link'
+              width: 145
+            },
+            ColumnWidth {
+              key: 'f_28374b6_text'
+              width: 99
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -335,7 +394,8 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       y_axis {
         series {
-          field {
+          mark_type: 'column'
+          field: VizFieldFull {
             ref: ref('ecommerce_users', 'total_users')
             format {
               type: 'number'
@@ -343,7 +403,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             }
           }
           settings {
-            color: '#022658'
+            color: '#255DD4'
           }
         }
       }
@@ -353,15 +413,22 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
         series {
           mark_type: 'line'
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'delivered_orders_count')
             format {
               type: 'number'
             }
           }
           settings {
-            color: '#d1d3df'
+            color: '#A8BEEE'
+            line_interpolation: 'smooth'
           }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -401,7 +468,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   }
   block v12: VizBlock {
     label: 'Gross Merchandise Value'
-    viz: AreaChart {
+    viz: CombinationChart {
       dataset: demo_ecommerce
       filter {
         field: ref('order_master', 'order_created_at')
@@ -410,19 +477,44 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
+        transformation: 'datetrunc day'
         format {
           type: 'date'
-          pattern: 'LLL yyyy'
+          pattern: 'LLL dd, yyyy'
         }
       }
       y_axis {
         series {
+          mark_type: 'line'
           field: VizFieldFull {
             ref: ref('order_master', 'gmv')
             format {
               type: 'number'
               pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#D1EDEC'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: '7-day MovAvg of GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+            analytic: MovingCalculationField {
+              type: 'avg'
+              order: 'row'
+              range {
+                previous: 7
+                next: 0
+              }
+              null_if_not_enough_values: true
             }
           }
           settings {
@@ -432,7 +524,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       settings {
-        legend_label: 'hidden'
+        legend_label: 'right'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -468,11 +560,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   }
   block t6: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #022658;padding-bottom:24px;border-bottom: 1px solid #022658" id="regional-analysis">Regional Analysis</h1>;;
-  }
-  block t7: TextBlock {
-    content: @md   <p style="font-size: 16px; color: #18345E "> Click on one chart to Cross-filter other charts
-
-</p>;;
   }
   block t8: TextBlock {
     content: @md <h1 style ="font-size:40px; color: #022658;padding-bottom:24px;border-bottom: 1px solid #022658" id="users-analysis">User Analysis</h1>;;
@@ -525,7 +612,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   ">Users Analysis</button>
   </a>;;
   }
-  // block t17: background_gray()
   block v13: VizBlock {
     label: 'GMV by Country'
     viz: BarChart {
@@ -542,7 +628,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           show_data_label_by: 'value'
         }
         series {
-          field {
+          field: VizFieldFull {
             label: '  '
             ref: ref('order_master', 'gmv')
             format {
@@ -555,61 +641,59 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             color_palette: 'seq-blue'
             point {
               value: 'Australia'
-              color: '#022658'
+              color: '#255DD4'
             }
             point {
               value: 'France'
-              color: '#223666'
+              color: '#517DDD'
             }
             point {
               value: 'Germany'
-              color: '#394875'
+              color: '#7C9EE5'
             }
             point {
               value: 'India'
-              color: '#4e5a83'
+              color: '#A8BEEE'
             }
             point {
               value: 'Indonesia'
-              color: '#646d92'
+              color: '#D3DFF6'
             }
             point {
               value: 'Singapore'
-              color: '#7980a1'
+              color: '#E9EFFB'
             }
             point {
               value: 'South Korea'
-              color: '#8e94b0'
+              color: '#255DD4'
             }
             point {
               value: 'United Kingdom'
-              color: '#a4a8c0'
+              color: '#517DDD'
             }
             point {
               value: 'United States'
-              color: '#babdcf'
+              color: '#7C9EE5'
             }
             point {
               value: 'Vietnam'
-              color: '#d1d3df'
+              color: '#A8BEEE'
             }
           }
         }
       }
       settings {
         legend_label: 'left'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
-  block t18: TextBlock {
-    content: @md <svg width="361" height="82" viewBox="0 0 361 82" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="1" width="359" height="80" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
-</svg>
-;;
-  }
   block v14: VizBlock {
     label: 'Orders by Country Name and Status'
-    viz: ColumnChart {
+    viz: AreaChart {
       dataset: demo_ecommerce
       calculation f_7be4e9b {
         label: 'Status'
@@ -623,7 +707,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         data_type: 'text'
       }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_countries', 'name')
+        ref: ref('ecommerce_cities', 'name')
         format {
           type: 'text'
         }
@@ -636,13 +720,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       y_axis {
         settings {
-          stack_series_by: 'value'
+          stack_series_by: 'percentage'
         }
         series {
-          field {
+          field: VizFieldFull {
             label: 'orders'
             ref: ref('ecommerce_orders', 'total_order')
-            aggregation: 'custom'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -651,44 +734,42 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           settings {
             point {
               value: 'Cancelled'
-              color: '#d1d3df'
+              color: '#7C9EE5'
             }
             point {
               value: 'Delivered'
-              color: '#223666'
+              color: '#18A59E'
             }
             point {
               value: 'Refunded'
-              color: '#7980a1'
+              color: '#07326C'
             }
           }
         }
       }
       settings {
+        show_data_points: true
         legend_label: 'top'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
-  block t25: TextBlock {
-    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#022658"/>
-<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
-</svg>
-;;
-  }
   block t26: TextBlock {
-    content: @md <svg width="100%" height="130" viewBox="0 0 400 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="1" width="398" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
-</svg>
-;;
-  }
-  block t27: TextBlock {
-    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#022658"/>
-<rect width="36" height="36" transform="translate(2 2)" fill="#022658"/>
-<path d="M19.5157 7.94066L19.1273 8.32902C18.8699 8.58643 18.8699 9.0038 19.1273 9.26127L28.9323 19.0662H8.28418C7.92015 19.0662 7.625 19.3614 7.625 19.7254V20.2747C7.625 20.6388 7.92015 20.9339 8.28418 20.9339H28.9323L19.1273 30.7389C18.8699 30.9963 18.8699 31.4137 19.1273 31.6711L19.5157 32.0595C19.7731 32.3169 20.1905 32.3169 20.4479 32.0595L32.0413 20.4662C32.2987 20.2088 32.2987 19.7914 32.0413 19.5339L20.4479 7.94066C20.1905 7.68319 19.7731 7.68319 19.5157 7.94066Z" fill="white"/>
-</svg>
-;;
+    content: @md   ;;
+    theme {
+      border {
+        border_width: 1
+        border_radius: 6
+        border_color: '#4896EA'
+        border_style: 'dashed'
+      }
+      background {
+        bg_color: '#E8F2FD'
+      }
+    }
   }
   block t28: TextBlock {
     content: @md <h3>Filter by Age Group</h3>;;
@@ -716,19 +797,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
-  block t29: TextBlock {
-    content: @md <svg width="100%" height="130" viewBox="0 0 420 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="1" width="418" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
-</svg>
-;;
-  }
-  block t30: TextBlock {
-    content: @md <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#022658"/>
-<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
-</svg>
-;;
-  }
   block f3: FilterBlock {
     label: 'City'
     type: 'field'
@@ -755,42 +823,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block t32: TextBlock {
     content: @md <h3>Filter by City</h3>;;
   }
-  block t33: TextBlock {
-    content: @md  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="40" width="40" height="40" rx="4" transform="rotate(-90 0 40)" fill="#022658"/>
-<path d="M30.2524 9.28125H9.74783C8.44664 9.28125 7.79011 10.8599 8.712 11.7819L17.0703 20.1419V28.6904C17.0703 28.8992 17.1149 29.1056 17.2012 29.2957C17.2875 29.4859 17.4134 29.6553 17.5706 29.7928L20.5002 32.3555C21.4358 33.1741 22.9297 32.524 22.9297 31.2531V20.1419L31.2882 11.7819C32.2083 10.8618 31.5562 9.28125 30.2524 9.28125ZM21.4648 19.5352V31.2539L18.5352 28.6904V19.5352L9.74609 10.7461H30.2539L21.4648 19.5352Z" fill="white"/>
-</svg>;;
-  }
-  block t34: TextBlock {
-    content: @md   <p style="font-size: 20px;"> 
-  Company GMV Data
-
-</p>
-  <p style="font-size: 12px "> 
-  This is a collection of sales data categorized by geographic location (Continent, Country, City), demographic information (Age, Gender), and economic metrics (Gross Merchandise Value)
-</p>
-
- <p style="font-size: 15px;"> 
-  Examples on How to Use This Data
-
-</p>
-<ul style="font-size: 12px; line-height: 24px" id="random-list">
-  <li>
-    <h3>Analyzing Trends</h3>
-    <p>Analyze trends in Gross Merchandise Value (GMV) across different demographics and regions.</p>
-  </li>
-  <li>
-    <h3>Comparative Analysis</h3>
-    <p>Compare the GMV across different continents, countries, and cities. Look for patterns or outliers. </p>
-  </li>
-</ul>;;
-  }
-  block t35: TextBlock {
-    content: @md <svg viewBox="0 0 425 425" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="1" width="405" height="423" rx="6" fill="#FAFAFA" stroke="#BEC1CB" stroke-dasharray="4 4"/>
-</svg>
-;;
-  }
   block v15: VizBlock {
     label: 'Average Order Value over time'
     viz: CombinationChart {
@@ -802,15 +834,16 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
+        transformation: 'datetrunc week'
         format {
           type: 'date'
+          pattern: 'wwww'
         }
       }
       y_axis {
         series {
           mark_type: 'line'
-          field {
+          field: VizFieldFull {
             ref: ref('order_master', 'aov')
             format {
               type: 'number'
@@ -818,7 +851,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             }
           }
           settings {
-            color: '#07326C'
+            color: '#18A59E'
           }
         }
       }
@@ -828,6 +861,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           duration: 1
           granularity: 'year'
           show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -860,7 +897,11 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       ]
       settings {
         circle_color: '#18A59E'
-        columns_color: '#07326C'
+        columns_color: '#255DD4'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -914,11 +955,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         background: #fafafa;"
     </div>;;
   }
-  block t50: TextBlock {
-    content: @md <svg width="100%" height="130" viewBox="0 0 420 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="1" y="1" width="418" height="128" rx="6" fill="#E8F2FD" stroke="#4896EA" stroke-dasharray="4 4"/>
-</svg>;;
-  }
   block t51: TextBlock {
     content: @md   <div style="height:100%;overflow:hidden;">
   <a href="#heading" style="border-radius:4px;overflow:hidden;">
@@ -948,6 +984,48 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         background: #fafafa;"
     </div>;;
   }
+  block t54: TextBlock {
+    content: @md To embed external content;;
+    theme {
+      border {
+        border_width: 1
+        border_radius: 6
+        border_color: '#4896EA'
+        border_style: 'dashed'
+      }
+      background {
+        bg_color: '#E8F2FD'
+      }
+    }
+  }
+  block t55: TextBlock {
+    content: @md   ;;
+    theme {
+      border {
+        border_width: 1
+        border_radius: 6
+        border_color: '#4896EA'
+        border_style: 'dashed'
+      }
+      background {
+        bg_color: '#E8F2FD'
+      }
+    }
+  }
+  block t56: TextBlock {
+    content: @md   ;;
+    theme {
+      border {
+        border_width: 1
+        border_radius: 6
+        border_color: '#4896EA'
+        border_style: 'dashed'
+      }
+      background {
+        bg_color: '#E8F2FD'
+      }
+    }
+  }
   theme: PageTheme {
     background {
       bg_image: 'linear-gradient(135deg, #ffffff 0%, #ccdaf0 100%)'
@@ -975,164 +1053,140 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   }
   view: CanvasLayout {
     label: 'View 1'
-    width: 1340
-    height: 4260
+    width: 1540
+    height: 3960
     grid_size: 20
     block hd1 {
-      position: pos(1130, 40, 170, 50)
+      position: pos(1340, 20, 180, 50)
     }
     block hd2 {
       position: pos(40, 40, 630, 60)
     }
     block hd3 {
-      position: pos(0, 0, 1360, 200)
+      position: pos(0, 0, 1540, 200)
       layer: -1
     }
     block t2 {
       position: pos(40, 100, 660, 50)
     }
     block v1 {
-      position: pos(60, 710, 1200, 380)
+      position: pos(60, 700, 1420, 380)
     }
     block v2 {
-      position: pos(940, 340, 320, 140)
+      position: pos(80, 340, 320, 140)
     }
     block v2_dup_dup {
-      position: pos(420, 2240, 380, 500)
+      position: pos(420, 2120, 380, 500)
     }
     block v6 {
-      position: pos(820, 2240, 480, 500)
+      position: pos(820, 2120, 680, 500)
     }
     block v7 {
-      position: pos(40, 3620, 1260, 430)
+      position: pos(40, 3320, 1460, 430)
     }
     block v8 {
-      position: pos(40, 3080, 600, 510)
+      position: pos(360, 2780, 560, 520)
     }
     block v10 {
-      position: pos(940, 500, 320, 140)
+      position: pos(80, 500, 320, 140)
     }
     block v12 {
-      position: pos(60, 350, 800, 280)
+      position: pos(480, 340, 1000, 300)
       layer: -1
     }
     block f1 {
-      position: pos(60, 3000, 350, 50)
+      position: pos(60, 2840, 260, 40)
     }
     block t5 {
-      position: pos(40, 230, 1260, 70)
+      position: pos(40, 230, 1460, 70)
     }
     block t6 {
-      position: pos(40, 1190, 1260, 80)
-    }
-    block t7 {
-      position: pos(60, 2270, 220, 50)
-      layer: 1
+      position: pos(40, 1190, 1460, 80)
     }
     block t8 {
-      position: pos(40, 2820, 1250, 80)
+      position: pos(40, 2680, 1460, 80)
     }
     block t9 {
-      position: pos(120, 2950, 270, 50)
+      position: pos(60, 2800, 260, 40)
     }
     block t10 {
-      position: pos(770, 100, 160, 50)
+      position: pos(940, 100, 180, 50)
     }
     block t11 {
-      position: pos(940, 100, 170, 50)
+      position: pos(1140, 100, 180, 50)
     }
     block t12 {
-      position: pos(1120, 100, 170, 50)
+      position: pos(1340, 100, 180, 50)
     }
     block v13 {
-      position: pos(40, 1280, 680, 360)
-    }
-    block t18 {
-      position: pos(40, 2250, 370, 90)
+      position: pos(40, 1280, 720, 360)
     }
     block v14 {
-      position: pos(40, 1660, 1260, 560)
-    }
-    block t25 {
-      position: pos(60, 2940, 60, 60)
+      position: pos(40, 1660, 1460, 420)
     }
     block t26 {
-      position: pos(40, 2920, 390, 150)
+      position: pos(40, 2780, 300, 120)
       layer: -2
     }
-    block t27 {
-      position: pos(330, 2270, 60, 60)
-    }
     block t28 {
-      position: pos(970, 2950, 260, 50)
+      position: pos(60, 3080, 260, 40)
     }
     block f2 {
-      position: pos(910, 3000, 360, 50)
-    }
-    block t29 {
-      position: pos(460, 2920, 400, 150)
-      layer: -3
-    }
-    block t30 {
-      position: pos(480, 2940, 60, 60)
+      position: pos(60, 3120, 260, 40)
     }
     block f3 {
-      position: pos(480, 3000, 360, 50)
+      position: pos(60, 2980, 260, 40)
     }
     block t32 {
-      position: pos(540, 2950, 270, 50)
+      position: pos(60, 2940, 260, 40)
       layer: 1
     }
-    block t33 {
-      position: pos(910, 2940, 60, 60)
-    }
-    block t34 {
-      position: pos(60, 2370, 330, 360)
-      layer: -3
-    }
-    block t35 {
-      position: pos(40, 2350, 380, 400)
-      layer: -4
-    }
     block v15 {
-      position: pos(660, 3080, 640, 510)
+      position: pos(940, 2780, 560, 520)
     }
     block v16 {
-      position: pos(740, 1280, 560, 360)
+      position: pos(780, 1280, 720, 360)
     }
     block t38 {
-      position: pos(0, 4090, 1360, 170)
+      position: pos(0, 3800, 1540, 170)
       layer: -1
     }
     block t39 {
-      position: pos(40, 4140, 200, 70)
+      position: pos(40, 3840, 200, 70)
     }
     block t40 {
-      position: pos(900, 4120, 390, 110)
+      position: pos(1100, 3820, 400, 110)
     }
     block t47 {
-      position: pos(1210, 1150, 80, 100)
+      position: pos(1420, 1140, 80, 100)
       layer: 1
     }
     block t49 {
-      position: pos(40, 680, 1260, 440)
+      position: pos(40, 680, 1460, 420)
       layer: -2
     }
-    block t50 {
-      position: pos(890, 2920, 400, 150)
-      layer: -3
-    }
     block t51 {
-      position: pos(1210, 2780, 80, 100)
+      position: pos(1420, 2640, 80, 100)
       layer: 1
     }
     block t52 {
-      position: pos(40, 320, 840, 340)
+      position: pos(460, 320, 1040, 340)
       layer: -2
     }
     block t53 {
-      position: pos(900, 320, 400, 340)
+      position: pos(40, 320, 400, 340)
       layer: -2
+    }
+    block t54 {
+      position: pos(40, 2120, 360, 500)
+    }
+    block t55 {
+      position: pos(40, 2920, 300, 120)
+      layer: -1
+    }
+    block t56 {
+      position: pos(40, 3060, 300, 120)
+      layer: -1
     }
   }
   settings {
