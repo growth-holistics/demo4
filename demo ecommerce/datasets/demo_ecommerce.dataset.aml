@@ -124,23 +124,6 @@ pre_aggregates: {
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
-  dimension location_recommendation {
-    model: ecommerce_users
-    label: 'Make Location Recommendation'
-    type: 'text'
-    definition: @aql concat(
-      'https://chat.openai.com/chat?q=give+a+recommendation+(+3+recommendations+max+for+each+category+)+for+a+',
-      ecommerce_users.gender,
-      '+tourist+',
-      '+in+the+age+demographic+of+',
-      ecommerce_users.age_group,
-      '+who+is+going+to+',ecommerce_cities.name,
-      '+in+',
-      ecommerce_users.visit_time,
-      '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
-      );;
-  }
-
   dimension experience {
     model: ecommerce_cities
     label: 'Experience Recommendation'
