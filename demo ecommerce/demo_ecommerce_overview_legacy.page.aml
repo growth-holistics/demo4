@@ -1,7 +1,9 @@
 Dashboard demo_ecommerce_overview_legacy {
-  title: '[Demo] Ecommerce Overview (Legacy)'
+  title: '[Demo] Ecommerce Overview'
+
+
   block user_country: FilterBlock {
-    label: 'User Country'
+    label: 'Country'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce
@@ -24,18 +26,6 @@ Dashboard demo_ecommerce_overview_legacy {
       value: []
     }
   }
-  block product_id: FilterBlock {
-    label: 'Product ID'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_products', 'id')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-  }
   block age_demographic: FilterBlock {
     label: 'Age Demographic'
     type: 'field'
@@ -45,7 +35,7 @@ Dashboard demo_ecommerce_overview_legacy {
     }
     default {
       operator: 'is'
-      value: '2. From 20 to 29'
+      value: []
     }
   }
   block v1: VizBlock {
@@ -379,19 +369,6 @@ Dashboard demo_ecommerce_overview_legacy {
       }
     }
   }
-  block t1: TextBlock {
-    content: @md <picture>
-<source media="(min-width:650px)" srcset="https://cdn.holistics.io/landing/logo-color.svg">
-<img style=" display: block;
-margin-left: auto;
-margin-right: auto;
-width: 50%;" src="holisticswhitelabeldemo.jpg" alt="demo" width="400" height="150">
-</picture>
-
-<p align=center>
-This dashboard tracks the KPIs of all managers for their respective teams. This will also be presented in our monthly presentation to our board and investors. If you have questions about the data here, please contact the <a href ="mailto:data@holistics.io"> data team </a>.
-</body>;;
-  }
   block t2: TextBlock {
     content: @md <img style="
 display: block;
@@ -472,6 +449,13 @@ display: block;
               color: '#9FC851'
             }
           }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -555,37 +539,86 @@ display: block;
       }
     }
   }
-  block v11: VizBlock {
-    label: 'Pokemon For Adoption'
+  block v12: VizBlock {
+    label: 'Top selling products'
     viz: DataTable {
-      dataset: pokedex
+      dataset: demo_ecommerce
+      calculation f_28374b6 {
+        label: 'Product Image'
+        formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="float:left;width:100px;height:100px;object-fit:contain" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
       fields: [
         VizFieldFull {
-          label: 'Pokemon (Link)'
-          ref: ref('sample_pokemon_gif', 'pokemon_html_link')
+          ref: 'f_28374b6'
           format {
             type: 'html'
           }
         },
         VizFieldFull {
-          ref: ref('sample_pokemon_gif', 'gif_cleaned')
-          format {
-            type: 'html'
-          }
-        },
-        VizFieldFull {
-          ref: ref('sample_pokemon_gif', 'description')
+          ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
           }
         }
       ]
       settings {
+        pagination_size: 100
         row_height: 'multiple_lines'
-        show_row_number: true
-        row_limit: 10
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'gmv')
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#E9EFFB'
+              }
+              max {
+                value: 150000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
+  }
+  block t4: TextBlock {
+    content: @md   <a href="#block-v7">
+ <button style="
+  background-color: white;
+  color: gray;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+">Overview</button>
+</a>;;
   }
   interactions: [
     FilterInteraction {
@@ -593,56 +626,13 @@ display: block;
       to: [
         CustomMapping {
           block: [
-            'user_gender',
-            'product_id',
-            'age_demographic'
+            'v1',
+            'v5',
+            'v9',
+            'v10'
           ]
           disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'user_gender'
-      to: [
-        CustomMapping {
-          block: [
-            'user_country',
-            'product_id',
-            'age_demographic'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'product_id'
-      to: [
-        CustomMapping {
-          block: [
-            'user_country',
-            'user_gender',
-            'age_demographic'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'age_demographic'
-      to: [
-        CustomMapping {
-          block: [
-            'user_country',
-            'user_gender',
-            'product_id'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'user_country'
-      to: [
+        },
         CustomMapping {
           block: 'v3'
           field: ref('ecommerce_countries', 'name')
@@ -650,20 +640,39 @@ display: block;
       ]
     },
     FilterInteraction {
-      from: 'user_gender'
+      from: 'user_country'
       to: [
         CustomMapping {
-          block: 'v6'
-          field: ref('ecommerce_users', 'gender')
+          block: [
+            'user_gender',
+            'age_demographic'
+          ]
+          disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'product_id'
+      from: 'user_gender'
       to: [
         CustomMapping {
-          block: 'v6'
-          field: ref('ecommerce_products', 'id')
+          block: [
+            'v5',
+            'v7',
+            'v8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'user_gender'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'age_demographic'
+          ]
+          disabled: true
         }
       ]
     },
@@ -671,8 +680,27 @@ display: block;
       from: 'age_demographic'
       to: [
         CustomMapping {
+          block: [
+            'v7',
+            'v8'
+          ]
+          disabled: true
+        },
+        CustomMapping {
           block: 'v3'
           field: ref('ecommerce_users', 'age_group')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'age_demographic'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'user_gender'
+          ]
+          disabled: true
         }
       ]
     }
@@ -680,22 +708,21 @@ display: block;
   view: CanvasLayout {
     label: 'Canvas Layout'
     width: 1220
-    height: 2560
+    height: 2460
     grid_size: 20
-    block t1 {
-      position: pos(560, 140, 340, 100)
-      layer: 1
-    }
     block t2 {
-      position: pos(920, 140, 280, 180)
+      position: pos(320, 20, 260, 180)
       layer: 1
     }
     block t3 {
-      position: pos(560, 260, 340, 60)
+      position: pos(20, 20, 300, 180)
       layer: 1
     }
+    block t4 {
+      position: pos(20, 220, 440, 120)
+    }
     block v1 {
-      position: pos(20, 140, 230, 180)
+      position: pos(920, 140, 280, 180)
       layer: 1
     }
     block v2 {
@@ -723,7 +750,7 @@ display: block;
       layer: 1
     }
     block v8 {
-      position: pos(20, 600, 530, 330)
+      position: pos(20, 720, 520, 210)
       layer: 1
     }
     block v9 {
@@ -731,31 +758,26 @@ display: block;
       layer: 1
     }
     block v10 {
-      position: pos(260, 140, 280, 180)
+      position: pos(620, 140, 280, 180)
       layer: 1
     }
-    block v11 {
-      position: pos(20, 940, 530, 330)
-      layer: 1
-    }
-    block product_id {
-      position: pos(920, 20, 280, 100)
-      layer: 1
+    block v12 {
+      position: pos(20, 940, 520, 340)
     }
     block user_gender {
-      position: pos(20, 20, 280, 100)
-      layer: 1
-    }
-    block user_country {
       position: pos(620, 20, 280, 100)
       layer: 1
     }
+    block user_country {
+      position: pos(20, 600, 520, 100)
+      layer: 1
+    }
     block age_demographic {
-      position: pos(320, 20, 280, 100)
+      position: pos(920, 20, 280, 100)
       layer: 1
     }
   }
-  theme: H.themes.classic
+  theme: beach
   settings {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440

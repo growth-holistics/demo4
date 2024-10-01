@@ -124,6 +124,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       ]
       settings {
+        max_column: 3
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -132,7 +133,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
     settings {
       hide_label: true
-      hide_controls: true
     }
   }
   block v2: VizBlock {
@@ -403,7 +403,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             }
           }
           settings {
-            color: '#255DD4'
+            color: '#18A59E'
           }
         }
       }
@@ -420,7 +420,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             }
           }
           settings {
-            color: '#A8BEEE'
+            color: '#255DD4'
             line_interpolation: 'smooth'
           }
         }
@@ -467,7 +467,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
   }
   block v12: VizBlock {
-    label: 'Gross Merchandise Value'
+    label: 'Daily GMV vs. 7-day Moving Average'
     viz: CombinationChart {
       dataset: demo_ecommerce
       filter {
@@ -758,7 +758,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
   }
   block t26: TextBlock {
-    content: @md   ;;
+    content: @md <p></p>;;
     theme {
       border {
         border_width: 1
@@ -873,6 +873,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     label: 'Sales Funnel'
     viz: ConversionFunnel {
       dataset: demo_ecommerce_users
+      breakdown_by: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
       values: [
         VizFieldFull {
           ref: ref('ecommerce_users', 'users_signed_up_count')
@@ -881,6 +887,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         VizFieldFull {
+          label: 'Users Purchased'
           ref: ref('user_facts_aggr', 'buyers_count')
           format {
             type: 'number'
@@ -888,6 +895,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
         },
         VizFieldFull {
+          label: 'Users Repeated Purchased'
           ref: ref('user_facts_aggr', 'repeated_buyers_count')
           format {
             type: 'number'
@@ -999,7 +1007,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
   }
   block t55: TextBlock {
-    content: @md   ;;
+    content: @md <p></p>;;
     theme {
       border {
         border_width: 1
@@ -1013,7 +1021,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
   }
   block t56: TextBlock {
-    content: @md   ;;
+    content: @md <p></p>;;
     theme {
       border {
         border_width: 1
@@ -1026,76 +1034,22 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
-  theme: PageTheme {
-    background {
-      bg_image: 'linear-gradient(135deg, #ffffff 0%, #ccdaf0 100%)'
-    }
-    canvas {
-      background {
-        bg_color: '#fff'
-      }
-      border {
-        border_width: 1
-        border_radius: 8
-        border_style: 'solid'
-      }
-      shadow: 'lg'
-    }
-    block {
-      label {
-        font_size: 14
-        font_color: "#022658"
-      }
-      text {
-        font_color: "#022658"
-      }
-    }
-  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1540
-    height: 3960
+    height: 3800
     grid_size: 20
-    block hd1 {
-      position: pos(1340, 20, 180, 50)
+    block f1 {
+      position: pos(60, 2840, 260, 40)
     }
-    block hd2 {
-      position: pos(40, 40, 630, 60)
+    block f2 {
+      position: pos(60, 3120, 260, 40)
     }
-    block hd3 {
-      position: pos(0, 0, 1540, 200)
-      layer: -1
+    block f3 {
+      position: pos(60, 2980, 260, 40)
     }
     block t2 {
       position: pos(40, 100, 660, 50)
-    }
-    block v1 {
-      position: pos(60, 700, 1420, 380)
-    }
-    block v2 {
-      position: pos(80, 340, 320, 140)
-    }
-    block v2_dup_dup {
-      position: pos(420, 2120, 380, 500)
-    }
-    block v6 {
-      position: pos(820, 2120, 680, 500)
-    }
-    block v7 {
-      position: pos(40, 3320, 1460, 430)
-    }
-    block v8 {
-      position: pos(360, 2780, 560, 520)
-    }
-    block v10 {
-      position: pos(80, 500, 320, 140)
-    }
-    block v12 {
-      position: pos(480, 340, 1000, 300)
-      layer: -1
-    }
-    block f1 {
-      position: pos(60, 2840, 260, 40)
     }
     block t5 {
       position: pos(40, 230, 1460, 70)
@@ -1109,6 +1063,31 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block t9 {
       position: pos(60, 2800, 260, 40)
     }
+    block v1 {
+      position: pos(60, 700, 1420, 380)
+    }
+    block v2 {
+      position: pos(80, 340, 320, 140)
+    }
+    block v6 {
+      position: pos(820, 2120, 680, 500)
+    }
+    block v7 {
+      position: pos(40, 3200, 1460, 430)
+    }
+    block v8 {
+      position: pos(360, 2780, 560, 400)
+    }
+    block hd1 {
+      position: pos(1340, 20, 180, 50)
+    }
+    block hd2 {
+      position: pos(40, 40, 630, 60)
+    }
+    block hd3 {
+      position: pos(0, 0, 1560, 200)
+      layer: -1
+    }
     block t10 {
       position: pos(940, 100, 180, 50)
     }
@@ -1118,12 +1097,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block t12 {
       position: pos(1340, 100, 180, 50)
     }
-    block v13 {
-      position: pos(40, 1280, 720, 360)
-    }
-    block v14 {
-      position: pos(40, 1660, 1460, 420)
-    }
     block t26 {
       position: pos(40, 2780, 300, 120)
       layer: -2
@@ -1131,31 +1104,19 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block t28 {
       position: pos(60, 3080, 260, 40)
     }
-    block f2 {
-      position: pos(60, 3120, 260, 40)
-    }
-    block f3 {
-      position: pos(60, 2980, 260, 40)
-    }
     block t32 {
       position: pos(60, 2940, 260, 40)
       layer: 1
     }
-    block v15 {
-      position: pos(940, 2780, 560, 520)
-    }
-    block v16 {
-      position: pos(780, 1280, 720, 360)
-    }
     block t38 {
-      position: pos(0, 3800, 1540, 170)
+      position: pos(0, 3640, 1560, 170)
       layer: -1
     }
     block t39 {
-      position: pos(40, 3840, 200, 70)
+      position: pos(40, 3680, 200, 70)
     }
     block t40 {
-      position: pos(1100, 3820, 400, 110)
+      position: pos(1100, 3660, 400, 110)
     }
     block t47 {
       position: pos(1420, 1140, 80, 100)
@@ -1187,6 +1148,28 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block t56 {
       position: pos(40, 3060, 300, 120)
       layer: -1
+    }
+    block v10 {
+      position: pos(80, 500, 320, 140)
+    }
+    block v12 {
+      position: pos(480, 340, 1000, 300)
+      layer: -1
+    }
+    block v13 {
+      position: pos(40, 1280, 720, 460)
+    }
+    block v14 {
+      position: pos(40, 1760, 1460, 320)
+    }
+    block v15 {
+      position: pos(940, 2780, 560, 400)
+    }
+    block v16 {
+      position: pos(780, 1280, 720, 460)
+    }
+    block v2_dup_dup {
+      position: pos(420, 2120, 380, 500)
     }
   }
   settings {
