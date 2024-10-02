@@ -26,18 +26,6 @@ Dashboard demo_ecommerce_overview_legacy {
       value: []
     }
   }
-  block age_demographic: FilterBlock {
-    label: 'Age Demographic'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('ecommerce_users', 'age_group')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-  }
   block v1: VizBlock {
     label: 'GMV'
     viz: MetricKpi {
@@ -377,6 +365,13 @@ display: block;
         calc_type: 'dimension'
         data_type: 'text'
       }
+      calculation f_5392cd1 {
+        label: 'Search On Amazon'
+        formula: @aql concat('https://www.amazon.com/s?k=',ecommerce_products.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
@@ -393,6 +388,13 @@ display: block;
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Search On Amazon'
+            url: ActionFieldInput {
+              ref: 'f_5392cd1'
+            }
           }
         },
         VizFieldFull {
@@ -667,6 +669,30 @@ display: block;
   block t10: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
   }
+  block f1: FilterBlock {
+    label: 'Age Demographic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Date Filter'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('order_master', 'order_created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'user_country'
@@ -690,7 +716,8 @@ display: block;
         CustomMapping {
           block: [
             'user_gender',
-            'age_demographic'
+            'f1',
+            'f2'
           ]
           disabled: true
         }
@@ -701,8 +728,11 @@ display: block;
       to: [
         CustomMapping {
           block: [
+            'v1',
             'v7',
-            'v8'
+            'v8',
+            'v10',
+            'v12'
           ]
           disabled: true
         }
@@ -714,35 +744,66 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'age_demographic'
+            'f1',
+            'f2'
           ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'age_demographic'
+      from: 'f1'
       to: [
         CustomMapping {
           block: [
+            'v1',
             'v7',
-            'v8'
+            'v8',
+            'v10',
+            'v12'
           ]
           disabled: true
-        },
-        CustomMapping {
-          block: 'v3'
-          field: ref('ecommerce_users', 'age_group')
         }
       ]
     },
     FilterInteraction {
-      from: 'age_demographic'
+      from: 'f1'
       to: [
         CustomMapping {
           block: [
             'user_country',
-            'user_gender'
+            'user_gender',
+            'f2'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v7',
+            'v8',
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v16'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'user_gender',
+            'f1'
           ]
           disabled: true
         }
@@ -752,26 +813,22 @@ display: block;
   view: CanvasLayout {
     label: 'Canvas Layout'
     width: 1220
-    height: 2820
+    height: 2960
     grid_size: 5
     block user_country {
-      position: pos(20, 800, 520, 100)
+      position: pos(20, 775, 520, 100)
       layer: 1
     }
     block user_gender {
-      position: pos(640, 40, 280, 100)
-      layer: 1
-    }
-    block age_demographic {
-      position: pos(920, 40, 280, 100)
+      position: pos(20, 1700, 560, 90)
       layer: 1
     }
     block v1 {
-      position: pos(920, 140, 280, 180)
+      position: pos(920, 120, 280, 180)
       layer: 1
     }
     block v3 {
-      position: pos(560, 1220, 630, 230)
+      position: pos(560, 1195, 630, 230)
       layer: 1
     }
     block v6 {
@@ -779,7 +836,7 @@ display: block;
       layer: 1
     }
     block v7 {
-      position: pos(560, 800, 630, 430)
+      position: pos(560, 775, 630, 430)
       layer: 1
     }
     block t2 {
@@ -787,7 +844,7 @@ display: block;
       layer: 1
     }
     block v8 {
-      position: pos(20, 900, 520, 210)
+      position: pos(20, 875, 520, 210)
       layer: 1
     }
     block t3 {
@@ -795,30 +852,30 @@ display: block;
       layer: 1
     }
     block v10 {
-      position: pos(640, 140, 280, 180)
+      position: pos(640, 120, 280, 180)
       layer: 1
     }
     block v12 {
-      position: pos(20, 1120, 520, 340)
+      position: pos(20, 1095, 520, 340)
     }
     block v13 {
-      position: pos(20, 1660, 1180, 280)
+      position: pos(20, 1800, 1180, 280)
       layer: 1
     }
     block v14 {
-      position: pos(20, 1960, 1180, 380)
+      position: pos(20, 2100, 1180, 380)
       layer: 2
     }
     block v15 {
-      position: pos(20, 2360, 530, 430)
+      position: pos(20, 2500, 530, 430)
       layer: 3
     }
     block v16 {
-      position: pos(580, 2360, 630, 430)
+      position: pos(580, 2500, 630, 430)
       layer: 4
     }
     block t5 {
-      position: pos(500, 1480, 140, 140)
+      position: pos(505, 1480, 140, 140)
       layer: 1
     }
     block t6 {
@@ -834,12 +891,20 @@ display: block;
       layer: 1
     }
     block t9 {
-      position: pos(500, 600, 140, 140)
+      position: pos(500, 575, 140, 140)
       layer: 1
     }
     block t10 {
-      position: pos(320, 720, 480, 60)
+      position: pos(320, 695, 480, 60)
       layer: 2
+    }
+    block f1 {
+      position: pos(600, 1690, 600, 100)
+      layer: 1
+    }
+    block f2 {
+      position: pos(645, 20, 555, 100)
+      layer: 5
     }
   }
   theme: beach
