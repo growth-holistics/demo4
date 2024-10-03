@@ -1,5 +1,7 @@
 Dashboard demo_ecommerce_overview_legacy {
   title: '[Demo] Ecommerce Overview'
+
+
   block user_country: FilterBlock {
     label: 'Country'
     type: 'field'
@@ -375,6 +377,13 @@ display: block;
         calc_type: 'dimension'
         data_type: 'text'
       }
+      calculation f_ed9f56e {
+        label: 'Search On Amazon'
+        formula: @aql concat('https://www.amazon.com/s?k=',ecommerce_products.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
@@ -391,6 +400,13 @@ display: block;
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Search On Amazon'
+            url: ActionFieldInput {
+              ref: 'f_ed9f56e'
+            }
           }
         },
         VizFieldFull {
@@ -672,11 +688,7 @@ display: block;
         CustomMapping {
           block: [
             'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16'
+            'v10'
           ]
           disabled: true
         },
@@ -761,7 +773,7 @@ display: block;
       layer: 1
     }
     block t3 {
-      position: pos(20, 20, 300, 180)
+      position: pos(15, 20, 300, 180)
       layer: 1
     }
     block t5 {
@@ -781,7 +793,7 @@ display: block;
       layer: 1
     }
     block t9 {
-      position: pos(500, 605, 140, 140)
+      position: pos(500, 600, 140, 140)
       layer: 1
     }
     block v1 {
@@ -793,7 +805,7 @@ display: block;
       layer: 1
     }
     block v6 {
-      position: pos(20, 310, 1180, 285)
+      position: pos(20, 320, 1180, 230)
       layer: 1
     }
     block v7 {
@@ -805,7 +817,7 @@ display: block;
       layer: 1
     }
     block t10 {
-      position: pos(320, 725, 480, 60)
+      position: pos(320, 720, 480, 60)
       layer: 2
     }
     block v10 {
@@ -832,7 +844,7 @@ display: block;
       layer: 4
     }
     block user_gender {
-      position: pos(640, 40, 280, 100)
+      position: pos(640, 30, 280, 100)
       layer: 1
     }
     block user_country {
@@ -840,7 +852,7 @@ display: block;
       layer: 1
     }
     block age_demographic {
-      position: pos(920, 40, 280, 100)
+      position: pos(920, 35, 280, 100)
       layer: 1
     }
   }
