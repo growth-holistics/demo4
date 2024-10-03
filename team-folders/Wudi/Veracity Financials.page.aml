@@ -56,10 +56,11 @@ Dashboard veracity_financial {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this year'
+      calculation untitled_metric_1981c5d {
+        label: 'Untitled Metric'
+        formula: @aql count(ecommerce_orders.id);;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       fields: [
         VizFieldFull {
@@ -67,15 +68,6 @@ Dashboard veracity_financial {
           ref: ref('ecommerce_orders', 'order_month')
           format {
             type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: ' '
-          ref: ref('order_master', 'order_id')
-          aggregation: 'count distinct'
-          format {
-            type: 'number'
-            pattern: 'inherited'
           }
         },
         VizFieldFull {
@@ -88,16 +80,24 @@ Dashboard veracity_financial {
         },
         VizFieldFull {
           label: ' '
+          ref: 'untitled_metric_1981c5d'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: ' '
           ref: '__'
           format {
             type: 'number'
-            pattern: '#,###\\%'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
           }
         }
       ]
       settings {
-        show_sum_row: true
-        show_row_number: true
         row_limit: 5000
         column_width {
           manual_widths: [
@@ -404,119 +404,6 @@ Dashboard veracity_financial {
   block t6: TextBlock {
     content: @md <div id="heading"> <h1  style="font-size:25px; color:black; text-align: left">Filing Processed</h2></div>;;
   }
-  block v9: VizBlock {
-    label: 'Orders Processed'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      calculation year {
-        label: 'Year'
-        formula: @aql case(
-  when: true
-  , then: "Year"
-  , else: "Year"
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation header {
-        label: 'Header'
-        formula: @aql 'Processed';;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: ecommerce_orders
-      }
-      calculation _value {
-        label: 'Value'
-        formula: @aql count(ecommerce_orders.id) ;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation pct_changes {
-        label: '%'
-        formula: @aql safe_divide(
-  relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) 
-  - count(ecommerce_orders.id) * 1.0,
-  count(ecommerce_orders.id)
-);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation _ {
-        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) ;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation __ {
-        label: 'Untitled Metric'
-        formula: @aql safe_divide(
-  count(ecommerce_orders.id) - (relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year))) * 1.0,
-  count(ecommerce_orders.id)
-);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this year'
-      }
-      fields: [
-        VizFieldFull {
-          label: ' '
-          ref: ref('ecommerce_orders', 'order_month')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: ' '
-          ref: ref('order_master', 'order_id')
-          aggregation: 'count distinct'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: ' '
-          ref: '_'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: ' '
-          ref: '__'
-          format {
-            type: 'number'
-            pattern: '#,###\\%'
-          }
-        }
-      ]
-      settings {
-        show_sum_row: true
-        show_row_number: true
-        row_limit: 5000
-        column_width {
-          manual_widths: [
-            ColumnWidth {
-              key: '_holistics_row_number_'
-              width: 51
-            }
-          ]
-        }
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block v10: VizBlock {
     label: ' '
     viz: DataTable {
@@ -761,19 +648,614 @@ Dashboard veracity_financial {
   }
 </style>;;
   }
+  block v13: VizBlock {
+    label: 'Orders Processed (dup)'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation year {
+        label: 'Year'
+        formula: @aql case(
+  when: true
+  , then: "Year"
+  , else: "Year"
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation header {
+        label: 'Header'
+        formula: @aql 'Processed';;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation _value {
+        label: 'Value'
+        formula: @aql count(ecommerce_orders.id) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation pct_changes {
+        label: '%'
+        formula: @aql safe_divide(
+  relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) 
+  - count(ecommerce_orders.id) * 1.0,
+  count(ecommerce_orders.id)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation _ {
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation __ {
+        label: 'Untitled Metric'
+        formula: @aql safe_divide(
+  count(ecommerce_orders.id) - (relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year))) * 1.0,
+  count(ecommerce_orders.id)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation untitled_metric_1981c5d {
+        label: 'Untitled Metric'
+        formula: @aql count(ecommerce_orders.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('ecommerce_orders', 'order_month')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: ' '
+          ref: '_'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_1981c5d'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: ' '
+          ref: '__'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 51
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t12: TextBlock {
+    content: @md <hr width="100%" size="20" color="black">;;
+  }
+  block v14: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_dimension_1b86bcc {
+        label: 'Untitled Dimension'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  "% Change",
+  '</h2></div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation untitled_metric_40dd78a {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      calculation untitled_metric_49a9108 {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_40dd78a'
+          format {
+            type: 'html'
+          }
+          uname: 'custom_untitled_metric_40dd78a'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 100
+            },
+            ColumnWidth {
+              key: '!fields[1]'
+              width: 99
+            },
+            ColumnWidth {
+              key: '!fields[2]'
+              width: 117
+            },
+            ColumnWidth {
+              key: 'custom_untitled_metric_40dd78a'
+              width: 99
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v15: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_dimension_1b86bcc {
+        label: 'Untitled Dimension'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  "% Change",
+  '</h2></div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation untitled_metric_40dd78a {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      calculation untitled_metric_49a9108 {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_49a9108'
+          format {
+            type: 'html'
+          }
+          uname: 'custom_untitled_metric_49a9108'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '!fields[0]'
+              width: 99
+            },
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 100
+            },
+            ColumnWidth {
+              key: '!fields[2]'
+              width: 117
+            },
+            ColumnWidth {
+              key: 'custom_untitled_metric_49a9108'
+              width: 99
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v16: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_dimension_1b86bcc {
+        label: 'Untitled Dimension'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  "% Change",
+  '</h2></div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation untitled_metric_40dd78a {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      calculation untitled_metric_49a9108 {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'untitled_dimension_1b86bcc')
+          format {
+            type: 'html'
+          }
+          uname: 'order_master_untitled_dimension_1b86bcc'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '!fields[0]'
+              width: 99
+            },
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 100
+            },
+            ColumnWidth {
+              key: '!fields[1]'
+              width: 99
+            },
+            ColumnWidth {
+              key: 'order_master_untitled_dimension_1b86bcc'
+              width: 117
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v17: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_dimension_1b86bcc {
+        label: 'Untitled Dimension'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  "Grand Total",
+  '</h2></div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation untitled_metric_40dd78a {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      calculation untitled_metric_49a9108 {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'untitled_dimension_1b86bcc')
+          format {
+            type: 'html'
+          }
+          uname: 'order_master_untitled_dimension_1b86bcc'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '!fields[0]'
+              width: 99
+            },
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 100
+            },
+            ColumnWidth {
+              key: '!fields[1]'
+              width: 99
+            },
+            ColumnWidth {
+              key: 'order_master_untitled_dimension_1b86bcc'
+              width: 117
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t13: TextBlock {
+    content: @md <hr width="100%" size="20" color="black">;;
+  }
+  block v18: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_dimension_1b86bcc {
+        label: 'Untitled Dimension'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  "YTD Total",
+  '</h2></div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation untitled_metric_40dd78a {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      calculation untitled_metric_49a9108 {
+        label: 'Untitled Metric'
+        formula: @aql concat(
+  '<div id="heading"> <h1  style="font-size:15px; color:black; text-align: left">', 
+  cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'text'),
+  '</h2></div>'
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'untitled_dimension_1b86bcc')
+          format {
+            type: 'html'
+          }
+          uname: 'order_master_untitled_dimension_1b86bcc'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: '!fields[0]'
+              width: 99
+            },
+            ColumnWidth {
+              key: '_holistics_row_number_'
+              width: 100
+            },
+            ColumnWidth {
+              key: '!fields[1]'
+              width: 99
+            },
+            ColumnWidth {
+              key: 'order_master_untitled_dimension_1b86bcc'
+              width: 117
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t14: TextBlock {
+    content: @md <hr width="100%" size="20" color="black">;;
+  }
+  block t15: TextBlock {
+    content: @md <hr width="100%" size="20" color="black">;;
+  }
+  block v19: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql count(ecommerce_orders.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v20: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v21: VizBlock {
+    label: ' '
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql safe_divide(
+  count(ecommerce_orders.id) - (relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year))) * 1.0,
+  count(ecommerce_orders.id)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
 
   view: CanvasLayout {
     label: 'View 1'
     width: 1295
-    height: 600
+    height: 695
     grid_size: 5
     block t2 {
       position: pos(10, 15, 800, 100)
       layer: 3
     }
     block v1 {
-      position: pos(10, 90, 450, 490)
+      position: pos(10, 145, 450, 370)
     }
     block f1 {
       position: pos(935, 20, 300, 80)
@@ -783,7 +1265,7 @@ Dashboard veracity_financial {
       layer: 7
     }
     block v6 {
-      position: pos(195, 135, 45, 40)
+      position: pos(170, 120, 45, 60)
       layer: 2
     }
     block t3 {
@@ -791,11 +1273,11 @@ Dashboard veracity_financial {
       layer: 2
     }
     block t4 {
-      position: pos(150, 150, 315, 35)
+      position: pos(110, 150, 355, 35)
       layer: 1
     }
     block t5 {
-      position: pos(10, 150, 145, 40)
+      position: pos(10, 150, 120, 35)
       layer: 2
     }
     block v7 {
@@ -810,20 +1292,16 @@ Dashboard veracity_financial {
       position: pos(190, 110, 230, 40)
       layer: 3
     }
-    block v9 {
-      position: pos(310, 90, 450, 490)
-      layer: -1
-    }
     block v10 {
       position: pos(490, 135, 45, 40)
       layer: 2
     }
     block t7 {
-      position: pos(310, 105, 455, 55)
+      position: pos(305, 105, 490, 55)
       layer: 1
     }
     block t8 {
-      position: pos(460, 150, 305, 35)
+      position: pos(455, 150, 340, 35)
       layer: 1
     }
     block t9 {
@@ -831,11 +1309,11 @@ Dashboard veracity_financial {
       layer: 3
     }
     block v11 {
-      position: pos(580, 130, 60, 45)
+      position: pos(595, 130, 60, 45)
       layer: 4
     }
     block v12 {
-      position: pos(665, 130, 85, 45)
+      position: pos(690, 130, 85, 45)
       layer: 5
     }
     block t10 {
@@ -843,8 +1321,60 @@ Dashboard veracity_financial {
       layer: 6
     }
     block t11 {
-      position: pos(865, 115, 283, 160)
+      position: pos(755, -55, 283, 160)
       layer: 8
+    }
+    block v13 {
+      position: pos(340, 145, 450, 370)
+      layer: -1
+    }
+    block t12 {
+      position: pos(150, 530, 315, 30)
+      layer: 9
+    }
+    block v14 {
+      position: pos(155, 495, 75, 40)
+      layer: 2
+    }
+    block v15 {
+      position: pos(270, 495, 60, 45)
+      layer: 1
+    }
+    block v16 {
+      position: pos(365, 495, 85, 45)
+      layer: 2
+    }
+    block v17 {
+      position: pos(30, 530, 120, 55)
+      layer: 2
+    }
+    block t13 {
+      position: pos(150, 585, 315, 30)
+      layer: 9
+    }
+    block v18 {
+      position: pos(30, 600, 120, 55)
+      layer: 2
+    }
+    block t14 {
+      position: pos(150, 595, 315, 30)
+      layer: 9
+    }
+    block t15 {
+      position: pos(150, 660, 315, 30)
+      layer: 9
+    }
+    block v19 {
+      position: pos(240, 540, 110, 40)
+      layer: 10
+    }
+    block v20 {
+      position: pos(150, 540, 110, 40)
+      layer: 10
+    }
+    block v21 {
+      position: pos(350, 540, 110, 40)
+      layer: 10
     }
   }
   interactions: [
@@ -853,7 +1383,6 @@ Dashboard veracity_financial {
       to: [
         CustomMapping {
           block: [
-            'v9',
             'v10',
             'v11',
             'v12'
@@ -867,7 +1396,6 @@ Dashboard veracity_financial {
       to: [
         CustomMapping {
           block: [
-            'v9',
             'v10',
             'v11',
             'v12'
@@ -881,7 +1409,6 @@ Dashboard veracity_financial {
       to: [
         CustomMapping {
           block: [
-            'v9',
             'v10',
             'v11',
             'v12'
@@ -895,7 +1422,6 @@ Dashboard veracity_financial {
       to: [
         CustomMapping {
           block: [
-            'v9',
             'v10',
             'v11',
             'v12'
@@ -909,25 +1435,6 @@ Dashboard veracity_financial {
       to: [
         CustomMapping {
           block: [
-            'v9',
-            'v10',
-            'v11',
-            'v12'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v9'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v5',
-            'v6',
-            'v7',
-            'v8',
             'v10',
             'v11',
             'v12'
@@ -946,9 +1453,14 @@ Dashboard veracity_financial {
             'v6',
             'v7',
             'v8',
-            'v9',
             'v11',
-            'v12'
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18'
           ]
           disabled: true
         }
@@ -964,9 +1476,14 @@ Dashboard veracity_financial {
             'v6',
             'v7',
             'v8',
-            'v9',
             'v10',
-            'v12'
+            'v12',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18'
           ]
           disabled: true
         }
@@ -982,9 +1499,92 @@ Dashboard veracity_financial {
             'v6',
             'v7',
             'v8',
-            'v9',
             'v10',
-            'v11'
+            'v11',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v13'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v14'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v15'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v16'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v17'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v18'
+      to: [
+        CustomMapping {
+          block: [
+            'v10',
+            'v11',
+            'v12'
           ]
           disabled: true
         }
