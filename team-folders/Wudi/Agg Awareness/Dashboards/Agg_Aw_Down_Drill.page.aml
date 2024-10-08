@@ -5,7 +5,7 @@ Dashboard source {
   view: CanvasLayout {
     label: 'View 1'
     width: 1560
-    height: 880
+    height: 1360
     grid_size: 20
     block v3 {
       position: pos(40, 180, 640, 300)
@@ -14,13 +14,13 @@ Dashboard source {
       position: pos(880, 180, 640, 300)
     }
     block v6 {
-      position: pos(880, 540, 640, 300)
+      position: pos(880, 980, 640, 300)
     }
     block v7 {
-      position: pos(40, 540, 640, 300)
+      position: pos(40, 980, 640, 300)
     }
     block f1 {
-      position: pos(120, 900, 80, 80)
+      position: pos(120, 1360, 80, 80)
       layer: 1
     }
     block d1 {
@@ -28,7 +28,7 @@ Dashboard source {
       layer: 2
     }
     block d2 {
-      position: pos(700, 620, 160, 100)
+      position: pos(700, 1060, 160, 100)
       layer: 3
     }
     block t1 {
@@ -38,6 +38,16 @@ Dashboard source {
     block t2 {
       position: pos(880, 20, 640, 120)
       layer: 4
+    }
+    block v8 {
+      position: pos(40, 500, 640, 280)
+    }
+    block v9 {
+      position: pos(880, 500, 640, 280)
+    }
+    block t3 {
+      position: pos(-20, 820, 1600, 100)
+      layer: 5
     }
   }
   theme: H.themes.classic
@@ -196,6 +206,77 @@ Dashboard source {
     content: @md ## Using Pre-aggregated Ratings Models
 #### (Pre-aggregated Models, Year chart with Year Model, Month Chart with Month Model);;
   }
+  block v8: VizBlock {
+    label: 'Count Ratings by Year (dup)'
+    viz: DataTable {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_ratings', 'timestamp')
+        operator: 'after'
+        value: '2014-12-31'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('public_ratings', 'timestamp')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('public_ratings', 'count_all_ratings')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v9: VizBlock {
+    label: 'Ratings by Date Trunc (Year) (dup)'
+    viz: DataTable {
+      dataset: exp_wudi_ratings
+      fields: [
+        VizFieldFull {
+          ref: ref('agg_ratings_yearly', 'date_trunc')
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Ratings'
+          ref: ref('agg_ratings_yearly', 'count')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <div style="width: 4000px; height: 100px; border-radius: 8px; background-color: #87CEEB"></div>;;
+  }
   interactions: [
     FilterInteraction {
       from: 'f1'
@@ -203,12 +284,16 @@ Dashboard source {
         CustomMapping {
           block: [
             'v3',
-            'v7'
+            'v7',
+            'v8'
           ]
           field: ref('public_ratings', 'timestamp')
         },
         CustomMapping {
-          block: 'v5'
+          block: [
+            'v5',
+            'v9'
+          ]
           field: ref('agg_ratings_yearly', 'date_trunc')
         },
         CustomMapping {
@@ -221,11 +306,17 @@ Dashboard source {
       from: 'd1'
       to: [
         CustomMapping {
-          block: 'v3'
+          block: [
+            'v3',
+            'v8'
+          ]
           field: ref('public_ratings', 'timestamp')
         },
         CustomMapping {
-          block: 'v5'
+          block: [
+            'v5',
+            'v9'
+          ]
           field: ref('agg_ratings_yearly', 'date_trunc')
         }
       ]
