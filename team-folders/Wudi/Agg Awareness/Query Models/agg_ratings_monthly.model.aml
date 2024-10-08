@@ -39,12 +39,17 @@ Model agg_ratings_monthly {
     hidden: false
     definition: @sql {{ #SOURCE.count }};;
   }
+  dimension date_trunc {
+    label: "Date Trunc"
+    type: "datetime"
+    hidden: false
+    definition: @sql {{ #SOURCE.date_trunc }};;
+  }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql
-    select date_trunc('month', {{ #public_ratings.timestamp }}), {{ #public_ratings.movie_id }}, min({{ #public_ratings.rating }}), max({{ #public_ratings.rating }}), avg({{ #public_ratings.rating }}), count({{ #public_ratings.rating }})
-    from{{ #public_ratings }}
-    group by 1,2;;
+  query: @sql select date_trunc('month', {{ #public_ratings.timestamp }}), {{ #public_ratings.movie_id }}, min({{ #public_ratings.rating }}), max({{ #public_ratings.rating }}), avg({{ #public_ratings.rating }}), count({{ #public_ratings.rating }})
+from{{ #public_ratings }}
+group by 1,2;;
   models: [
     public_ratings
   ]
