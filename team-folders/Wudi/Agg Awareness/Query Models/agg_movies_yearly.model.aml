@@ -4,10 +4,10 @@ Model agg_movies_yearly {
   description: ''
   data_source_name: 'movies_lens'
   dimension year {
-    label: 'Year'
-    type: 'number'
+    label: "Year"
+    type: "datetime"
     hidden: false
-    definition: @sql {{ #SOURCE.day }};;
+    definition: @sql {{ #SOURCE.year }};;
   }
   dimension movie_count {
     label: 'Movie Count'
@@ -23,10 +23,9 @@ Model agg_movies_yearly {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql
-    select date_part('year', {{ #public_ratings.timestamp }}) as Year, count(distinct {{ #public_ratings.movie_id }}) as Movie_Count, count(distinct {{ #public_ratings.user_id }}) as User_Count
-    from {{ #public_ratings }}
-    group by 1;;
+  query: @sql select date_trunc('year', {{ #public_ratings.timestamp }}) as Year, count(distinct {{ #public_ratings.movie_id }}) as Movie_Count, count(distinct {{ #public_ratings.user_id }}) as User_Count
+from {{ #public_ratings }}
+group by 1;;
   models: [
     public_ratings
   ]
