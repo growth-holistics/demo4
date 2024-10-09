@@ -681,6 +681,18 @@ display: block;
   block t10: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
   }
+  block f1: FilterBlock {
+    label: 'Date Filter'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'user_country'
@@ -704,7 +716,8 @@ display: block;
         CustomMapping {
           block: [
             'user_gender',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -728,7 +741,8 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -756,7 +770,21 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'user_gender'
+            'user_gender',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'user_gender',
+            'age_demographic'
           ]
           disabled: true
         }
@@ -768,6 +796,10 @@ display: block;
     width: 1220
     height: 2820
     grid_size: 5
+    block f1 {
+      position: pos(5, 590, 300, 100)
+      layer: 5
+    }
     block t2 {
       position: pos(320, 20, 320, 220)
       layer: 1
