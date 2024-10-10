@@ -681,6 +681,18 @@ display: block;
   block t10: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
   }
+  block f1: FilterBlock {
+    label: 'Date Filter'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'user_country'
@@ -704,7 +716,8 @@ display: block;
         CustomMapping {
           block: [
             'user_gender',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -728,7 +741,8 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -756,7 +770,21 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'user_gender'
+            'user_gender',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'user_gender',
+            'age_demographic'
           ]
           disabled: true
         }
@@ -768,6 +796,10 @@ display: block;
     width: 1220
     height: 2820
     grid_size: 5
+    block f1 {
+      position: pos(5, 590, 300, 100)
+      layer: 5
+    }
     block t2 {
       position: pos(320, 20, 320, 220)
       layer: 1
@@ -777,11 +809,11 @@ display: block;
       layer: 1
     }
     block t5 {
-      position: pos(500, 1480, 140, 140)
+      position: pos(540, 1490, 140, 140)
       layer: 1
     }
     block t6 {
-      position: pos(380, 1600, 390, 60)
+      position: pos(405, 1610, 390, 60)
       layer: 2
     }
     block t7 {
@@ -793,7 +825,7 @@ display: block;
       layer: 1
     }
     block t9 {
-      position: pos(500, 600, 140, 140)
+      position: pos(545, 600, 140, 140)
       layer: 1
     }
     block v1 {
@@ -805,7 +837,7 @@ display: block;
       layer: 1
     }
     block v6 {
-      position: pos(20, 320, 1180, 230)
+      position: pos(20, 320, 1190, 265)
       layer: 1
     }
     block v7 {
@@ -817,7 +849,7 @@ display: block;
       layer: 1
     }
     block t10 {
-      position: pos(320, 720, 480, 60)
+      position: pos(365, 720, 480, 60)
       layer: 2
     }
     block v10 {
@@ -856,7 +888,6 @@ display: block;
       layer: 1
     }
   }
-  theme: beach
   settings {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440
