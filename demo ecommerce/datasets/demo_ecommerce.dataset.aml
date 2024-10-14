@@ -1,9 +1,30 @@
+PreAggregate agg_daily {
+  dimension timestamp {
+    for: ref('order_master','order_created_at')
+    time_granularity: 'day'
+  }
+
+  measure order_count {
+    for: ref('order_master','order_id')
+    aggregation_type: 'count'
+  }
+
+  persistence: IncrementalPersistence {
+    schema: 'persisted'
+    incremental_column: 'timestamp'
+  }
+}
+
 Dataset demo_ecommerce {
   __engine__: 'aql' //turn this Dataset to using AQL Engine
   label: '[Demo] Ecommerce (Official)'
   description: "Official dataset for demoing E-commerce use cases test"
   owner: 'ha.pham+demo4@holistics.io'
   data_source_name: 'demodb'
+
+pre_aggregates: {
+  daily: agg_daily
+}
 
   models: [
     order_master,

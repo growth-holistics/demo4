@@ -1,15 +1,6 @@
 Dashboard metric_kpi {
   title: 'Metric Kpi'
   description: ''''''
-
-  block filter_block: FilterBlock {
-    label: 'This is a Filter Block'
-    type: 'text'
-    default {
-      operator: 'is'
-      value: 'default'
-    }
-  }
   block t1: TextBlock {
     content: @md   <div id="heading">
 <h1  style="font-size:40px; color:black; text-align: left"> ID - Comparison Report (2023-2024)</h2>
@@ -33,15 +24,26 @@ Dashboard metric_kpi {
         data_type: 'text'
         model: ecommerce_orders
       }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
+      calculation header {
+        label: 'Header'
+        formula: @aql 'Processed';;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation _value {
+        label: 'Value'
+        formula: @aql count(ecommerce_orders.id) ;;
         calc_type: 'measure'
         data_type: 'number'
       }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+      calculation pct_changes {
+        label: '%'
+        formula: @aql safe_divide(
+  relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) 
+  - count(ecommerce_orders.id) * 1.0,
+  count(ecommerce_orders.id)
+);;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -55,29 +57,38 @@ Dashboard metric_kpi {
       ]
       columns: [
         VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
+          ref: ref('ecommerce_orders', 'header')
           format {
             type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
           }
         }
       ]
       values: [
         VizFieldFull {
-          ref: '_2023'
+          ref: '_value'
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: '_2024'
+          ref: 'pct_changes'
           format {
             type: 'number'
-            pattern: 'inherited'
+            pattern: '#,###%'
           }
         }
       ]
       settings {
+        show_column_total: true
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -85,81 +96,23 @@ Dashboard metric_kpi {
         }
       }
     }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_date')
+    }
+    default {
+      operator: 'matches'
+      value: 'last 2 years'
+    }
   }
   block v2: VizBlock {
-    label: ' '
-    viz: MetricSheet {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'last year until now'
-      }
-      date_field: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc year'
-        format {
-          type: 'date'
-        }
-      }
-      rows: [
-        MetricSeries {
-          field: VizFieldFull {
-            ref: ref('order_master', 'order_id')
-            aggregation: 'count'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v3: VizBlock {
-    label: ' '
-    viz: MetricSheet {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'last year until now'
-      }
-      date_field: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc year to date'
-        format {
-          type: 'date'
-        }
-      }
-      rows: [
-        MetricSeries {
-          field: VizFieldFull {
-            label: 'YTD Total'
-            ref: ref('order_master', 'order_id')
-            aggregation: 'count'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v4: VizBlock {
     label: 'Orders Processed (dup)'
     viz: PivotTable {
       dataset: demo_ecommerce
@@ -174,15 +127,16 @@ Dashboard metric_kpi {
         data_type: 'text'
         model: ecommerce_orders
       }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
+      calculation header {
+        label: 'Header'
+        formula: @aql 'Freemium';;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
       }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+      calculation _value {
+        label: 'Value'
+        formula: @aql count(ecommerce_orders.id) ;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -196,22 +150,23 @@ Dashboard metric_kpi {
       ]
       columns: [
         VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
+          ref: ref('ecommerce_orders', 'header')
           format {
             type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
           }
         }
       ]
       values: [
         VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
+          ref: '_value'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -219,6 +174,7 @@ Dashboard metric_kpi {
         }
       ]
       settings {
+        show_column_total: true
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -226,8 +182,11 @@ Dashboard metric_kpi {
         }
       }
     }
+    settings {
+      hide_label: true
+    }
   }
-  block v5: VizBlock {
+  block v3: VizBlock {
     label: 'Orders Processed (dup) (dup)'
     viz: PivotTable {
       dataset: demo_ecommerce
@@ -242,15 +201,16 @@ Dashboard metric_kpi {
         data_type: 'text'
         model: ecommerce_orders
       }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
+      calculation header {
+        label: 'Header'
+        formula: @aql 'Tax';;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
       }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+      calculation _value {
+        label: 'Value'
+        formula: @aql count(ecommerce_orders.id) ;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -264,22 +224,23 @@ Dashboard metric_kpi {
       ]
       columns: [
         VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
+          ref: ref('ecommerce_orders', 'header')
           format {
             type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
           }
         }
       ]
       values: [
         VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
+          ref: '_value'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -287,6 +248,7 @@ Dashboard metric_kpi {
         }
       ]
       settings {
+        show_column_total: true
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -294,8 +256,11 @@ Dashboard metric_kpi {
         }
       }
     }
+    settings {
+      hide_label: true
+    }
   }
-  block v6: VizBlock {
+  block v4: VizBlock {
     label: 'Orders Processed (dup) (dup) (dup)'
     viz: PivotTable {
       dataset: demo_ecommerce
@@ -310,15 +275,16 @@ Dashboard metric_kpi {
         data_type: 'text'
         model: ecommerce_orders
       }
-      calculation _2023 {
-        label: '2023'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023);;
-        calc_type: 'measure'
-        data_type: 'number'
+      calculation header {
+        label: 'Fee'
+        formula: @aql 'Fee';;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
       }
-      calculation _2024 {
-        label: '2024'
-        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024);;
+      calculation _value {
+        label: 'Value'
+        formula: @aql count(ecommerce_orders.id) ;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -332,22 +298,23 @@ Dashboard metric_kpi {
       ]
       columns: [
         VizFieldFull {
-          ref: ref('ecommerce_orders', 'year')
+          ref: ref('ecommerce_orders', 'header')
           format {
             type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
           }
         }
       ]
       values: [
         VizFieldFull {
-          ref: '_2023'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: '_2024'
+          ref: '_value'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -355,6 +322,7 @@ Dashboard metric_kpi {
         }
       ]
       settings {
+        show_column_total: true
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -362,13 +330,8 @@ Dashboard metric_kpi {
         }
       }
     }
-  }
-  block f1: FilterBlock {
-    label: 'This is a Filter Block (dup)'
-    type: 'text'
-    default {
-      operator: 'is'
-      value: 'default'
+    settings {
+      hide_label: true
     }
   }
 
@@ -377,9 +340,6 @@ Dashboard metric_kpi {
     label: 'View 1'
     width: 1300
     height: 740
-    block filter_block {
-      position: pos(970, 0, 320, 60)
-    }
     block t1 {
       position: pos(20, 40, 750, 60)
     }
@@ -388,27 +348,22 @@ Dashboard metric_kpi {
       layer: -1
     }
     block v1 {
-      position: pos(20, 130, 310, 450)
+      position: pos(20, 130, 450, 490)
+    }
+    block f1 {
+      position: pos(990, 10, 300, 80)
     }
     block v2 {
-      position: pos(20, 490, 560, 140)
+      position: pos(270, 130, 450, 490)
       layer: -1
     }
     block v3 {
-      position: pos(20, 530, 560, 250)
+      position: pos(520, 130, 450, 490)
       layer: -2
     }
     block v4 {
-      position: pos(340, 130, 310, 450)
-    }
-    block v5 {
-      position: pos(660, 130, 310, 450)
-    }
-    block v6 {
-      position: pos(980, 130, 310, 450)
-    }
-    block f1 {
-      position: pos(970, 60, 320, 60)
+      position: pos(770, 130, 450, 490)
+      layer: -3
     }
   }
 }
