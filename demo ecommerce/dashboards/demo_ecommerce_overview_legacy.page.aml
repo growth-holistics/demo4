@@ -681,6 +681,18 @@ display: block;
   block t10: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
   }
+  block f1: FilterBlock {
+    label: 'Date Filter'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'user_country'
@@ -704,7 +716,8 @@ display: block;
         CustomMapping {
           block: [
             'user_gender',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -728,7 +741,8 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'age_demographic'
+            'age_demographic',
+            'f1'
           ]
           disabled: true
         }
@@ -756,7 +770,21 @@ display: block;
         CustomMapping {
           block: [
             'user_country',
-            'user_gender'
+            'user_gender',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'user_country',
+            'user_gender',
+            'age_demographic'
           ]
           disabled: true
         }
@@ -768,32 +796,16 @@ display: block;
     width: 1220
     height: 2820
     grid_size: 5
-    block t2 {
-      position: pos(320, 20, 320, 220)
+    block user_country {
+      position: pos(20, 800, 520, 100)
       layer: 1
     }
-    block t3 {
-      position: pos(15, 20, 300, 180)
+    block user_gender {
+      position: pos(640, 30, 270, 100)
       layer: 1
     }
-    block t5 {
-      position: pos(540, 1490, 140, 140)
-      layer: 1
-    }
-    block t6 {
-      position: pos(405, 1610, 390, 60)
-      layer: 2
-    }
-    block t7 {
-      position: pos(340, 220, 300, 80)
-      layer: 1
-    }
-    block t8 {
-      position: pos(15, 220, 335, 80)
-      layer: 1
-    }
-    block t9 {
-      position: pos(545, 600, 140, 140)
+    block age_demographic {
+      position: pos(920, 30, 280, 100)
       layer: 1
     }
     block v1 {
@@ -812,16 +824,20 @@ display: block;
       position: pos(560, 800, 630, 430)
       layer: 1
     }
+    block t2 {
+      position: pos(320, 20, 320, 180)
+      layer: 1
+    }
     block v8 {
       position: pos(20, 900, 520, 210)
       layer: 1
     }
-    block t10 {
-      position: pos(365, 720, 480, 60)
-      layer: 2
+    block t3 {
+      position: pos(15, 20, 300, 180)
+      layer: 1
     }
     block v10 {
-      position: pos(640, 140, 280, 180)
+      position: pos(640, 140, 270, 180)
       layer: 1
     }
     block v12 {
@@ -843,21 +859,38 @@ display: block;
       position: pos(580, 2360, 630, 430)
       layer: 4
     }
-    block user_gender {
-      position: pos(640, 30, 280, 100)
+    block t5 {
+      position: pos(540, 1490, 140, 140)
       layer: 1
     }
-    block user_country {
-      position: pos(20, 800, 520, 100)
+    block t6 {
+      position: pos(405, 1610, 390, 60)
+      layer: 2
+    }
+    block t7 {
+      position: pos(340, 220, 300, 80)
       layer: 1
     }
-    block age_demographic {
-      position: pos(920, 35, 280, 100)
+    block t8 {
+      position: pos(15, 220, 335, 80)
       layer: 1
+    }
+    block t9 {
+      position: pos(545, 600, 140, 140)
+      layer: 1
+    }
+    block t10 {
+      position: pos(365, 720, 480, 60)
+      layer: 2
+    }
+    block f1 {
+      position: pos(20, 595, 300, 100)
+      layer: 5
     }
   }
   settings {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440
   }
+  theme: beach
 }
