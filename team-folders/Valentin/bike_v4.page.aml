@@ -1,0 +1,292 @@
+Dashboard velib {
+  title: 'Velib'
+  block period: FilterBlock {
+    label: 'Period'
+    type: 'date'
+    default {
+      operator: 'last'
+      value: '90'
+      modifier: 'day'
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Stations operating'
+    description: 'Stations operating'
+    viz: MetricKpi {
+      dataset: bikes
+      filter {
+        field: ref('dim_station', 'is_renting')
+        operator: 'is'
+        value: true
+      }
+      filter {
+        field: ref('dim_station', 'is_returning')
+        operator: 'is'
+        value: true
+      }
+      value: VizFieldFull {
+        label: 'stations operating'
+        ref: ref('dim_station', 'station_code')
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Average disponibility per station'
+    viz: BarChart {
+      dataset: bikes
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('fct_avaibility', 'avg_docks_available')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('fct_avaibility', 'avg_mechanical_available')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('fct_avaibility', 'avg_ebike_available')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'right'
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Disponibility over time'
+    viz: ColumnChart {
+      dataset: bikes
+      x_axis: VizFieldFull {
+        ref: ref('fct_avaibility', 'collected_at_paris_date')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('fct_avaibility', 'avg_ebike_rate')
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('fct_avaibility', 'avg_mechanical_rate')
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'right'
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Stations density'
+    viz: Heatmap {
+      dataset: bikes
+      lng: VizFieldFull {
+        ref: ref('station_density', 'lon')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('station_density', 'lat')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: ref('station_density', 'n_docks_500m')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        intensity: 31
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Avg time with less than 3 bikes'
+    viz: DataTable {
+      dataset: bikes
+      fields: [
+        VizFieldFull {
+          ref: ref('dim_station', 'station_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('fct_avaibility', 'time_less_3_bikes')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md ### Indicateurs retenus
+Les indicateurs de qualité de service sont orientés utilisateurs 🚴‍♂️ : 
+- Temps moyen passé avec moins de 3 vélos disponibles en station par jour
+- Temps moyen passé avec moins de 3 bornes libres en station par jour
+;;
+  }
+  block v6: VizBlock {
+    label: 'Stations with bike disponibility issues'
+    viz: PointMap {
+      dataset: bikes
+      lng: VizFieldFull {
+        ref: ref('dim_station', 'lon')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('dim_station', 'lat')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: ref('fct_avaibility', 'time_less_3_bikes')
+        format {
+          type: 'number'
+        }
+      }
+      settings {
+        point_size: 1
+        value_colors {
+          min {
+            color: '#FFFFFF'
+          }
+          max {
+            color: '#D70909'
+          }
+        }
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'period'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v3'
+          ]
+          field: ref('fct_avaibility', 'collected_at_paris_date')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'date_drill'
+      to: [
+        CustomMapping {
+          block: 'v3'
+          field: ref('fct_avaibility', 'collected_at_paris_date')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1500
+    height: 1530
+    block period {
+      position: pos(40, 10, 300, 90)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(390, 10, 300, 80)
+      layer: 1
+    }
+    block v1 {
+      position: pos(40, 120, 600, 130)
+      layer: 1
+    }
+    block v2 {
+      position: pos(40, 260, 650, 190)
+      layer: 1
+    }
+    block v3 {
+      position: pos(740, 100, 720, 350)
+      layer: 1
+    }
+    block v4 {
+      position: pos(40, 480, 650, 380)
+      layer: 1
+    }
+    block v5 {
+      position: pos(50, 1050, 590, 460)
+      layer: 1
+    }
+    block t1 {
+      position: pos(40, 890, 1420, 150)
+      layer: 1
+    }
+    block v6 {
+      position: pos(740, 470, 720, 380)
+      layer: 1
+    }
+  }
+}
