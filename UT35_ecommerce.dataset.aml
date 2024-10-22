@@ -1,0 +1,76 @@
+Dataset ut35_ecommerce {
+  __engine__: 'aql' //turn this Dataset to using AQL Engine
+  label: 'Ecommerce Dataset'
+  data_source_name: 'demodb'
+
+  pre_aggregates: {
+    daily: agg_daily
+  }
+
+  models: [
+    // order_master,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_cities,
+    ecommerce_countries,
+    map_categories,
+    dim_dates,
+    transform_order_items,
+  ]
+
+  // dimension cohort_month {
+  //   model: order_master
+  //   label: 'Cohort Month'
+  //   type: 'date'
+  //   definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
+  //   ;;
+  // }
+
+  // dimension month_no {
+  //   model: order_master
+  //   label: 'Month No'
+  //   type: 'number'
+  //   definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
+  // }
+
+  // dimension cohort_size {
+  //   model: order_master
+  //   label: 'Cohort Size'
+  //   type: 'number'
+  //   definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  // }
+
+  // dimension aov_by_product {
+  //   model: order_master
+  //   label: 'AOV by Product'
+  //   type: 'text'
+  //   definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
+  // }
+
+  // dimension gmv_by_product {
+  //   model: order_master
+  //   label: 'GMV by Product'
+  //   type: 'text'
+  //   definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
+  // }
+
+  relationships: [
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(ecommerce_orders_ecommerce_users, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_users_ecommerce_cities, true),
+    // relationship(order_master_ecommerce_merchants, true),
+    // relationship(order_master_ecommerce_orders, true),
+    // relationship(order_master_ecommerce_products, true),
+    // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
+    ,
+    relationship(transform_order_items.order_id > ecommerce_orders.id, true)
+    ,
+    relationship(transform_order_items.product_id > ecommerce_products.id, true)
+    ,
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
+  ]
+}
