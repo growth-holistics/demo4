@@ -206,7 +206,7 @@ Dashboard demo_ecommerce_overview_legacy {
   }
   block v7: VizBlock {
     label: 'Total Orders count by Country Name and Status'
-    viz: ColumnChart {
+    viz: BarChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
@@ -234,6 +234,12 @@ Dashboard demo_ecommerce_overview_legacy {
               pattern: 'inherited'
             }
           }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -681,6 +687,39 @@ display: block;
   block t10: TextBlock {
     content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="regional-analysis">Regional Analysis</h1>;;
   }
+  block v17: VizBlock {
+    label: 'Total Users by Age Demographic'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_users', 'total_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A50E43'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'user_country'
@@ -773,7 +812,7 @@ display: block;
       layer: 1
     }
     block t3 {
-      position: pos(15, 20, 300, 180)
+      position: pos(15, 25, 300, 180)
       layer: 1
     }
     block t5 {
@@ -842,6 +881,9 @@ display: block;
     block v16 {
       position: pos(580, 2360, 630, 430)
       layer: 4
+    }
+    block v17 {
+      position: pos(20, 605, 400, 300)
     }
     block user_gender {
       position: pos(640, 30, 270, 100)
