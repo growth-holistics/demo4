@@ -5,13 +5,13 @@ Model ecommerce_users {
   data_source_name: "demodb"
 
   dimension id {
-    label: 'Id'
+    label: 'User ID'
     type: 'number'
+    description: ""
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
-    description: "this is ID"
   }
-  
+
 
   dimension sign_up_date {
     label: "Sign Up Date"
@@ -28,13 +28,13 @@ Model ecommerce_users {
     );;
   }
 
-  dimension phone {
-    label: 'Call User'
-    type: 'text'
-    definition: @aql concat(
-      'tel:', '5126329032'
-    );;
-  }
+  // dimension phone {
+  //   label: 'Call User'
+  //   type: 'text'
+  //   definition: @aql concat(
+  //     'tel:', '5126329032'
+  //   );;
+  // }
 
   dimension visit_time {
     label: 'Visit Time'
@@ -42,13 +42,13 @@ Model ecommerce_users {
     definition: @sql to_char({{ sign_up_date }}, 'Month') ;;
   }
 
-  dimension linkedin_search {
-    label: 'linkedin_search'
-    type: 'text'
-    definition: @aql concat(
-      'https://www.linkedin.com/search/results/all/?keywords=',ecommerce_users.full_name
-    );;
-  }
+  // dimension linkedin_search {
+  //   label: 'linkedin_search'
+  //   type: 'text'
+  //   definition: @aql concat(
+  //     'https://www.linkedin.com/search/results/all/?keywords=',ecommerce_users.full_name
+  //   );;
+  // }
 
   dimension sign_up_at {
     label: 'Sign Up At'
@@ -132,7 +132,7 @@ end;;
     definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
   }
   dimension age_group {
-    label: "Age Demographic"
+    label: "Age Group"
     type: "text"
     definition: @sql  case
   when {{ age }} < 20 then '1. Under 20'
@@ -145,36 +145,36 @@ end;;
   }
 
 
-  dimension date_datum {
-    label: "Date Datum"
-    type: "date"
-    definition: @sql   case
-  when {{ id }} is not null then to_date('2022-11-25', 'YYYY-MM-DD')
-  else to_date('2022-11-25', 'YYYY-MM-DD')
-end;;
-    format: "LLL dd yyyy"
-  }
+//   dimension date_datum {
+//     label: "Date Datum"
+//     type: "date"
+//     definition: @sql   case
+//   when {{ id }} is not null then to_date('2022-11-25', 'YYYY-MM-DD')
+//   else to_date('2022-11-25', 'YYYY-MM-DD')
+// end;;
+//     format: "LLL dd yyyy"
+//   }
 
 
-  measure users_signed_up_count {
-    label: 'Users Signed Up'
-    type: 'number'
-    definition: @sql {{ id }};;
-    aggregation_type: 'count'
-  }
+  // measure users_signed_up_count {
+  //   label: 'Users Signed Up'
+  //   type: 'number'
+  //   definition: @sql {{ id }};;
+  //   aggregation_type: 'count'
+  // }
   measure total_users {
     label: "Total Users"
     type: "number"
     definition: @sql count({{ id }});;
     hidden: false
   }
-  measure date_datum_2 {
-    label: "Date Datum 2"
-    type: "date"
-    definition: @sql cast('2022-11-25' as date);;
-    aggregation_type: "custom"
-    format: "LLL dd yyyy"
-  }
+  // measure date_datum_2 {
+  //   label: "Date Datum 2"
+  //   type: "date"
+  //   definition: @sql cast('2022-11-25' as date);;
+  //   aggregation_type: "custom"
+  //   format: "LLL dd yyyy"
+  // }
   owner: "vincent+demo4@holistics.io"
   table_name: '\"ecommerce\".\"users\"'
 }

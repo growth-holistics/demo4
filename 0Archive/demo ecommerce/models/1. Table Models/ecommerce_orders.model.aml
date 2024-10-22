@@ -8,8 +8,9 @@ Model ecommerce_orders {
 
 
   dimension id {
-    label: 'Id'
+    label: 'Order ID'
     type: 'number'
+    description: ""
     hidden: false
     definition: @sql {{ #SOURCE.id }};;
   }
@@ -20,7 +21,7 @@ Model ecommerce_orders {
     description: "Delivered / Refunded / Canceled"
   }
   dimension created_at {
-    label: 'Created At'
+    label: 'Order Created At'
     type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.created_at }};;
@@ -83,41 +84,10 @@ Model ecommerce_orders {
     description: "The total number of orders we refunded this period."
     aggregation_type: "custom"
   }
-  measure total_order {
-    label: "total_orders_count"
-    type: "number"
-    definition: @sql {{ id }};;
-    description: "The total number of orders"
-    aggregation_type: "count"
-  }
   measure total_orders_count {
     label: "Total Orders Count"
     type: "number"
     definition: @sql {{ id }};;
     aggregation_type: "count"
-  }
-
-  measure first_order_date {
-    label: "First Order Date"
-    type: "datetime"
-    definition: @sql min({{ created_at }}) ;;
-  }
-  measure days_since_last_order {
-    label: "Days Since Last Order"
-    type: "number"
-    definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
-    aggregation_type: "custom"
-  }
-
-  measure orders_2023 {
-    label: '2023'
-    type: "number"
-    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023) ;;
-  }
-
-  measure orders_2024 {
-    label: '2024'
-    type: "number"
-    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024) ;;
   }
 }
