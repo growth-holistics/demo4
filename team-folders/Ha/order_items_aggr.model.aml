@@ -1,0 +1,43 @@
+Model order_items_aggr {
+  type: 'query'
+  label: 'Order Items Aggr'
+  description: ''
+  data_source_name: 'demodb'
+  dimension items_count {
+    label: 'Items Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.items_count }};;
+  }
+  dimension orders_count {
+    label: 'Orders Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.orders_count }};;
+  }
+
+  param order_date_param {
+    label: 'Order Date Param'
+    type: 'datetime'
+  }
+
+  owner: 'ha.pham@holistics.io'
+  query: @sql
+    with aggr as (
+      select
+        oi.order_id
+        , count(*) as items_count
+      from ecommerce.order_items  oi
+      left join ecommerce.orders o on oi.order_id = o.id
+      where {% filter(order_date_param) %} o.created_at {% end %}
+      group by 1
+    )
+
+    select
+      items_count
+      , count(*) as orders_count
+    from aggr
+    group by 1;;
+  models: [
+  ]
+}

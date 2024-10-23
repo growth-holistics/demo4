@@ -1,0 +1,31 @@
+Dataset test_dimension {
+  label: 'Test Dimension'
+  description: ''
+  data_source_name: 'demodb'
+
+  __engine__: 'aql'
+
+  models: [
+    ecommerce_orders,
+    ecommerce_users
+  ]
+  relationships: [
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true)
+  ]
+  owner: 'ha.pham@holistics.io'
+
+  dimension test_dim {
+    model: ecommerce_orders
+    label: 'Test dimension'
+    type: 'number'
+    hidden: false
+    definition: @aql (ecommerce_users.id + ecommerce_orders.id) ;;
+  }
+
+  dimension test_dim_fanout {
+    model: ecommerce_users
+    label: 'Test dimension Fanout'
+    type: 'number'
+    definition: @aql (ecommerce_users.id + max(ecommerce_orders.id)) ;;
+  }
+}
