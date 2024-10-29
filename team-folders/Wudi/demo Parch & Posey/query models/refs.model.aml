@@ -1,0 +1,24 @@
+Model refs {
+  type: 'query'
+  label: 'Refs'
+  description: ''
+  data_source_name: 'demodb'
+
+  dimension ref_id {
+    label: "Ref Id"
+    type: "number"
+    definition: @sql {{ #SOURCE.ref_id }};;
+  }
+  dimension ref_amt {
+    label: "Ref Amt"
+    type: "number"
+    definition: @sql {{ #SOURCE.ref_amt }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql select {{ #parch_posey_orders_1.id }} as ref_id, {{ #parch_posey_orders_1.total_amt_usd }} as ref_amt
+    from  {{ #parch_posey_orders_1 }};;
+  models: [
+    parch_posey_orders_1
+  ]
+}

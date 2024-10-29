@@ -1,0 +1,308 @@
+Dashboard _2_category_breakdown {
+  title: '2. Category Breakdown'
+  block category: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block country: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block product_name: FilterBlock {
+    label: 'Product Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block date: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_date')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block customer_gender: FilterBlock {
+    label: 'Customer Gender'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'gender')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Product Revenue Breakdown'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue_delivered')
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 1000
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 20000
+              }
+              text_color: '#A50E43'
+              background_color: '#FCB8B8'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 20000
+              }
+              text_color: '#18A59E'
+              background_color: '#C3E8C2'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue_delivered')
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 20000
+              }
+              text_color: '#A50E43'
+              background_color: '#FCB8B8'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue_delivered')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 20000
+              }
+              text_color: '#18A59E'
+              background_color: '#C3E8C2'
+            }
+          }
+        ]
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'category'
+      to: [
+        CustomMapping {
+          block: [
+            'country',
+            'product_name',
+            'date',
+            'customer_gender'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'country'
+      to: [
+        CustomMapping {
+          block: [
+            'category',
+            'product_name',
+            'date',
+            'customer_gender'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'product_name'
+      to: [
+        CustomMapping {
+          block: [
+            'category',
+            'country',
+            'date',
+            'customer_gender'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'date'
+      to: [
+        CustomMapping {
+          block: [
+            'category',
+            'country',
+            'product_name',
+            'customer_gender'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'customer_gender'
+      to: [
+        CustomMapping {
+          block: [
+            'category',
+            'country',
+            'product_name',
+            'date'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 910
+    grid_size: 20
+    block category {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block product_name {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block date {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block customer_gender {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block v1 {
+      position: pos(20, 260, 1180, 630)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}

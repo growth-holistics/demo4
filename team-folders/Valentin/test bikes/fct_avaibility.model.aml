@@ -1,0 +1,165 @@
+Model fct_avaibility {
+  type: 'table'
+  label: 'Fct Avaibility'
+  description: ''
+  data_source_name: 'demo_bike_valentin'
+  dimension station_code {
+    label: 'Station Code'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_code }};;
+  }
+  dimension station_name {
+    label: 'Station Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_name }};;
+  }
+  dimension capacity {
+    label: 'Capacity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.capacity }};;
+  }
+  dimension docks_available {
+    label: 'Docks Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.docks_available }};;
+  }
+  dimension mechanical {
+    label: 'Mechanical'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mechanical }};;
+  }
+  dimension ebike {
+    label: 'Ebike'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ebike }};;
+  }
+  dimension duedate {
+    label: 'Duedate'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.duedate }};;
+  }
+  dimension bikes_available {
+    label: 'Bikes Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.bikes_available }};;
+  }
+  dimension rate_bike_available {
+    label: 'Rate Bike Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.rate_bike_available }};;
+  }
+  dimension rate_dock_available {
+    label: 'Rate Dock Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.rate_dock_available }};;
+  }
+  dimension bikes_out_of_order {
+    label: 'Bikes Out Of Order'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.bikes_out_of_order }};;
+  }
+  dimension collected_at {
+    label: 'Collected At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.collected_at }};;
+  }
+  dimension rounded_collected_at {
+    label: 'Rounded Collected At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.rounded_collected_at }};;
+  }
+
+  dimension collected_at_paris_date {
+    label: 'Collected At Paris Date'
+    type: 'date'
+    hidden: false
+    definition: @sql DATE(TIMESTAMP({{ #SOURCE.rounded_collected_at }}, 'Europe/Paris'));;
+  }
+
+  dimension rate_ebike {
+    label: 'Avaibility ebike'
+    type: 'number'
+    hidden: false
+    definition: @aql safe_divide(fct_avaibility.ebike,fct_avaibility.capacity);;
+  }
+
+  dimension rate_mechanical {
+    label: 'Avaibility mechanical'
+    type: 'number'
+    hidden: false
+    definition: @aql safe_divide(fct_avaibility.mechanical,fct_avaibility.capacity);;
+  }
+
+  measure avg_ebike_available {
+    label: 'AVG ebikes available'
+    type: 'number'
+    definition: @aql average( fct_avaibility.ebike ) ;;
+  }
+
+  measure avg_mechanical_available {
+    label: 'AVG mechanical bikes available'
+    type: 'number'
+    definition: @aql average(fct_avaibility.mechanical) ;;
+  }
+
+  measure avg_docks_available {
+    label: 'AVG docks available'
+    type: 'number'
+    definition: @aql average(fct_avaibility.docks_available) ;;
+  }
+
+  measure avg_ebike_rate {
+    label: 'Ebike avaibility rate'
+    type: 'number'
+    definition: @aql average(fct_avaibility.rate_ebike) ;;
+  }
+
+  measure avg_mechanical_rate {
+    label: 'Mechanical avaibility rate'
+    type: 'number'
+    definition: @aql average(fct_avaibility.rate_mechanical) ;;
+  }
+  measure time_less_3_bikes {
+    label: 'Avg hour with less than 3 bikes, per day'
+    type: 'number'
+    definition: @sql safe_divide(
+ sum(case when {{ bikes_available }} <3 then 1 else 0 end),
+ count(*)
+ )*24 ;;
+    aggregation_type: "custom"
+    format: "#,###0.00"
+  }
+
+  measure time_less_3_docks {
+    label: 'Avg hour with less than 3 docks, per day'
+    type: 'number'
+    definition: @sql safe_divide(
+ sum(case when {{ docks_available }} <3 then 1 else 0 end),
+ count(*)
+ )*24 ;;
+    aggregation_type: "custom"
+    format: "#,###0.00"
+  }
+  measure sum_bikes {
+    label: "Sum Bikes"
+    type: "number"
+    definition: @sql sum( {{ mechanical }});;
+    aggregation_type: "custom"
+  }
+
+  owner: 'valentin@holistics.io'
+  table_name: '`dbt_prod`.`fct_avaibility`'
+}

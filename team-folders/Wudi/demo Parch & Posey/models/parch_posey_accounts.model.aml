@@ -36,8 +36,20 @@ Model parch_posey_accounts {
   dimension primary_poc {
     label: 'Primary Poc'
     type: 'text'
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.primary_poc }};;
+  }
+  dimension primary_poc_pii {
+  label: 'Primary Poc'
+  type: 'text'
+  hidden: false
+  definition: @aml 
+    case(
+      when: 
+        in(1, H.current_user.pii_access),
+      then: parch_posey_accounts.primary_poc,
+      else: '(redacted)'
+    );;
   }
   dimension sales_rep_id {
     label: 'Sales Rep Id'

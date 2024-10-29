@@ -1,0 +1,146 @@
+Dashboard debug_ecommerce_biz_metrics {
+  title: '[Debug] eCommerce Business Metrics'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 2740
+    block t1 {
+      position: pos(20, 10, 690, 90)
+    }
+    block f1 {
+      position: pos(20, 90, 300, 80)
+    }
+    block f1_dup {
+      position: pos(330, 90, 300, 80)
+    }
+    block t2 {
+      position: pos(20, 150, 1160, 210)
+    }
+    block f2 {
+      position: pos(640, 90, 300, 80)
+    }
+    block v1 {
+      position: pos(20, 370, 1160, 270)
+    }
+    block t4 {
+      position: pos(20, 690, 1160, 60)
+    }
+    block t5 {
+      position: pos(20, 1750, 114, 40)
+    }
+    block t6 {
+      position: pos(20, 1800, 1160, 80)
+    }
+  }
+  block t1: TextBlock {
+    content: @md <h1> eCommerce Business Metrics Dashboard </h1>
+Published  <strong>November 23rd, 2023</strong> by <strong>Nam Tran</strong>;;
+  }
+  block f1: FilterBlock {
+    label: 'Customer Age Demographic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f1_dup: FilterBlock {
+    label: 'Product Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t2: TextBlock {
+    content: @md   <h2>Orders and Sales</h2>
+<p><em>All metrics over the last 30 days.</em></p>
+
+<p>Orders are looking good, with an expected spike in early December holiday purchases. Most recent days has dropped back down, but is expected to climb as data comes in for the current week.
+
+On target to hit $2M 30-day sales by the end of the year.</p>
+Returns are growing linearly with orders, nothing out of the ordinary.
+
+See more: 
+[Order Distribution by Region](https://demo4.holistics.io/datasets/14226-demo-ecommerce-official/15uAzr9K)
+;;
+  }
+  block f2: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 1 year'
+    }
+  }
+  block v1: VizBlock {
+    label: 'Sales'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            aggregation: 'custom'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#5CC863'
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('order_master', 'order_created_date')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md  Our customer pool concentrated in the US, Asia, Europe and Australia wiht the age demographic between Under 20 and from 20-29
+
+The 100 biggest customers are mostly in the US, Europe and Asia with the age demographic Under 20 and from 20-29;;
+  }
+  block t5: TextBlock {
+    content: @md <h2>Products and Orders</h2>;;
+  }
+  block t6: TextBlock {
+    content: @md <p>With 6 parents product categories, we achieve sales of <strong>5,5 Millions dolars</strong> in 2023.</p>
+
+Although the top 5 selling products are from Skin Care category, the 3 leading categories are <strong>Home Entertainment (26.07%), Mobile and Tablets (23.13%) and Home Furniture (20.49%).</strong>
+
+Our product margin keep upflow at <strong>60-70%</strong>;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('ecommerce_orders', 'created_date')
+        }
+      ]
+    }
+  ]
+}

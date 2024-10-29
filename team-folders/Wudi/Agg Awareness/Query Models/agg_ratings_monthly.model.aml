@@ -1,0 +1,56 @@
+Model agg_ratings_monthly {
+  type: 'query'
+  label: 'Agg Ratings Monthly'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension month {
+    label: 'Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.date_part }};;
+  }
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension min {
+    label: 'Min'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.min }};;
+  }
+  dimension max {
+    label: 'Max'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.max }};;
+  }
+  dimension avg {
+    label: 'Avg'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg }};;
+  }
+  dimension count {
+    label: 'Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.count }};;
+  }
+  dimension date_trunc {
+    label: "Date Trunc"
+    type: "datetime"
+    hidden: false
+    definition: @sql {{ #SOURCE.date_trunc }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql select date_trunc('month', {{ #public_ratings.timestamp }}), {{ #public_ratings.movie_id }}, min({{ #public_ratings.rating }}), max({{ #public_ratings.rating }}), avg({{ #public_ratings.rating }}), count({{ #public_ratings.rating }})
+from{{ #public_ratings }}
+group by 1,2;;
+  models: [
+    public_ratings
+  ]
+}

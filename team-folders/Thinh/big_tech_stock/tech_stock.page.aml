@@ -1,0 +1,140 @@
+Dashboard tech_stock {
+  title: 'Tech Stock'
+  description: ''''''
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1400
+    grid_size: 20
+    block v1 {
+      position: pos(20, 130, 1160, 410)
+    }
+    block f1 {
+      position: pos(20, 30, 240, 80)
+    }
+    block d1 {
+      position: pos(270, 30, 120, 80)
+    }
+    block v2 {
+      position: pos(40, 580, 1100, 280)
+    }
+  }
+  block v1: VizBlock {
+    label: 'Lasagna'
+    viz: CustomChart {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'is_not'
+        value: 'null'
+      }
+      custom_chart_id: 17861
+      field date: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      field price: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'adj_close')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field symbol: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'symbol')
+        format {
+          type: 'text'
+        }
+      }
+      setting tooltip: true
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Symbol'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: big_tech_stock
+      field: ref('persisted_models_big_tech_stock', 'symbol')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      input_type: 'multiple'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'View by'
+  }
+  block v2: VizBlock {
+    label: 'Table Vega'
+    viz: CustomChart {
+      dataset: big_tech_stock
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'symbol')
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: ref('persisted_models_big_tech_stock', 'date')
+        operator: 'matches'
+        value: '2022'
+      }
+      custom_chart_id: 19868
+      field low: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'low')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      field high: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'high')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      field symbol: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'symbol')
+        format {
+          type: 'text'
+        }
+      }
+      field volume: VizFieldFull {
+        ref: ref('persisted_models_big_tech_stock', 'volume')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      setting row_height: 12
+      setting text_color: '#333333'
+      setting header_color: '#E27712'
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('persisted_models_big_tech_stock', 'date')
+        }
+      ]
+    }
+  ]
+}

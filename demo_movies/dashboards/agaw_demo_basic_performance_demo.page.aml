@@ -1,0 +1,323 @@
+Dashboard aggregate_awareness_demo_dashboard_lite {
+  // ------------------------------------------------
+  // -------------- 0. Table of Content -------------
+  // ------------------------------------------------
+
+  // 1. Dashboard File Metadata
+  // 2. Visualization Widgets
+  // -- 2.1. Group - Introduction
+  // -- 2.2. Group - Filter
+  // -- 2.3. Group - Widgets NOT using Aggregate Awareness
+  // -- 2.4. Group - Widgets using Aggregate Awareness
+  // 3. Dashboard Customization
+  // -- 3.1. Custom Theme
+  // -- 3.2. Layout & Positions
+  // -- 3.3. Dashboard Settings
+
+  // ------------------------------------------------
+  // ---------- 1. Dashboard File Metadata ----------
+  // ------------------------------------------------
+
+  title: 'Aggregate Awareness - Simple Example'
+  description: @md
+    This demo illustrates the capability of Aggregate Awareness in Holistics
+
+    ---
+
+    Aggregate Awareness is the capability of automatically identifying eligible pre-aggregates (transformed by tools like dbt, Airflow, BI like Holistics, etc.) and substituting them into queries, making the queries use smaller pre-aggregated tables while still producing accurate results. It can reduce the time to analyze gigabytes-to-terabytes of data from several minutes to a few seconds.
+
+    This feature has impacts on everyone in the team:
+
+    - Analysts can maintain the pre-aggregates better with less effort (improved process).
+    - Business users will get the same insights faster by pre-aggregated tables instead of raw data (improved timeliness).
+
+    Aggregate Awareness is now in **Closed Beta**. You can [Request Beta Access](https://form.jotform.com/230511857392457/prefill/664c2fcc633961c7bed679d6969e) to try it out!
+    Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
+
+  // ------------------------------------------------
+  // ----------- 2. Visualization Widgets -----------
+  // ------------------------------------------------
+
+  // 2.1. Group - Introduction
+  block info_intro: TextBlock {
+    content: @md
+      ### Dataset <br/>
+      - **Ratings**: 27.8M rows <br/>
+      - **Widget**: Ratings over time <br/>
+
+      ---
+
+      ### Performance
+      - **Without Aggregate Awareness**:
+      27.8M rows to process <br/>
+      - **With Aggregate Awareness**:
+      295K rows to process <br/>
+
+      ---
+
+      ### Description
+
+      - This demo illustrates the capability of Aggregate Awareness in Holistics<br/>
+
+      - See How pre-aggregates are set up in [`demo movie/datasets/movie_ratings_analysis.dataset.aml`](https://demo4.holistics.io/studio/projects/7/explore/demo%20movie/datasets/movie_ratings_analysis.dataset.aml)
+      - Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or 
+      different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).<br/>
+
+      ---
+
+      ### Notice
+
+      - Click `Run Dashboard` to see the result <br/>
+      - **It is expected to be slower when you use the demo without Aggregate Awareness.**;;
+  }
+  block info_title: TextBlock {
+    content: @md # Annual Movie Ratings Monitoring;;
+  }
+  block cta_btn: TextBlock {
+    content: @md 
+    <div class="flex items-center justify-center h-full">
+      <a
+        href="https://demo4.holistics.io/dashboards/v4/87176-aggregate-awareness-full-example"
+        class="hui-btn hui-btn-primary-highlight hui-btn-lg"
+        style="text-decoration: none"
+        target="_blank"
+      >
+        Aggregate Awareness - Full Example
+      </a>
+    </div>;;
+  }
+
+  // 2.2. Group - Filter
+  block genre_filter: FilterBlock {
+    label: 'Genre'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movie_ratings_analysis
+      field: ref('public_movies', 'genre')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  // 2.3. Group - Widgets NOT using Aggregate Awareness
+  block raw_viz: VizBlock {
+    label: 'Ratings over time (Without Aggregate Awareness)'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_ratings', 'dummy_timestamp')
+        operator: 'matches'
+        value: '2000 - now'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: false
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block raw_count_rows: VizBlock {
+    label: 'Total Scanned Rows'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_ratings', 'count_all_ratings')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  // 2.4. Group - Widgets using Aggregate Awareness
+  block agg_viz: VizBlock {
+    label: 'Ratings over time (With Aggregate Awareness ⚡️⚡️⚡️)'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block agg_count_rows: VizBlock {
+    label: 'Total Scanned Rows'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_ratings_yearly', 'count_all_year_rows')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  // ------------------------------------------------
+  // ---------- 3. Dashboard Customization ----------
+  // ------------------------------------------------ 
+
+  // 3.1. Custom Theme
+  theme: PageTheme {
+    background {
+      bg_color: "#FFFFFF"
+      bg_repeat: false
+      bg_size: "cover"
+      bg_image: "none"
+    }
+    canvas {
+      border {
+        border_radius: 4
+        border_width: 1
+        border_color: '#E8E8E8'
+        border_style: "solid"
+      }
+      background {
+        bg_color: '#F7F8F9'
+        bg_repeat: false
+        bg_size: "cover"
+        bg_image: "none"
+      }
+      shadow: "none"
+      opacity: 1
+    }
+    block {
+      label {
+        font_family: "Inter"
+        font_size: 14
+        font_color: "#53586A"
+        font_weight: "medium"
+        font_style: "normal"
+      }
+      text {
+        font_family: "Inter"
+        font_size: 12
+        font_color: "#53586A"
+        font_weight: "normal"
+        font_style: "normal"
+      }
+      border {
+        border_width: 1
+        border_radius: 8
+        border_color: '#E8E8E8'
+        border_style: "solid"
+      }
+      background {
+        bg_color: "#FFFFFF"
+        bg_repeat: false
+        bg_size: "cover"
+        bg_image: "none"
+      }
+      padding: 12
+      shadow: "none"
+      opacity: 1
+    }
+  }
+
+  // 3.2. Layout & Positions
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1950
+    height: 910
+    block info_intro {
+      position: pos(30, 160, 560, 570)
+    }
+    block info_title {
+      position: pos(30, 30, 560, 100)
+    }
+    block genre_filter {
+      position: pos(620, 30, 1300, 100)
+      layer: 1
+    }
+    block raw_viz {
+      position: pos(620, 160, 960, 340)
+      layer: 1
+    }
+    block raw_count_rows {
+      position: pos(1610, 160, 310, 340)
+      layer: 1
+    }
+    block agg_viz {
+      position: pos(620, 530, 960, 350)
+      layer: 1
+    }
+    block agg_count_rows {
+      position: pos(1610, 530, 310, 350)
+      layer: 1
+    }
+    block cta_btn {
+      position: pos(30, 760, 560, 120)
+    }
+  }
+
+  // 3.3. Dashboard Settings
+  settings {
+    timezone: 'America/Los_Angeles'
+    autorun: false
+    cache_duration: 10
+  }
+}

@@ -1,0 +1,32 @@
+Model public_movies {
+  type: 'table'
+  label: 'Movies'
+  description: ''
+  data_source_name: 'movies_lens'
+  table_name: '"public"."movies"'
+  dimension id {
+    label: 'ID'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension title {
+    label: 'Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.title }};;
+  }
+  dimension genre {
+    label: 'Genre'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.genre }};;
+  }
+
+  measure count_all_movies {
+    label: "Count Movies"
+    type: "number"
+    definition: @aml count(public_movies.id);;
+    format: "#,###"
+  }
+}

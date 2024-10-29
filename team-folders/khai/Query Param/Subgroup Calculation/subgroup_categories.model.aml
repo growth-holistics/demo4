@@ -1,0 +1,94 @@
+Model subgroup_categories {
+  type: 'query'
+  label: 'Subgroup Categories'
+  description: ''
+  data_source_name: 'demodb'
+  dimension category_name {
+    label: 'Category Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_name }};;
+  }
+  dimension product_values_ {
+    label: 'Product Values'
+    type: 'number'
+    hidden: false
+    format: "[$$]#,###"
+    definition: @sql {{ #SOURCE.product_values }};;
+  }
+  dimension total_quantity {
+    label: 'Total Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_quantity }};;
+  }
+  dimension total_up_ {
+    label: 'Total Up'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_up }};;
+    format: "[$$]#,###"
+  }
+  dimension percent_over_total {
+    label: "% Over Total"
+    type: "number"
+    definition: @sql {{ product_values }} / {{ total_up }};;
+    format: "#,###0.00%"
+  }
+
+  dimension created_at {
+    label: 'Created AT'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.created_at }} ;;
+  }
+
+  measure max_date {
+    label: 'Max Date'
+    type: 'datetime'
+    definition: @sql {{ created_at }};;
+    aggregation_type: 'max'
+  }
+  
+  param date_param {
+    label: 'Date Param'
+    type: 'datetime'
+  }
+
+
+  owner: 'khai.to+demo4@holistics.io'
+  query: @sql
+    with base as (
+     select 
+      ca.name as category_name 
+      , o.created_at 
+      , count(oi.quantity) as total_quantity 
+      , sum(p.price * oi.quantity) as product_values
+     from ecommerce.order_items oi 
+      left join ecommerce.orders o on oi.order_id = o.id
+      left join ecommerce.products p on oi.product_id = p.id  
+      left join ecommerce.categories ca on p.category_id = ca.id
+     where {% filter(date_param) %} o.created_at {% end %}
+      and {% filter(status_param) %} o.status {% end %}
+     group by 1, 2)
+     
+    , total_up as (
+      select
+        sum(product_values) as total_up 
+      from base
+    )
+    select 
+      category_name
+      , created_at 
+      , product_values
+      , total_quantity
+      , total_up
+     from base 
+     cross join total_up ;;
+  param status_param {
+    label: 'Order Status Param'
+    type: 'text'
+    allowed_values: ['delivered', 'cancelled', 'refunded']
+  }
+  models: [
+  ]
+}

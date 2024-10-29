@@ -1,0 +1,105 @@
+Model minhminh_employee_details {
+  type: 'table'
+  label: 'Employee Details'
+  description: ''
+  data_source_name: 'demodb'
+  dimension surname {
+    label: 'Surname'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Surname }};;
+  }
+  dimension given_name {
+    label: 'Given Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.GivenName }};;
+  }
+  dimension gender {
+    label: 'Gender'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Gender }};;
+  }
+  dimension city {
+    label: 'City'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.City }};;
+  }
+  dimension job_title {
+    label: 'Job Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.JobTitle }};;
+  }
+  dimension department_name {
+    label: 'Department Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.DepartmentName }};;
+  }
+  dimension store_location {
+    label: 'Store Location'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.StoreLocation }};;
+  }
+  dimension division {
+    label: 'Division'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Division }};;
+  }
+  dimension business_unit {
+    label: 'Business Unit'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.BusinessUnit }};;
+  }
+  dimension employee_number {
+    label: 'Employee Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.EmployeeNumber }};;
+  }
+  dimension age {
+    label: 'Age (float)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.Age }};;
+  }
+  dimension length_service {
+    label: 'Length Service'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.LengthService }};;
+  }
+  dimension absent_hours {
+    label: 'Absent Hours'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.AbsentHours }};;
+  }
+  dimension age_int {
+    label: 'Age'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.Age_int }};;
+  }
+  measure age_group {
+    label: 'Age Group'
+    type: 'text'
+    hidden: false
+    definition: @sql case
+      when {{#SOURCE.Age_int}} < 18 then '1.Under 18'
+      when {{#SOURCE.Age_int}} >= 18 and {{#SOURCE.Age_int}} < 25 then '2. 18 to 25'
+      when {{ #SOURCE.Age_int }} >= 25 and {{ #SOURCE.Age_int }} <30 then '3. 25 to 30'
+      when {{ #SOURCE.Age_int }} >= 30 and {{ #SOURCE.Age_int }} <35 then '4. 30 to 35'
+      else '5. From 35' end
+    ;;
+  }
+
+  owner: 'minh.ntn@holistics.io'
+  table_name: '"minhminh"."employee_details"'
+}
