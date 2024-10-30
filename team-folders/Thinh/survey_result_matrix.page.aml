@@ -217,6 +217,11 @@ CustomChart {
         data_type: 'text'
         model: ecommerce_countries
       }
+      filter {
+        field: ref('ecommerce_users', 'sign_up_date')
+        operator: 'matches'
+        value: '2024'
+      }
       custom_chart_id: 21157
       field answer: VizFieldFull {
         ref: ref('ecommerce_users', 'answer')
@@ -301,12 +306,18 @@ CustomChart {
       label: "Color for Poor"
       default_value: "#F44336"
     }
+    option color_null {
+      type: "color-picker"
+      label: "Color for Null"
+      default_value: "lightgray"
+    }
   }
 
   template: @vgl {
     "data": {
       "values": @{values}
     },
+    "view": {"fill": @{options.color_null.value}},
     "transform": [
       {
         "joinaggregate": [
@@ -345,6 +356,7 @@ CustomChart {
       }
     },
     "layer": [
+      {"mark": "rect", "encoding": {"fill": {"value": "white"}}},
       {
         "mark": "rect",
         "encoding": {
