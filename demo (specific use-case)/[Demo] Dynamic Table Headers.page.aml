@@ -1243,6 +1243,36 @@ Dashboard demo_dynamic_table_headers {
   }
 </style>;;
   }
+  block v22: VizBlock {
+    label: 'YTD_Prev'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) | period_to_date('year', ecommerce_orders.created_date);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
 
   view: CanvasLayout {
@@ -1375,6 +1405,10 @@ Dashboard demo_dynamic_table_headers {
     block t16 {
       position: pos(770, -55, 296, 160)
       layer: 11
+    }
+    block v22 {
+      position: pos(145, 620, 110, 45)
+      layer: 10
     }
   }
   interactions: [
