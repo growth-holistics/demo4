@@ -131,7 +131,7 @@ Dashboard veracity_financial {
   }
   block v5: VizBlock {
     label: 'Tiltle'
-    viz: DataTable {
+    viz: MetricKpi {
       dataset: demo_ecommerce
       calculation untitled_metric_51afc93 {
         label: 'Untitled Metric'
@@ -145,18 +145,13 @@ Dashboard veracity_financial {
         calc_type: 'measure'
         data_type: 'text'
       }
-      fields: [
-        VizFieldFull {
-          ref: 'untitled_metric_51afc93'
-          format {
-            type: 'html'
-          }
+      value: VizFieldFull {
+        ref: 'untitled_metric_51afc93'
+        format {
+          type: 'html'
         }
-      ]
+      }
       settings {
-        row_height: 'multiple_lines'
-        show_row_number: true
-        row_limit: 5000
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1243,6 +1238,36 @@ Dashboard veracity_financial {
   }
 </style>;;
   }
+  block v22: VizBlock {
+    label: 'YTD_previous_year'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) | period_to_date('year', ecommerce_orders.created_date);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
 
   view: CanvasLayout {
@@ -1251,7 +1276,7 @@ Dashboard veracity_financial {
     height: 695
     grid_size: 5
     block t2 {
-      position: pos(10, 15, 800, 100)
+      position: pos(10, 15, 865, 140)
       layer: 3
     }
     block v1 {
@@ -1373,8 +1398,12 @@ Dashboard veracity_financial {
       layer: 10
     }
     block t16 {
-      position: pos(770, -55, 296, 160)
+      position: pos(805, 0, 296, 160)
       layer: 11
+    }
+    block v22 {
+      position: pos(825, 480, 155, 130)
+      layer: 10
     }
   }
   interactions: [
