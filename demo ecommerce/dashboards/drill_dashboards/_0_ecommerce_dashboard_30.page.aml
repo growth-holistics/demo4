@@ -342,6 +342,42 @@ Dashboard _0_ecommerce_dashboard_30 {
       }
     }
   }
+  block v7: VizBlock {
+    label: 'Count of Order Id by Country'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'order_id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'date'
@@ -493,7 +529,6 @@ Dashboard _0_ecommerce_dashboard_30 {
         CustomMapping {
           block: [
             'date',
-            'country',
             'category',
             'gender',
             'order_status',
@@ -504,15 +539,6 @@ Dashboard _0_ecommerce_dashboard_30 {
           disabled: true
         }
       ]
-    },
-    FilterInteraction {
-      from: 'city'
-      to: [
-        CustomMapping {
-          block: 'country'
-          field: ref('ecommerce_cities', 'name')
-        }
-      ]
     }
   ]
   view: CanvasLayout {
@@ -520,50 +546,6 @@ Dashboard _0_ecommerce_dashboard_30 {
     width: 1220
     height: 1680
     grid_size: 20
-    block date {
-      position: pos(20, 20, 280, 100)
-      layer: 1
-    }
-    block country {
-      position: pos(320, 20, 280, 100)
-      layer: 1
-    }
-    block category {
-      position: pos(620, 20, 280, 100)
-      layer: 1
-    }
-    block gender {
-      position: pos(920, 20, 280, 100)
-      layer: 1
-    }
-    block order_status {
-      position: pos(20, 140, 280, 100)
-      layer: 1
-    }
-    block item_category {
-      position: pos(320, 140, 280, 100)
-      layer: 1
-    }
-    block order_date {
-      position: pos(620, 140, 280, 100)
-      layer: 1
-    }
-    block user_sign_up_date {
-      position: pos(920, 140, 280, 100)
-      layer: 1
-    }
-    block date_drill {
-      position: pos(20, 260, 280, 100)
-      layer: 1
-    }
-    block sale_comparison {
-      position: pos(320, 260, 280, 100)
-      layer: 1
-    }
-    block city {
-      position: pos(620, 260, 280, 100)
-      layer: 1
-    }
     block v1 {
       position: pos(20, 380, 580, 630)
       layer: 1
@@ -586,6 +568,54 @@ Dashboard _0_ecommerce_dashboard_30 {
     }
     block v6 {
       position: pos(20, 1030, 580, 380)
+      layer: 1
+    }
+    block v7 {
+      position: pos(20, 1430, 580, 230)
+      layer: 2
+    }
+    block city {
+      position: pos(620, 260, 280, 100)
+      layer: 1
+    }
+    block date {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block gender {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block category {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(20, 260, 280, 100)
+      layer: 1
+    }
+    block order_date {
+      position: pos(620, 140, 280, 100)
+      layer: 1
+    }
+    block order_status {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block item_category {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block sale_comparison {
+      position: pos(320, 260, 280, 100)
+      layer: 1
+    }
+    block user_sign_up_date {
+      position: pos(920, 140, 280, 100)
       layer: 1
     }
   }
