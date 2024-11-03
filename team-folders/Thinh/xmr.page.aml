@@ -1,90 +1,115 @@
 Dashboard xmr {
-  title: 'Xmr'
+  title: 'X-MR Chart'
   description: ''''''
   block title: TextBlock {
-    content: @md # XmR
-;;
+    content: @md # X-MR Chart
+---
+## Features
+* **Process Limit Rule**: Points outside the limit lines on either the X chart or the MR chart are colored red to indicate outliers.
+* **Date Drill**: Adjusting the time granularity automatically updates the Control Limits accordingly, providing more precise analysis.
+* **Synchornized Reference Line**: A shared reference line on both the X and MR plots allows for easier comparison and interpretation.
+---
+## To do
+* **Quartile Limit Rule**: Highlight points in orange when three out of four consecutive points are closer to a limit line than the center line.
+* **Runs of Eight**: Highlight in yellow when eight consecutive points fall on one side of the central line, emphasizing a potential trend or shift.;;
   }
   block v1: VizBlock {
-    label: 'XmR'
-    viz: CustomChart {
-      dataset: demo_ecommerce_metrics
-      custom_chart_id: 19194
-      field date: VizFieldFull {
-        label: 'Date'
-        ref: ref('dim_dates', 'date_key')
-        transformation: 'datetrunc day'
-        format {
-          type: 'date'
-        }
-      }
-      field metric: VizFieldFull {
-        ref: ref('order_master', 'gmv')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      setting width_1: 1000
-      setting width_2: 696
-    }
-  }
-  block v2: VizBlock {
-    label: 'GMV - Gross Merchandise Value by Day Date Key'
-    viz: CombinationChart {
-      dataset: demo_ecommerce_metrics
-      x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'date_key')
-        transformation: 'datetrunc week'
-        format {
-          type: 'date'
-          pattern: "yyyy-'W'WW"
-        }
-      }
-      y_axis {
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+    label: 'Table'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_date')
+          format {
+            type: 'date'
           }
-          settings {
-            line_interpolation: 'smooth'
+        },
+        VizFieldFull {
+          label: 'Average Order Value'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
-      }
+      ]
       settings {
-        show_data_points: true
+        show_row_number: true
         row_limit: 5000
-        pop {
-          field: ref('dim_dates', 'date_key')
-          duration: 1
-          granularity: 'year'
-          show_growth_rate: true
-        }
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
       }
     }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'X-MR Chart'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 21367
+      field date: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        format {
+          type: 'date'
+        }
+      }
+      field value: VizFieldFull {
+        ref: ref('order_master', 'aov')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting width: 1000
+      setting height: 300
+      setting point_size: 80
+      setting show_labels: true
+      setting center_line_color: '#ff0000'
+      setting control_line_color: '#1f77b4'
+      settings {
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('order_master', 'order_created_date')
+    }
+    default {
+      operator: 'matches'
+      value: 'last 90 days'
+    }
   }
 
   view: CanvasLayout {
     label: 'View 1'
-    height: 840
+    width: 1820
+    height: 820
     grid_size: 20
     block title {
-      position: pos(20, 20, 1160, 80)
+      position: pos(0, 0, 320, 780)
     }
     block v1 {
-      position: pos(20, 120, 1160, 300)
+      position: pos(360, 140, 300, 660)
+      layer: 1
     }
     block v2 {
-      position: pos(20, 440, 1160, 300)
+      position: pos(680, 20, 1120, 780)
+      layer: 1
+    }
+    block f1 {
+      position: pos(360, 20, 300, 100)
+      layer: 2
     }
   }
 
