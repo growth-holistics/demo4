@@ -1,16 +1,8 @@
-Dashboard veracity_financial {
-  title: 'Veracity Financial'
+Dashboard demo_dynamic_table_headers {
+  title: '[Demo] Dynamic Table Headers'
   description: ''''''
   block t2: TextBlock {
-    content: @md <div></div>;;
-    theme: BlockTheme {
-      background {
-        bg_color: "#87CEEB"
-      }
-      border {
-        border_radius: "8px"
-      }
-    }
+    content: @md <div style="width: 800px; height: 100px; border-radius: 8px; background-color: #87CEEB"></div>;;
   }
   block v1: VizBlock {
     label: 'Orders Processed'
@@ -134,7 +126,7 @@ Dashboard veracity_financial {
     }
     default {
       operator: 'matches'
-      value: 'this year'
+      value: '2 years ago to last year'
     }
   }
   block v5: VizBlock {
@@ -142,7 +134,7 @@ Dashboard veracity_financial {
     viz: DataTable {
       dataset: demo_ecommerce
       calculation untitled_metric_51afc93 {
-        label: 'Title'
+        label: 'Untitled Metric'
         formula: @aql concat(
   '<div id="heading"> <h1 style="font-size:40px; color:black; text-align: left"> ID - Comparison Report (', 
   cast((cast(max(ecommerce_orders, date_part('year', ecommerce_orders.created_at)), 'number') -1), 'text'),
@@ -1211,7 +1203,7 @@ Dashboard veracity_financial {
   }
   block v21: VizBlock {
     label: ' '
-    viz: MetricKpi {
+    viz: DataTable {
       dataset: demo_ecommerce
       calculation untitled_metric_48fc96c {
         label: 'Untitled Metric'
@@ -1222,25 +1214,26 @@ Dashboard veracity_financial {
         calc_type: 'measure'
         data_type: 'number'
       }
-      value: VizFieldFull {
-        label: ' '
-        ref: 'untitled_metric_48fc96c'
-        format {
-          type: 'number'
-          pattern: '#,###0.00%'
-          group_separator: ','
-          decimal_separator: '.'
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
         }
-      }
+      ]
       settings {
+        show_row_number: true
+        row_limit: 5000
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
       }
-    }
-    settings {
-      hide_label: true
     }
   }
   block t16: TextBlock {
@@ -1250,6 +1243,36 @@ Dashboard veracity_financial {
   }
 </style>;;
   }
+  block v22: VizBlock {
+    label: 'YTD_Prev'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) | period_to_date('year', ecommerce_orders.created_date);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
 
   view: CanvasLayout {
@@ -1258,17 +1281,17 @@ Dashboard veracity_financial {
     height: 695
     grid_size: 5
     block t2 {
-      position: pos(15, 30, 775, 80)
+      position: pos(10, 15, 800, 100)
       layer: 3
     }
     block v1 {
-      position: pos(5, 145, 450, 370)
+      position: pos(10, 145, 450, 370)
     }
     block f1 {
       position: pos(935, 20, 300, 80)
     }
     block v5 {
-      position: pos(15, 30, 775, 80)
+      position: pos(15, 20, 775, 80)
       layer: 7
     }
     block v6 {
@@ -1376,12 +1399,16 @@ Dashboard veracity_financial {
       layer: 10
     }
     block v21 {
-      position: pos(365, 545, 235, 100)
+      position: pos(350, 540, 110, 45)
       layer: 10
     }
     block t16 {
       position: pos(770, -55, 296, 160)
       layer: 11
+    }
+    block v22 {
+      position: pos(145, 620, 110, 45)
+      layer: 10
     }
   }
   interactions: [
