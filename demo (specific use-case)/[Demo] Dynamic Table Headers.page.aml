@@ -126,7 +126,7 @@ Dashboard demo_dynamic_table_headers {
     }
     default {
       operator: 'matches'
-      value: '2 years ago to last year'
+      value: 'this year'
     }
   }
   block v5: VizBlock {
@@ -1249,9 +1249,49 @@ Dashboard demo_dynamic_table_headers {
       dataset: demo_ecommerce
       calculation untitled_metric_48fc96c {
         label: 'Untitled Metric'
-        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) | period_to_date('year', ecommerce_orders.created_date);;
+        formula: @aql relative_period(count(ecommerce_orders.id), ecommerce_orders.created_date, interval(-1 year)) | where(ecommerce_orders.created_date < @today) | period_to_date('year', ecommerce_orders.created_date);;
         calc_type: 'measure'
         data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_orders', 'created_date')
+        operator: 'matches'
+        value: 'this year'
+      }
+      fields: [
+        VizFieldFull {
+          label: ' '
+          ref: 'untitled_metric_48fc96c'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v23: VizBlock {
+    label: ' YTD'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation untitled_metric_48fc96c {
+        label: 'Untitled Metric'
+        formula: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_date < @today) | period_to_date('year', ecommerce_orders.created_date);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_orders', 'created_date')
+        operator: 'matches'
+        value: 'this year'
       }
       fields: [
         VizFieldFull {
@@ -1408,6 +1448,10 @@ Dashboard demo_dynamic_table_headers {
     }
     block v22 {
       position: pos(145, 620, 110, 45)
+      layer: 10
+    }
+    block v23 {
+      position: pos(255, 620, 110, 45)
       layer: 10
     }
   }
