@@ -186,6 +186,34 @@ Model order_master {
     definition: @sql {{ quantity }} * {{ price }} * (1 - {{ discount }});;
     format: "[\$\$]#,###"
   }
+  dimension test_dim {
+    label: "Test Dim"
+    type: "text"
+    hidden: false
+    definition: @sql CASE
+  WHEN {{ order_created_month }} >= '2024-01-01' and {{ order_created_month }} <= '2024-01-31' THEN
+    '<div style="text-align: left !important; display: initial; margin: 0 !important; position: absolute; top: 0; left: 0;">
+    <h3 style="font-family: ''Pangea'', sans-serif; font-size: 23px; color: blue;">Online Usage Trends in January 2024</h3>  
+    <div style="font-size: 14px;">
+      <li>Stable high usage</li>
+      <li>High usage via <strong>YouTube</strong>—especially for Russian, Spanish and DW News</li>
+      <li><strong>Facebook</strong> continues to decline</li>
+      <li>Another usage record for <strong>Tamil</strong> and <strong>Brazilian</strong>—growth mainly via distribution partners (Josh and Glance) and own social media accounts</li>
+    </div>
+    </div>'
+  WHEN {{ order_created_month }} >= '2024-02-01' and {{ order_created_month }} <= '2024-02-29' THEN
+    '<div style="text-align: left !important; display: initial; margin: 0 !important; position: absolute; top: 0; left: 0;">
+    <h3 style="font-family: ''Pangea'', sans-serif; font-size: 23px; color: blue;">Online Usage Trends in February 2024</h3>
+    <div style="font-size: 14px;">
+      <li>Continued stable high usage</li>
+      <li>DW content was used more frequently again on <strong>Josh</strong>—the platform is currently DW´s most used platform (campaign for <em>Sehat Talk</em>)</li>
+      <li><strong>DW Russian</strong> achieved a usage record on <strong>YouTube</strong>—every fourth view landed on a Russian video, mostly on current topics</li>
+      <li>The use of DW content on <strong>Facebook</strong> is now <strong>declining</strong> for the fourth month in a row</li>
+    </div>
+    </div>'
+  ELSE null
+END;;
+  }
 
   // Custom measures
   measure order_count {
@@ -290,5 +318,4 @@ Model order_master {
     type: "number"
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
-
 }
