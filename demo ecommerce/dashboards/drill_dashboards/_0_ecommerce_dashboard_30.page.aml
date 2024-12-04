@@ -339,6 +339,16 @@ Dashboard _0_ecommerce_dashboard_30 {
       }
       settings {
         row_limit: 5000
+        pop {
+          field: ref('order_master', 'order_created_at')
+          duration: 1
+          granularity: 'month'
+          show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -537,6 +547,19 @@ Dashboard _0_ecommerce_dashboard_30 {
             'user_sign_up_date'
           ]
           disabled: true
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'sale_comparison'
+      to: [
+        CustomMapping {
+          block: 'v2'
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: 'v6'
+          field: ref('order_master', 'order_created_at')
         }
       ]
     }
