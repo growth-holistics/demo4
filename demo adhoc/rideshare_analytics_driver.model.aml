@@ -1,0 +1,87 @@
+Model rideshare_analytics_driver {
+  type: 'query'
+  label: 'Rideshare Analytics Driver'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension realname {
+    label: 'Realname'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.realname }};;
+  }
+  dimension country_name {
+    label: 'Country Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_name }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension trips {
+    label: 'Trips'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.trips }};;
+  }
+  dimension first_trip_date {
+    label: 'First Trip Date'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.first_trip_date }};;
+  }
+  dimension month_diff {
+    label: 'Month Diff'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_diff }};;
+  }
+  dimension avg_trips_per_month {
+    label: 'Avg Trips Per Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_trips_per_month }};;
+  }
+
+  owner: 'vishal@holistics.io'
+  query: @sql
+    -- Analytics Driver
+    WITH all_drivers AS (
+    SELECT  
+    d.id,
+    d.realname,
+    c.country_name,
+    d.created_at,
+    COUNT(b.id) AS trips,
+    MIN(b.pickedup_at) AS first_trip_date
+    FROM "rideshare"."drivers" d
+      JOIN "rideshare"."bookings" b
+        ON b.driver_id = d.id
+      JOIN rideshare.countries c 
+        ON c.country_code = d.country_code
+      WHERE pickedup_at IS NOT NULL
+      GROUP BY 1,2,3,4),
+
+    final_drivers AS (
+    SELECT 
+      *,
+      (DATE(first_trip_date) - DATE(created_at))/30 as month_diff
+      FROM all_drivers)
+      
+    SELECT 
+      *,
+      CASE WHEN month_diff > 0 THEN trips/month_diff ELSE trips END AS avg_trips_per_month
+      FROM final_drivers
+  ;;
+  models: [
+  ]
+}
