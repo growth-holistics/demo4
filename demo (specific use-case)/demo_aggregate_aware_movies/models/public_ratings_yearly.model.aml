@@ -1,0 +1,66 @@
+Model public_ratings_yearly {
+  type: 'table'
+  label: 'Public Rating Yearly'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension movie_id {
+    label: 'Movie Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  
+  dimension timestamp {
+    label: 'Year'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.timestamp }};;
+    format: 'yyyy'
+  }
+
+  dimension count_rating {
+    label: 'Count rating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.count_rating }};;
+  }
+  
+  measure sum_count_rating {
+    label: 'Sum of Count rating'
+    type: 'number'
+    hidden: false
+    definition: @aml sum(public_ratings_yearly.count_rating);;
+    format: "#,###"
+  }
+
+  dimension highest_rating {
+    label: 'Highest_rating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.highest_rating }};;
+  }
+  
+  dimension lowest_rating {
+    label: 'Lowest_rating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.lowest_rating }};;
+  }
+  
+  dimension sum_rating {
+    label: 'sum_rating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sum_rating }};;
+  }
+
+  measure count_all_year_rows {
+    label: "count_all_year_rows"
+    type: "number"
+    definition: @aml count(public_ratings_yearly.timestamp);;
+    format: "#,###"
+  }
+
+  owner: 'huong.le+demo4@holistics.io'
+  table_name: '"persisted"."HPA_3391f121e50b0e959f2f"'
+}

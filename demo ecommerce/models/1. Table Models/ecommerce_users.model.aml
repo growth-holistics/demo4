@@ -11,6 +11,7 @@ Model ecommerce_users {
     definition: @sql {{ #SOURCE.id }};;
     description: "this is ID"
   }
+  
 
   dimension sign_up_date {
     label: "Sign Up Date"
@@ -24,6 +25,28 @@ Model ecommerce_users {
     type: 'text'
     definition: @aql concat(
       'mailto:', ecommerce_users.email
+    );;
+  }
+
+  dimension phone {
+    label: 'Call User'
+    type: 'text'
+    definition: @aql concat(
+      'tel:', '5126329032'
+    );;
+  }
+
+  dimension visit_time {
+    label: 'Visit Time'
+    type: 'text'
+    definition: @sql to_char({{ sign_up_date }}, 'Month') ;;
+  }
+
+  dimension linkedin_search {
+    label: 'linkedin_search'
+    type: 'text'
+    definition: @aql concat(
+      'https://www.linkedin.com/search/results/all/?keywords=',ecommerce_users.full_name
     );;
   }
 
@@ -65,6 +88,7 @@ Model ecommerce_users {
         else: '(redacted)'
       );;
   }
+
 
 
   dimension birth_date {
@@ -120,6 +144,8 @@ end;;
 end;;
     description: "Grouping of the age demographics by age group\nUnder 20\n21-30\n31-40\nAbove 40"
   }
+
+
   dimension date_datum {
     label: "Date Datum"
     type: "date"

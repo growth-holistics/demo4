@@ -102,10 +102,23 @@ Model ecommerce_orders {
     type: "datetime"
     definition: @sql min({{ created_at }}) ;;
   }
+
   measure days_since_last_order {
     label: "Days Since Last Order"
     type: "number"
     definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
     aggregation_type: "custom"
+  }
+
+  measure orders_2023 {
+    label: '2023'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023) ;;
+  }
+
+  measure orders_2024 {
+    label: '2024'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024) ;;
   }
 }

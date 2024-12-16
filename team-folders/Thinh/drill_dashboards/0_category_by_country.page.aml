@@ -1,0 +1,130 @@
+Dashboard _0_category_by_country {
+  title: '[Source] Category Revenue By Country'
+  description: ''''''
+  block title: TextBlock {
+    content: @md ## [Source] Category Revenue By Country;;
+    theme: header
+  }
+  block v1: VizBlock {
+    label: 'Category Revenue by Country'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: 'Country'
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              max {
+                value: 1500000
+                color: '#47B881'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+
+  }
+  block f2: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1920
+    height: 880
+    grid_size: 20
+    block title {
+      position: pos(0, 0, 1920, 80)
+    }
+    block v1 {
+      position: pos(20, 200, 1880, 660)
+    }
+    block f1 {
+      position: pos(20, 100, 300, 80)
+    }
+    block f2 {
+      position: pos(340, 100, 300, 80)
+    }
+  }
+
+  theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

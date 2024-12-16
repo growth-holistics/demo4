@@ -59,6 +59,7 @@ Model order_master {
     hidden: false
     definition: @sql {{ #SOURCE.user_id }};;
   }
+
   dimension status {
     label: 'Status'
     type: 'text'
@@ -198,6 +199,7 @@ Model order_master {
     definition: @sql sum({{ #SOURCE.price }}) / count(distinct {{ #SOURCE.order_id }});;
     format: "[$$]#,###0"
   }
+
   measure cancel_value_ratio {
     label: "Cancel Value Ratio"
     type: "number"
@@ -257,6 +259,7 @@ Model order_master {
     description: "Total value regardless of order status"
     format: "[$$]#,###0"
   }
+
   measure nmv {
     label: "NMV - Net Merchandise Value"
     type: "number"
@@ -266,7 +269,7 @@ Model order_master {
   measure refunded_orders_count {
     label: "Refunded Orders Count"
     type: "number"
-    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.order_id }} else null end);;
+    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'refunded' then {{ #SOURCE.order_id }} else null end);;
   }
   measure revenue {
     label: "Revenue"

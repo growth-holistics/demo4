@@ -1,0 +1,275 @@
+Dashboard _2_customer_demographic {
+  title: '[Target] Customer Demographic'
+  description: ''''''
+
+  block title: TextBlock {
+    content: @md ## [Target] Customer Demographic;;
+    theme: header
+  }
+  block v1: VizBlock {
+    label: 'Customer Email'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_users_gender'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email_pii')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_users_email_pii'
+        },
+        VizFieldFull {
+          label: 'Country'
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'sign_up_date')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Average Order Value'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'aov')
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              mid {
+                value: 2500
+                color: '#B5E3CD'
+              }
+              max {
+                value: 5000
+                color: '#47B881'
+              }
+            }
+          }
+        ]
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'ecommerce_users_gender'
+              width: 84
+            },
+            ColumnWidth {
+              key: 'ecommerce_users_email_pii'
+              width: 267
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: ref('order_master', 'user_id')
+        aggregation: 'count distinct'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Gender Distribution'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_users', 'gender')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'users'
+          ref: ref('order_master', 'user_id')
+          aggregation: 'count distinct'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        legend_label: 'hidden'
+        show_data_label: true
+        show_percentage: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'City'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Age Group'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1920
+    height: 900
+    grid_size: 20
+    block title {
+      position: pos(0, 0, 1920, 80)
+    }
+    block v1 {
+      position: pos(660, 100, 1240, 780)
+    }
+    block v2 {
+      position: pos(20, 200, 300, 120)
+    }
+    block v3 {
+      position: pos(20, 340, 620, 540)
+    }
+    block v4 {
+      position: pos(340, 200, 300, 120)
+    }
+    block f1 {
+      position: pos(20, 100, 300, 80)
+    }
+    block f2 {
+      position: pos(340, 100, 300, 80)
+    }
+  }
+
+  theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

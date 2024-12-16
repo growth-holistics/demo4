@@ -1,0 +1,66 @@
+const color = "gray"
+
+Dashboard bar_chart_with_image {
+  title: 'Bar Chart With Image'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    block v1 {
+      position: pos(40, 60, 400, 300)
+      layer: 1
+    }
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'Table'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancel_value_ratio')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancelled_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme {
+      background {
+        bg_color: 'white'
+      }
+      padding {
+        top: 10
+        left: 10
+        bottom: 10
+        right: 50
+      }
+    }
+  }
+}
