@@ -88,19 +88,6 @@ Model dynamic_dim_model {
     definition: @sql {{ #SOURCE.country_name }};;
   }
 
-  param dimension_choice {
-    label: 'Dimension Choice'
-    type: 'text'
-    allowed_values: ['countries', 'cities', 'gender']
-  }
-
-  dimension dynamic_dimension {
-    label: 'Dynamic Dimension'
-    type: 'text'
-    hidden: false
-    definition: @sql {{ #SOURCE.dynamic_dimension }};;
-  }
-
   owner: 'khai.to@holistics.io'
   query: @sql
     select 
@@ -118,11 +105,6 @@ Model dynamic_dim_model {
       , {{#p.merchant_id}}
       , {{ #ci.name }} as city_name
       , {{ #co.name }} as country_name
-      , CASE
-        WHEN {% filter(dimension_choice) %} 'countries' {% end %} THEN {{ #co.name }}
-        WHEN {% filter(dimension_choice) %} 'cities' {% end %} THEN {{ #ci.name }}
-        WHEN {% filter(dimension_choice) %} 'gender' {% end %} THEN {{ #u.gender }}
-        ELSE 'unknown' END AS dynamic_dimension
     from {{ #ecommerce_order_items AS oi }} 
     left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
     left join {{ #ecommerce_users AS u }} on {{ #o.user_id }} = {{ #u.id }}

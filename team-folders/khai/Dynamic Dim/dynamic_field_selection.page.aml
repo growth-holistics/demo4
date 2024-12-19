@@ -10,6 +10,10 @@ Dashboard dynamic_field_selection {
       position: pos(20, 20, 700, 360)
       layer: 1
     }
+    block f1 {
+      position: pos(760, 20, 200, 100)
+      layer: 2
+    }
     width: 1020
   }
 
@@ -26,21 +30,7 @@ Dashboard dynamic_field_selection {
           }
         },
         VizFieldFull {
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_users'
+          ref: 'dynamic_metric'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -55,6 +45,21 @@ Dashboard dynamic_field_selection {
           debug_comments: true
         }
       }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Metric Choice'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: khai_ecommerce
+      field: ref('param_model', 'metric_selection')
+    }
+    default {
+      operator: 'is'
+      value: 'Revenue'
+    }
+    settings {
+      input_type: 'single'
     }
   }
 }

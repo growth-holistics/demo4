@@ -44,4 +44,19 @@ Dataset khai_ecommerce {
     definition: @aql count(users.id) ;;
   }
 
+  metric dynamic_metric {
+    label: 'Dynamic Metric'
+    type: 'number'
+    definition: @aql
+      case(
+        when: (param_model.metric_selection | first()) == 'Revenue'
+        , then: revenue
+        , when: (param_model.metric_selection | first()) == 'Total Orders'
+        , then: total_orders
+        , when: (param_model.metric_selection | first()) == 'Total Users'
+        , then: total_users
+      )
+     ;;
+  }
+
 }
