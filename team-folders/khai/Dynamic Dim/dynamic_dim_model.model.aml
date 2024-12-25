@@ -88,6 +88,25 @@ Model dynamic_dim_model {
     definition: @sql {{ #SOURCE.country_name }};;
   }
 
+  param dim_choice {
+    label: 'Dim Choice'
+    type: 'text'
+    allowed_values: ['Countries', 'Cities', 'Gender']
+  }
+
+  dimension dynamic_dim {
+    label: 'Dynamic Dim'
+    type: 'text'
+    definition: @aql case(
+      when: 'Countries' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.country_name
+      , when: 'Cities' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.city_name
+      , when: 'Gender' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.gender
+    ) ;;
+  }
+
   owner: 'khai.to@holistics.io'
   query: @sql
     select 
