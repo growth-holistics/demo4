@@ -558,6 +558,17 @@ ecommerce_users.sign_up_date
       }
     }
   }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block p1: PopBlock {
+    label: 'PoP'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1420
@@ -647,6 +658,12 @@ ecommerce_users.sign_up_date
     block divider {
       position: pos(230, 30, 10, 40)
     }
+    block d1 {
+      position: pos(520, 330, 170, 100)
+    }
+    block p1 {
+      position: pos(1190, 330, 210, 80)
+    }
   }
   interactions: [
     FilterInteraction {
@@ -681,6 +698,32 @@ ecommerce_users.sign_up_date
         CustomMapping {
           block: 'v11'
           field: ref('dim_dates', 'date_key')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: 'v11'
+          field: ref('dim_dates', 'date_key')
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: ref('dim_dates', 'date_key')
+        },
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_users', 'sign_up_date')
         }
       ]
     }
