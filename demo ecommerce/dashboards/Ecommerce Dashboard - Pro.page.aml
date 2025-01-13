@@ -170,7 +170,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
     settings {
       hide_label: true
-      hide_controls: true
     }
   }
   block v2_dup_dup: VizBlock {
@@ -693,72 +692,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
-  block v14: VizBlock {
-    label: 'Orders by Country Name and Status'
-    viz: AreaChart {
-      dataset: demo_ecommerce
-      calculation f_7be4e9b {
-        label: 'Status'
-        formula: @aml  case(
-  when: ecommerce_orders.status == 'cancelled', then: 'Cancelled',
-  when: ecommerce_orders.status == 'delivered', then: 'Delivered',
-  when: ecommerce_orders.status == 'refunded', then: 'Refunded'
-  , else: 'others'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-      }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_cities', 'name')
-        format {
-          type: 'text'
-        }
-      }
-      legend: VizFieldFull {
-        ref: 'f_7be4e9b'
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          stack_series_by: 'percentage'
-        }
-        series {
-          field: VizFieldFull {
-            label: 'orders'
-            ref: ref('ecommerce_orders', 'total_order')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            point {
-              value: 'Cancelled'
-              color: '#7C9EE5'
-            }
-            point {
-              value: 'Delivered'
-              color: '#18A59E'
-            }
-            point {
-              value: 'Refunded'
-              color: '#07326C'
-            }
-          }
-        }
-      }
-      settings {
-        show_data_points: true
-        legend_label: 'top'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block t26: TextBlock {
     content: @md <p></p>;;
     theme {
@@ -1036,34 +969,88 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
+  block v17: VizBlock {
+    label: 'Total Users and Delivered Orders Count by Quarter Sign Up Date'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'age_group')
+        operator: 'is_not'
+        value: '3. From 40 to 49'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
-    width: 1540
-    height: 3800
+    width: 1600
+    height: 3920
     grid_size: 20
-    block f1 {
-      position: pos(60, 2840, 260, 40)
+    block hd1 {
+      position: pos(1320, 20, 180, 50)
     }
-    block f2 {
-      position: pos(60, 3120, 260, 40)
+    block hd2 {
+      position: pos(40, 40, 630, 60)
     }
-    block f3 {
-      position: pos(60, 2980, 260, 40)
+    block hd3 {
+      position: pos(0, 0, 1540, 200)
+      layer: -1
     }
     block t2 {
       position: pos(40, 100, 660, 50)
-    }
-    block t5 {
-      position: pos(40, 230, 1460, 70)
-    }
-    block t6 {
-      position: pos(40, 1190, 1460, 80)
-    }
-    block t8 {
-      position: pos(40, 2680, 1460, 80)
-    }
-    block t9 {
-      position: pos(60, 2800, 260, 40)
     }
     block v1 {
       position: pos(60, 700, 1420, 380)
@@ -1071,54 +1058,84 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block v2 {
       position: pos(80, 340, 320, 140)
     }
+    block v2_dup_dup {
+      position: pos(440, 2200, 380, 500)
+    }
     block v6 {
-      position: pos(820, 2120, 680, 500)
+      position: pos(840, 2200, 680, 500)
     }
     block v7 {
-      position: pos(40, 3200, 1460, 430)
+      position: pos(60, 3280, 1460, 430)
     }
     block v8 {
-      position: pos(360, 2780, 560, 400)
+      position: pos(380, 2860, 560, 400)
     }
-    block hd1 {
-      position: pos(1340, 20, 180, 50)
+    block v10 {
+      position: pos(80, 500, 320, 140)
     }
-    block hd2 {
-      position: pos(40, 40, 630, 60)
-    }
-    block hd3 {
-      position: pos(0, 0, 1560, 200)
+    block v12 {
+      position: pos(480, 340, 1000, 300)
       layer: -1
     }
+    block f1 {
+      position: pos(80, 2920, 260, 40)
+    }
+    block t5 {
+      position: pos(40, 220, 1460, 70)
+    }
+    block t6 {
+      position: pos(40, 1190, 1460, 80)
+    }
+    block t8 {
+      position: pos(60, 2760, 1460, 80)
+    }
+    block t9 {
+      position: pos(80, 2880, 260, 40)
+    }
     block t10 {
-      position: pos(940, 100, 180, 50)
+      position: pos(920, 100, 180, 50)
     }
     block t11 {
-      position: pos(1140, 100, 180, 50)
+      position: pos(1120, 100, 180, 50)
     }
     block t12 {
-      position: pos(1340, 100, 180, 50)
+      position: pos(1320, 100, 180, 50)
+    }
+    block v13 {
+      position: pos(40, 1280, 720, 460)
     }
     block t26 {
-      position: pos(40, 2780, 300, 120)
+      position: pos(60, 2860, 300, 120)
       layer: -2
     }
     block t28 {
-      position: pos(60, 3080, 260, 40)
+      position: pos(80, 3160, 260, 40)
+    }
+    block f2 {
+      position: pos(80, 3200, 260, 40)
+    }
+    block f3 {
+      position: pos(80, 3060, 260, 40)
     }
     block t32 {
-      position: pos(60, 2940, 260, 40)
+      position: pos(80, 3020, 260, 40)
       layer: 1
     }
+    block v15 {
+      position: pos(960, 2860, 560, 400)
+    }
+    block v16 {
+      position: pos(780, 1280, 720, 460)
+    }
     block t38 {
-      position: pos(0, 3640, 1560, 170)
+      position: pos(20, 3720, 1560, 170)
       layer: -1
     }
     block t39 {
-      position: pos(40, 3680, 200, 70)
+      position: pos(60, 3760, 200, 70)
     }
     block t40 {
-      position: pos(1100, 3660, 400, 110)
+      position: pos(1120, 3740, 400, 110)
     }
     block t47 {
       position: pos(1420, 1140, 80, 100)
@@ -1129,7 +1146,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       layer: -2
     }
     block t51 {
-      position: pos(1420, 2640, 80, 100)
+      position: pos(1440, 2720, 80, 100)
       layer: 1
     }
     block t52 {
@@ -1141,37 +1158,18 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       layer: -2
     }
     block t54 {
-      position: pos(40, 2120, 360, 500)
+      position: pos(60, 2200, 360, 500)
     }
     block t55 {
-      position: pos(40, 2920, 300, 120)
+      position: pos(60, 3000, 300, 120)
       layer: -1
     }
     block t56 {
-      position: pos(40, 3060, 300, 120)
+      position: pos(60, 3140, 300, 120)
       layer: -1
     }
-    block v10 {
-      position: pos(80, 500, 320, 140)
-    }
-    block v12 {
-      position: pos(480, 340, 1000, 300)
-      layer: -1
-    }
-    block v13 {
-      position: pos(40, 1280, 720, 460)
-    }
-    block v14 {
-      position: pos(40, 1760, 1460, 320)
-    }
-    block v15 {
-      position: pos(940, 2780, 560, 400)
-    }
-    block v16 {
-      position: pos(780, 1280, 720, 460)
-    }
-    block v2_dup_dup {
-      position: pos(420, 2120, 380, 500)
+    block v17 {
+      position: pos(40, 1760, 1480, 420)
     }
   }
   settings {

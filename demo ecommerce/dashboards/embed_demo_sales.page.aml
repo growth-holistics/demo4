@@ -558,21 +558,47 @@ ecommerce_users.sign_up_date
       }
     }
   }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block p1: PopBlock {
+    label: 'PoP'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1420
     height: 1530
-    block v1 {
-      position: pos(240, 20, 360, 60)
-    }
     block f1 {
       position: pos(-320, 10, 300, 80)
     }
-    block v2 {
-      position: pos(750, 780, 650, 240)
+    block f2 {
+      position: pos(1110, 10, 310, 80)
+    }
+    block f3 {
+      position: pos(800, 10, 300, 80)
+    }
+    block hr {
+      position: pos(-20, 100, 1480, 20)
     }
     block t2 {
       position: pos(750, 340, 650, 40)
+    }
+    block t5 {
+      position: pos(30, 10, 170, 90)
+    }
+    block t9 {
+      position: pos(40, 340, 650, 40)
+    }
+    block v1 {
+      position: pos(360, 20, 360, 60)
+    }
+    block v2 {
+      position: pos(750, 780, 650, 240)
     }
     block v3 {
       position: pos(40, 780, 650, 240)
@@ -581,7 +607,7 @@ ecommerce_users.sign_up_date
       position: pos(40, 140, 240, 140)
     }
     block v5 {
-      position: pos(600, 140, 240, 140)
+      position: pos(610, 140, 240, 140)
     }
     block v6 {
       position: pos(880, 140, 240, 140)
@@ -591,34 +617,6 @@ ecommerce_users.sign_up_date
     }
     block v8 {
       position: pos(40, 390, 650, 370)
-    }
-    block f2 {
-      position: pos(1110, 10, 310, 80)
-    }
-    block t5 {
-      position: pos(30, 10, 170, 90)
-    }
-    block t9 {
-      position: pos(40, 340, 650, 40)
-    }
-    block v11 {
-      position: pos(750, 390, 650, 370)
-    }
-    block v12 {
-      position: pos(320, 140, 240, 140)
-    }
-    block f3 {
-      position: pos(800, 10, 300, 80)
-    }
-    block divider {
-      position: pos(230, 30, 10, 40)
-    }
-    block hr {
-      position: pos(-20, 100, 1480, 20)
-    }
-    block box1 {
-      position: pos(20, 120, 1400, 180)
-      layer: -1
     }
     block t10 {
       position: pos(300, 120, 10, 180)
@@ -641,11 +639,30 @@ ecommerce_users.sign_up_date
       position: pos(730, 320, 690, 720)
       layer: -2
     }
+    block v11 {
+      position: pos(750, 390, 650, 370)
+    }
+    block v12 {
+      position: pos(320, 140, 240, 140)
+    }
     block v13 {
       position: pos(730, 1050, 680, 450)
     }
     block v14 {
       position: pos(10, 1050, 700, 450)
+    }
+    block box1 {
+      position: pos(20, 120, 1400, 180)
+      layer: -1
+    }
+    block divider {
+      position: pos(230, 30, 10, 40)
+    }
+    block d1 {
+      position: pos(520, 330, 170, 100)
+    }
+    block p1 {
+      position: pos(1190, 330, 210, 80)
     }
   }
   interactions: [
@@ -681,6 +698,32 @@ ecommerce_users.sign_up_date
         CustomMapping {
           block: 'v11'
           field: ref('dim_dates', 'date_key')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: 'v11'
+          field: ref('dim_dates', 'date_key')
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: ref('dim_dates', 'date_key')
+        },
+        CustomMapping {
+          block: 'v8'
+          field: ref('ecommerce_users', 'sign_up_date')
         }
       ]
     }

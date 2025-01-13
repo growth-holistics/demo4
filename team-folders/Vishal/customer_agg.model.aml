@@ -1,0 +1,35 @@
+Model customer_agg {
+  type: 'table'
+  label: 'Customer Agg'
+  description: ''
+  data_source_name: 'demodb'
+  
+  dimension day {
+    label: 'Day'
+    type: 'datetime'
+    description: 'Day'
+    definition: @sql DATE_TRUNC('day',{{#SOURCE.created_at}});;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  measure total_trips {
+    // measure 1 definition
+    label: 'Total Trips'
+    type: 'number'
+    definition: @sql {{#SOURCE.id}};;
+    aggregation_type: 'count'
+  }
+  measure last_trip_date {
+    label: "Last Trip Date"
+    type: "datetime"
+    description: "Last Trip Date for a customer"
+    definition: @sql MAX({{#SOURCE.pickedup_at}});;
+    aggregation_type: "custom"
+  }
+  owner: 'vishal@holistics.io'
+  table_name: '"rideshare"."bookings"'
+}

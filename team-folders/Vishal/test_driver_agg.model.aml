@@ -1,0 +1,50 @@
+Model test_driver_agg {
+  type: 'query'
+  label: 'Test Driver Agg'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension realname {
+    label: 'Realname'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.realname }};;
+  }
+  dimension country_name {
+    label: 'Country Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_name }};;
+  }
+  dimension trips {
+    label: 'Trips'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.trips }};;
+  }
+
+  owner: 'vishal@holistics.io'
+  query: @sql
+    WITH all_drivers AS (
+        SELECT  
+        d.id,
+        d.realname,
+        c.country_name,
+        COUNT(b.id) AS trips
+        FROM "rideshare"."drivers" d
+          JOIN "rideshare"."bookings" b
+            ON b.driver_id = d.id
+          JOIN rideshare.countries c 
+            ON c.country_code = d.country_code
+          WHERE pickedup_at IS NOT NULL
+          GROUP BY 1,2,3)
+      
+      SELECT * FROM all_drivers;;;
+  models: [
+  ]
+}
