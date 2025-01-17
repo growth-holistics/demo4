@@ -76,6 +76,7 @@ Model drivers_agg {
     c.country_name,
     d.created_at,
     COUNT(b.id) AS trips,
+    MIN(b.pickedup_at) AS first_trip_date,
     MAX(b.pickedup_at) AS last_trip_date
     FROM "rideshare"."drivers" d
       JOIN "rideshare"."bookings" b
@@ -88,7 +89,7 @@ Model drivers_agg {
     final_drivers AS (
     SELECT 
       *,
-      (DATE(last_trip_date) - DATE(created_at))/30 as month_diff
+      (DATE(last_trip_date) - DATE(first_trip_date))/30 as month_diff
       FROM all_drivers)
       
     SELECT 

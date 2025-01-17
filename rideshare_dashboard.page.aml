@@ -1,0 +1,227 @@
+Dashboard rideshare_dashboard {
+  title: 'Rideshare dashboard'
+  description: 'Sample Rideshare Data'
+  block v1: VizBlock {
+    label: 'Active Drivers'
+    viz: MetricKpi {
+      dataset: rideshare_schema
+      calculation previous_month_drivers {
+        label: 'Untitled Metric'
+        formula: @aql where(count(drivers_agg.id), date_trunc(drivers_agg.last_trip_date, 'month') == @2018-02-01 00:00:00) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'active_drivers'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'previous_month_drivers'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Active Riders'
+    description: 'Active Riders'
+    viz: MetricKpi {
+      dataset: rideshare_schema
+      calculation previous_month_drivers {
+        label: 'Untitled Metric'
+        formula: @aql where(count(drivers_agg.id), date_trunc(drivers_agg.last_trip_date, 'month') == @2018-02-01 00:00:00) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation previous_month_riders {
+        label: 'Previous Month Riders'
+        formula: @aql where(count_distinct(rideshare_bookings.user_id), date_trunc(rideshare_bookings.pickedup_at,'month') == @2018-02-01 00:00:00) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'active_riders'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'previous_month_riders'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Top Drivers'
+    viz: DataTable {
+      dataset: rideshare_schema
+      filter {
+        field: ref('drivers_agg', 'driver_rank')
+        operator: 'less_than'
+        value: '11'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('drivers_agg', 'realname')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('drivers_agg', 'driver_rank')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Count of Trips'
+    viz: LineChart {
+      dataset: rideshare_schema
+      x_axis: VizFieldFull {
+        ref: ref('rideshare_bookings', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('rideshare_bookings', 'id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v3',
+            'v4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v4'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v4'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1100
+    height: 400
+    grid_size: 20
+    block v1 {
+      position: pos(20, 20, 230, 130)
+      layer: 1
+    }
+    block v2 {
+      position: pos(270, 20, 230, 130)
+      layer: 1
+    }
+    block v3 {
+      position: pos(20, 170, 480, 230)
+      layer: 1
+    }
+    block v4 {
+      position: pos(520, 20, 580, 380)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 4320
+  }
+}
