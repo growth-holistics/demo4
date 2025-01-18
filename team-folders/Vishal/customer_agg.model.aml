@@ -60,6 +60,13 @@ Model customer_agg {
     definition: @sql RANK() OVER (ORDER BY {{total_trips}} DESC) ;;
     aggregation_type: "custom"
   }
+  measure total_days {
+    label: "Total Days"
+    type: "text"
+    description: "The number of days that a customer was active"
+    definition: @sql COUNT(DATE_TRUNC('day',{{#SOURCE.pickedup_at}}));;
+    aggregation_type: "custom"
+  }
 
   owner: 'vishal@holistics.io'
   table_name: '"rideshare"."bookings"'
