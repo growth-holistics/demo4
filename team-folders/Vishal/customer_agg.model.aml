@@ -10,6 +10,18 @@ Model customer_agg {
     hidden: false
     definition: @sql {{ #SOURCE.user_id }};;
   }
+  dimension contact_name {
+    label: 'Contact Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.ContactName }};;
+  }
+  dimension country {
+    label: 'Country'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.Country }};;
+  }
   measure total_trips {
     // measure 1 definition
     label: 'Total Trips'
@@ -17,6 +29,14 @@ Model customer_agg {
     definition: @sql {{#SOURCE.id}};;
     aggregation_type: 'count'
   }
+  measure first_trip_date {
+    label: "First Trip Date"
+    type: "datetime"
+    description: "First Trip Date for a customer"
+    definition: @sql MIN({{#SOURCE.pickedup_at}});;
+    aggregation_type: "custom"
+  }
+
   measure last_trip_date {
     label: "Last Trip Date"
     type: "datetime"
@@ -24,6 +44,30 @@ Model customer_agg {
     definition: @sql MAX({{#SOURCE.pickedup_at}});;
     aggregation_type: "custom"
   }
+
+  measure day_diff {
+    label: "Day Diff"
+    type: "number"
+    description: "Difference in Days"
+    definition: @sql {{last_trip_date}} - {{first_trip_date}} ;;
+    aggregation_type: "custom"
+  }
+
+  measure customer_rank {
+    label: "Customer Rank"
+    type: "number"
+    description: "Ranking for a customer"
+    definition: @sql RANK() OVER (ORDER BY {{total_trips}} DESC) ;;
+    aggregation_type: "custom"
+  }
+  measure total_days {
+    label: "Total Days"
+    type: "text"
+    description: "The number of days that a customer was active"
+    definition: @sql COUNT(DATE_TRUNC('day',{{#SOURCE.pickedup_at}}));;
+    aggregation_type: "custom"
+  }
+
   owner: 'vishal@holistics.io'
   table_name: '"rideshare"."bookings"'
 }

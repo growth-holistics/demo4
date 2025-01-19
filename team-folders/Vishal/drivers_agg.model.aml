@@ -12,12 +12,14 @@ Model drivers_agg {
   dimension realname {
     label: 'Realname'
     type: 'text'
+    description: "Name of a driver"
     hidden: false
     definition: @sql {{ #SOURCE.realname }};;
   }
   dimension country_name {
     label: 'Country Name'
     type: 'text'
+    description: "Driver\'s country name"
     hidden: false
     definition: @sql {{ #SOURCE.country_name }};;
   }
@@ -27,23 +29,11 @@ Model drivers_agg {
     hidden: false
     definition: @sql {{ #SOURCE.created_at }};;
   }
-  dimension trips {
-    label: 'Trips'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.trips }};;
-  }
   dimension first_trip_date {
     label: 'First Trip Date'
     type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.first_trip_date }};;
-  }
-  dimension month_diff {
-    label: 'Month Diff'
-    type: 'number'
-    hidden: false
-    definition: @sql {{ #SOURCE.month_diff }};;
   }
   dimension avg_trips_per_month {
     label: 'Avg Trips Per Month'
@@ -63,6 +53,18 @@ Model drivers_agg {
     hidden: false
     definition: @sql {{ #SOURCE.last_trip_date }};;
   }
+  measure trips {
+    label: 'Trips'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.trips }};;
+  }
+  measure month_diff {
+    label: 'Month Diff'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_diff }};;
+  }
 
   owner: 'vishal@holistics.io'
   query: @sql
@@ -74,6 +76,7 @@ Model drivers_agg {
     c.country_name,
     d.created_at,
     COUNT(b.id) AS trips,
+    MIN(b.pickedup_at) AS first_trip_date,
     MAX(b.pickedup_at) AS last_trip_date
     FROM "rideshare"."drivers" d
       JOIN "rideshare"."bookings" b
@@ -86,7 +89,7 @@ Model drivers_agg {
     final_drivers AS (
     SELECT 
       *,
-      (DATE(last_trip_date) - DATE(created_at))/30 as month_diff
+      (DATE(last_trip_date) - DATE(first_trip_date))/30 as month_diff
       FROM all_drivers)
       
     SELECT 
