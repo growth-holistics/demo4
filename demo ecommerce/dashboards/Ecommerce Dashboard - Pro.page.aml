@@ -3,6 +3,10 @@
 
 Dashboard demo_ecommerce_overview_pro {
   title: 'Ecommerce Dashboard - Pro'
+  theme: PageTheme {
+    
+  }
+
   block hd1: TextBlock {
     content: @md 
     <img style="margin-bottom:0 !important;overflow:hidden;" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" alt="demo" width="255">;;
@@ -1030,10 +1034,72 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
+  block v18: VizBlock {
+    label: 'Customer Info and Buying Behavior'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancelled_order_ratio')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1600
-    height: 3920
+    height: 4460
     grid_size: 20
     block hd1 {
       position: pos(1320, 20, 180, 50)
@@ -1124,14 +1190,14 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       position: pos(780, 1280, 720, 460)
     }
     block t38 {
-      position: pos(20, 3720, 1560, 170)
+      position: pos(20, 4260, 1560, 170)
       layer: -1
     }
     block t39 {
       position: pos(60, 3760, 200, 70)
     }
     block t40 {
-      position: pos(1120, 3740, 400, 110)
+      position: pos(1160, 4280, 400, 110)
     }
     block t47 {
       position: pos(1420, 1140, 80, 100)
@@ -1166,6 +1232,9 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
     block v17 {
       position: pos(40, 1760, 1480, 420)
+    }
+    block v18 {
+      position: pos(60, 3720, 1480, 500)
     }
   }
   settings {
