@@ -1,0 +1,224 @@
+const width = 2000
+const height = 2000
+
+
+const margin = 50
+const padding = 50
+const heightPie = 400
+const numPerRow = 5
+const widthPie = (width - padding * numPerRow) / numPerRow + 10
+
+const heightPosPieOrders = 150
+const heightPosBarOrders = 550
+const heightPosPieRevenue = 950
+const heightPosBarRevenue = 1350
+
+const count_orders = ref('ecommerce_orders', 'total_orders_count')
+const revenue = ref('order_master', 'revenue')
+
+
+Func get_bar(metric: FieldRef, country: String, y_axis_label: String) {
+  VizBlock {
+    label: 'Revenue in ${country}'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_countries', 'name')
+        operator: 'is'
+        value: '${country}'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: y_axis_label
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field {
+            ref: metric
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,,"M"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            point {
+              value: '1. Under 20'
+              color: '#62ADD4'
+            }
+            point {
+              value: '2. From 20 to 29'
+              color: '#8DD6C3'
+            }
+            point {
+              value: '3. From 30 to 39'
+              color: '#C3E8C2'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_label: 'Age Group'
+      }
+    }
+  }
+}
+
+Func get_pie(metric: FieldRef, country: String) {
+  VizBlock {
+    label: '# of Orders in ${country}'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_countries', 'name')
+        operator: 'is'
+        value: '${country}'
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          label: ' '
+          ref: metric
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+        group_values_into: 5
+      }
+    }
+  }
+}
+
+Func get_pos(index: Number, height_pos) {
+  pos(
+    margin + widthPie * index + padding,
+    height_pos,
+    widthPie,
+    heightPie
+  )
+}
+
+Dashboard demo_func_ecommerce {
+  title: '[Value] Reusable Dashboard Visuals'
+  view: CanvasLayout {
+    label: 'View 1'
+    width: width
+    height: height
+    block v1 {
+      position: get_pos(0, heightPosPieOrders)
+    }
+    block v2 {
+      position: get_pos(1, heightPosPieOrders)
+    }
+    block v3 {
+      position: get_pos(2, heightPosPieOrders)
+    }
+    block v4 {
+      position: get_pos(3, heightPosPieOrders)
+    }
+    block v5 {
+      position: get_pos(4, heightPosPieOrders)
+    }
+
+    block v6 {
+      position: get_pos(0, heightPosBarOrders)
+    }
+    block v7 {
+      position: get_pos(1, heightPosBarOrders)
+    }
+    block v8 {
+      position: get_pos(2, heightPosBarOrders)
+    }
+    block v9 {
+      position: get_pos(3, heightPosBarOrders)
+    }
+    block v10 {
+      position: get_pos(4, heightPosBarOrders)
+    }
+
+    block v11 {
+      position: get_pos(0, heightPosPieRevenue)
+    }
+    block v12 {
+      position: get_pos(1, heightPosPieRevenue)
+    }
+    block v13 {
+      position: get_pos(2, heightPosPieRevenue)
+    }
+    block v14 {
+      position: get_pos(3, heightPosPieRevenue)
+    }
+    block v15 {
+      position: get_pos(4, heightPosPieRevenue)
+    }
+
+    block v16 {
+      position: get_pos(0, heightPosBarRevenue)
+    }
+    block v17 {
+      position: get_pos(1, heightPosBarRevenue)
+    }
+    block v18 {
+      position: get_pos(2, heightPosBarRevenue)
+    }
+    block v19 {
+      position: get_pos(3, heightPosBarRevenue)
+    }
+    block v20 {
+      position: get_pos(4, heightPosBarRevenue)
+    }
+  }
+  block v1: get_pie(count_orders, 'Vietnam')
+  block v2: get_pie(count_orders, 'Germany')
+  block v3: get_pie(count_orders, 'France')
+  block v4: get_pie(count_orders, 'India')
+  block v5: get_pie(count_orders, 'Singapore')
+
+  block v6: get_bar(count_orders, 'Vietnam', '# of Orders')
+  block v7: get_bar(count_orders, 'Germany', '# of Orders')
+  block v8: get_bar(count_orders, 'France', '# of Orders')
+  block v9: get_bar(count_orders, 'India', '# of Orders')
+  block v10: get_bar(count_orders, 'Singapore', '# of Orders')
+
+  block v11: get_pie(revenue, 'Vietnam')
+  block v12: get_pie(revenue, 'Germany')
+  block v13: get_pie(revenue, 'France')
+  block v14: get_pie(revenue, 'India')
+  block v15: get_pie(revenue, 'Singapore')
+
+  block v16: get_bar(revenue, 'Vietnam', 'Revenue $')
+  block v17: get_bar(revenue, 'Germany', 'Revenue $')
+  block v18: get_bar(revenue, 'France', 'Revenue $')
+  block v19: get_bar(revenue, 'India', 'Revenue $')
+  block v20: get_bar(revenue, 'Singapore', 'Revenue $')
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 1440
+  }
+}
