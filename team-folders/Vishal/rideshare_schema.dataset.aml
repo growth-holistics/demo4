@@ -15,11 +15,13 @@ Dataset rideshare_schema {
     customer_agg
   ]
   relationships: [
-    relationship(rideshare_bookings.driver_id > rideshare_drivers.id, true)
-    ,
     relationship(drivers_agg.id - rideshare_drivers.id, true)
     ,
     relationship(rideshare_customers.customer_id - customer_agg.user_id, true)
+    ,
+    relationship(rideshare_bookings.driver_id > drivers_agg.id, true)
+    ,
+    relationship(rideshare_bookings.user_id > customer_agg.user_id, true)
   ]
   owner: 'vishal@holistics.io'
 
@@ -29,7 +31,7 @@ Dataset rideshare_schema {
     type: 'text'
     definition: @aql select(drivers_agg.realname| where(drivers_agg.driver_rank <= 10)) ;;
   }
-  
+
   metric active_drivers {
     label: 'Active Drivers'
     type: 'number'
