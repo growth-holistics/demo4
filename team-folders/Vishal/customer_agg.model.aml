@@ -7,20 +7,16 @@ Model customer_agg {
   dimension user_id {
     label: 'User Id'
     type: 'number'
+    description: "this is the customer id"
     hidden: false
     definition: @sql {{ #SOURCE.user_id }};;
-  }
-  dimension contact_name {
-    label: 'Contact Name'
-    type: 'text'
-    hidden: false
-    definition: @sql {{ #SOURCE.ContactName }};;
   }
   dimension country {
     label: 'Country'
     type: 'text'
+    description: "Country where the customer lives"
     hidden: false
-    definition: @sql {{ #SOURCE.Country }};;
+    definition: @sql {{#SOURCE.Country }};;
   }
   measure total_trips {
     // measure 1 definition
@@ -58,6 +54,13 @@ Model customer_agg {
     type: "number"
     description: "Ranking for a customer"
     definition: @sql RANK() OVER (ORDER BY {{total_trips}} DESC) ;;
+    aggregation_type: "custom"
+  }
+  measure total_days {
+    label: "Total Days"
+    type: "text"
+    description: "The number of days a customer was active"
+    definition: @sql COUNT(DATE_TRUNC('day',{{#SOURCE.pickedup_at}}));;
     aggregation_type: "custom"
   }
 

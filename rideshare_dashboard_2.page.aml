@@ -1,6 +1,18 @@
-Dashboard rideshare_dashboard {
+Dashboard rideshare_dashboard_2 {
   title: 'Rideshare dashboard'
   description: 'Sample Rideshare Data'
+  block country: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: rideshare_schema
+      field: ref('rideshare_countries', 'country_name')
+    }
+    default {
+      operator: 'is'
+      value: 'Singapore'
+    }
+  }
   block v1: VizBlock {
     label: 'Active Drivers'
     viz: MetricKpi {
@@ -144,6 +156,49 @@ Dashboard rideshare_dashboard {
       }
     }
   }
+  block v5: VizBlock {
+    label: 'Driver Growth'
+    viz: LineChart {
+      dataset: rideshare_schema
+      x_axis: VizFieldFull {
+        ref: ref('drivers_agg', 'first_trip_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('drivers_agg', 'id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        pop {
+          field: ref('drivers_agg', 'first_trip_date')
+          duration: 1
+          granularity: 'quarter'
+          show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'v1'
@@ -152,7 +207,8 @@ Dashboard rideshare_dashboard {
           block: [
             'v2',
             'v3',
-            'v4'
+            'v4',
+            'v5'
           ]
           disabled: true
         }
@@ -165,7 +221,8 @@ Dashboard rideshare_dashboard {
           block: [
             'v1',
             'v3',
-            'v4'
+            'v4',
+            'v5'
           ]
           disabled: true
         }
@@ -178,7 +235,8 @@ Dashboard rideshare_dashboard {
           block: [
             'v1',
             'v2',
-            'v4'
+            'v4',
+            'v5'
           ]
           disabled: true
         }
@@ -191,7 +249,22 @@ Dashboard rideshare_dashboard {
           block: [
             'v1',
             'v2',
-            'v3'
+            'v3',
+            'v5'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4'
           ]
           disabled: true
         }
@@ -200,23 +273,31 @@ Dashboard rideshare_dashboard {
   ]
   view: CanvasLayout {
     label: 'Canvas Layout'
-    width: 1100
-    height: 400
+    width: 1220
+    height: 990
     grid_size: 20
+    block country {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
     block v1 {
-      position: pos(20, 20, 230, 130)
+      position: pos(20, 140, 280, 130)
       layer: 1
     }
     block v2 {
-      position: pos(270, 20, 230, 130)
+      position: pos(320, 140, 280, 130)
       layer: 1
     }
     block v3 {
-      position: pos(20, 170, 480, 230)
+      position: pos(620, 640, 580, 330)
       layer: 1
     }
     block v4 {
-      position: pos(520, 20, 580, 380)
+      position: pos(620, 140, 580, 480)
+      layer: 1
+    }
+    block v5 {
+      position: pos(20, 290, 580, 430)
       layer: 1
     }
   }

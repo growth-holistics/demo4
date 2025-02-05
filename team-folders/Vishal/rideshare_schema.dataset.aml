@@ -15,11 +15,14 @@ Dataset rideshare_schema {
     customer_agg
   ]
   relationships: [
-    relationship(rideshare_bookings.driver_id > rideshare_drivers.id, true)
-    ,
     relationship(drivers_agg.id - rideshare_drivers.id, true)
     ,
     relationship(rideshare_customers.customer_id - customer_agg.user_id, true)
+    ,
+    relationship(rideshare_bookings.driver_id > drivers_agg.id, true)
+    ,
+    relationship(rideshare_bookings.user_id > customer_agg.user_id, true)
+    ,
   ]
   owner: 'vishal@holistics.io'
 
@@ -28,13 +31,6 @@ Dataset rideshare_schema {
     label: 'Top Drivers'
     type: 'text'
     definition: @aql select(drivers_agg.realname| where(drivers_agg.driver_rank <= 10)) ;;
-  }
-
-  dimension bottom_drivers {
-    model: drivers_agg 
-    label: 'Bottom Drivers'
-    type: 'text'
-    definition: @aql  ;;
   }
 
   metric active_drivers {
@@ -57,15 +53,6 @@ Dataset rideshare_schema {
     description: 'Trips'
     definition: @aql count_distinct(rideshare_bookings.id) | where(rideshare_bookings.pickedup_at is not null) ;;
 
-  }
-
-  metric marketplace_ratio {
-    label: 'Marketplace Ratio'
-    type: 'number'
-    hidden: false
-    description: 'Marketplace Ratio'
-    definition: @aql trips/count(drivers_agg.id) ;;
-    format: "#,###0.00"
   }
 
   metric incomplete_trips {
