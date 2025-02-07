@@ -376,14 +376,140 @@ Dashboard ecommerce_mobile {
       }
     }
   }
+  block v7: VizBlock {
+    label: 'test'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'status')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'quantity')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivery_attempts')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancelled_order_ratio')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'f3'
-          disabled: true
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          field: ref('ecommerce_countries', 'name')
         }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          field: ref('ecommerce_countries', 'continent_name')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          field: ref('ecommerce_countries', 'continent_name')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v1'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v4'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v6'
+      to: [
+
       ]
     },
     FilterInteraction {
@@ -403,6 +529,12 @@ Dashboard ecommerce_mobile {
           block: 'v5'
           field: ref('ecommerce_users', 'sign_up_at')
         }
+      ]
+    },
+    FilterInteraction {
+      from: 'v7'
+      to: [
+
       ]
     }
   ]
