@@ -4,7 +4,7 @@ Dashboard metric_table {
 
   view: CanvasLayout {
     label: 'View 1'
-    height: 540
+    height: 940
     grid_size: 20
     mobile {
       mode: 'auto'
@@ -21,7 +21,10 @@ Dashboard metric_table {
       position: pos(20, 20, 240, 80)
       layer: 3
     }
-    width: 1380
+    block v2 {
+      position: pos(380, 580, 400, 300)
+    }
+    width: 1360
   }
 
   theme: H.themes.classic
@@ -134,5 +137,27 @@ Dashboard metric_table {
   }
   block t1: TextBlock {
     content: @md # Metric Table;;
+  }
+  block v2: VizBlock {
+    label: 'test'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'origin')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
   }
 }
