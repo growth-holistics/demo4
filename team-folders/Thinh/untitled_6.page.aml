@@ -135,4 +135,59 @@ Dashboard metric_table {
   block t1: TextBlock {
     content: @md # Metric Table;;
   }
+  block v2: VizBlock {
+    label: 'test'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'origin')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2'
+          ]
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v1'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+
+      ]
+    }
+  ]
 }
