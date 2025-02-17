@@ -16,7 +16,7 @@ PreAggregate agg_daily {
 }
 
 Dataset demo_ecommerce {
-   __engine__: 'aql' //turn this Dataset to using AQL Engine
+  __engine__: 'aql' //turn this Dataset to using AQL Engine
   label: '[Demo] Ecommerce (Official)'
   description: "Official dataset for demoing E-commerce use cases test"
   owner: 'ha.pham+demo4@holistics.io'
@@ -41,8 +41,7 @@ pre_aggregates: {
     transform_order_items,
     ecommerce_product_images
   ]
-  
-  
+
   view {
     model ecommerce_users {
       field users_signed_up_count
@@ -220,6 +219,14 @@ pre_aggregates: {
       )
      ;;
   }
+  dimension month_number {
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+    model: ecommerce_orders
+  }
 
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
@@ -234,6 +241,46 @@ pre_aggregates: {
     ,
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
   ]
-
-
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+  metric total_orders_across_all {
+    label: "Total Orders Across All"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id) | of_all(ecommerce_orders);;
+  }
+  metric percent_of_total {
+    label: "Percent Of Total"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders * 1.0 / total_orders_across_all;;
+  }
+  metric abc {
+    label: "Abc"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_users.gender == 'm', ecommerce_cities.name == 'New York');;
+  }
+  metric month_number {
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+  }
+  metric running_total {
+    label: "Running Total"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
+  }
 }
