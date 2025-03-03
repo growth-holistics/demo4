@@ -1,0 +1,631 @@
+Dashboard _0_ecommerce_dashboard_30 {
+  title: '0. Ecommerce Dashboard 3.0'
+  block date: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block country: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block category: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block gender: FilterBlock {
+    label: 'Gender'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'gender')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block order_status: FilterBlock {
+    label: 'Order Status'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'status')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block item_category: FilterBlock {
+    label: 'Item Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block order_date: FilterBlock {
+    label: 'Order Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_date')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block user_sign_up_date: FilterBlock {
+    label: 'User Sign Up Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'sign_up_date')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block sale_comparison: PopBlock {
+    label: 'Sale Comparison'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'month'
+      show_growth_rate: true
+    }
+  }
+  block city: FilterBlock {
+    label: 'City'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v1: VizBlock {
+    label: 'Order Conversion by Country'
+    viz: ConversionFunnel {
+      dataset: demo_ecommerce
+      calculation f_ad1924b {
+        label: 'delivered orders'
+        formula: @aml count(case(
+  when: ecommerce_orders.status == 'delivered'
+  , then: ecommerce_orders.id
+  , else: null
+));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_fc0e443 {
+        label: 'cancelled orders'
+        formula: @aml count(case(
+  when: ecommerce_orders.status == 'cancelled'
+  , then: ecommerce_orders.id
+  , else: null
+));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_0f1a86f {
+        label: 'refunded order'
+        formula: @aml count(case(
+  when: ecommerce_orders.status == 'refunded'
+  , then: ecommerce_orders.id
+  , else: null
+));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      breakdown_by: VizFieldFull {
+        label: 'Country'
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      values: [
+        VizFieldFull {
+          ref: 'f_ad1924b'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_fc0e443'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_0f1a86f'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+    }
+  }
+  block v2: VizBlock {
+    label: 'Cumulative Buyers Count'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'sign_up_date')
+        operator: 'matches'
+        value: 'beginning until yesterday'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_date')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'dd LL yyyy'
+          separator: '/'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_users', 'gender')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Users'
+            ref: ref('ecommerce_orders', 'id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Cumulative Buyers Count'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          label: 'Users'
+          ref: ref('ecommerce_orders', 'id')
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'GMV Total'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Revenue Distribution by Country'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_data_label: true
+        show_percentage: true
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Total Users by Age Demographic'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_users', 'total_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Count of Order Id by Country'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'order_id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'date'
+      to: [
+        CustomMapping {
+          block: [
+            'country',
+            'category',
+            'gender',
+            'order_status',
+            'item_category',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'country'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'category',
+            'gender',
+            'order_status',
+            'item_category',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'category'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'gender',
+            'order_status',
+            'item_category',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'gender'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'category',
+            'order_status',
+            'item_category',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'order_status'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'category',
+            'gender',
+            'item_category',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'item_category'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'category',
+            'gender',
+            'order_status',
+            'order_date',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'order_date'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'category',
+            'gender',
+            'order_status',
+            'item_category',
+            'user_sign_up_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'user_sign_up_date'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'country',
+            'category',
+            'gender',
+            'order_status',
+            'item_category',
+            'order_date',
+            'city'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'city'
+      to: [
+        CustomMapping {
+          block: [
+            'date',
+            'category',
+            'gender',
+            'order_status',
+            'item_category',
+            'order_date',
+            'user_sign_up_date'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 1800
+    grid_size: 20
+    block v1 {
+      position: pos(20, 380, 580, 630)
+      layer: 1
+    }
+    block v2 {
+      position: pos(620, 380, 580, 280)
+      layer: 1
+    }
+    block v3 {
+      position: pos(620, 1080, 580, 180)
+      layer: 1
+    }
+    block v4 {
+      position: pos(620, 680, 580, 380)
+      layer: 1
+    }
+    block v5 {
+      position: pos(620, 1280, 580, 380)
+      layer: 1
+    }
+    block v6 {
+      position: pos(20, 1030, 580, 350)
+      layer: 1
+    }
+    block v7 {
+      position: pos(20, 1400, 580, 260)
+      layer: 2
+    }
+    block city {
+      position: pos(620, 260, 280, 100)
+      layer: 1
+    }
+    block date {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block gender {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block category {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(20, 260, 280, 100)
+      layer: 1
+    }
+    block order_date {
+      position: pos(620, 140, 280, 100)
+      layer: 1
+    }
+    block order_status {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block item_category {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block sale_comparison {
+      position: pos(320, 260, 280, 100)
+      layer: 1
+    }
+    block user_sign_up_date {
+      position: pos(920, 140, 280, 100)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    allow_timezone_change: true
+    cache_duration: 1440
+  }
+}

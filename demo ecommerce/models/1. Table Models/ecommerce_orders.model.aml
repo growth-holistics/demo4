@@ -53,11 +53,13 @@ Model ecommerce_orders {
     label: "Order Month"
     type: "text"
     definition: @sql LPAD((DATE_PART('month', {{ created_at }}))::text, 2, '0') || ' ' || TO_CHAR({{ created_at }}, 'Month');;
+    description: "Month created of order"
   }
   measure cumm_orders {
-    label: 'Cummulative Orders'
+    label: 'Cumulative Orders'
     type: 'number'
     definition: @aql running_total(ecommerce_orders.total_order, ecommerce_orders.order_month) ;;
+    description: "The cumulative total of orders."
     aggregation_type: "custom"
   }
   measure delivered_orders_count {
@@ -85,6 +87,7 @@ Model ecommerce_orders {
     label: "total_orders_count"
     type: "number"
     definition: @sql {{ id }};;
+    description: "The total number of orders"
     aggregation_type: "count"
   }
   measure total_orders_count {
@@ -99,10 +102,23 @@ Model ecommerce_orders {
     type: "datetime"
     definition: @sql min({{ created_at }}) ;;
   }
+
   measure days_since_last_order {
     label: "Days Since Last Order"
     type: "number"
     definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
     aggregation_type: "custom"
+  }
+
+  measure orders_2023 {
+    label: '2023'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023) ;;
+  }
+
+  measure orders_2024 {
+    label: '2024'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024) ;;
   }
 }

@@ -1,0 +1,338 @@
+Dashboard source {
+  title: 'Downward Drill'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1600
+    height: 1460
+    grid_size: 20
+    block v3 {
+      position: pos(40, 180, 640, 300)
+    }
+    block v5 {
+      position: pos(880, 180, 640, 300)
+    }
+    block v6 {
+      position: pos(880, 980, 640, 300)
+    }
+    block v7 {
+      position: pos(40, 980, 640, 300)
+    }
+    block f1 {
+      position: pos(120, 1360, 80, 80)
+      layer: 1
+    }
+    block d1 {
+      position: pos(700, 280, 160, 100)
+      layer: 2
+    }
+    block d2 {
+      position: pos(700, 1060, 160, 100)
+      layer: 3
+    }
+    block t1 {
+      position: pos(40, 20, 640, 120)
+      layer: 4
+    }
+    block t2 {
+      position: pos(880, 20, 640, 120)
+      layer: 4
+    }
+    block v8 {
+      position: pos(40, 500, 640, 280)
+    }
+    block v9 {
+      position: pos(880, 500, 640, 280)
+    }
+    block t3 {
+      position: pos(-20, 820, 1600, 100)
+      layer: 5
+    }
+  }
+  theme: H.themes.classic
+  block v3: VizBlock {
+    label: 'Count Ratings by Year'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_ratings', 'timestamp')
+        operator: 'after'
+        value: '2014-12-31'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Ratings by Date Trunc (Year)'
+    viz: LineChart {
+      dataset: exp_wudi_ratings
+      x_axis: VizFieldFull {
+        ref: ref('agg_ratings_yearly', 'date_trunc')
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('agg_ratings_yearly', 'count')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Ratings by Date Trunc (Month)'
+    viz: LineChart {
+      dataset: exp_wudi_ratings
+      x_axis: VizFieldFull {
+        ref: ref('agg_ratings_monthly', 'date_trunc')
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('agg_ratings_monthly', 'count')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Count Ratings by Month'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Period'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 10 years'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'drill year charts'
+  }
+  block d2: DateDrillBlock {
+    label: 'drill month charts'
+  }
+  block t1: TextBlock {
+    content: @md ## Using Raw Ratings Model Timestamp 
+#### (Aggregate Awareness Enabled Dataset);;
+  }
+  block t2: TextBlock {
+    content: @md ## Using Pre-aggregated Ratings Models
+#### (Pre-aggregated Models, Year chart with Year Model, Month Chart with Month Model);;
+  }
+  block v8: VizBlock {
+    label: 'Count Ratings by Year (dup)'
+    viz: DataTable {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_ratings', 'timestamp')
+        operator: 'after'
+        value: '2014-12-31'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('public_ratings', 'timestamp')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('public_ratings', 'count_all_ratings')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v9: VizBlock {
+    label: 'Ratings by Date Trunc (Year) (dup)'
+    viz: DataTable {
+      dataset: exp_wudi_ratings
+      fields: [
+        VizFieldFull {
+          ref: ref('agg_ratings_yearly', 'date_trunc')
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Ratings'
+          ref: ref('agg_ratings_yearly', 'count')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <div style="width: 4000px; height: 100px; border-radius: 8px; background-color: #87CEEB"></div>;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v7',
+            'v8'
+          ]
+          field: ref('public_ratings', 'timestamp')
+        },
+        CustomMapping {
+          block: [
+            'v5',
+            'v9'
+          ]
+          field: ref('agg_ratings_yearly', 'date_trunc')
+        },
+        CustomMapping {
+          block: 'v6'
+          field: ref('agg_ratings_monthly', 'date_trunc')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v8'
+          ]
+          field: ref('public_ratings', 'timestamp')
+        },
+        CustomMapping {
+          block: [
+            'v5',
+            'v9'
+          ]
+          field: ref('agg_ratings_yearly', 'date_trunc')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd2'
+      to: [
+        CustomMapping {
+          block: 'v6'
+          field: ref('agg_ratings_monthly', 'date_trunc')
+        },
+        CustomMapping {
+          block: 'v7'
+          field: ref('public_ratings', 'timestamp')
+        }
+      ]
+    }
+  ]
+}

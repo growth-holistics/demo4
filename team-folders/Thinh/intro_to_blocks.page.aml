@@ -1,0 +1,556 @@
+Dashboard intro_to_blocks {
+  title: 'Intro To Blocks'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 3500
+    height: 1660
+    grid_size: 20
+    block v1 {
+      position: pos(180, 140, 320, 160)
+      layer: 1
+    }
+    block v2 {
+      position: pos(180, 320, 320, 160)
+      layer: 2
+    }
+    block v3 {
+      position: pos(520, 140, 1080, 340)
+      layer: 3
+    }
+    block v4 {
+      position: pos(180, 500, 860, 440)
+      layer: 1
+    }
+    block v5 {
+      position: pos(1060, 500, 540, 440)
+      layer: 1
+    }
+    block f1 {
+      position: pos(2160, 340, 300, 100)
+      layer: 4
+    }
+    block p1 {
+      position: pos(2480, 340, 300, 100)
+      layer: 5
+    }
+    block d1 {
+      position: pos(2480, 460, 300, 100)
+      layer: 6
+    }
+    block t1 {
+      position: pos(1780, 880, 220, 100)
+      layer: 1
+    }
+    block t2 {
+      position: pos(2405, 860, 895, 135)
+      layer: 7
+    }
+    block t3 {
+      position: pos(2000, 760, 640, 120)
+      layer: 1
+    }
+    block t4 {
+      position: pos(2700, 1000, 605, 420)
+      layer: 8
+    }
+    block t5 {
+      position: pos(2405, 1005, 285, 415)
+      layer: 9
+    }
+    block t6 {
+      position: pos(180, 960, 1120, 260)
+      layer: 1
+    }
+    block t7 {
+      position: pos(1700, 60, 491, 250)
+      layer: 10
+    }
+    block t8 {
+      position: pos(1700, 1000, 620, 100)
+      layer: 1
+    }
+    block t9 {
+      position: pos(1540, 1220, 620, 110)
+      layer: 1
+    }
+  }
+  block v1: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      value: VizFieldFull {
+        label: 'Gross Merchandise Value'
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Total Users compared with Target Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      calculation f_d80427a {
+        label: 'Target Users'
+        formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: ref('ecommerce_users', 'total_users')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'f_d80427a'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Daily GMV vs. 7-day Moving Average'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#D1EDEC'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: '7-day MovAvg of GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+            analytic: MovingCalculationField {
+              type: 'avg'
+              order: 'row'
+              range {
+                previous: 7
+                next: 0
+              }
+              null_if_not_enough_values: true
+            }
+          }
+          settings {
+            color: '#18A59E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        legend_label: 'right'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Cohort Retention'
+    viz: RetentionHeatmap {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('user_cohort_retention', 'cohort_month')
+        operator: 'matches'
+        value: '2023'
+      }
+      cohort: VizFieldFull {
+        label: 'Cohort Month'
+        ref: ref('user_cohort_retention', 'cohort_month')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      cohort_size: VizFieldFull {
+        ref: ref('user_cohort_retention', 'cohort_size')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      cohort_duration: VizFieldFull {
+        ref: ref('user_cohort_retention', 'relative_month_disp')
+        format {
+          type: 'text'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: ref('user_cohort_retention', 'active_users_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Top selling product categories'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last 1 year'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_category'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: 'Year'
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: ' '
+          ref: ref('order_master', 'nmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'custom_nmv'
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_with_no_data: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'nmv')
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              max {
+                value: 700000
+                color: '#47B881'
+              }
+            }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'map_categories_parent_category'
+              width: 97
+            },
+            ColumnWidth {
+              key: 'map_categories_category'
+              width: 102
+            },
+            ColumnWidth {
+              key: 'custom_nmv'
+              width: 76
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'TIme Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block p1: PopBlock {
+    label: 'Period Comparison'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Time Granularity'
+  }
+  block t1: TextBlock {
+    content: @md   <a href="">
+  <button style="
+  background-color: #47B881;
+  color: white;
+  padding: 20px 60px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: Arial, sans-serif;
+  font-size: 25px;
+">Button</button>
+  </a>;;
+    theme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      padding: '0'
+    }
+  }
+  block t2: TextBlock {
+    content: @md # Title for Dashboard
+### Highlight the questions this dashboard is designed to answer.
+Use this section to describe the intent and scope of your analysis;;
+  }
+  block t3: TextBlock {
+    content: @md <div class="w-[28rem] flex items-start rounded-lg border px-[15px] py-[11px] text-xs shadow-md border-blue-300 bg-blue-50"><span class="h-icon text-blue-600" data-icon="info-solid"><svg aria-hidden="true" style="width: 16px; height: 16px;"><use href="#icon-info-solid"></use></svg></span><div class="flex-1 ml-2"><div class="flex items-start"><div class="flex-1 text-title-xs text-blue-gray-900">INFO</div><!----></div><div class="mt-2 text-body-xs text-blue-gray-800"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </div><!----></div></div>;;
+  }
+  block t4: TextBlock {
+    content: @md <iframe width="600" height="400" src="https://www.youtube.com/embed/Pj81XFRaNBM?si=8O6U_AOuNGtPtTdZ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>;;
+  }
+  block t5: TextBlock {
+    content: @md ```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#47B881',
+      'primaryTextColor': '#fff',
+      'primaryBorderColor': '#012a49',
+      'lineColor': '#012a49',
+      'secondaryColor': '#012a49',
+      'tertiaryColor': '#012a49'
+    }
+  }
+}%%
+flowchart TD
+    A[Christmas] -->|Get money| B(Go shopping)
+    B --> C{Let me think}
+    C -->|One| D[Laptop]
+    C -->|Two| E[iPhone]
+    C -->|Three| F[fa:fa-car Car]
+ 
+
+```;;
+  }
+  block t6: TextBlock {
+    content: @md ```mermaid
+flowchart LR
+%% Nodes
+A("Project Idea"):::green
+B("Initial Planning"):::orange
+C("Detailed Design <br> & <br> Requirements"):::blue
+D{"Decision: Continue or Stop?"}:::yellow
+E("Development Phase"):::pink
+F("Testing Phase"):::purple
+G("Deployment"):::green
+H("Feedback and Improvement"):::orange
+
+%% Edges
+A --> B --> C --> D
+D -- Continue --> E --> F --> G
+D -- Stop --> H
+G --> H
+H --> B
+
+%% Styling
+classDef green fill:#B2DFDB,stroke:#00897B,stroke-width:2px;
+classDef orange fill:#FFE0B2,stroke:#FB8C00,stroke-width:2px;
+classDef blue fill:#BBDEFB,stroke:#1976D2,stroke-width:2px;
+classDef yellow fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px;
+classDef pink fill:#F8BBD0,stroke:#C2185B,stroke-width:2px;
+classDef purple fill:#E1BEE7,stroke:#8E24AA,stroke-width:2px;
+```;;
+  }
+  block t7: TextBlock {
+    content: @md | Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| Data 1   | Data 2   | Data 3   |
+| Data 4   | Data 5   | Data 6   |;;
+  }
+  block t8: TextBlock {
+    content: @md <div class="w-[28rem] flex items-start rounded-lg border px-[15px] py-[11px] text-xs shadow-md border-blue-300 bg-blue-50"><span class="h-icon text-blue-600" data-icon="info-solid"><svg aria-hidden="true" style="width: 16px; height: 16px;"><use href="#icon-info-solid"></use></svg></span><div class="flex-1 ml-2"><div class="flex items-start"><div class="flex-1 text-title-xs text-blue-gray-900">INFO</div><!----></div><div class="mt-2 text-body-xs text-blue-gray-800"> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </div><!----></div></div>;;
+    theme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      padding: '0'
+    }
+  }
+  block t9: TextBlock {
+    content: @md > **Tip:** Remember to appreciate the little things in life.
+;;
+    theme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      padding: '0'
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v4'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  theme: H.themes.classic
+}

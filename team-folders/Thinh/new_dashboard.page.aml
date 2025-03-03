@@ -5,114 +5,184 @@ Dashboard test_syntax {
     label: 'View 1'
     height: 710
     block v1 {
-      position: pos(200, 60, 640, 390)
+      position: pos(10, 10, 750, 340)
+      layer: 1
+    }
+    block v2 {
+      position: pos(10, 380, 750, 300)
+      layer: 2
+    }
+    block v3 {
+      position: pos(790, 10, 390, 670)
+      layer: 3
     }
   }
   block v1: VizBlock {
-    label: 'Order Count by Month Order Created At and Status'
-    viz: AreaChart {
+    label: 'Table'
+    viz: DataTable {
       dataset: demo_ecommerce
-      filter_groups: [
-        OrFilters {
-          filters: [
-            VizFilter {
-              field: ref('order_master', 'status')
-              operator: 'contains'
-              value: 'a'
-            },
-            VizFilter {
-              field: ref('order_master', 'status')
-              operator: 'does_not_contain'
-              value: 'b'
-            },
-            AndFilters {
-              filters: [
-                VizFilter {
-                  field: ref('order_master', 'status')
-                  operator: 'starts_with'
-                  value: 'c'
-                },
-                VizFilter {
-                  field: ref('order_master', 'status')
-                  operator: 'contains'
-                  value: 'l'
-                }
-              ]
-            }
-          ]
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'product_merchant')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
         }
       ]
-      x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-        }
-      }
-      legend: VizFieldFull {
-        ref: ref('order_master', 'status')
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        series {
-          field {
-            ref: ref('order_master', 'order_count')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            point {
-              value: 'cancelled'
-              line_interpolation: 'smooth'
-            }
-            point {
-              value: 'delivered'
-              line_style: 'dashed'
-            }
-            point {
-              value: 'refunded'
-              line_interpolation: 'step'
-            }
-          }
-        }
-        series {
-          field {
-            label: 'Trend line of Order Count'
-            ref: ref('order_master', 'order_count')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-            analytic: RegressionLine {
-              type: 'linear'
-            }
-          }
-          settings {
-            line_style: 'dashed'
-            point {
-              value: 'cancelled'
-              line_style: 'dashed'
-            }
-            point {
-              value: 'delivered'
-              line_style: 'dashed'
-            }
-            point {
-              value: 'refunded'
-              line_style: 'dashed'
-              hidden: true
-            }
-          }
-        }
-      }
       settings {
+        show_row_number: true
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
-
+  block v2: VizBlock {
+    label: 'Table 2'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivery_attempts')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'discount')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'last_order_value')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Table 3'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'last_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email_pii')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'birth_date')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'total_users')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 }

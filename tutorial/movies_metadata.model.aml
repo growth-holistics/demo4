@@ -1,0 +1,91 @@
+Model movies_metadata {
+  type: 'table'
+  label: 'Metadata'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension imdb_id {
+    label: 'Imdb Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.imdb_id }};;
+  }
+  dimension original_title {
+    label: 'Original Title'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.original_title }};;
+  }
+  dimension original_language {
+    label: 'Original Language'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.original_language }};;
+  }
+  dimension tagline {
+    label: 'Tagline'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.tagline }};;
+  }
+  dimension overview {
+    label: 'Overview'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.overview }};;
+  }
+  dimension release_date {
+    label: 'Release Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.release_date }};;
+  }
+  dimension budget {
+    label: 'Budget'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.budget }};;
+  }
+  dimension revenue {
+    label: 'Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.revenue }};;
+  }
+  dimension runtime {
+    label: 'Runtime'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.runtime }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+  dimension budget_range {
+    label: "Budget Range"
+    type: "text"
+    description: ""
+    definition: @sql case
+  when {{budget}} < 1000000 then 'Under $1mil'
+  when {{budget}} >= 1000000 and {{budget}} < 5000000 then '$1mil - $5mil'
+  when {{budget}} >= 5000000 and {{budget}} < 10000000 then '$5mil - $10mil'
+  when {{budget}} >= 10000000 and {{budget}} < 20000000 then '$10mil - $20mil'
+  when {{budget}} >= 20000000 and {{budget}} < 50000000 then '$20mil - $50mil'
+  when {{budget}} >= 50000000 and {{budget}} < 100000000 then '$50mil - $100mil'
+  when {{budget}} >= 100000000 and {{budget}} < 200000000 then '$100mil - $200mil'
+  when {{budget}} >= 200000000 and {{budget}} < 300000000 then '$200mil - $300mil'
+  when {{budget}} >= 300000000 then 'Over $300mil'
+else 'N/A' end;;
+  }
+
+  owner: 'ha.pham@holistics.io'
+  table_name: '"movies"."metadata"'
+}

@@ -1,0 +1,152 @@
+Dashboard styling_canvas_css {
+  title: 'Styling Canvas Dashboard with CSS'
+  description: ''''''
+  block override_css: TextBlock {
+    content: @md  <style>
+    .dac-canvas {
+      background-color: #f6f7f8;
+      opacity: 0.8;
+      background-image: repeating-radial-gradient( circle at 0 0, transparent 0, #f6f7f8 10px ), repeating-linear-gradient( #d3e8fd55, #d3e8fd );
+    }
+    .dac-text-block {
+      overflow: hidden !important;
+      font-family: serif;
+      color: black;
+    }
+    .dac-ic-block, .dac-ic-block-label {
+      font-family: serif !important;
+    }
+    .dac-viz-block, .dac-viz-block-label {
+      font-family: serif !important;
+    }
+    </style>;;
+  }
+
+  block filter_block: FilterBlock {
+    label: 'This is a Filter Block'
+    type: 'text'
+    default {
+      operator: 'is'
+      value: 'default'
+    }
+  }
+  block t1: TextBlock {
+    content: @md # Styling Canvas Dashboard with CSS;;
+  }
+  block t2: TextBlock {
+    content: @md   # Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4;;
+  }
+  block v1: VizBlock {
+    label: 'Completed Order Count and Canelled Order Count by Month Order Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      calculation f_87aade7 {
+        label: 'Canelled Order Count'
+        formula: @aql -order_master.cancelled_orders_count;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field {
+            ref: ref('order_master', 'completed_order_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          field {
+            ref: 'f_87aade7'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md  #### In Canvas Dashboard, you can add custom CSS styles inside a text block using `<style>` tag to customize certain elements on the dashboard.
+
+#### To avoid unexpected behaviors, we recommend customizing using our built-in CSS classes. Here are supported built-in CSS classes:
+
+|CSS Classes|Description|
+|---|---|
+|`dac-canvas`|Specify the styling of the canvas page|
+|`dac-text-block`|Specify the styling of text blocks|
+|`dac-viz-block`|Specify the styling of visualization blocks|
+|`dac-ic-block`|Specify the styling of interactive control blocks (e.g. Filters, Period Comparison, Date Drill)|
+
+#### More CSS Classes will be added in the future.;;
+  }
+  block t4: TextBlock {
+    content: @md #### In this dashboard, we added the following CSS properties:
+
+```
+<style>
+  .dac-canvas {
+    background-color: #f6f7f8;
+    opacity: 0.8;
+    background-image:  repeating-radial-gradient( circle at 0 0, transparent 0, #f6f7f8 10px ), repeating-linear-gradient( #d3e8fd55, #d3e8fd );
+  }
+  .dac-text-block {
+    overflow: hidden !important;
+    font-family: serif;
+    color: black;
+  }
+  .dac-ic-block {
+    font-family: serif;
+  }
+  .dac-viz-block {
+    font-family: serif;
+  }
+</style>
+```;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1060
+    height: 950
+    block override_css {
+      position: pos(-540, 30, 510, 240)
+    }
+    block filter_block {
+      position: pos(570, 70, 470, 80)
+    }
+    block t1 {
+      position: pos(30, 20, 560, 40)
+    }
+    block t2 {
+      position: pos(570, 160, 190, 170)
+    }
+    block v1 {
+      position: pos(570, 360, 470, 570)
+    }
+    block t3 {
+      position: pos(30, 70, 510, 360)
+    }
+    block t4 {
+      position: pos(30, 440, 510, 490)
+    }
+  }
+
+}

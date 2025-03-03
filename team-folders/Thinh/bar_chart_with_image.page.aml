@@ -1,0 +1,73 @@
+const color = "gray"
+
+Dashboard bar_chart_with_image {
+  title: 'Bar Chart With Image'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    block v2 {
+      position: pos(380, 40, 580, 440)
+      layer: 2
+    }
+    block f1 {
+      position: pos(60, 40, 300, 100)
+      layer: 3
+    }
+    block t1 {
+      position: pos(20, 160, 320, 240)
+      layer: 4
+    }
+  }
+
+  theme: H.themes.classic
+  block v2: VizBlock {
+    label: 'Order Count by Country Name'
+    viz: FilledMap {
+      dataset: demo_ecommerce
+      location {
+        field: VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        }
+        location_type: 'country'
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t1: TextBlock {
+    content: @md <details>
+<h1> Heading 1</h1>
+<h2> Heading 2</h2>
+</details>;;
+  }
+}

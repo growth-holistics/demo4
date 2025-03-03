@@ -1,0 +1,381 @@
+Dashboard wip_demo_movie_ratings_monitoring {
+  title: 'Movie Ratings Monitoring'
+  block genre: FilterBlock {
+    label: 'Genre'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movie_ratings_analysis
+      field: ref('public_movies', 'genre')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block time: FilterBlock {
+    label: 'Time '
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '2017'
+    }
+  }
+  block tags: FilterBlock {
+    label: 'Tags'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: movie_ratings_analysis
+      field: ref('public_tags', 'tag')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Number of Movies rated overtime'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_distinct_movies')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Ratings over time'
+    viz: LineChart {
+      dataset: movie_ratings_analysis
+      x_axis: VizFieldFull {
+        ref: ref('public_ratings', 'timestamp')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Count all rated Movies'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_movies', 'count_all_movies')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Count of Ratings'
+    viz: MetricKpi {
+      dataset: movie_ratings_analysis
+      value: VizFieldFull {
+        label: ' '
+        ref: ref('public_ratings', 'count_all_ratings')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Top Rated Genres'
+    viz: BarChart {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_movies', 'genre')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('public_ratings', 'count_all_ratings')
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('public_movies', 'genre')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Top 10 Most Rated Movies'
+    viz: ColumnChart {
+      dataset: movie_ratings_analysis
+      filter {
+        field: ref('public_movies', 'title')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('public_ratings', 'count_all_ratings')
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: ref('public_movies', 'title')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('public_ratings', 'count_all_ratings')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 20
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md # Movie Ratings Monitoring
+### Dataset: <br/>
+**Ratings**: 28M rows <br/>
+**Movies**: 58K rows <br/>
+**Widget**: Top Rated Genres <br/> <br/>
+
+**Without Aggregate Awareness**:
+277.5M rows to process <br/>
+**With Aggregate Awareness**:
+2.95M rows to process <br/>;;
+  }
+  block t5: TextBlock {
+    content: @md This demo illustrates the capability of Aggregate Awareness in Holistics<br/>
+**It is expected to be slower when you use it without Aggregate Awareness.** <br/>
+
+---
+
+See How pre-aggregates are set up in [`demo movie/datasets/movie_ratings_analysis.dataset.aml`](https://demo4.holistics.io/studio/projects/7/explore/demo%20movie/datasets/movie_ratings_analysis.dataset.aml)<br/>
+Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'genre'
+      to: [
+        CustomMapping {
+          block: 'tags'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'tags'
+      to: [
+        CustomMapping {
+          block: 'genre'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'time'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v4',
+            'v2',
+            'v6',
+            'v1',
+            'v5'
+          ]
+          field: ref('public_ratings', 'timestamp')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'date_drill'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v1'
+          ]
+          field: ref('public_ratings', 'timestamp')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1400
+    height: 1280
+    block genre {
+      position: pos(50, 280, 300, 80)
+      layer: 1
+    }
+    block time {
+      position: pos(360, 280, 300, 80)
+      layer: 1
+    }
+    block tags {
+      position: pos(680, 280, 300, 80)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(1000, 280, 300, 80)
+      layer: 1
+    }
+    block v1 {
+      position: pos(50, 560, 1000, 200)
+      layer: 1
+    }
+    block v2 {
+      position: pos(50, 360, 1000, 200)
+      layer: 1
+    }
+    block v3 {
+      position: pos(1070, 560, 270, 200)
+      layer: 1
+    }
+    block v4 {
+      position: pos(1070, 360, 270, 200)
+      layer: 1
+    }
+    block v5 {
+      position: pos(50, 760, 650, 400)
+      layer: 1
+    }
+    block v6 {
+      position: pos(710, 760, 620, 400)
+      layer: 1
+    }
+    block t1 {
+      position: pos(50, 20, 410, 260)
+    }
+    block t5 {
+      position: pos(560, 50, 780, 190)
+    }
+  }
+  settings {
+    timezone: 'America/Los_Angeles'
+    autorun: false
+    cache_duration: 10
+  }
+  description: @md This demo illustrates the capability of Aggregate Awareness in Holistics
+
+---
+
+Aggregate Awareness is the capability of automatically identifying eligible pre-aggregates (transformed by tools like dbt, Airflow, BI like Holistics, etc.) and substituting them into queries, making the queries use smaller pre-aggregated tables while still producing accurate results. It can reduce the time to analyze gigabytes-to-terabytes of data from several minutes to a few seconds.
+
+This feature has impacts on everyone in the team:
+
+- Analysts can maintain the pre-aggregates better with less effort (improved process).
+- Business users will get the same insights faster by pre-aggregated tables instead of raw data (improved timeliness).
+
+Aggregate Awareness is now in **Closed Beta**. You can [Request Beta Access](https://form.jotform.com/230511857392457/prefill/664c2fcc633961c7bed679d6969e) to try it out!
+Learn about this feature on [Aggregate Awareness | Public Doc](https://docs.holistics.io/docs/aggregate-awareness) or different use cases on [Aggregate Awareness | Tutorial](https://docs.holistics.io/tutorials/using-aggregate-awareness).;;
+}
