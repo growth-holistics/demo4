@@ -155,6 +155,15 @@ Dashboard untitled_6 {
       }
     }
   }
+  block p1: PopBlock {
+    label: 'Compare with'
+    default {
+      type: 'relative'
+      duration: 6
+      granularity: 'month'
+      show_growth_rate: true
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
@@ -175,7 +184,11 @@ Dashboard untitled_6 {
       position: pos(0, 1040, 1160, 300)
     }
     block v4 {
-      position: pos(0, 0, 1160, 300)
+      position: pos(0, 0, 720, 300)
+    }
+    block p1 {
+      position: pos(720, 0, 300, 100)
+      layer: 3
     }
     mobile {
       mode: 'auto'
@@ -183,4 +196,15 @@ Dashboard untitled_6 {
   }
 
   theme: H.themes.classic
+  interactions: [
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v4'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
 }
