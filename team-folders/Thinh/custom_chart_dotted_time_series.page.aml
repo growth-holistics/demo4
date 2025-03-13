@@ -1,0 +1,92 @@
+Dashboard custom_chart_dotted_time_series {
+  title: 'Custom Chart Dotted Time Series'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Custom Chart'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 20749
+      field date: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      field lower: VizFieldFull {
+        ref: ref('order_master', 'cancelled_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field upper: VizFieldFull {
+        ref: ref('order_master', 'order_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field value: VizFieldFull {
+        ref: ref('order_master', 'delivered_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting chart_title: ''
+      setting point_color: 'green'
+      setting range_color: '#90EE90'
+      setting x_axis_title: ''
+      setting y_axis_title: ''
+      setting deviation_color: 'red'
+    }
+  }
+  block v2: VizBlock {
+    label: 'Order Count by Month Order Created At'
+    viz: AreaChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'order_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1000
+    grid_size: 20
+    block v1 {
+      position: pos(20, 20, 1160, 600)
+    }
+    block v2 {
+      position: pos(20, 640, 1160, 300)
+    }
+  }
+
+  theme: H.themes.classic
+}

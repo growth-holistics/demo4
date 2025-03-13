@@ -1,0 +1,575 @@
+Dashboard notebook_ecommerce_business_metrics {
+  title: 'Notebook - eCommerce Business Metrics'
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 2840
+    block t1 {
+      position: pos(20, 10, 1160, 70)
+      layer: 1
+    }
+    block f1 {
+      position: pos(20, 100, 300, 80)
+      layer: 2
+    }
+    block f1_dup {
+      position: pos(340, 100, 300, 80)
+      layer: 3
+    }
+    block t2 {
+      position: pos(20, 200, 1160, 240)
+      layer: 5
+    }
+    block f2 {
+      position: pos(660, 100, 300, 80)
+      layer: 4
+    }
+    block v1 {
+      position: pos(20, 460, 1160, 220)
+      layer: 6
+    }
+    block t3 {
+      position: pos(20, 700, 360, 50)
+      layer: 7
+    }
+    block v2 {
+      position: pos(20, 860, 510, 310)
+    }
+    block v3 {
+      position: pos(520, 860, 650, 310)
+      layer: 9
+    }
+    block v4 {
+      position: pos(20, 1510, 1160, 330)
+      layer: 11
+    }
+    block t4 {
+      position: pos(20, 770, 1160, 70)
+      layer: 8
+    }
+    block v5 {
+      position: pos(20, 2440, 1160, 370)
+      layer: 16
+    }
+    block t5 {
+      position: pos(690, 860, 380, 60)
+      layer: 12
+    }
+    block t6 {
+      position: pos(20, 1860, 1160, 90)
+      layer: 13
+    }
+    block v6 {
+      position: pos(20, 1960, 620, 460)
+      layer: 14
+    }
+    block v7 {
+      position: pos(660, 1960, 520, 460)
+      layer: 15
+    }
+    block v8 {
+      position: pos(20, 1190, 1160, 300)
+      layer: 10
+    }
+    grid_size: 20
+  }
+  block t1: TextBlock {
+    content: @md <h1> eCommerce Business Metrics Notebook </h1>
+Published  <strong>November 23rd, 2023</strong> by <strong>Nam Tran</strong>;;
+  }
+  block f1: FilterBlock {
+    label: 'Customer Age Demographic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block f1_dup: FilterBlock {
+    label: 'Product Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md   <h2>Orders and Sales</h2>
+<p><em>All metrics over the last 30 days.</em></p>
+
+<p>Orders are looking good, with an expected spike in early December holiday purchases. Most recent days has dropped back down, but is expected to climb as data comes in for the current week.
+
+On target to hit $2M 30-day sales by the end of the year.</p>
+Returns are growing linearly with orders, nothing out of the ordinary.
+
+See more: 
+[Order Distribution by Region](https://demo4.holistics.io/datasets/14226-demo-ecommerce-official/15uAzr9K)
+;;
+  }
+  block f2: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 1 year'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: false
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block v1: VizBlock {
+    label: 'Sales'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#008000'
+          }
+        }
+        series {
+          field {
+            label: 'Trend line of Total Orders Count'
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('order_master', 'order_created_date')
+          duration: 1
+          granularity: 'year'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <h2>User Distribution </h2>;;
+  }
+
+  block v2: age_demographic
+
+  block v3: VizBlock {
+    label: 'Geographic Distribution'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          ref: ref('ecommerce_users', 'total_users')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Customers'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'age_group')
+        operator: 'is_not'
+        value: [
+          '1. Under 20',
+          '3. From 40 to 49'
+        ]
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Linkedin Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'linkedin_search')
+              aggregation: 'min'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'email_user')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Call Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'phone')
+              aggregation: 'min'
+            }
+          }
+          action a_4: VizAction {
+            type: 'GoToUrl'
+            label: 'Write Recommendation'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'write_recommendation')
+              aggregation: 'min'
+            }
+          }
+        },
+        VizFieldFull {
+          label: 'Country of Origin'
+          ref: ref('ecommerce_countries', 'origin')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'City Destination'
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Map Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'map_search')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Experience Recommendation'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'experience')
+              aggregation: 'min'
+            }
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'visit_time')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+        row_limit: 200
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md  Our customer pool concentrated in the US, Asia, Europe and Australia wiht the age demographic between Under 20 and from 20-29
+
+The 100 biggest customers are mostly in the US, Europe and Asia with the age demographic Under 20 and from 20-29;;
+  }
+  block v5: VizBlock {
+    label: 'Best Selling Products'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          aggregation: 'custom'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block t5: TextBlock {
+    content: @md <h2>Products and Orders</h2>;;
+  }
+  block t6: TextBlock {
+    content: @md <p>With 6 parents product categories, we achieve sales of <strong>5,5 Millions dolars</strong> in 2023.</p>
+
+Although the top 5 selling products are from Skin Care category, the 3 leading categories are <strong>Home Entertainment (26.07%), Mobile and Tablets (23.13%) and Home Furniture (20.49%).</strong>
+
+Our product margin keep upflow at <strong>60-70%</strong>;;
+  }
+  block v6: VizBlock {
+    label: 'Product Category by Revenue Share'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field {
+          ref: ref('order_master', 'revenue_delivered')
+          aggregation: 'custom'
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        legend_label: 'hidden'
+        show_data_label_by: 'percentage'
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Product Margin'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_818f24a {
+        label: 'Product Margin By %'
+        formula: @aml 100*(ecommerce_products.price - ecommerce_products.cost)/ecommerce_products.price;;
+        calc_type: 'dimension'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_818f24a'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'GMV by Age Demographic & Gender'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'gmv')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 4500000
+              }
+              text_color: '#000000'
+              background_color: '#62ADD4'
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1_dup'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v6'
+          ]
+          field: ref('ecommerce_orders', 'created_date')
+        },
+        CustomMapping {
+          block: [
+            'v2',
+            'v3',
+            'v4'
+          ]
+          field: ref('ecommerce_users', 'sign_up_date')
+        },
+        CustomMapping {
+          block: 'v7'
+          field: ref('ecommerce_products', 'created_at')
+        }
+      ]
+    }
+  ]
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 1440
+  }
+}

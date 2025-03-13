@@ -1,0 +1,128 @@
+Dashboard _4_product_x_merchant_drill_down {
+  title: '4. Product X Merchant Drill Down'
+  block product: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'product_google_link')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Product X Merchant Drill Down'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'matches'
+        value: 'last 2 years'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'cancelled_orders_count')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'delivered_orders_count')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivered_orders_count')
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: SingleFormat {
+              condition {
+                operator: 'less_than_equal'
+                value: 30000
+              }
+              text_color: '#000000'
+              background_color: '#FBFDBF'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 250
+              }
+              text_color: '#4C2A2AFF'
+              background_color: '#F8DDC4'
+            }
+          }
+        ]
+      }
+    }
+  }
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 790
+    grid_size: 20
+    block product {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block v1 {
+      position: pos(20, 140, 1180, 630)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}

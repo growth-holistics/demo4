@@ -1,61 +1,21 @@
 Dashboard ecommerce_cua_minh {
-  title: 'Ecommerce Dashboard (test Themes)'
+  title: 'Ecommerce Dashboard'
   description: ''''''
+  theme: H.themes.classic.extend(
+    {
+      canvas {
 
-  theme: PageTheme {
-    background {
-      bg_color: "#FFFFFF"
-      bg_repeat: false
-      bg_size: "cover"
-      bg_image: "none"
+      }
     }
-    canvas {
-      border {
-        border_radius: 4
-        border_width: 1
-        border_color: '#E8E8E8'
-        border_style: "solid"
-      }
-      background {
-        bg_color: '#F7F8F9'
-        bg_repeat: false
-        bg_size: "cover"
-        bg_image: "none"
-      }
-      shadow: "none"
-      opacity: 1
-    }
-    block {
-      label {
-        font_family: "Inter"
-        font_size: 14
-        font_color: "#53586A"
-        font_weight: "medium"
-        font_style: "normal"
-      }
-      text {
-        font_family: "Inter"
-        font_size: 12
-        font_color: "#53586A"
-        font_weight: "normal"
-        font_style: "normal"
-      }
-      border {
-        border_width: 1
-        border_radius: 8
-        border_color: '#E8E8E8'
-        border_style: "solid"
-      }
-      background {
-        bg_color: "#FFFFFF"
-        bg_repeat: false
-        bg_size: "cover"
-        bg_image: "none"
-      }
-      padding: 12
-      shadow: "none"
-      opacity: 1
-    }
+  )
+  block css: TextBlock {
+    content: @md <style>
+    @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap')
+    </style>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Faculty+Glyphic&display=swap');
+</style>;;
   }
 
   block t1: TextBlock {
@@ -369,7 +329,6 @@ Dashboard ecommerce_cua_minh {
       }
     }
   }
-
   block v6: VizBlock {
     label: 'Top selling product categories'
     viz: PivotTable {
@@ -381,20 +340,41 @@ Dashboard ecommerce_cua_minh {
       }
       rows: [
         VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        },
+        VizFieldFull {
           ref: ref('map_categories', 'category')
           format {
             type: 'text'
           }
+          uname: 'map_categories_category'
         }
       ]
       columns: [
         VizFieldFull {
           label: 'Year'
           ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
           transformation: 'datetrunc quarter'
           format {
             type: 'date'
-            pattern: 'yyyy Qq'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
           }
         }
       ]
@@ -408,10 +388,10 @@ Dashboard ecommerce_cua_minh {
             group_separator: ','
             decimal_separator: '.'
           }
+          uname: 'custom_nmv'
         }
       ]
       settings {
-        row_height: 'multiple_lines'
         pagination_size: 100
         show_row_with_no_data: true
         conditional_formats: [
@@ -431,10 +411,26 @@ Dashboard ecommerce_cua_minh {
         ]
         sorts: [
           SortSetting {
-            field_index: 0
+            field_index: 1
             direction: 'desc'
           }
         ]
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'map_categories_parent_category'
+              width: 147
+            },
+            ColumnWidth {
+              key: 'map_categories_category'
+              width: 79
+            },
+            ColumnWidth {
+              key: 'custom_nmv'
+              width: 52
+            }
+          ]
+        }
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -445,64 +441,6 @@ Dashboard ecommerce_cua_minh {
   block d1: DateDrillBlock {
     label: 'Time Period'
     default: 'month'
-  }
-  block t4: TextBlock {
-    content: @md **Description:** Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s
-
----
-
-# h1 Heading 8-)
-## h2 Heading
-### h3 Heading
-#### h4 Heading
-##### h5 Heading
-###### h6 Heading
-
-
-## Horizontal Rules
-
-___
-
----
-
-***
-
-
-## Typographic replacements
-
-Enable typographer option to see result.
-
-(c) (C) (r) (R) (tm) (TM) (p) (P) +-
-
-test.. test... test..... test?..... test!....
-
-!!!!!! ???? ,,  -- ---
-
-"Smartypants, double quotes" and 'single quotes'
-
-
-## Emphasis
-
-**This is bold text**
-
-__This is bold text__
-
-*This is italic text*
-
-_This is italic text_
-
-~~Strikethrough~~
-
-
-## Blockquotes
-
-
-> Blockquotes can also be nested...
->> ...by using additional greater-than signs right next to each other...
-> > > ...or with spaces between arrows.
-
-
-## Lists;;
   }
   interactions: [
     FilterInteraction {
@@ -551,27 +489,30 @@ _This is italic text_
   view: CanvasLayout {
     label: 'View 1'
     width: 1530
-    height: 1080
+    height: 1060
+    block css {
+      position: pos(20, 490, 290, 550)
+    }
     block t1 {
       position: pos(20, 30, 290, 90)
     }
     block v1 {
-      position: pos(330, 30, 300, 120)
+      position: pos(330, 30, 300, 140)
     }
     block v2 {
-      position: pos(650, 30, 290, 120)
+      position: pos(650, 30, 290, 150)
     }
     block v3 {
-      position: pos(960, 30, 280, 120)
+      position: pos(960, 30, 280, 150)
     }
     block v4 {
-      position: pos(1260, 30, 250, 120)
+      position: pos(1260, 30, 250, 150)
     }
     block v5 {
-      position: pos(330, 170, 1180, 270)
+      position: pos(330, 190, 1180, 270)
     }
     block v7 {
-      position: pos(330, 470, 580, 270)
+      position: pos(330, 470, 580, 290)
     }
     block f1 {
       position: pos(20, 130, 290, 100)
@@ -586,13 +527,13 @@ _This is italic text_
       position: pos(330, 770, 580, 270)
     }
     block v6 {
-      position: pos(930, 470, 580, 570)
+      position: pos(920, 470, 590, 570)
     }
     block d1 {
-      position: pos(1330, 190, 160, 90)
+      position: pos(1330, 210, 160, 90)
     }
-    block t4 {
-      position: pos(20, 490, 290, 550)
+    mobile {
+      mode: 'none'
     }
   }
 }

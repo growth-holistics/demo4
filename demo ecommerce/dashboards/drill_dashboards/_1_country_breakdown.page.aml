@@ -1,0 +1,805 @@
+Dashboard _1_country_breakdown {
+  title: '1. Country Breakdown '
+  block created_at: FilterBlock {
+    label: 'Created At'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'last'
+      value: '30'
+      modifier: 'day'
+      options {
+        include_current_period: true
+      }
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block country: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block product_name: FilterBlock {
+    label: 'Product Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block customer_gender: FilterBlock {
+    label: 'Customer Gender'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'gender')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block city: FilterBlock {
+    label: 'City'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block age_demographic: FilterBlock {
+    label: 'Age Demographic'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'age_group')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Merchant x GMV'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          label: 'Merchant'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue_delivered')
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 20000
+              }
+              text_color: '#A50E43'
+              background_color: '#FCB8B8'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 20000
+              }
+              text_color: '#21908D'
+              background_color: '#C3E8C2'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue_delivered')
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 20000
+              }
+              text_color: '#A50E43'
+              background_color: '#FCB8B8'
+            }
+          },
+          ConditionalFormat {
+            ref: ref('order_master', 'revenue_delivered')
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 20000
+              }
+              text_color: '#21908D'
+              background_color: '#C3E8C2'
+            }
+          }
+        ]
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Sales by City'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_cities', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue_delivered')
+            format {
+              type: 'number'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Sales Revenue by Year'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_products', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue_delivered')
+            format {
+              type: 'number'
+            }
+          }
+          settings {
+            color: '#479980'
+          }
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Revenue Delivered by Category'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('map_categories', 'category')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('order_master', 'order_created_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 5
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue_delivered')
+            format {
+              type: 'number'
+            }
+          }
+          settings {
+            point {
+              value: '2018-11-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2019-03-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2019-04-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2019-05-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2019-06-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2019-07-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2019-08-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2019-09-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2019-10-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2019-11-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2019-12-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2020-01-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2020-02-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2020-03-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2020-04-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2020-05-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2020-06-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2020-07-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2020-08-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2020-09-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2020-10-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2020-11-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2020-12-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2021-01-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2021-02-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2021-03-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2021-04-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2021-05-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2021-06-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2021-07-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2021-08-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2021-09-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2021-10-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2021-11-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2021-12-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2022-01-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2022-02-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2022-03-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2022-04-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2022-05-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2022-06-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2022-07-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2022-08-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2022-09-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2022-10-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2022-11-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2022-12-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2023-01-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2023-02-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2023-03-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2023-04-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2023-05-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2023-06-01'
+              color: '#AF7DED'
+            }
+            point {
+              value: '2023-07-01'
+              color: '#A50E43'
+            }
+            point {
+              value: '2023-08-01'
+              color: '#F2B602'
+            }
+            point {
+              value: '2023-09-01'
+              color: '#E27712'
+            }
+            point {
+              value: '2023-10-01'
+              color: '#255DD4'
+            }
+            point {
+              value: '2023-11-01'
+              color: '#18A59E'
+            }
+            point {
+              value: '2023-12-01'
+              color: '#07326C'
+            }
+            point {
+              value: '2024-01-01'
+              color: '#AF7DED'
+            }
+          }
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Table View Chart'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Order Id'
+          ref: ref('ecommerce_orders', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_date')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'status')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'product_id')
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'merchant_id')
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 1000
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('order_master', 'order_created_at')
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'created_at'
+      to: [
+        CustomMapping {
+          block: [
+            'country',
+            'product_name',
+            'customer_gender',
+            'city',
+            'age_demographic',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'country'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'product_name',
+            'customer_gender',
+            'age_demographic',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'product_name'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'country',
+            'customer_gender',
+            'city',
+            'age_demographic',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'customer_gender'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'country',
+            'product_name',
+            'city',
+            'age_demographic',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'city'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'country',
+            'product_name',
+            'customer_gender',
+            'age_demographic',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'age_demographic'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'country',
+            'product_name',
+            'customer_gender',
+            'city',
+            'f1'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'created_at',
+            'country',
+            'product_name',
+            'customer_gender',
+            'city',
+            'age_demographic'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'date_drill'
+      to: [
+        CustomMapping {
+          block: 'v3'
+          field: ref('ecommerce_products', 'created_at')
+        },
+        CustomMapping {
+          block: 'v4'
+          field: ref('order_master', 'order_created_date')
+        },
+        CustomMapping {
+          block: 'v5'
+          field: ref('ecommerce_orders', 'created_date')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 1410
+    grid_size: 20
+    block v1 {
+      position: pos(20, 260, 580, 380)
+      layer: 1
+    }
+    block v2 {
+      position: pos(620, 260, 580, 380)
+      layer: 1
+    }
+    block v3 {
+      position: pos(20, 660, 580, 380)
+      layer: 1
+    }
+    block v4 {
+      position: pos(620, 660, 580, 380)
+      layer: 1
+    }
+    block v5 {
+      position: pos(20, 1060, 1180, 330)
+      layer: 1
+    }
+    block city {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block created_at {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(620, 140, 280, 100)
+      layer: 1
+    }
+    block product_name {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block age_demographic {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block customer_gender {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block f1 {
+      position: pos(920, 140, 280, 100)
+      layer: 2
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}
