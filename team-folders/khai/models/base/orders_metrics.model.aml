@@ -1,0 +1,88 @@
+Model sales_model {
+  type: 'query'
+  label: 'Sales Model'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  
+  
+  // Dynamic Metrics
+
+  measure total_orders {
+    label: "Order Count"
+    type: "number"
+    definition: @sql count(distinct {{ #SOURCE.order_id }});;
+  }
+  
+  measure revenue {
+    label: "Revenue"
+    type: "number"
+    definition: @sql sum({{ #SOURCE.price }}*{{ #SOURCE.quantity }});;
+    description: "P x Q"
+    format: "[$$]#,###0"
+  }
+
+  measure total_users {
+    label: "Users Count"
+    type: "number"
+    definition: @sql count(distinct {{ #SOURCE.user_id }});;
+  }
+
+  param measure_selector {
+    label: 'Measure Selector'
+    type: 'text'
+    allowed_values: ['Total Orders', 'Revenue', 'Total Customers']
+  }
+
+  measure dynamic_measure {
+    label: 'Dynamic Measure'
+    type: 'number'
+    definition: @aql case(
+      when: 'Total Orders' in sales_model.measure_selector
+      , then: sales_model.total_orders
+
+      , when: 'Revenue' in sales_model.measure_selector
+      , then: sales_model.revenue
+
+      , when: 'Total Customers' in sales_model.measure_selector
+      , then: sales_model.total_users
+    ) ;;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    select 
+      {{#o.id}} as order_id
+      , {{#o.user_id}}
+      , {{#o.status }}
+      , {{#o.created_at}} as order_created_at
+      , {{#o.delivery_attempts}}
+      , {{#o.discount}}
+      , {{#oi.quantity}}
+      , {{#oi.product_id}}
+      , {{#p.price}}
+      , {{#p.merchant_id}}
+      , {{ #oi.order_id }} as test_broken
+    from {{ #order_items AS oi }} 
+    left join {{ #orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+    left join {{ #products AS p }} on {{#oi.product_id}} = {{#p.id}};;
+  models: [
+    orders,
+    products,
+    order_items
+  ]
+}
