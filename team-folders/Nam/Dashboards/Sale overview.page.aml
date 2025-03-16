@@ -99,8 +99,8 @@ Dashboard sale_overview {
         MetricHeading {
           label: '🎯Orders'
           settings {
-            background_color: '#156064FF'
-            text_color: '#FFFFFFFF'
+            background_color: '#FFE8D1FF'
+            text_color: '#000000FF'
           }
         },
         MetricSeries {
@@ -160,8 +160,8 @@ Dashboard sale_overview {
         MetricHeading {
           label: '💰 Revenue'
           settings {
-            background_color: '#156064FF'
-            text_color: '#FAF9F9FF'
+            background_color: '#FFE8D1FF'
+            text_color: '#000000FF'
           }
         },
         MetricSeries {
@@ -729,6 +729,30 @@ Dashboard sale_overview {
       }
     }
   }
+  block f5: FilterBlock {
+    label: 'Product Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f6: FilterBlock {
+    label: 'Merchant Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_merchants', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'v123'
@@ -830,7 +854,11 @@ Dashboard sale_overview {
       from: 'f1'
       to: [
         CustomMapping {
-          block: 'f4'
+          block: [
+            'f4',
+            'f5',
+            'f6'
+          ]
           disabled: true
         }
       ]
@@ -853,7 +881,11 @@ Dashboard sale_overview {
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'f4'
+          block: [
+            'f4',
+            'f5',
+            'f6'
+          ]
           disabled: true
         }
       ]
@@ -877,7 +909,11 @@ Dashboard sale_overview {
       from: 'f3'
       to: [
         CustomMapping {
-          block: 'f4'
+          block: [
+            'f4',
+            'f5',
+            'f6'
+          ]
           disabled: true
         }
       ]
@@ -897,11 +933,95 @@ Dashboard sale_overview {
           disabled: true
         }
       ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: [
+            'f5',
+            'f6'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'v123',
+            'v1',
+            'v10',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v124',
+            'v125',
+            'v126',
+            'v127'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3',
+            'f4',
+            'f6'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'v123',
+            'v1',
+            'v10',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v124',
+            'v125',
+            'v126',
+            'v127'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3',
+            'f4',
+            'f5'
+          ]
+          disabled: true
+        }
+      ]
     }
   ]
   view: CanvasLayout {
     label: 'Canvas Layout'
-    width: 1240
+    width: 1230
     height: 4105
     grid_size: 5
     block t5 {
@@ -933,7 +1053,7 @@ Dashboard sale_overview {
       layer: 1
     }
     block v14 {
-      position: pos(50, 1455, 1145, 385)
+      position: pos(50, 1565, 1145, 385)
       layer: 2
     }
     block v15 {
@@ -980,7 +1100,15 @@ Dashboard sale_overview {
       layer: 1
     }
     block v128 {
-      position: pos(50, 1055, 1145, 390)
+      position: pos(50, 1105, 1145, 390)
+      layer: 1
+    }
+    block f5 {
+      position: pos(300, 1065, 295, 70)
+      layer: 1
+    }
+    block f6 {
+      position: pos(605, 1065, 295, 70)
       layer: 1
     }
     mobile {
