@@ -53,20 +53,24 @@ Dashboard untitled_6 {
       }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc month'
           format {
-            type: 'text'
+            type: 'date'
+            pattern: 'LLL yyyy'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'price')
+          label: 'Number of Orders Sold'
+          ref: ref('order_master', 'order_id')
+          aggregation: 'count'
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'cost')
+          ref: ref('order_master', 'revenue')
           format {
             type: 'number'
             pattern: 'inherited'
@@ -75,40 +79,12 @@ Dashboard untitled_6 {
       ]
       settings {
         show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v3: VizBlock {
-    label: 'Text Manipulation'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      calculation untitled_metric_640226b {
-        label: 'Untitled Metric'
-        formula: @aql concat(ecommerce_countries.name, " ", ecommerce_countries.continent_name);;
-        calc_type: 'measure'
-        data_type: 'text'
-      }
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
-          format {
-            type: 'text'
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
           }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'continent_name')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -178,10 +154,15 @@ Dashboard untitled_6 {
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'product_id')
+          ref: ref('map_categories', 'category')
           format {
-            type: 'number'
-            pattern: 'inherited'
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
           }
         },
         VizFieldFull {
@@ -196,12 +177,6 @@ Dashboard untitled_6 {
           format {
             type: 'number'
             pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
-          format {
-            type: 'text'
           }
         },
         VizFieldFull {
@@ -245,9 +220,6 @@ Dashboard untitled_6 {
       position: pos(20, 620, 1160, 400)
       layer: 2
     }
-    block v3 {
-      position: pos(20, 1040, 1160, 300)
-    }
     block v4 {
       position: pos(20, 20, 680, 260)
     }
@@ -256,7 +228,7 @@ Dashboard untitled_6 {
       layer: 3
     }
     block v5 {
-      position: pos(20, 1360, 1160, 520)
+      position: pos(20, 1040, 1160, 520)
     }
     mobile {
       mode: 'auto'
