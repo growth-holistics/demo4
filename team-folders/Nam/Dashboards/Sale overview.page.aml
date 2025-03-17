@@ -753,6 +753,71 @@ Dashboard sale_overview {
       value: []
     }
   }
+  block v129: VizBlock {
+    label: ' '
+    viz: BarChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'breakdown_dim')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: 'dynamic_metric'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#156064FF'
+            color_palette: -1
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f7: FilterBlock {
+    label: 'Metric Selections'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('param_model_nam', 'metric_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'total users'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block f8: FilterBlock {
+    label: 'Dim selection'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('param_model_nam', 'dim_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'Age Demographic'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'v123'
@@ -862,7 +927,9 @@ Dashboard sale_overview {
           block: [
             'f4',
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -889,7 +956,9 @@ Dashboard sale_overview {
           block: [
             'f4',
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -917,7 +986,9 @@ Dashboard sale_overview {
           block: [
             'f4',
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -945,7 +1016,9 @@ Dashboard sale_overview {
         CustomMapping {
           block: [
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -981,7 +1054,9 @@ Dashboard sale_overview {
             'f2',
             'f3',
             'f4',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -1017,7 +1092,87 @@ Dashboard sale_overview {
             'f2',
             'f3',
             'f4',
-            'f5'
+            'f5',
+            'f7',
+            'f8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f7'
+      to: [
+        CustomMapping {
+          block: [
+            'v123',
+            'v1',
+            'v10',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v124',
+            'v125',
+            'v126',
+            'v127',
+            'v128'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f7'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3',
+            'f4',
+            'f5',
+            'f6',
+            'f8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: [
+            'v123',
+            'v1',
+            'v10',
+            'v13',
+            'v14',
+            'v15',
+            'v16',
+            'v124',
+            'v125',
+            'v126',
+            'v127',
+            'v128'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3',
+            'f4',
+            'f5',
+            'f6',
+            'f7'
           ]
           disabled: true
         }
@@ -1030,11 +1185,11 @@ Dashboard sale_overview {
     height: 4105
     grid_size: 5
     block t5 {
-      position: pos(540, 2230, 140, 140)
+      position: pos(540, 2395, 140, 140)
       layer: 1
     }
     block t6 {
-      position: pos(405, 2350, 390, 60)
+      position: pos(405, 2515, 390, 60)
       layer: 2
     }
     block v1 {
@@ -1042,7 +1197,7 @@ Dashboard sale_overview {
       layer: 1
     }
     block v3 {
-      position: pos(25, 2415, 1180, 385)
+      position: pos(25, 2580, 1180, 385)
       layer: 1
     }
     block v6 {
@@ -1054,7 +1209,7 @@ Dashboard sale_overview {
       layer: 1
     }
     block v13 {
-      position: pos(25, 2815, 1180, 280)
+      position: pos(25, 2980, 1180, 280)
       layer: 1
     }
     block v14 {
@@ -1062,15 +1217,15 @@ Dashboard sale_overview {
       layer: 2
     }
     block v15 {
-      position: pos(25, 3125, 530, 430)
+      position: pos(25, 3290, 530, 430)
       layer: 3
     }
     block v16 {
-      position: pos(585, 3125, 630, 430)
+      position: pos(585, 3290, 630, 430)
       layer: 4
     }
     block v123 {
-      position: pos(25, 3560, 520, 310)
+      position: pos(25, 3725, 520, 310)
     }
     block v124 {
       position: pos(50, 640, 1145, 405)
@@ -1115,6 +1270,18 @@ Dashboard sale_overview {
     block f6 {
       position: pos(625, 1065, 295, 70)
       layer: 1
+    }
+    block v129 {
+      position: pos(50, 1910, 835, 430)
+      layer: 8
+    }
+    block f7 {
+      position: pos(895, 1910, 300, 100)
+      layer: 9
+    }
+    block f8 {
+      position: pos(890, 2020, 300, 100)
+      layer: 10
     }
     mobile {
       mode: 'auto'
