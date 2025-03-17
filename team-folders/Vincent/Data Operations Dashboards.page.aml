@@ -2,7 +2,7 @@ Dashboard untitled_6 {
   title: '[Demo] Data Operations Dashboard'
   description: ''''''
   block v2: VizBlock {
-    label: 'Orders Sold and Revenue'
+    label: 'Moving Calculations'
     viz: DataTable {
       dataset: demo_ecommerce
       calculation profits {
@@ -35,26 +35,16 @@ Dashboard untitled_6 {
             type: 'number'
             pattern: 'inherited'
           }
-        },
-        VizFieldFull {
-          label: 'MovAvg of Revenue'
-          ref: ref('order_master', 'revenue')
-          format {
-            type: 'number'
-            pattern: '#,###0.00'
-          }
-          analytic: MovingCalculationField {
-            type: 'avg'
-            order: 'row'
-            range {
-              previous: 2
-              next: 0
-            }
-          }
         }
       ]
       settings {
         show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
