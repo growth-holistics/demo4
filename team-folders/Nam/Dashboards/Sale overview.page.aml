@@ -818,85 +818,143 @@ Dashboard sale_overview {
       input_type: 'single'
     }
   }
+  block v130: VizBlock {
+    label: 'Ecom User Retention'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('user_cohort_retention', 'cohort_month')
+        operator: 'matches'
+        value: 'last 12 months - today'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Cohort Month'
+          ref: ref('user_cohort_retention', 'cohort_month')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('user_cohort_retention', 'cohort_size')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: 'Relative Month'
+          ref: ref('user_cohort_retention', 'relative_month_disp')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('user_cohort_retention', 'active_users_count')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'sum_active_users_count'
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'sum_active_users_count'
+            aggregation: 'sum'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              max {
+                value: 200
+                color: '#47B881'
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'v123'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v1'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v10'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v13'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v14'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v15'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v16'
       to: [
-        CustomMapping {
-          block: 'v124'
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
       from: 'v124'
       to: [
-        CustomMapping {
-          block: [
-            'v123',
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16'
-          ]
-          disabled: true
-        }
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v125'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v126'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v127'
+      to: [
+
       ]
     },
     FilterInteraction {
@@ -904,18 +962,15 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124',
-            'v128'
+            'v1',
+            'v10',
+            'v125',
+            'v126',
+            'v127',
+            'v129',
+            'v6',
+            'v130'
           ]
-          disabled: true
-        },
-        CustomMapping {
-          block: 'v6'
           field: ref('order_master', 'order_created_at')
         }
       ]
@@ -925,13 +980,10 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
+            'f2',
+            'f3'
           ]
-          disabled: true
+          field: ref('order_master', 'order_created_at')
         }
       ]
     },
@@ -940,12 +992,18 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v15',
-            'v16',
-            'v124'
+            'v1',
+            'v10',
+            'v13',
+            'v14',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('map_categories', 'category')
         }
       ]
     },
@@ -954,13 +1012,10 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
+            'f1',
+            'f3'
           ]
-          disabled: true
+          field: ref('map_categories', 'category')
         }
       ]
     },
@@ -969,13 +1024,17 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v13',
-            'v15',
-            'v16',
-            'v124'
+            'v1',
+            'v10',
+            'v14',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('ecommerce_products', 'name')
         }
       ]
     },
@@ -984,13 +1043,10 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
+            'f1',
+            'f2'
           ]
-          disabled: true
+          field: ref('ecommerce_products', 'name')
         }
       ]
     },
@@ -999,14 +1055,16 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124'
+            'v1',
+            'v10',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('ecommerce_users', 'age_group')
         }
       ]
     },
@@ -1015,50 +1073,30 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'f5',
-            'f6',
-            'f7',
-            'f8'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: [
-            'v123',
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124',
-            'v125',
-            'v126',
-            'v127'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: [
             'f1',
             'f2',
-            'f3',
-            'f4',
-            'f6',
-            'f7',
-            'f8'
+            'f3'
           ]
-          disabled: true
+          field: ref('ecommerce_users', 'age_group')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v128'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'v128',
+            'v129',
+            'v130'
+          ]
+          field: ref('ecommerce_products', 'name')
         }
       ]
     },
@@ -1067,37 +1105,18 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124',
-            'v125',
-            'v126',
-            'v127'
+            'v128',
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('ecommerce_merchants', 'name')
         }
       ]
     },
     FilterInteraction {
-      from: 'f6'
+      from: 'v129'
       to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f2',
-            'f3',
-            'f4',
-            'f5',
-            'f7',
-            'f8'
-          ]
-          disabled: true
-        }
+
       ]
     },
     FilterInteraction {
@@ -1105,20 +1124,10 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124',
-            'v125',
-            'v126',
-            'v127',
-            'v128'
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('param_model_nam', 'metric_selections')
         }
       ]
     },
@@ -1126,15 +1135,8 @@ Dashboard sale_overview {
       from: 'f7'
       to: [
         CustomMapping {
-          block: [
-            'f1',
-            'f2',
-            'f3',
-            'f4',
-            'f5',
-            'f6'
-          ]
-          disabled: true
+          block: 'f8'
+          field: ref('param_model_nam', 'metric_selections')
         }
       ]
     },
@@ -1143,20 +1145,10 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'v123',
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v15',
-            'v16',
-            'v124',
-            'v125',
-            'v126',
-            'v127',
-            'v128'
+            'v129',
+            'v130'
           ]
-          disabled: true
+          field: ref('param_model_nam', 'dim_selections')
         }
       ]
     },
@@ -1164,16 +1156,15 @@ Dashboard sale_overview {
       from: 'f8'
       to: [
         CustomMapping {
-          block: [
-            'f1',
-            'f2',
-            'f3',
-            'f4',
-            'f5',
-            'f6'
-          ]
-          disabled: true
+          block: 'f7'
+          field: ref('param_model_nam', 'dim_selections')
         }
+      ]
+    },
+    FilterInteraction {
+      from: 'v130'
+      to: [
+
       ]
     }
   ]
@@ -1280,6 +1271,10 @@ Dashboard sale_overview {
     block f8 {
       position: pos(890, 2020, 300, 100)
       layer: 10
+    }
+    block v130 {
+      position: pos(550, 3725, 400, 300)
+      layer: 11
     }
     mobile {
       mode: 'auto'
