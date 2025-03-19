@@ -2,8 +2,8 @@ Dashboard untitled_6 {
   title: '[Demo] Data Operations Dashboard'
   description: ''''''
   block v2: VizBlock {
-    label: 'Moving Calculations'
-    viz: DataTable {
+    label: 'Sales by Category'
+    viz: PivotTable {
       dataset: demo_ecommerce
       calculation profits {
         label: 'Profits'
@@ -11,24 +11,25 @@ Dashboard untitled_6 {
         calc_type: 'measure'
         data_type: 'number'
       }
-      fields: [
+      rows: [
         VizFieldFull {
-          ref: ref('order_master', 'order_created_at')
+          ref: ref('order_master', 'order_created_date')
           transformation: 'datetrunc month'
           format {
             type: 'date'
             pattern: 'LLL yyyy'
           }
-        },
+        }
+      ]
+      columns: [
         VizFieldFull {
-          label: 'Number of Orders Sold'
-          ref: ref('order_master', 'order_id')
-          aggregation: 'count'
+          ref: ref('map_categories', 'parent_category')
           format {
-            type: 'number'
-            pattern: 'inherited'
+            type: 'text'
           }
-        },
+        }
+      ]
+      values: [
         VizFieldFull {
           ref: ref('order_master', 'revenue')
           format {
@@ -38,7 +39,8 @@ Dashboard untitled_6 {
         }
       ]
       settings {
-        show_row_number: true
+        show_row_total: true
+        show_column_total: true
         sorts: [
           SortSetting {
             field_index: 0
@@ -173,7 +175,7 @@ Dashboard untitled_6 {
     height: 1260
     grid_size: 20
     block v2 {
-      position: pos(20, 300, 1160, 400)
+      position: pos(20, 300, 1120, 400)
       layer: 2
     }
     block v4 {
