@@ -81,7 +81,7 @@ Dashboard sale_overview {
         }
       ]
       settings {
-        columns_color: '#68C3D4FF'
+        columns_color: '#156064FF'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -95,9 +95,10 @@ Dashboard sale_overview {
       dataset: demo_ecommerce_metrics
       date_field: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
-        transformation: 'datetrunc month'
+        transformation: 'datetrunc week'
         format {
           type: 'date'
+          pattern: 'wwww'
         }
       }
       rows: [
@@ -189,7 +190,7 @@ Dashboard sale_overview {
         }
       ]
       settings {
-        max_column: 7
+        max_column: 12
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -301,27 +302,42 @@ Dashboard sale_overview {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_gmv'
         }
       ]
       settings {
+        row_height: 'multiple_lines'
         show_row_total: true
         show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5000000
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          }
+        ]
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
         column_styles: [
           ColumnStyle {
-            key: 'ecommerce_countries_continent_name'
-            width: 92
+            key: 'ecommerce_cities_name'
+            width: 93
           },
           ColumnStyle {
             key: 'ecommerce_countries_name'
             width: 92
           },
           ColumnStyle {
-            key: 'ecommerce_cities_name'
-            width: 93
+            key: 'ecommerce_countries_continent_name'
+            width: 92
           }
         ]
       }
@@ -361,16 +377,16 @@ Dashboard sale_overview {
           }
           settings {
             point {
+              value: 'refunded'
+              color: '#FFE8D1FF'
+            }
+            point {
               value: 'cancelled'
               color: '#68C3D4FF'
             }
             point {
               value: 'delivered'
               color: '#156064FF'
-            }
-            point {
-              value: 'refunded'
-              color: '#FFE8D1FF'
             }
           }
         }
@@ -382,29 +398,12 @@ Dashboard sale_overview {
               type: 'number'
               pattern: 'inherited'
             }
-            analytic: MovingCalculationField {
-              type: 'avg'
-              order: 'row'
-              range {
-                previous: 1
-                next: 0
-              }
+            analytic: RegressionLine {
+              type: 'linear'
             }
           }
           settings {
-            color_palette: 'seq-teal'
-            point {
-              value: 'cancelled'
-              color: '#18A59E'
-            }
-            point {
-              value: 'delivered'
-              color: '#46B7B1'
-            }
-            point {
-              value: 'refunded'
-              color: '#74C9C5'
-            }
+            color_palette: -1
           }
         }
       }
@@ -553,11 +552,39 @@ Dashboard sale_overview {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation f_5e84d48 {
+        label: 'Amazon Search'
+        formula: @aql concat('https://www.amazon.com/s?k=',ecommerce_products.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      calculation f_6d33d70 {
+        label: 'Google Search'
+        formula: @aql concat('https://www.google.com/search?q=',ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      calculation f_ac65b5c {
+        label: 'Map Search'
+        formula: @aql concat('https://www.google.com/maps/search/',ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Amazon Search'
+            url: ActionFieldInput {
+              ref: 'f_5e84d48'
+            }
           }
           uname: 'ecommerce_products_name'
         },
@@ -566,6 +593,20 @@ Dashboard sale_overview {
           ref: ref('ecommerce_merchants', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Search'
+            url: ActionFieldInput {
+              ref: 'f_6d33d70'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Map Search'
+            url: ActionFieldInput {
+              ref: 'f_ac65b5c'
+            }
           }
           uname: 'ecommerce_merchants_name'
         },
@@ -576,6 +617,7 @@ Dashboard sale_overview {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_revenue_delivered'
         },
         VizFieldFull {
           label: 'AOV'
@@ -608,16 +650,62 @@ Dashboard sale_overview {
           }
         },
         VizFieldFull {
+          label: 'Refunded Orders'
+          ref: ref('order_master', 'refunded_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_refunded_orders_count'
+        },
+        VizFieldFull {
           label: 'Cancelled Orders'
           ref: ref('order_master', 'cancelled_orders_count')
           format {
             type: 'number'
             pattern: '#,###'
           }
+          uname: 'custom_cancelled_orders_count'
         }
       ]
       settings {
+        row_height: 'multiple_lines'
         show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_refunded_orders_count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          },
+          ConditionalFormat {
+            key: 'custom_cancelled_orders_count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          },
+          ConditionalFormat {
+            key: 'custom_revenue_delivered'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 1500
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -672,6 +760,13 @@ Dashboard sale_overview {
         }
       }
       y_axis {
+        settings {
+          show_stack_total: true
+          show_total_in_tooltip: true
+          group_values_into: 5
+          show_data_label_by: 'percentage'
+          stack_series_by: 'value'
+        }
         series {
           field: VizFieldFull {
             ref: 'dynamic_metric'
@@ -688,6 +783,11 @@ Dashboard sale_overview {
       }
       settings {
         row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
@@ -705,7 +805,7 @@ Dashboard sale_overview {
     }
     default {
       operator: 'is'
-      value: 'total users'
+      value: 'total orders'
     }
     settings {
       input_type: 'single'
@@ -720,7 +820,7 @@ Dashboard sale_overview {
     }
     default {
       operator: 'is'
-      value: 'Age Demographic'
+      value: 'Product Categories'
     }
     settings {
       input_type: 'single'
@@ -782,11 +882,11 @@ Dashboard sale_overview {
             format: ScaleFormat {
               min {
                 value: 0
-                color: '#FFFFFF'
+                color: '#E8F6F5'
               }
               max {
                 value: 200
-                color: '#47B881'
+                color: '#156064FF'
               }
             }
           }
@@ -836,12 +936,29 @@ Dashboard sale_overview {
           disabled: true
         }
       ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: [
+            'f1',
+            'f2',
+            'f3',
+            'f4',
+            'f5',
+            'f6',
+            'f7'
+          ]
+          disabled: true
+        }
+      ]
     }
   ]
   view: CanvasLayout {
     label: 'Canvas Layout'
-    width: 1220
-    height: 4105
+    width: 1230
+    height: 3325
     grid_size: 5
     block v1 {
       position: pos(275, 30, 225, 155)
@@ -872,11 +989,11 @@ Dashboard sale_overview {
       layer: 5
     }
     block v126 {
-      position: pos(740, 30, 225, 155)
+      position: pos(735, 30, 225, 155)
       layer: 6
     }
     block v127 {
-      position: pos(970, 30, 225, 155)
+      position: pos(965, 30, 225, 155)
       layer: 1
     }
     block f1 {
@@ -912,7 +1029,7 @@ Dashboard sale_overview {
       layer: 8
     }
     block f7 {
-      position: pos(885, 1980, 300, 100)
+      position: pos(885, 1985, 300, 100)
       layer: 9
     }
     block f8 {
@@ -920,7 +1037,7 @@ Dashboard sale_overview {
       layer: 10
     }
     block v130 {
-      position: pos(50, 1505, 1140, 470)
+      position: pos(50, 1505, 1140, 475)
       layer: 11
     }
     mobile {
