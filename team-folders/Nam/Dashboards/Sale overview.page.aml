@@ -82,6 +82,13 @@ Dashboard sale_overview {
           }
         }
       ]
+      settings {
+        columns_color: '#68C3D4FF'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
   }
   block v6: VizBlock {
@@ -258,18 +265,21 @@ Dashboard sale_overview {
           format {
             type: 'text'
           }
+          uname: 'ecommerce_countries_continent_name'
         },
         VizFieldFull {
           ref: ref('ecommerce_countries', 'name')
           format {
             type: 'text'
           }
+          uname: 'ecommerce_countries_name'
         },
         VizFieldFull {
           ref: ref('ecommerce_cities', 'name')
           format {
             type: 'text'
           }
+          uname: 'ecommerce_cities_name'
         }
       ]
       columns: [
@@ -302,143 +312,22 @@ Dashboard sale_overview {
           enabled: true
           debug_comments: true
         }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_countries_continent_name'
+            width: 92
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 92
+          },
+          ColumnStyle {
+            key: 'ecommerce_cities_name'
+            width: 93
+          }
+        ]
       }
     }
-  }
-  block v14: VizBlock {
-    label: 'Ecom User Retention'
-    viz: RetentionHeatmap {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('user_cohort_retention', 'cohort_month')
-        operator: 'matches'
-        value: 'last 12 months - today'
-      }
-      cohort: VizFieldFull {
-        label: 'Cohort Month'
-        ref: ref('user_cohort_retention', 'cohort_month')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-        }
-      }
-      cohort_size: VizFieldFull {
-        ref: ref('user_cohort_retention', 'cohort_size')
-        format {
-          type: 'number'
-          pattern: '#,###'
-        }
-      }
-      cohort_duration: VizFieldFull {
-        label: 'Relative Month'
-        ref: ref('user_cohort_retention', 'relative_month_disp')
-        format {
-          type: 'text'
-        }
-      }
-      cohort_value: VizFieldFull {
-        ref: ref('user_cohort_retention', 'active_users_count')
-        aggregation: 'SUM'
-        format {
-          type: 'number'
-          pattern: '#,###0.00'
-          group_separator: ','
-          decimal_separator: '.'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v15: VizBlock {
-    label: '[YOY] Users vs Orders Growth'
-    viz: CombinationChart {
-      dataset: demo_ecommerce
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_users', 'sign_up_date')
-        transformation: 'datetrunc quarter'
-        format {
-          type: 'date'
-        }
-      }
-      y_axis {
-        settings {
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: ref('ecommerce_users', 'total_users')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-        }
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'delivered_orders_count')
-            format {
-              type: 'number'
-            }
-          }
-        }
-      }
-    }
-  }
-  block v16: VizBlock {
-    label: 'AOV Monthly'
-    viz: LineChart {
-      dataset: demo_ecommerce
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-        }
-      }
-      y_axis {
-        series {
-          field: VizFieldFull {
-            ref: ref('order_master', 'aov')
-            format {
-              type: 'number'
-              pattern: '#,###0.00'
-            }
-          }
-          settings {
-            color: '#A50E43'
-          }
-        }
-      }
-      settings {
-        pop {
-          field: ref('ecommerce_orders', 'created_at')
-          duration: 3
-          granularity: 'month'
-          show_growth_rate: true
-        }
-      }
-    }
-  }
-  block t5: TextBlock {
-    content: @md <div id="users-analysis"> <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="49.7598" cy="49.7598" r="49.7598" fill="#1B7CE4"/>
-<path d="M75.7544 48.0729C76.4299 46.7786 76.8125 45.3082 76.8125 43.75C76.8125 38.5806 72.6069 34.375 67.4375 34.375C64.866 34.375 62.5341 35.4166 60.8387 37.099C58.5926 33.5383 54.6725 31.25 50.25 31.25C45.8369 31.25 41.9124 33.5305 39.6613 37.099C37.966 35.4166 35.634 34.375 33.0625 34.375C27.8931 34.375 23.6875 38.5806 23.6875 43.75C23.6875 45.3082 24.0701 46.7786 24.7456 48.0729C21.3755 49.4797 19 52.8077 19 56.6818V59.7656C19 62.9965 21.6285 65.625 24.8594 65.625H33.7419C34.726 67.4817 36.6781 68.75 38.9219 68.75H61.5781C63.8219 68.75 65.774 67.4817 66.7581 65.625H75.6406C78.8715 65.625 81.5 62.9965 81.5 59.7656V56.6818C81.5 52.8077 79.1245 49.4797 75.7544 48.0729ZM67.4375 39.0625C70.0264 39.0625 72.125 41.1611 72.125 43.75C72.125 46.3389 70.0264 48.4375 67.4375 48.4375C64.8486 48.4375 62.75 46.3389 62.75 43.75C62.75 41.1611 64.8486 39.0625 67.4375 39.0625ZM50.25 35.9375C54.5647 35.9375 58.0625 39.4353 58.0625 43.75C58.0625 48.0647 54.5647 51.5625 50.25 51.5625C45.9353 51.5625 42.4375 48.0647 42.4375 43.75C42.4375 39.4353 45.9353 35.9375 50.25 35.9375ZM33.0625 39.0625C35.6514 39.0625 37.75 41.1611 37.75 43.75C37.75 46.3389 35.6514 48.4375 33.0625 48.4375C30.4736 48.4375 28.375 46.3389 28.375 43.75C28.375 41.1611 30.4736 39.0625 33.0625 39.0625ZM23.6875 59.7656V56.6818C23.6875 54.3601 25.4022 52.0433 28.6948 52.0433C30.651 53.0776 32.8241 53.3418 34.8297 52.9572C33.7163 54.58 33.0625 56.5415 33.0625 58.6538V60.9375H24.8594C24.2122 60.9375 23.6875 60.4128 23.6875 59.7656ZM62.75 62.8906C62.75 63.5379 62.2253 64.0625 61.5781 64.0625H38.9219C38.2747 64.0625 37.75 63.5379 37.75 62.8906V58.6538C37.75 55.9876 39.6797 53.7736 42.2183 53.3283C46.8429 57.2195 53.6405 57.2334 58.2816 53.3283C60.8203 53.7736 62.75 55.9877 62.75 58.6538V62.8906ZM76.8125 59.7656C76.8125 60.4128 76.2878 60.9375 75.6406 60.9375H67.4375V58.6538C67.4375 56.5415 66.7837 54.5799 65.6702 52.9572C67.675 53.3417 69.8482 53.078 71.8051 52.0433C75.0249 52.0433 76.8124 54.2904 76.8124 56.6818V59.7656H76.8125Z" fill="white"/>
-</svg>
-</div>;;
-  }
-  block t6: TextBlock {
-    content: @md <h1 style =" font-size:40px; color: #1B7CE4; text-align: center" id="users-analysis">Users Analysis</h1>;;
   }
   block v124: VizBlock {
     label: 'Order By Status'
@@ -672,13 +561,7 @@ Dashboard sale_overview {
           format {
             type: 'text'
           }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'price')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
+          uname: 'ecommerce_products_name'
         },
         VizFieldFull {
           label: 'Merchant Name'
@@ -686,9 +569,11 @@ Dashboard sale_overview {
           format {
             type: 'text'
           }
+          uname: 'ecommerce_merchants_name'
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'cost')
+          label: 'Revenue'
+          ref: ref('order_master', 'revenue_delivered')
           format {
             type: 'number'
             pattern: 'inherited'
@@ -700,6 +585,20 @@ Dashboard sale_overview {
           format {
             type: 'number'
             pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'price')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
           }
         },
         VizFieldFull {
@@ -715,7 +614,7 @@ Dashboard sale_overview {
           ref: ref('order_master', 'cancelled_orders_count')
           format {
             type: 'number'
-            pattern: 'inherited'
+            pattern: '#,###'
           }
         }
       ]
@@ -726,6 +625,17 @@ Dashboard sale_overview {
           enabled: true
           debug_comments: true
         }
+        frozen_columns: 2
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_products_name'
+            width: 157
+          },
+          ColumnStyle {
+            key: 'ecommerce_merchants_name'
+            width: 140
+          }
+        ]
       }
     }
   }
@@ -754,7 +664,7 @@ Dashboard sale_overview {
     }
   }
   block v129: VizBlock {
-    label: ' '
+    label: 'Dynamic Dim & Metric'
     viz: BarChart {
       dataset: demo_ecommerce
       x_axis: VizFieldFull {
@@ -887,284 +797,18 @@ Dashboard sale_overview {
           enabled: true
           debug_comments: true
         }
+        frozen_columns: 0
       }
     }
   }
   interactions: [
     FilterInteraction {
-      from: 'v123'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v1'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v10'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v13'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v14'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v15'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v16'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v124'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v125'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v126'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'v127'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
-          block: [
-            'v1',
-            'v10',
-            'v125',
-            'v126',
-            'v127',
-            'v129',
-            'v6',
-            'v130'
-          ]
+          block: 'v6'
           field: ref('order_master', 'order_created_at')
         }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'f2',
-            'f3'
-          ]
-          field: ref('order_master', 'order_created_at')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v10',
-            'v13',
-            'v14',
-            'v125',
-            'v126',
-            'v127',
-            'v128',
-            'v129',
-            'v130'
-          ]
-          field: ref('map_categories', 'category')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f3'
-          ]
-          field: ref('map_categories', 'category')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v10',
-            'v14',
-            'v125',
-            'v126',
-            'v127',
-            'v128',
-            'v129',
-            'v130'
-          ]
-          field: ref('ecommerce_products', 'name')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f2'
-          ]
-          field: ref('ecommerce_products', 'name')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f4'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v10',
-            'v125',
-            'v126',
-            'v127',
-            'v128',
-            'v129',
-            'v130'
-          ]
-          field: ref('ecommerce_users', 'age_group')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f4'
-      to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f2',
-            'f3'
-          ]
-          field: ref('ecommerce_users', 'age_group')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v128'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: [
-            'v128',
-            'v129',
-            'v130'
-          ]
-          field: ref('ecommerce_products', 'name')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: [
-            'v128',
-            'v129',
-            'v130'
-          ]
-          field: ref('ecommerce_merchants', 'name')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v129'
-      to: [
-
-      ]
-    },
-    FilterInteraction {
-      from: 'f7'
-      to: [
-        CustomMapping {
-          block: [
-            'v129',
-            'v130'
-          ]
-          field: ref('param_model_nam', 'metric_selections')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f7'
-      to: [
-        CustomMapping {
-          block: 'f8'
-          field: ref('param_model_nam', 'metric_selections')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f8'
-      to: [
-        CustomMapping {
-          block: [
-            'v129',
-            'v130'
-          ]
-          field: ref('param_model_nam', 'dim_selections')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f8'
-      to: [
-        CustomMapping {
-          block: 'f7'
-          field: ref('param_model_nam', 'dim_selections')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v130'
-      to: [
-
       ]
     }
   ]
@@ -1173,20 +817,12 @@ Dashboard sale_overview {
     width: 1220
     height: 4105
     grid_size: 5
-    block t5 {
-      position: pos(540, 2395, 140, 140)
-      layer: 1
-    }
-    block t6 {
-      position: pos(405, 2515, 390, 60)
-      layer: 2
-    }
     block v1 {
       position: pos(275, 30, 225, 155)
       layer: 1
     }
     block v3 {
-      position: pos(25, 2580, 1180, 385)
+      position: pos(50, 2420, 1145, 380)
       layer: 1
     }
     block v6 {
@@ -1198,23 +834,11 @@ Dashboard sale_overview {
       layer: 1
     }
     block v13 {
-      position: pos(25, 2980, 1180, 280)
+      position: pos(50, 2810, 1145, 450)
       layer: 1
     }
-    block v14 {
-      position: pos(50, 1520, 1145, 385)
-      layer: 2
-    }
-    block v15 {
-      position: pos(25, 3290, 530, 430)
-      layer: 3
-    }
-    block v16 {
-      position: pos(585, 3290, 630, 430)
-      layer: 4
-    }
     block v123 {
-      position: pos(25, 3725, 520, 310)
+      position: pos(50, 3275, 520, 310)
     }
     block v124 {
       position: pos(50, 640, 1145, 405)
@@ -1261,19 +885,19 @@ Dashboard sale_overview {
       layer: 1
     }
     block v129 {
-      position: pos(50, 1910, 835, 430)
+      position: pos(50, 1980, 835, 430)
       layer: 8
     }
     block f7 {
-      position: pos(895, 1910, 300, 100)
+      position: pos(895, 1980, 300, 100)
       layer: 9
     }
     block f8 {
-      position: pos(890, 2020, 300, 100)
+      position: pos(890, 2090, 300, 100)
       layer: 10
     }
     block v130 {
-      position: pos(550, 3725, 400, 300)
+      position: pos(50, 1505, 1140, 470)
       layer: 11
     }
     mobile {
