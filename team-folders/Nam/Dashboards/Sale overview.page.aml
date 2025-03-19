@@ -602,6 +602,7 @@ Dashboard sale_overview {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_revenue_delivered'
         },
         VizFieldFull {
           label: 'AOV'
@@ -640,6 +641,7 @@ Dashboard sale_overview {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_refunded_orders_count'
         },
         VizFieldFull {
           label: 'Cancelled Orders'
@@ -648,11 +650,47 @@ Dashboard sale_overview {
             type: 'number'
             pattern: '#,###'
           }
+          uname: 'custom_cancelled_orders_count'
         }
       ]
       settings {
         row_height: 'multiple_lines'
         show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_refunded_orders_count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          },
+          ConditionalFormat {
+            key: 'custom_cancelled_orders_count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          },
+          ConditionalFormat {
+            key: 'custom_revenue_delivered'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 1500
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
