@@ -536,11 +536,39 @@ Dashboard sale_overview {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation f_5e84d48 {
+        label: 'Amazon Search'
+        formula: @aql concat('https://www.amazon.com/s?k=',ecommerce_products.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      calculation f_6d33d70 {
+        label: 'Google Search'
+        formula: @aql concat('https://www.google.com/search?q=',ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      calculation f_ac65b5c {
+        label: 'Map Search'
+        formula: @aql concat('https://www.google.com/maps/search/',ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Amazon Search'
+            url: ActionFieldInput {
+              ref: 'f_5e84d48'
+            }
           }
           uname: 'ecommerce_products_name'
         },
@@ -549,6 +577,20 @@ Dashboard sale_overview {
           ref: ref('ecommerce_merchants', 'name')
           format {
             type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Search'
+            url: ActionFieldInput {
+              ref: 'f_6d33d70'
+            }
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Map Search'
+            url: ActionFieldInput {
+              ref: 'f_ac65b5c'
+            }
           }
           uname: 'ecommerce_merchants_name'
         },
