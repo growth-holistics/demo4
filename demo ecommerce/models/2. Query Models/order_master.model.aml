@@ -293,4 +293,27 @@ Model order_master {
     type: "number"
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
   }
+
+   // Parameter to allow users to choose which dimension to use dynamically
+  param dim_selector {
+    label: 'Dimension Selector'
+    type: 'text'
+    allowed_values: ['Countries', 'Cities', 'Gender']
+  }
+
+  // // Dynamic dimension that changes based on the selected parameter value
+  // dimension breakdown_dim {
+  //   label: 'Dynamic Breakdown Dimension'
+  //   type: 'text'
+  //   definition: @aql case(
+  //     when: 'Countries' in dynamic_model.dim_choice
+  //     , then: dynamic_model.country_name
+
+  //     , when: 'Cities' in dynamic_model.dim_choice
+  //     , then: dynamic_model.city_name
+
+  //     , when: 'Gender' in dynamic_model.dim_choice
+  //     , then: dynamic_model.gender
+  //   ) ;;
+  // }
 }
