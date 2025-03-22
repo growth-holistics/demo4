@@ -1,5 +1,5 @@
 Dashboard sale_overview {
-  title: '[Demo] Sale Overview'
+  title: '[Demo] Sales Overview'
   block v1: VizBlock {
     label: 'GMV'
     description: 'Total value regardless of order status'
@@ -342,79 +342,6 @@ Dashboard sale_overview {
             width: 92
           }
         ]
-      }
-    }
-  }
-  block v124: VizBlock {
-    label: 'Order By Status'
-    viz: ColumnChart {
-      dataset: demo_ecommerce
-      x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'status')
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_stack_total: true
-          show_total_in_tooltip: true
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'total_order')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            point {
-              value: 'refunded'
-              color: '#FFE8D1FF'
-            }
-            point {
-              value: 'cancelled'
-              color: '#68C3D4FF'
-            }
-            point {
-              value: 'delivered'
-              color: '#156064FF'
-            }
-          }
-        }
-        series {
-          field: VizFieldFull {
-            label: 'Trend line of Total Order'
-            ref: ref('ecommerce_orders', 'total_order')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-            analytic: RegressionLine {
-              type: 'linear'
-            }
-          }
-          settings {
-            color_palette: -1
-          }
-        }
-      }
-      settings {
-        x_axis_show_null_datetime: true
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
       }
     }
   }
@@ -954,29 +881,137 @@ Dashboard sale_overview {
       show_growth_rate: true
     }
   }
-  block f9: FilterBlock {
-    label: 'Filter By Order Status'
-    type: 'field'
-    source: FieldFilterSource {
+  block v131: VizBlock {
+    label: 'Daily GMV vs. 7-day Moving Average'
+    viz: CombinationChart {
       dataset: demo_ecommerce
-      field: ref('ecommerce_orders', 'status')
-    }
-    default {
-      operator: 'is'
-      value: []
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2023'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#D1EDEC'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: '7-day MovAvg of GMV'
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+            analytic: MovingCalculationField {
+              type: 'avg'
+              order: 'row'
+              range {
+                previous: 7
+                next: 0
+              }
+              null_if_not_enough_values: true
+            }
+          }
+          settings {
+            color: '#18A59E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        legend_label: 'right'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
   }
   interactions: [
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v10'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v13'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v125'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v126'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v127'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
           block: [
             'v13',
-            'v124',
             'v128',
             'v129',
-            'v130'
+            'v130',
+            'v131'
           ]
           disabled: true
         },
@@ -1008,7 +1043,25 @@ Dashboard sale_overview {
       from: 'f2'
       to: [
         CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
           block: 'f9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'v131'
           disabled: true
         }
       ]
@@ -1026,7 +1079,34 @@ Dashboard sale_overview {
       from: 'f4'
       to: [
         CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
           block: 'f9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v128'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: 'v131'
           disabled: true
         }
       ]
@@ -1044,7 +1124,34 @@ Dashboard sale_overview {
       from: 'f6'
       to: [
         CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
           block: 'f9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v129'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f7'
+      to: [
+        CustomMapping {
+          block: 'v131'
           disabled: true
         }
       ]
@@ -1054,6 +1161,15 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: 'f9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: 'v131'
           disabled: true
         }
       ]
@@ -1077,6 +1193,15 @@ Dashboard sale_overview {
       ]
     },
     FilterInteraction {
+      from: 'v130'
+      to: [
+        CustomMapping {
+          block: 'v131'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f9'
       to: [
         CustomMapping {
@@ -1089,7 +1214,8 @@ Dashboard sale_overview {
             'v127',
             'v128',
             'v129',
-            'v130'
+            'v130',
+            'v131'
           ]
           disabled: true
         }
@@ -1113,11 +1239,30 @@ Dashboard sale_overview {
         }
       ]
     },
+    FilterInteraction {
+      from: 'v131'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v10',
+            'v13',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v130'
+          ]
+          disabled: true
+        }
+      ]
+    },
     PopInteraction {
       from: 'p1'
       to: [
         CustomMapping {
-          block: 'v124'
+          block: 'v131'
           field: ref('order_master', 'order_created_at')
         }
       ]
@@ -1146,10 +1291,6 @@ Dashboard sale_overview {
     }
     block v13 {
       position: pos(50, 2810, 1145, 450)
-      layer: 1
-    }
-    block v124 {
-      position: pos(365, 670, 830, 375)
       layer: 1
     }
     block v125 {
@@ -1209,12 +1350,12 @@ Dashboard sale_overview {
       layer: 11
     }
     block p1 {
-      position: pos(65, 725, 300, 100)
+      position: pos(865, 705, 300, 100)
       layer: 12
     }
-    block f9 {
-      position: pos(65, 845, 300, 100)
-      layer: 13
+    block v131 {
+      position: pos(50, 675, 1160, 355)
+      layer: 1
     }
     mobile {
       mode: 'auto'
