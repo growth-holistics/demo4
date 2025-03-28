@@ -1,34 +1,3 @@
-PreAggregate agg_daily {
-  dimension timestamp {
-    for: ref('public_ratings', 'timestamp')
-    time_granularity: 'day'
-  }
-
-  measure count_rating {
-    for: ref('public_ratings', 'id')
-    aggregation_type: 'count'
-  }
-
-  persistence: IncrementalPersistence {
-    schema: 'persisted'
-    incremental_column: 'timestamp'
-  }
-}
-
-const agg_movies_daily = agg_daily.extend({
-  dimension movie_id {
-    for: ref('public_ratings', 'movie_id')
-  }
-})
-
-const agg_movies_monthly = agg_movies_daily.extend({
-  dimension timestamp {
-    for: ref('public_ratings', 'timestamp')
-    time_granularity: 'month'
-  }
-})
-
-
 Dataset movie_ratings_analysis {
   __engine__: 'aql' 
   label: 'Movie Ratings Dataset'
