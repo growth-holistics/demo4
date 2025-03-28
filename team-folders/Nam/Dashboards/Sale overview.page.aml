@@ -409,14 +409,6 @@ Dashboard sale_overview {
       }
       fields: [
         VizFieldFull {
-          ref: ref('order_master', 'order_created_at')
-          transformation: 'datetrunc quarter'
-          format {
-            type: 'date'
-            pattern: 'yyyy Qq'
-          }
-        },
-        VizFieldFull {
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
@@ -482,60 +474,12 @@ Dashboard sale_overview {
             type: 'number'
             pattern: '[$$]#,###'
           }
-        },
-        VizFieldFull {
-          label: 'Completed Orders'
-          ref: ref('order_master', 'completed_order_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Refunded Orders'
-          ref: ref('order_master', 'refunded_orders_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-          uname: 'custom_refunded_orders_count'
-        },
-        VizFieldFull {
-          label: 'Cancelled Orders'
-          ref: ref('order_master', 'cancelled_orders_count')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-          uname: 'custom_cancelled_orders_count'
         }
       ]
       settings {
         row_height: 'multiple_lines'
         show_row_number: true
         conditional_formats: [
-          ConditionalFormat {
-            key: 'custom_refunded_orders_count'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 5
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          },
-          ConditionalFormat {
-            key: 'custom_cancelled_orders_count'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 5
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          },
           ConditionalFormat {
             key: 'custom_revenue_delivered'
             format: SingleFormat {
