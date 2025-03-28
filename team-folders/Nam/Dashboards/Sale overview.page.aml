@@ -49,48 +49,6 @@ Dashboard sale_overview {
       }
     }
   }
-  block v3: VizBlock {
-    label: 'Sales Funnel'
-    viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
-      breakdown_by: VizFieldFull {
-        ref: ref('ecommerce_countries', 'name')
-        format {
-          type: 'text'
-        }
-      }
-      values: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'users_signed_up_count')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'buyers_count')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-        }
-      ]
-      settings {
-        columns_color: '#156064FF'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block v6: VizBlock {
     label: ' '
     viz: MetricSheet {
@@ -253,95 +211,6 @@ Dashboard sale_overview {
           }
 
         }
-      }
-    }
-  }
-  block v13: VizBlock {
-    label: 'GMV by Age Group - Gender'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'continent_name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_countries_continent_name'
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_countries_name'
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_cities', 'name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_cities_name'
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'age_group')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'gender')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: ref('order_master', 'gmv')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-          uname: 'custom_gmv'
-        }
-      ]
-      settings {
-        row_height: 'multiple_lines'
-        show_row_total: true
-        show_column_total: true
-        conditional_formats: [
-          ConditionalFormat {
-            key: 'custom_gmv'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 5000000
-              }
-              text_color: '#328159'
-              background_color: '#B5E3CD'
-            }
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        column_styles: [
-          ColumnStyle {
-            key: 'ecommerce_cities_name'
-            width: 93
-          },
-          ColumnStyle {
-            key: 'ecommerce_countries_name'
-            width: 92
-          },
-          ColumnStyle {
-            key: 'ecommerce_countries_continent_name'
-            width: 92
-          }
-        ]
       }
     }
   }
@@ -799,79 +668,6 @@ Dashboard sale_overview {
       input_type: 'single'
     }
   }
-  block v130: VizBlock {
-    label: 'Ecom User Retention'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('user_cohort_retention', 'cohort_month')
-        operator: 'matches'
-        value: 'last 12 months - today'
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Cohort Month'
-          ref: ref('user_cohort_retention', 'cohort_month')
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-          }
-        },
-        VizFieldFull {
-          ref: ref('user_cohort_retention', 'cohort_size')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          label: 'Relative Month'
-          ref: ref('user_cohort_retention', 'relative_month_disp')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: ref('user_cohort_retention', 'active_users_count')
-          aggregation: 'sum'
-          format {
-            type: 'number'
-            pattern: '#,###0.00'
-            group_separator: ','
-            decimal_separator: '.'
-          }
-          uname: 'sum_active_users_count'
-        }
-      ]
-      settings {
-        conditional_formats: [
-          ConditionalFormat {
-            key: 'sum_active_users_count'
-            aggregation: 'sum'
-            format: ScaleFormat {
-              min {
-                value: 0
-                color: '#E8F6F5'
-              }
-              max {
-                value: 200
-                color: '#156064FF'
-              }
-            }
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        frozen_columns: 0
-      }
-    }
-  }
   block p1: PopBlock {
     label: 'Compare To'
     default {
@@ -947,72 +743,228 @@ Dashboard sale_overview {
       }
     }
   }
+  block v132: VizBlock {
+    label: 'Sales Funnel'
+    viz: ConversionFunnel {
+      dataset: demo_ecommerce_users
+      breakdown_by: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      values: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'users_signed_up_count')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          ref: ref('user_facts_aggr', 'buyers_count')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          ref: ref('user_facts_aggr', 'repeated_buyers_count')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        columns_color: '#156064FF'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v133: VizBlock {
+    label: 'GMV by Age Group - Gender'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_continent_name'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_name'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_cities_name'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_gmv'
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 5000000
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_cities_name'
+            width: 93
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 92
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_continent_name'
+            width: 92
+          }
+        ]
+      }
+    }
+  }
+  block v134: VizBlock {
+    label: 'Ecom User Retention'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('user_cohort_retention', 'cohort_month')
+        operator: 'matches'
+        value: 'last 12 months - today'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Cohort Month'
+          ref: ref('user_cohort_retention', 'cohort_month')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('user_cohort_retention', 'cohort_size')
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: 'Relative Month'
+          ref: ref('user_cohort_retention', 'relative_month_disp')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('user_cohort_retention', 'active_users_count')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'sum_active_users_count'
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'sum_active_users_count'
+            aggregation: 'sum'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#E8F6F5'
+              }
+              max {
+                value: 200
+                color: '#156064FF'
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
   interactions: [
-    FilterInteraction {
-      from: 'v1'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v10'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v13'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v125'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v126'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v127'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
     FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
           block: [
-            'v13',
-            'v128',
+            'v10',
             'v129',
-            'v130',
-            'v131'
+            'v132'
           ]
+          field: ref('ecommerce_users', 'sign_up_at')
+        },
+        CustomMapping {
+          block: 'v128'
+          field: ref('ecommerce_products', 'created_at')
+        },
+        CustomMapping {
+          block: 'v131'
           disabled: true
         },
         CustomMapping {
@@ -1022,18 +974,81 @@ Dashboard sale_overview {
       ]
     },
     FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v10'
+      to: [
+        CustomMapping {
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v125'
+      to: [
+        CustomMapping {
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v126'
+      to: [
+        CustomMapping {
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v127'
+      to: [
+        CustomMapping {
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
           block: [
             'f2',
             'f3',
-            'f4',
             'f5',
             'f6',
             'f7',
-            'f8',
-            'f9'
+            'f8'
           ]
           disabled: true
         }
@@ -1043,25 +1058,11 @@ Dashboard sale_overview {
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: 'f9'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: 'v131'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1070,7 +1071,11 @@ Dashboard sale_overview {
       from: 'f3'
       to: [
         CustomMapping {
-          block: 'f9'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1080,15 +1085,6 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f4'
-      to: [
-        CustomMapping {
-          block: 'f9'
           disabled: true
         }
       ]
@@ -1097,7 +1093,11 @@ Dashboard sale_overview {
       from: 'v128'
       to: [
         CustomMapping {
-          block: 'v131'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1106,25 +1106,11 @@ Dashboard sale_overview {
       from: 'f5'
       to: [
         CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: 'f9'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: 'v131'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1133,7 +1119,11 @@ Dashboard sale_overview {
       from: 'f6'
       to: [
         CustomMapping {
-          block: 'f9'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1142,7 +1132,11 @@ Dashboard sale_overview {
       from: 'v129'
       to: [
         CustomMapping {
-          block: 'v131'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1151,25 +1145,11 @@ Dashboard sale_overview {
       from: 'f7'
       to: [
         CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f7'
-      to: [
-        CustomMapping {
-          block: 'f9'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f8'
-      to: [
-        CustomMapping {
-          block: 'v131'
+          block: [
+            'v131',
+            'v133',
+            'v134'
+          ]
           disabled: true
         }
       ]
@@ -1179,61 +1159,9 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: [
-            'f1',
-            'f2',
-            'f3',
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f9'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v130'
-      to: [
-        CustomMapping {
-          block: 'v131'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f9'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v10',
-            'v13',
-            'v125',
-            'v126',
-            'v127',
-            'v128',
-            'v129',
-            'v130',
-            'v131'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f9'
-      to: [
-        CustomMapping {
-          block: [
-            'f1',
-            'f2',
-            'f3',
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
+            'v131',
+            'v133',
+            'v134'
           ]
           disabled: true
         }
@@ -1246,13 +1174,49 @@ Dashboard sale_overview {
           block: [
             'v1',
             'v10',
-            'v13',
             'v125',
             'v126',
             'v127',
             'v128',
             'v129',
-            'v130'
+            'v133',
+            'v134'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v133'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v10',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v131'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v134'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v10',
+            'v125',
+            'v126',
+            'v127',
+            'v128',
+            'v129',
+            'v131'
           ]
           disabled: true
         }
@@ -1268,119 +1232,138 @@ Dashboard sale_overview {
       ]
     }
   ]
-  view: CanvasLayout {
-    label: 'Canvas Layout'
-    width: 1230
-    height: 3325
-    grid_size: 5
-    block v1 {
-      position: pos(275, 30, 225, 155)
-      layer: 1
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Overview'
+      width: 1230
+      height: 1960
+      grid_size: 5
+      block v1 {
+        position: pos(275, 30, 225, 155)
+        layer: 1
+      }
+      block v6 {
+        position: pos(45, 260, 1150, 370)
+        layer: 1
+      }
+      block v10 {
+        position: pos(45, 30, 225, 155)
+        layer: 1
+      }
+      block v125 {
+        position: pos(505, 30, 225, 155)
+        layer: 5
+      }
+      block v126 {
+        position: pos(735, 30, 225, 155)
+        layer: 6
+      }
+      block v127 {
+        position: pos(965, 30, 225, 155)
+        layer: 1
+      }
+      block f1 {
+        position: pos(45, 195, 225, 85)
+        layer: 7
+      }
+      block f2 {
+        position: pos(275, 195, 295, 70)
+        layer: 1
+      }
+      block f3 {
+        position: pos(575, 195, 295, 70)
+        layer: 1
+      }
+      block f4 {
+        position: pos(880, 190, 310, 70)
+        layer: 1
+      }
+      block v128 {
+        position: pos(50, 1105, 1145, 390)
+        layer: 1
+      }
+      block f5 {
+        position: pos(320, 1065, 295, 70)
+        layer: 1
+      }
+      block f6 {
+        position: pos(625, 1065, 295, 70)
+        layer: 1
+      }
+      block v129 {
+        position: pos(50, 1505, 835, 430)
+        layer: 8
+      }
+      block f7 {
+        position: pos(895, 1510, 300, 100)
+        layer: 9
+      }
+      block f8 {
+        position: pos(895, 1615, 300, 100)
+        layer: 10
+      }
+      block p1 {
+        position: pos(865, 705, 300, 100)
+        layer: 12
+      }
+      block v131 {
+        position: pos(50, 675, 1160, 355)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+        block t3
+        block t2
+        block age_demographic
+        block v10
+        block user_gender
+        block t8
+        block v1
+        block t7
+        block v6
+        block v123
+        block t10
+        block user_country
+        block v7
+        block v8
+        block v12
+        block v3
+        block t5
+        block t6
+        block v13
+        block v14
+        block v15
+        block v16
+      }
     }
-    block v3 {
-      position: pos(50, 2420, 1145, 380)
-      layer: 1
-    }
-    block v6 {
-      position: pos(45, 260, 1150, 370)
-      layer: 1
-    }
-    block v10 {
-      position: pos(45, 30, 225, 155)
-      layer: 1
-    }
-    block v13 {
-      position: pos(50, 2810, 1145, 450)
-      layer: 1
-    }
-    block v125 {
-      position: pos(505, 30, 225, 155)
-      layer: 5
-    }
-    block v126 {
-      position: pos(735, 30, 225, 155)
-      layer: 6
-    }
-    block v127 {
-      position: pos(965, 30, 225, 155)
-      layer: 1
-    }
-    block f1 {
-      position: pos(45, 195, 225, 85)
-      layer: 7
-    }
-    block f2 {
-      position: pos(275, 195, 295, 70)
-      layer: 1
-    }
-    block f3 {
-      position: pos(575, 195, 295, 70)
-      layer: 1
-    }
-    block f4 {
-      position: pos(880, 190, 310, 70)
-      layer: 1
-    }
-    block v128 {
-      position: pos(50, 1105, 1145, 390)
-      layer: 1
-    }
-    block f5 {
-      position: pos(320, 1065, 295, 70)
-      layer: 1
-    }
-    block f6 {
-      position: pos(625, 1065, 295, 70)
-      layer: 1
-    }
-    block v129 {
-      position: pos(50, 1980, 835, 430)
-      layer: 8
-    }
-    block f7 {
-      position: pos(885, 1985, 300, 100)
-      layer: 9
-    }
-    block f8 {
-      position: pos(885, 2090, 300, 100)
-      layer: 10
-    }
-    block v130 {
-      position: pos(50, 1505, 1140, 475)
-      layer: 11
-    }
-    block p1 {
-      position: pos(865, 705, 300, 100)
-      layer: 12
-    }
-    block v131 {
-      position: pos(50, 675, 1160, 355)
-      layer: 1
-    }
-    mobile {
-      mode: 'auto'
-      block t3
-      block t2
-      block age_demographic
-      block v10
-      block user_gender
-      block t8
-      block v1
-      block t7
-      block v6
-      block v123
-      block t10
-      block user_country
-      block v7
-      block v8
-      block v12
-      block v3
-      block t5
-      block t6
-      block v13
-      block v14
-      block v15
-      block v16
+    tab tab2: CanvasLayout {
+      label: 'User Analysis'
+      height: 1460
+      grid_size: 5
+      mobile {
+        mode: 'auto'
+      }
+      block v132 {
+        position: pos(20, 100, 1145, 380)
+        layer: 1
+      }
+      block v133 {
+        position: pos(20, 500, 1145, 450)
+        layer: 2
+      }
+      block f4 {
+        position: pos(245, 20, 310, 70)
+        layer: 1
+      }
+      block f1 {
+        position: pos(20, 20, 225, 85)
+        layer: 1
+      }
+      block v134 {
+        position: pos(25, 960, 1140, 475)
+        layer: 1
+      }
     }
   }
   settings {
