@@ -1,0 +1,171 @@
+Dashboard demo_dashboard {
+  title: 'Demo Dashboard'
+  block v1: VizBlock {
+    label: 'Revenue Over Time'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      calculation percentage_delivered_revenue {
+        label: 'Percentage Delivered Revenue'
+        formula: @aql order_master.revenue_delivered/order_master.revenue;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <hr>;;
+  }
+  block v2: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: 'total_orders'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '13 months ago till today'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block t2: TextBlock {
+    content: @md <hr>;;
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
+        }
+      ]
+    },
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1220
+    grid_size: 20
+    block t1 {
+      position: pos(20, 300, 1160, 60)
+      layer: 4
+    }
+    block v1 {
+      position: pos(20, 380, 640, 360)
+      layer: 1
+    }
+    block v2 {
+      position: pos(20, 140, 240, 140)
+      layer: 5
+    }
+    block v3 {
+      position: pos(280, 140, 320, 140)
+      layer: 6
+    }
+    block f1 {
+      position: pos(20, 20, 300, 100)
+      layer: 7
+    }
+    block d1 {
+      position: pos(680, 380, 300, 100)
+      layer: 8
+    }
+    block t2 {
+      position: pos(20, 760, 1160, 60)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+}
