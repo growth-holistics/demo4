@@ -96,7 +96,29 @@ Dashboard demo_dashboard {
       hide_label: true
     }
   }
-  interactions: []
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '13 months ago till today'
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
+        }
+      ]
+    }
+  ]
   view: CanvasLayout {
     label: 'View 1'
     height: 840
@@ -116,6 +138,10 @@ Dashboard demo_dashboard {
     block v3 {
       position: pos(280, 140, 320, 140)
       layer: 6
+    }
+    block f1 {
+      position: pos(20, 20, 300, 100)
+      layer: 7
     }
   }
   theme: H.themes.classic
