@@ -95,7 +95,7 @@ Dashboard demo_dashboard {
     content: @md <hr>;;
   }
   block t4: TextBlock {
-    content: @md <p align="center"> <h2> Revenue and Orders Dashboard  </p></h2>;;
+    content: @md <p align="center"> <h2> Revenue Dashboard  </p></h2>;;
   }
   block v5: VizBlock {
     label: 'Revenue Over Time'
@@ -165,6 +165,7 @@ Dashboard demo_dashboard {
           format {
             type: 'text'
           }
+          uname: 'map_categories_parent_category'
         },
         VizFieldFull {
           ref: ref('order_master', 'revenue')
@@ -181,6 +182,12 @@ Dashboard demo_dashboard {
           enabled: true
           debug_comments: true
         }
+        column_styles: [
+          ColumnStyle {
+            key: 'map_categories_parent_category'
+            width: 171
+          }
+        ]
       }
     }
   }
@@ -199,6 +206,51 @@ Dashboard demo_dashboard {
     default {
       operator: 'is'
       value: []
+    }
+  }
+  block v7: VizBlock {
+    label: 'Top Products within Category'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          },
+          SortSetting {
+            field_index: 2
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
   }
   interactions: [
@@ -222,8 +274,6 @@ Dashboard demo_dashboard {
         CustomMapping {
           block: [
             'v1',
-            'v6',
-            'v5',
             'v3'
           ]
           field: ref('order_master', 'order_created_at')
@@ -234,9 +284,8 @@ Dashboard demo_dashboard {
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
-      label: 'Revenue and Orders'
+      label: 'Revenue'
       width: 1620
-      height: 960
       grid_size: 20
       block v1 {
         position: pos(360, 220, 640, 360)
@@ -251,7 +300,7 @@ Dashboard demo_dashboard {
         layer: 7
       }
       block p1 {
-        position: pos(40, 260, 280, 100)
+        position: pos(20, 260, 300, 100)
         layer: 9
       }
       block t3 {
@@ -278,6 +327,11 @@ Dashboard demo_dashboard {
         position: pos(1100, 0, 300, 100)
         layer: 14
       }
+      block v7 {
+        position: pos(20, 960, 660, 480)
+        layer: 15
+      }
+      height: 1500
     }
     tab tab2: CanvasLayout {
       label: 'Customer'
