@@ -180,17 +180,13 @@ Dashboard demo_dashboard {
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('order_master', 'order_created_at')
-        operator: 'matches'
-        value: 'this year till today'
-      }
       rows: [
         VizFieldFull {
           ref: ref('map_categories', 'parent_category')
           format {
             type: 'text'
           }
+          uname: 'map_categories_parent_category'
         },
         VizFieldFull {
           ref: ref('map_categories', 'category')
@@ -238,6 +234,12 @@ Dashboard demo_dashboard {
         value_labels_position {
           placement: 'rows'
         }
+        column_styles: [
+          ColumnStyle {
+            key: 'map_categories_parent_category'
+            width: 139
+          }
+        ]
       }
     }
   }
@@ -288,20 +290,6 @@ Dashboard demo_dashboard {
     }
   }
   interactions: [
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v2',
-            'v3',
-            'v5'
-          ]
-          field: ref('ecommerce_orders', 'created_at')
-        }
-      ]
-    },
     PopInteraction {
       from: 'p1'
       to: [
@@ -316,6 +304,22 @@ Dashboard demo_dashboard {
           block: [
             'v2',
             'v3'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v4'
           ]
           field: ref('ecommerce_orders', 'created_at')
         }
@@ -363,7 +367,7 @@ Dashboard demo_dashboard {
       layer: 11
     }
     block v5 {
-      position: pos(20, 980, 1100, 660)
+      position: pos(20, 1000, 1160, 660)
       layer: 1
     }
     block v6 {
