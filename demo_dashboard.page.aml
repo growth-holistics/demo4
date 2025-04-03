@@ -1,5 +1,5 @@
 Dashboard demo_dashboard {
-  title: 'Demo Dashboard'
+  title: 'Revenue'
   block v1: VizBlock {
     label: 'Revenue Over Time'
     viz: ColumnChart {
@@ -58,6 +58,12 @@ Dashboard demo_dashboard {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation revenue_target1 {
+        label: 'Revenue Target 1'
+        formula: @aql order_master.revenue * 1.087;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       value: VizFieldFull {
         ref: ref('order_master', 'revenue')
         format {
@@ -66,7 +72,8 @@ Dashboard demo_dashboard {
         }
       }
       compare_value: VizFieldFull {
-        ref: 'revenue_target'
+        label: 'Revenue Target'
+        ref: 'revenue_target1'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -86,7 +93,7 @@ Dashboard demo_dashboard {
     }
   }
   block f1: FilterBlock {
-    label: 'Date'
+    label: 'Date Range'
     type: 'date'
     default {
       operator: 'matches'
@@ -173,64 +180,62 @@ Dashboard demo_dashboard {
     }
   }
   block v6: VizBlock {
-    label: 'Orders Count by Category'
-    viz: DataTable {
+    label: 'Revenue by Category'
+    viz: PieChart {
       dataset: demo_ecommerce
-      fields: [
-        VizFieldFull {
-          ref: ref('map_categories', 'parent_category')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'Orders Count'
-          ref: ref('ecommerce_orders', 'id')
-          aggregation: 'count'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
           ref: ref('order_master', 'revenue')
           format {
             type: 'number'
             pattern: 'inherited'
           }
         }
-      ]
+        settings {
+          color_palette: 0
+        }
+      }
       settings {
-        show_sum_row: true
-        row_height: 'multiple_lines'
-        show_row_number: true
-        sorts: [
-          SortSetting {
-            field_index: 2
-            direction: 'desc'
-          }
-        ]
         row_limit: 5000
+        show_percentage: true
+        data_label_position: 'outside'
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-        column_styles: [
-          ColumnStyle {
-            key: '_holistics_row_number_'
-            width: 88
-          }
-        ]
       }
     }
   }
+  block t5: TextBlock {
+    content: @md <img src=""/>
+
+![Holistics Logo](https://cdn.holistics.io/landing/logo-color.svg);;
+  }
+  block f2: FilterBlock {
+    label: 'Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   block v7: VizBlock {
-    label: 'Orders Count by Continent'
+    label: 'Revenue by Merchants'
     viz: DataTable {
       dataset: demo_ecommerce
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_countries', 'continent_name')
+          ref: ref('ecommerce_merchants', 'name')
           format {
             type: 'text'
           }
@@ -241,17 +246,16 @@ Dashboard demo_dashboard {
             type: 'number'
             pattern: 'inherited'
           }
-        },
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
         }
       ]
       settings {
         show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -261,21 +265,6 @@ Dashboard demo_dashboard {
     }
   }
   interactions: [
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v3',
-            'v5',
-            'v6',
-            'v7'
-          ]
-          field: ref('order_master', 'order_created_at')
-        }
-      ]
-    },
     PopInteraction {
       from: 'p1'
       to: [
@@ -283,7 +272,6 @@ Dashboard demo_dashboard {
           block: [
             'v1',
             'v6',
-            'v7',
             'v5'
           ]
           field: ref('order_master', 'order_created_at')
@@ -293,53 +281,86 @@ Dashboard demo_dashboard {
           field: ref('ecommerce_orders', 'created_at')
         }
       ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v5',
+            'v6'
+          ]
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
     }
   ]
-  view: CanvasLayout {
+  view: TabLayout {
     label: 'View 1'
-    height: 2160
-    grid_size: 20
-    block t1 {
-      position: pos(40, 1160, 1520, 60)
-      layer: 4
+    tab tab1: CanvasLayout {
+      label: 'Orders'
+      width: 1620
+      height: 2160
+      grid_size: 20
+      block t1 {
+        position: pos(20, 920, 1520, 60)
+        layer: 4
+      }
+      block v1 {
+        position: pos(20, 540, 640, 360)
+        layer: 1
+      }
+      block v3 {
+        position: pos(580, 140, 300, 160)
+        layer: 6
+      }
+      block f1 {
+        position: pos(780, 0, 300, 100)
+        layer: 7
+      }
+      block p1 {
+        position: pos(20, 420, 280, 100)
+        layer: 9
+      }
+      block t3 {
+        position: pos(20, 320, 1580, 60)
+        layer: 1
+      }
+      block t4 {
+        position: pos(260, 0, 500, 100)
+        layer: 10
+      }
+      block v5 {
+        position: pos(20, 1000, 1520, 540)
+        layer: 1
+      }
+      block v6 {
+        position: pos(680, 540, 820, 360)
+        layer: 12
+      }
+      block t5 {
+        position: pos(20, 0, 220, 100)
+        layer: 13
+      }
+      block f2 {
+        position: pos(1100, 0, 300, 100)
+        layer: 14
+      }
+      block v7 {
+        position: pos(20, 1560, 400, 300)
+        layer: 15
+      }
     }
-    block v1 {
-      position: pos(20, 420, 640, 360)
-      layer: 1
+    tab tab2: CanvasLayout {
+      label: 'Untitled'
+      height: 800
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
     }
-    block v3 {
-      position: pos(680, 60, 300, 160)
-      layer: 6
-    }
-    block f1 {
-      position: pos(20, 100, 300, 100)
-      layer: 7
-    }
-    block p1 {
-      position: pos(20, 300, 280, 100)
-      layer: 9
-    }
-    block t3 {
-      position: pos(20, 220, 1580, 60)
-      layer: 1
-    }
-    block t4 {
-      position: pos(20, 0, 600, 80)
-      layer: 10
-    }
-    block v5 {
-      position: pos(20, 1180, 1520, 540)
-      layer: 1
-    }
-    block v6 {
-      position: pos(20, 800, 580, 360)
-      layer: 12
-    }
-    block v7 {
-      position: pos(680, 420, 520, 360)
-      layer: 12
-    }
-    width: 1620
   }
   theme: H.themes.classic
 }
