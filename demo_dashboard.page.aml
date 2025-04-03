@@ -19,6 +19,9 @@ Dashboard demo_dashboard {
         }
       }
       y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
         series {
           field: VizFieldFull {
             ref: ref('order_master', 'revenue')
@@ -45,52 +48,16 @@ Dashboard demo_dashboard {
   block t1: TextBlock {
     content: @md <hr>;;
   }
-  block v2: VizBlock {
-    label: 'Total Orders'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      calculation untitled_metric_ad9cef7 {
-        label: 'Untitled Metric'
-        formula: @aql total_orders * 1.27;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation target {
-        label: 'Target'
-        formula: @aql 34567;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      value: VizFieldFull {
-        ref: 'total_orders'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizFieldFull {
-        ref: 'target'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block v3: VizBlock {
     label: 'Revenue'
     viz: MetricKpi {
       dataset: demo_ecommerce
+      calculation revenue_target {
+        label: 'Revenue Target'
+        formula: @aql 1.08 * order_master.revenue;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       value: VizFieldFull {
         ref: ref('order_master', 'revenue')
         format {
@@ -98,12 +65,20 @@ Dashboard demo_dashboard {
           pattern: 'inherited'
         }
       }
+      compare_value: VizFieldFull {
+        ref: 'revenue_target'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
       settings {
+        display_mode: 'progress'
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-        alignment: 'left'
+        alignment: 'center'
       }
     }
     settings {
@@ -125,50 +100,7 @@ Dashboard demo_dashboard {
     content: @md <hr>;;
   }
   block t4: TextBlock {
-    content: @md <p align="center"> <h1> About This Dashboard  </p></h>;;
-  }
-  block v4: VizBlock {
-    label: 'Count of Orders by Category'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('ecommerce_orders', 'id')
-        operator: 'top'
-        value: 10
-        options {
-          rank_by {
-            field: ref('ecommerce_orders', 'id')
-            aggregation: 'count'
-            logic: 'standard'
-          }
-        }
-      }
-      fields: [
-        VizFieldFull {
-          ref: ref('map_categories', 'category')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'Count of Orders'
-          ref: ref('ecommerce_orders', 'id')
-          aggregation: 'count'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+    content: @md <p align="center"> <h2> Revenue and Orders Dashboard  </p></h2>;;
   }
   block v5: VizBlock {
     label: 'Revenue Over Time'
@@ -272,6 +204,12 @@ Dashboard demo_dashboard {
         show_sum_row: true
         row_height: 'multiple_lines'
         show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -286,39 +224,69 @@ Dashboard demo_dashboard {
       }
     }
   }
-  interactions: [
-    PopInteraction {
-      from: 'p1'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v5'
-          ]
-          field: ref('order_master', 'order_created_at')
-        },
-        CustomMapping {
-          block: [
-            'v2',
-            'v3'
-          ]
-          field: ref('ecommerce_orders', 'created_at')
+  block v7: VizBlock {
+    label: 'Orders Count by Continent'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'continent_name')
+        format {
+          type: 'text'
         }
-      ]
-    },
+      }
+      series {
+        field: VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          color_palette: 0
+        }
+      }
+      settings {
+        row_limit: 5000
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: [
     FilterInteraction {
       from: 'f1'
       to: [
         CustomMapping {
           block: [
             'v1',
-            'v2',
             'v3',
             'v5',
             'v6',
-            'v4'
+            'v7'
           ]
           field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v6',
+            'v7',
+            'v5'
+          ]
+          field: ref('order_master', 'order_created_at')
+        },
+        CustomMapping {
+          block: 'v3'
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     }
@@ -328,47 +296,43 @@ Dashboard demo_dashboard {
     height: 2160
     grid_size: 20
     block t1 {
-      position: pos(20, 540, 1180, 60)
+      position: pos(40, 1160, 1520, 60)
       layer: 4
     }
     block v1 {
-      position: pos(20, 620, 640, 360)
+      position: pos(20, 420, 640, 360)
       layer: 1
     }
-    block v2 {
-      position: pos(20, 380, 220, 140)
-      layer: 5
-    }
     block v3 {
-      position: pos(260, 380, 320, 140)
+      position: pos(680, 60, 300, 160)
       layer: 6
     }
     block f1 {
-      position: pos(20, 180, 300, 100)
+      position: pos(20, 100, 300, 100)
       layer: 7
     }
     block p1 {
-      position: pos(340, 180, 300, 100)
+      position: pos(20, 300, 280, 100)
       layer: 9
     }
     block t3 {
-      position: pos(20, 300, 1160, 60)
+      position: pos(20, 220, 1580, 60)
       layer: 1
     }
     block t4 {
-      position: pos(20, 20, 320, 120)
+      position: pos(20, 0, 600, 80)
       layer: 10
     }
-    block v4 {
-      position: pos(20, 1660, 440, 400)
-      layer: 11
-    }
     block v5 {
-      position: pos(20, 1000, 1540, 540)
+      position: pos(20, 1180, 1520, 540)
       layer: 1
     }
     block v6 {
-      position: pos(680, 620, 520, 360)
+      position: pos(20, 800, 580, 360)
+      layer: 12
+    }
+    block v7 {
+      position: pos(680, 420, 520, 360)
       layer: 12
     }
     width: 1620
