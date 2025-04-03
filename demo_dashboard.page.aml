@@ -47,8 +47,14 @@ Dashboard demo_dashboard {
   }
   block v2: VizBlock {
     label: 'Total Orders'
-    viz: MetricKpi {
+    viz: GaugeChart {
       dataset: demo_ecommerce
+      calculation untitled_metric_ad9cef7 {
+        label: 'Untitled Metric'
+        formula: @aql total_orders * 1.27;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       value: VizFieldFull {
         ref: 'total_orders'
         format {
@@ -56,17 +62,21 @@ Dashboard demo_dashboard {
           pattern: 'inherited'
         }
       }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 1
-        granularity: 'year'
+      max_value: VizFieldFull {
+        label: 'Target'
+        ref: 'untitled_metric_ad9cef7'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
       }
       settings {
+        label: 'Target Achieved'
+        suffix: 'US$'
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-        alignment: 'left'
       }
     }
     settings {
@@ -104,11 +114,59 @@ Dashboard demo_dashboard {
       value: '13 months ago till today'
     }
   }
-  block d1: DateDrillBlock {
-    label: 'Date Drill'
-  }
   block t2: TextBlock {
     content: @md <hr>;;
+  }
+  block p1: PopBlock {
+    label: 'Compare with Period'
+  }
+  block t3: TextBlock {
+    content: @md <hr>;;
+  }
+  block t4: TextBlock {
+    content: @md <p align="center"> <h1> About This Dashboard  </p></h>;;
+  }
+  block v4: VizBlock {
+    label: 'Count of Orders by Category'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'id')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('ecommerce_orders', 'id')
+            aggregation: 'count'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'id')
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
   }
   interactions: [
     FilterInteraction {
@@ -124,12 +182,19 @@ Dashboard demo_dashboard {
         }
       ]
     },
-    DateDrillInteraction {
-      from: 'd1'
+    PopInteraction {
+      from: 'p1'
       to: [
         CustomMapping {
           block: 'v1'
           field: ref('order_master', 'order_created_at')
+        },
+        CustomMapping {
+          block: [
+            'v2',
+            'v3'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     }
@@ -139,32 +204,44 @@ Dashboard demo_dashboard {
     height: 1220
     grid_size: 20
     block t1 {
-      position: pos(20, 300, 1160, 60)
+      position: pos(20, 540, 1160, 60)
       layer: 4
     }
     block v1 {
-      position: pos(20, 380, 640, 360)
+      position: pos(20, 620, 640, 360)
       layer: 1
     }
     block v2 {
-      position: pos(20, 140, 240, 140)
+      position: pos(20, 380, 280, 140)
       layer: 5
     }
     block v3 {
-      position: pos(280, 140, 320, 140)
+      position: pos(380, 380, 320, 140)
       layer: 6
     }
     block f1 {
-      position: pos(20, 20, 300, 100)
+      position: pos(20, 180, 300, 100)
       layer: 7
     }
-    block d1 {
-      position: pos(680, 380, 300, 100)
-      layer: 8
-    }
     block t2 {
-      position: pos(20, 760, 1160, 60)
+      position: pos(20, 1000, 1160, 60)
       layer: 1
+    }
+    block p1 {
+      position: pos(340, 180, 300, 100)
+      layer: 9
+    }
+    block t3 {
+      position: pos(20, 300, 1160, 60)
+      layer: 1
+    }
+    block t4 {
+      position: pos(20, 20, 320, 120)
+      layer: 10
+    }
+    block v4 {
+      position: pos(680, 620, 440, 360)
+      layer: 11
     }
   }
   theme: H.themes.classic
