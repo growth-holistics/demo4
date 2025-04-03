@@ -85,7 +85,7 @@ Dashboard demo_dashboard {
     type: 'date'
     default {
       operator: 'matches'
-      value: '13 months ago till today'
+      value: '$H_NIL$'
     }
   }
   block p1: PopBlock {
@@ -253,18 +253,25 @@ Dashboard demo_dashboard {
       }
     }
   }
+  block f3: FilterBlock {
+    label: 'Child Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
     FilterInteraction {
-      from: 'f1'
+      from: 'f2'
       to: [
         CustomMapping {
-          block: [
-            'v1',
-            'v3',
-            'v5',
-            'v6'
-          ]
-          field: ref('order_master', 'order_created_at')
+          block: 'f3'
+          disabled: true
         }
       ]
     },
@@ -275,6 +282,20 @@ Dashboard demo_dashboard {
           block: [
             'v1',
             'v3'
+          ]
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v5',
+            'v6'
           ]
           field: ref('order_master', 'order_created_at')
         }
@@ -296,7 +317,7 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block f1 {
-        position: pos(780, 0, 300, 100)
+        position: pos(580, 0, 300, 100)
         layer: 7
       }
       block p1 {
@@ -308,7 +329,7 @@ Dashboard demo_dashboard {
         layer: 1
       }
       block t4 {
-        position: pos(260, 0, 500, 100)
+        position: pos(240, 0, 340, 100)
         layer: 10
       }
       block v5 {
@@ -324,12 +345,16 @@ Dashboard demo_dashboard {
         layer: 13
       }
       block f2 {
-        position: pos(1100, 0, 300, 100)
+        position: pos(920, 0, 300, 100)
         layer: 14
       }
       block v7 {
         position: pos(20, 960, 660, 480)
         layer: 15
+      }
+      block f3 {
+        position: pos(1240, 0, 300, 100)
+        layer: 16
       }
       height: 1500
     }
