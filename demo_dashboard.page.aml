@@ -47,11 +47,17 @@ Dashboard demo_dashboard {
   }
   block v2: VizBlock {
     label: 'Total Orders'
-    viz: GaugeChart {
+    viz: MetricKpi {
       dataset: demo_ecommerce
       calculation untitled_metric_ad9cef7 {
         label: 'Untitled Metric'
         formula: @aql total_orders * 1.27;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation target {
+        label: 'Target'
+        formula: @aql 34567;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -62,21 +68,19 @@ Dashboard demo_dashboard {
           pattern: 'inherited'
         }
       }
-      max_value: VizFieldFull {
-        label: 'Target'
-        ref: 'untitled_metric_ad9cef7'
+      compare_value: VizFieldFull {
+        ref: 'target'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       settings {
-        label: 'Target Achieved'
-        suffix: 'US$'
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
+        alignment: 'left'
       }
     }
     settings {
@@ -150,6 +154,7 @@ Dashboard demo_dashboard {
           }
         },
         VizFieldFull {
+          label: 'Count of Orders'
           ref: ref('ecommerce_orders', 'id')
           aggregation: 'count'
           format {
@@ -212,11 +217,11 @@ Dashboard demo_dashboard {
       layer: 1
     }
     block v2 {
-      position: pos(20, 380, 280, 140)
+      position: pos(20, 380, 220, 140)
       layer: 5
     }
     block v3 {
-      position: pos(380, 380, 320, 140)
+      position: pos(260, 380, 320, 140)
       layer: 6
     }
     block f1 {
@@ -243,6 +248,7 @@ Dashboard demo_dashboard {
       position: pos(680, 620, 440, 360)
       layer: 11
     }
+    width: 1620
   }
   theme: H.themes.classic
 }
