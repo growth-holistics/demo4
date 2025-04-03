@@ -226,29 +226,33 @@ Dashboard demo_dashboard {
   }
   block v7: VizBlock {
     label: 'Orders Count by Continent'
-    viz: PieChart {
+    viz: DataTable {
       dataset: demo_ecommerce
-      legend: VizFieldFull {
-        ref: ref('ecommerce_countries', 'continent_name')
-        format {
-          type: 'text'
-        }
-      }
-      series {
-        field: VizFieldFull {
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
           ref: ref('order_master', 'revenue')
           format {
             type: 'number'
             pattern: 'inherited'
           }
+        },
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
         }
-        settings {
-          color_palette: 0
-        }
-      }
+      ]
       settings {
+        show_row_number: true
         row_limit: 5000
-        data_label_position: 'outside'
         aggregate_awareness {
           enabled: true
           debug_comments: true
