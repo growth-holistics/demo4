@@ -45,9 +45,6 @@ Dashboard demo_dashboard {
       }
     }
   }
-  block t1: TextBlock {
-    content: @md <hr>;;
-  }
   block v3: VizBlock {
     label: 'Revenue'
     viz: MetricKpi {
@@ -71,16 +68,7 @@ Dashboard demo_dashboard {
           pattern: 'inherited'
         }
       }
-      compare_value: VizFieldFull {
-        label: 'Revenue Target'
-        ref: 'revenue_target1'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
       settings {
-        display_mode: 'progress'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -146,15 +134,6 @@ Dashboard demo_dashboard {
             type: 'number'
             pattern: 'inherited'
           }
-        },
-        VizFieldFull {
-          label: 'Orders Count'
-          ref: ref('order_master', 'order_id')
-          aggregation: 'count'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
         }
       ]
       settings {
@@ -167,9 +146,6 @@ Dashboard demo_dashboard {
           debug_comments: true
         }
         frozen_columns: 1
-        value_labels_position {
-          placement: 'rows'
-        }
         column_styles: [
           ColumnStyle {
             key: 'map_categories_parent_category'
@@ -181,30 +157,26 @@ Dashboard demo_dashboard {
   }
   block v6: VizBlock {
     label: 'Revenue by Category'
-    viz: PieChart {
+    viz: DataTable {
       dataset: demo_ecommerce
-      legend: VizFieldFull {
-        ref: ref('map_categories', 'parent_category')
-        format {
-          type: 'text'
-        }
-      }
-      series {
-        field: VizFieldFull {
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
           ref: ref('order_master', 'revenue')
           format {
             type: 'number'
             pattern: 'inherited'
           }
         }
-        settings {
-          color_palette: 0
-        }
-      }
+      ]
       settings {
+        show_row_number: true
         row_limit: 5000
-        show_percentage: true
-        data_label_position: 'outside'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -229,59 +201,7 @@ Dashboard demo_dashboard {
       value: []
     }
   }
-  block v7: VizBlock {
-    label: 'Revenue by Merchants'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_merchants', 'name')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('order_master', 'revenue')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        sorts: [
-          SortSetting {
-            field_index: 1
-            direction: 'desc'
-          }
-        ]
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   interactions: [
-    PopInteraction {
-      from: 'p1'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v6',
-            'v5'
-          ]
-          field: ref('order_master', 'order_created_at')
-        },
-        CustomMapping {
-          block: 'v3'
-          field: ref('ecommerce_orders', 'created_at')
-        }
-      ]
-    },
     FilterInteraction {
       from: 'f1'
       to: [
@@ -295,25 +215,35 @@ Dashboard demo_dashboard {
           field: ref('order_master', 'order_created_at')
         }
       ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v6',
+            'v5',
+            'v3'
+          ]
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
     }
   ]
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
-      label: 'Orders'
+      label: 'Revenue and Orders'
       width: 1620
-      height: 2160
+      height: 960
       grid_size: 20
-      block t1 {
-        position: pos(20, 920, 1520, 60)
-        layer: 4
-      }
       block v1 {
-        position: pos(20, 540, 640, 360)
+        position: pos(360, 220, 640, 360)
         layer: 1
       }
       block v3 {
-        position: pos(580, 140, 300, 160)
+        position: pos(20, 400, 300, 160)
         layer: 6
       }
       block f1 {
@@ -321,11 +251,11 @@ Dashboard demo_dashboard {
         layer: 7
       }
       block p1 {
-        position: pos(20, 420, 280, 100)
+        position: pos(40, 260, 280, 100)
         layer: 9
       }
       block t3 {
-        position: pos(20, 320, 1580, 60)
+        position: pos(20, 140, 1580, 60)
         layer: 1
       }
       block t4 {
@@ -333,11 +263,11 @@ Dashboard demo_dashboard {
         layer: 10
       }
       block v5 {
-        position: pos(20, 1000, 1520, 540)
+        position: pos(20, 600, 1520, 340)
         layer: 1
       }
       block v6 {
-        position: pos(680, 540, 820, 360)
+        position: pos(1040, 220, 500, 360)
         layer: 12
       }
       block t5 {
@@ -348,13 +278,17 @@ Dashboard demo_dashboard {
         position: pos(1100, 0, 300, 100)
         layer: 14
       }
-      block v7 {
-        position: pos(20, 1560, 400, 300)
-        layer: 15
-      }
     }
     tab tab2: CanvasLayout {
-      label: 'Untitled'
+      label: 'Customer'
+      height: 800
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab3: CanvasLayout {
+      label: 'Profile'
       height: 800
       grid_size: 20
       mobile {
