@@ -1,0 +1,375 @@
+Dashboard demo_dashboard_20 {
+  title: 'Demo Dashboard 2.0'
+  block compare_against_period: PopBlock {
+    label: 'Compare Against Period'
+  }
+  block v1: VizBlock {
+    label: 'Last 6 weeks (vs preceeding)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'last'
+        value: 6
+        modifier: 'week'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+          pattern: 'wwww'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('ecommerce_orders', 'created_at')
+          duration: 6
+          granularity: 'week'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Last 12 months (YoY)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'last'
+        value: 12
+        modifier: 'month'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('ecommerce_orders', 'created_at')
+          duration: 12
+          granularity: 'month'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Last 7 days (vs preceeding)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'last'
+        value: 7
+        modifier: 'day'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('ecommerce_orders', 'created_at')
+          duration: 7
+          granularity: 'day'
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'QTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'matches'
+        value: 'this quarter begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'YTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'matches'
+        value: 'this year begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'All time'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'matches'
+        value: '2010 to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'MTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'matches'
+        value: 'this month begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Dynamic Dim & Metric'
+    viz: BarChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'breakdown_dim')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_total_in_tooltip: true
+          group_values_into: 5
+          show_data_label_by: 'percentage'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'dynamic_metric'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#5CC863'
+            color_palette: -1
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  block f1: FilterBlock {
+    label: 'Metric Selections'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('param_model_nam', 'metric_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'total orders'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Dim selection'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('param_model_nam', 'dim_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'Product Categories'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Orders'
+      width: 1220
+      height: 1090
+      grid_size: 20
+      block compare_against_period {
+        position: pos(320, 20, 280, 100)
+        layer: 1
+      }
+      block v1 {
+        position: pos(620, 860, 580, 380)
+        layer: 1
+      }
+      block v2 {
+        position: pos(20, 520, 1180, 330)
+        layer: 1
+      }
+      block v3 {
+        position: pos(20, 860, 580, 380)
+        layer: 1
+      }
+      block v4 {
+        position: pos(620, 140, 280, 180)
+        layer: 1
+      }
+      block v5 {
+        position: pos(920, 140, 280, 180)
+        layer: 1
+      }
+      block v6 {
+        position: pos(20, 140, 280, 180)
+        layer: 1
+      }
+      block v7 {
+        position: pos(320, 140, 280, 180)
+        layer: 1
+      }
+      block v8 {
+        position: pos(180, 320, 400, 300)
+        layer: 2
+      }
+      block f1 {
+        position: pos(760, 320, 300, 100)
+        layer: 9
+      }
+      block f2 {
+        position: pos(760, 440, 300, 100)
+        layer: 10
+      }
+    }
+    tab tab2: CanvasLayout {
+      label: 'Order Analysis'
+      height: 800
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}

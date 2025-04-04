@@ -1,43 +1,5 @@
 
 
-Func myvizBlockWithDataset(condition: String) {
-  VizBlock {
-    label: 'Revenue (YTD)'
-    viz: MetricKpi {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('order_master', 'order_created_date')
-        operator: 'matches'
-        value: condition
-      }
-      value: VizFieldFull {
-        label: 'Revenue YTD'
-        ref: ref('order_master', 'revenue')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
-        duration: 1
-        granularity: 'year'
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'center'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-}
-
-
 
 Dashboard demo_dashboard {
   title: 'Revenue'
@@ -87,8 +49,6 @@ Dashboard demo_dashboard {
     }
   }
 
-  block v3: myvizBlockWithDataset('this year till today')
-  block v4: myvizBlockWithDataset('this week begin till today')
 
 
   block f1: FilterBlock {
@@ -265,9 +225,9 @@ Dashboard demo_dashboard {
     viz: MetricKpi {
       dataset: demo_ecommerce
       filter {
-        field: ref('order_master', 'order_created_date')
+        field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this quarter begin till today'
+        value: 'this quarter begin till now'
       }
       value: VizFieldFull {
         label: 'Revenue QTD'
@@ -279,7 +239,7 @@ Dashboard demo_dashboard {
       }
       compare_value: VizPopSettings {
         field: ref('order_master', 'order_created_at')
-        duration: 4
+        duration: 1
         granularity: 'quarter'
       }
       settings {
@@ -299,9 +259,9 @@ Dashboard demo_dashboard {
     viz: MetricKpi {
       dataset: demo_ecommerce
       filter {
-        field: ref('order_master', 'order_created_date')
+        field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this week begin till today'
+        value: 'this week till now'
       }
       value: VizFieldFull {
         label: 'Revenue (Week To Date)'
@@ -310,6 +270,11 @@ Dashboard demo_dashboard {
           type: 'number'
           pattern: 'inherited'
         }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'week'
       }
       settings {
         aggregate_awareness {
@@ -328,9 +293,9 @@ Dashboard demo_dashboard {
     viz: MetricKpi {
       dataset: demo_ecommerce
       filter {
-        field: ref('order_master', 'order_created_date')
+        field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this month begin till today'
+        value: 'this month begin till now'
       }
       value: VizFieldFull {
         label: 'Revenue MTD'
@@ -339,6 +304,11 @@ Dashboard demo_dashboard {
           type: 'number'
           pattern: 'inherited'
         }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'month'
       }
       settings {
         aggregate_awareness {
@@ -352,34 +322,40 @@ Dashboard demo_dashboard {
       hide_label: true
     }
   }
-  interactions: [
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: 'f2'
-          disabled: true
+  block v11: VizBlock {
+    label: 'Revenue (Year to Date)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'this month begin till now'
+      }
+      value: VizFieldFull {
+        label: 'Revenue YTD'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
         }
-      ]
-    },
-    PopInteraction {
-      from: 'p1'
-      to: [
-        CustomMapping {
-          block: [
-            'v1',
-            'v3',
-            'v5',
-            'v6',
-            'v8',
-            'v9',
-            'v10'
-          ]
-          field: ref('order_master', 'order_created_at')
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
-      ]
+        alignment: 'center'
+      }
     }
-  ]
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
@@ -402,14 +378,6 @@ Dashboard demo_dashboard {
         position: pos(40, 680, 280, 140)
         layer: 9
       }
-      block t3 {
-        position: pos(20, 500, 1580, 60)
-        layer: 1
-      }
-      block t4 {
-        position: pos(20, 0, 500, 100)
-        layer: 10
-      }
       block v5 {
         position: pos(20, 1020, 1520, 340)
         layer: 1
@@ -419,7 +387,7 @@ Dashboard demo_dashboard {
         layer: 12
       }
       block f2 {
-        position: pos(60, 320, 260, 100)
+        position: pos(20, 40, 260, 100)
         layer: 14
       }
       block v7 {
@@ -427,15 +395,19 @@ Dashboard demo_dashboard {
         layer: 15
       }
       block v8 {
-        position: pos(1240, 300, 300, 140)
+        position: pos(940, 160, 300, 140)
         layer: 6
       }
       block v9 {
-        position: pos(1300, 120, 300, 140)
+        position: pos(620, 160, 300, 140)
         layer: 6
       }
       block v10 {
-        position: pos(980, 120, 300, 140)
+        position: pos(320, 160, 300, 140)
+        layer: 6
+      }
+      block v11 {
+        position: pos(20, 160, 300, 140)
         layer: 6
       }
       height: 1940
