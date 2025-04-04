@@ -227,10 +227,10 @@ Dashboard demo_dashboard {
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this quarter begin till now'
+        value: 'last quarter begin to last quarter end'
       }
       value: VizFieldFull {
-        label: 'Revenue QTD'
+        label: 'Revenue Last Quarter'
         ref: ref('order_master', 'revenue')
         format {
           type: 'number'
@@ -261,10 +261,10 @@ Dashboard demo_dashboard {
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this week till now'
+        value: 'last week begin till this week begin'
       }
       value: VizFieldFull {
-        label: 'Revenue (Week To Date)'
+        label: 'Revenue Last Week'
         ref: ref('order_master', 'revenue')
         format {
           type: 'number'
@@ -295,10 +295,10 @@ Dashboard demo_dashboard {
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this month begin till now'
+        value: 'last month begin till this month begin'
       }
       value: VizFieldFull {
-        label: 'Revenue MTD'
+        label: 'Revenue Last Month'
         ref: ref('order_master', 'revenue')
         format {
           type: 'number'
@@ -329,10 +329,10 @@ Dashboard demo_dashboard {
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: 'this month begin till now'
+        value: 'last year begin to last year end'
       }
       value: VizFieldFull {
-        label: 'Revenue YTD'
+        label: 'Revenue Last Year'
         ref: ref('order_master', 'revenue')
         format {
           type: 'number'
@@ -356,6 +356,87 @@ Dashboard demo_dashboard {
       hide_label: true
     }
   }
+  block v12: VizBlock {
+    label: 'Revenue (Yesterday)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2 days ago to yesterday'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Yesterday'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'day'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v13: VizBlock {
+    label: 'Metrics Sheets'
+    viz: MetricSheet {
+      dataset: demo_ecommerce
+      calculation clothes {
+        label: 'Clothes'
+        formula: @aql order_master.revenue | where(map_categories.parent_category == 'Clothes');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      date_field: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'clothes'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        max_column: 7
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
@@ -363,7 +444,7 @@ Dashboard demo_dashboard {
       width: 1620
       grid_size: 20
       block v1 {
-        position: pos(360, 640, 640, 360)
+        position: pos(360, 840, 640, 360)
         layer: 1
       }
       block v3 {
@@ -371,11 +452,11 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block f1 {
-        position: pos(40, 560, 300, 100)
+        position: pos(40, 760, 300, 100)
         layer: 7
       }
       block p1 {
-        position: pos(40, 680, 280, 140)
+        position: pos(40, 880, 280, 140)
         layer: 9
       }
       block v5 {
@@ -383,7 +464,7 @@ Dashboard demo_dashboard {
         layer: 1
       }
       block v6 {
-        position: pos(1040, 640, 500, 360)
+        position: pos(1040, 840, 500, 360)
         layer: 12
       }
       block f2 {
@@ -395,20 +476,28 @@ Dashboard demo_dashboard {
         layer: 15
       }
       block v8 {
-        position: pos(940, 160, 300, 140)
+        position: pos(340, 160, 300, 140)
         layer: 6
       }
       block v9 {
-        position: pos(620, 160, 300, 140)
+        position: pos(980, 160, 300, 140)
         layer: 6
       }
       block v10 {
-        position: pos(320, 160, 300, 140)
+        position: pos(660, 160, 300, 140)
         layer: 6
       }
       block v11 {
         position: pos(20, 160, 300, 140)
         layer: 6
+      }
+      block v12 {
+        position: pos(1300, 160, 300, 140)
+        layer: 6
+      }
+      block v13 {
+        position: pos(20, 340, 1560, 440)
+        layer: 16
       }
       height: 1940
     }
