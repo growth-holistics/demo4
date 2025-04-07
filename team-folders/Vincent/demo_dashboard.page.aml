@@ -420,7 +420,25 @@ Dashboard demo_dashboard {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'clothes'
+            ref: ref('order_master', 'order_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'users_count')
             format {
               type: 'number'
               pattern: 'inherited'
@@ -437,14 +455,53 @@ Dashboard demo_dashboard {
       }
     }
   }
+  block f3: FilterBlock {
+    label: 'Child Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t5: TextBlock {
+    content: @md <hr>;;
+  }
+  block t6: TextBlock {
+    content: @md <div style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px; font-family: sans-serif; background-color: #f9f9f9;">
+  <h2>📘 Dashboard Guide: Revenue Performance Overview</h2>
+  <p>This dashboard helps you analyze revenue trends over time and by product category. Each section is interactive and built to support performance diagnostics, product strategy, and sales planning.</p>
+  <p><strong>What You Can Do:</strong></p>
+  <ul>
+    <li>Track performance across year, quarter, month, week, and day</li>
+    <li>Compare revenue by category and top products</li>
+    <li>Understand drivers behind revenue changes with metric-level detail</li>
+    <li>Filter the view to focus on a specific business area</li>
+  </ul>
+  <p><strong>Quick Navigation:</strong></p>
+  <ul>
+    <li>🔍 <strong>Filters</strong> — Focus your analysis on specific categories</li>
+    <li>🧮 <strong>KPI Tiles</strong> — Quick health check for key timeframes</li>
+    <li>📈 <strong>Revenue Over Time</strong> — Visualize trends and seasonality</li>
+    <li>📊 <strong>Monthly Metrics</strong> — Drill into revenue, orders, AOV</li>
+    <li>🏆 <strong>Top Products</strong> — See your top-selling SKUs</li>
+    <li>📂 <strong>Category Summary</strong> — High-level revenue contribution</li>
+    <li>📅 <strong>Time Table</strong> — Compare performance across periods</li>
+  </ul>
+</div>
+;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
       label: 'Revenue'
-      width: 1620
+      width: 2240
       grid_size: 20
       block v1 {
-        position: pos(360, 840, 640, 360)
+        position: pos(620, 540, 840, 360)
         layer: 1
       }
       block v3 {
@@ -452,52 +509,64 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block f1 {
-        position: pos(40, 760, 300, 100)
+        position: pos(640, 940, 300, 100)
         layer: 7
       }
       block p1 {
-        position: pos(40, 880, 280, 140)
+        position: pos(840, 440, 240, 80)
         layer: 9
       }
       block v5 {
-        position: pos(20, 1020, 1520, 340)
+        position: pos(620, 1200, 1520, 340)
         layer: 1
       }
       block v6 {
-        position: pos(1040, 840, 500, 360)
+        position: pos(1480, 540, 500, 360)
         layer: 12
       }
       block f2 {
-        position: pos(20, 40, 260, 100)
+        position: pos(620, 20, 300, 100)
         layer: 14
       }
       block v7 {
-        position: pos(20, 1380, 660, 480)
+        position: pos(360, 1440, 660, 480)
         layer: 15
       }
       block v8 {
-        position: pos(340, 160, 300, 140)
+        position: pos(940, 160, 300, 140)
         layer: 6
       }
       block v9 {
-        position: pos(980, 160, 300, 140)
+        position: pos(1580, 160, 300, 140)
         layer: 6
       }
       block v10 {
-        position: pos(660, 160, 300, 140)
+        position: pos(1260, 160, 300, 140)
         layer: 6
       }
       block v11 {
-        position: pos(20, 160, 300, 140)
+        position: pos(620, 160, 300, 140)
         layer: 6
       }
       block v12 {
-        position: pos(1300, 160, 300, 140)
+        position: pos(1900, 160, 300, 140)
         layer: 6
       }
       block v13 {
-        position: pos(20, 340, 1560, 440)
+        position: pos(620, 920, 1560, 240)
         layer: 16
+      }
+      block f3 {
+        position: pos(940, 20, 300, 100)
+        layer: 17
+      }
+      block t5 {
+        position: pos(620, 340, 1340, 60)
+        layer: 18
+      }
+      block t6 {
+        position: pos(20, 20, 580, 540)
+        layer: 19
       }
       height: 1940
     }
@@ -519,4 +588,24 @@ Dashboard demo_dashboard {
     }
   }
   theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
 }
