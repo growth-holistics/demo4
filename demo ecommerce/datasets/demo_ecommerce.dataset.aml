@@ -121,78 +121,12 @@ Dataset demo_ecommerce {
     definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
   }
 
-
   dimension cohort_size {
     model: order_master
     label: 'Cohort Size'
     type: 'number'
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
-
-  // dimension experience {
-  //   model: ecommerce_cities
-  //   label: 'Experience Recommendation'
-  //   type: 'text'
-  //   definition: @aql concat(
-  //   'https://www.airbnb.com/s/',
-  //   ecommerce_cities.name,
-  //   '--',
-  //   ecommerce_countries.name,
-  //   '/experiences',
-  //   );;
-  // }
-
-  // dimension ig {
-  //   model: ecommerce_users
-  //   label: 'IG search'
-  //   type: 'text'
-  //   definition: @aql concat(
-  //   'https://www.instagram.com/explore/search/keyword/?q=',
-  //   ecommerce_users.first_name,
-  //   );;
-  // }
-
-  // dimension fb {
-  //   model: ecommerce_users
-  //   label: 'Facebook search'
-  //   type: 'text'
-  //   definition: @aql concat(
-  //   'https://www.facebook.com/search/top/?q=',
-  //   ecommerce_users.first_name,
-  //   '%20',
-  //   ecommerce_users.last_name,
-  //   );;
-  // }
-
-  // dimension x {
-  //   model: ecommerce_users
-  //   label: 'X search'
-  //   type: 'text'
-  //   definition: @aql concat(
-  //   'https://x.com/search?q=%40',
-  //   ecommerce_users.first_name,
-  //   );;
-  // }
-
-  // dimension write_recommendation {
-  //   model: ecommerce_users
-  //   label: 'Claude AI Recommendation'
-  //   type: 'text'
-  //   definition: @aql concat(
-  //     'https://claude.ai/new?q=write+a+lively,+precise+and+personal+recommendation+email+with+email+title+(+3+recommendations+max+for+each+category+)+to+',
-  //     ecommerce_users.full_name,
-  //     '+,+a+',
-  //     ecommerce_users.gender,
-  //     '+tourist+from+',
-  //     ecommerce_countries.origin,
-  //     '+(+translate+to+his+or+her+language)+in+the+age+demographic+of+',
-  //     ecommerce_users.age_group,
-  //     '+who+is+going+to+',ecommerce_cities.name,
-  //     '+in+',
-  //     ecommerce_users.visit_time,
-  //     '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
-  //     );;
-  // }
 
   dimension aov_by_product {
     model: order_master
