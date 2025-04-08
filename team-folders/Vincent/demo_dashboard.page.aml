@@ -356,6 +356,40 @@ Dashboard demo_dashboard {
       hide_label: true
     }
   }
+  block v12: VizBlock {
+    label: 'Revenue (Yesterday)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2 days ago till yesterday'
+      }
+      value: VizFieldFull {
+        label: 'Revenue (Yesterday)'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'day'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
@@ -371,11 +405,11 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block f1 {
-        position: pos(40, 560, 300, 100)
+        position: pos(40, 640, 300, 100)
         layer: 7
       }
       block p1 {
-        position: pos(40, 680, 280, 140)
+        position: pos(40, 780, 280, 140)
         layer: 9
       }
       block v5 {
@@ -408,6 +442,10 @@ Dashboard demo_dashboard {
       }
       block v11 {
         position: pos(20, 160, 300, 140)
+        layer: 6
+      }
+      block v12 {
+        position: pos(1260, 160, 300, 140)
         layer: 6
       }
       height: 1940
