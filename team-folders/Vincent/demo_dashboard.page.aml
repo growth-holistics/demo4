@@ -481,6 +481,104 @@ Dashboard demo_dashboard {
     <li>Filter the view to focus on a specific business area</li>
   </ul>;;
   }
+  block v14: VizBlock {
+    label: ' KPI Overview'
+    viz: MetricSheet {
+      dataset: demo_ecommerce
+      date_field: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: '🎯Orders'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'refunded_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'delivered_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricHeading {
+          label: '💰 Revenue'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'nmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
@@ -500,7 +598,7 @@ Dashboard demo_dashboard {
         layer: 7
       }
       block p1 {
-        position: pos(360, 700, 240, 80)
+        position: pos(940, 740, 240, 80)
         layer: 9
       }
       block v5 {
@@ -512,7 +610,7 @@ Dashboard demo_dashboard {
         layer: 12
       }
       block f2 {
-        position: pos(80, 860, 300, 100)
+        position: pos(60, 740, 300, 100)
         layer: 14
       }
       block v7 {
@@ -540,20 +638,24 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block v13 {
-        position: pos(620, 200, 1560, 240)
+        position: pos(520, 880, 1560, 240)
         layer: 16
       }
       block f3 {
-        position: pos(160, 1000, 300, 100)
+        position: pos(400, 740, 300, 100)
         layer: 17
       }
       block t5 {
-        position: pos(20, 480, 2140, 60)
+        position: pos(40, 640, 2140, 60)
         layer: 18
       }
       block t6 {
         position: pos(20, 20, 580, 420)
         layer: 19
+      }
+      block v14 {
+        position: pos(620, 180, 1580, 440)
+        layer: 20
       }
       height: 1940
     }
