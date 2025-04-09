@@ -1,11 +1,11 @@
 PreAggregate agg_daily {
   dimension timestamp {
-    for: ref('order_master','order_created_at')
+    for: ref('order_master', 'order_created_at')
     time_granularity: 'day'
   }
 
   measure order_count {
-    for: ref('order_master','order_id')
+    for: ref('order_master', 'order_id')
     aggregation_type: 'count'
   }
 
@@ -22,9 +22,9 @@ Dataset demo_ecommerce {
   owner: 'ha.pham+demo4@holistics.io'
   data_source_name: 'demodb'
 
-pre_aggregates: {
-  daily: agg_daily
-}
+  pre_aggregates: {
+    daily: agg_daily
+  }
 
 
   models: [
@@ -51,8 +51,8 @@ pre_aggregates: {
   //       field age_group
   //       field gender
   //     }
-      
-      
+
+
   //     group PII {
   //       field id
   //       field first_name
@@ -120,78 +120,12 @@ pre_aggregates: {
     type: 'number'
     definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
   }
-  
 
   dimension cohort_size {
     model: order_master
     label: 'Cohort Size'
     type: 'number'
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
-  }
-
-  dimension experience {
-    model: ecommerce_cities
-    label: 'Experience Recommendation'
-    type: 'text'
-    definition: @aql concat(
-    'https://www.airbnb.com/s/',
-    ecommerce_cities.name,
-    '--',
-    ecommerce_countries.name,
-    '/experiences',
-    );;
-  }
-
-  dimension ig {
-    model: ecommerce_users
-    label: 'IG search'
-    type: 'text'
-    definition: @aql concat(
-    'https://www.instagram.com/explore/search/keyword/?q=',
-    ecommerce_users.first_name,
-    );;
-  }
-
-  dimension fb {
-    model: ecommerce_users
-    label: 'Facebook search'
-    type: 'text'
-    definition: @aql concat(
-    'https://www.facebook.com/search/top/?q=',
-    ecommerce_users.first_name,
-    '%20',
-    ecommerce_users.last_name,
-    );;
-  }
-
-  dimension x {
-    model: ecommerce_users
-    label: 'X search'
-    type: 'text'
-    definition: @aql concat(
-    'https://x.com/search?q=%40',
-    ecommerce_users.first_name,
-    );;
-  }
-
-  dimension write_recommendation {
-    model: ecommerce_users
-    label: 'Claude AI Recommendation'
-    type: 'text'
-    definition: @aql concat(
-      'https://claude.ai/new?q=write+a+lively,+precise+and+personal+recommendation+email+with+email+title+(+3+recommendations+max+for+each+category+)+to+',
-      ecommerce_users.full_name,
-      '+,+a+',
-      ecommerce_users.gender,
-      '+tourist+from+',
-      ecommerce_countries.origin,
-      '+(+translate+to+his+or+her+language)+in+the+age+demographic+of+',
-      ecommerce_users.age_group,
-      '+who+is+going+to+',ecommerce_cities.name,
-      '+in+',
-      ecommerce_users.visit_time,
-      '.+Categorize+by+Place+To+Visit+,+Event+to+go+to+during+that+month+,+Place+to+Dine+and+Wine+and+Place+to+book+hotel',
-      );;
   }
 
   dimension aov_by_product {
@@ -231,18 +165,38 @@ pre_aggregates: {
     model: ecommerce_orders
   }
 
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    type: 'text'
+    model: order_master
+    definition: @aql case(
+        when: 'Country Names' in param_model_nam.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_nam.dim_selections
+        , then: order_master.status
+
+        , when: 'Product Categories' in param_model_nam.dim_selections
+        , then: map_categories.category
+      ) ;;
+  }
+
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
     relationship(ecommerce_orders_ecommerce_users, true),
     relationship(ecommerce_products_map_categories, true),
     relationship(ecommerce_users_ecommerce_cities, true),
     relationship(order_master_ecommerce_merchants, true),
-    relationship(order_master_ecommerce_orders, true),
     relationship(order_master_ecommerce_products, true)
     ,
     relationship(ecommerce_products.id - ecommerce_product_images.product_id, true)
     ,
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
+    ,
+    relationship(order_master.user_id > ecommerce_users.id, true)
   ]
   metric total_orders {
     label: "Total Orders"
@@ -303,24 +257,4 @@ pre_aggregates: {
       )
      ;;
   }
-
-  dimension breakdown_dim {
-      label: 'Dynamic Breakdown Dimension'
-      type: 'text'
-      model: order_master
-      definition: @aql case(
-        when: 'Country Names' in param_model_nam.dim_selections
-        , then: ecommerce_countries.name
-
-        , when: 'Age Demographic' in param_model_nam.dim_selections
-        , then: ecommerce_users.age_group
-
-        , when: 'Order Status' in param_model_nam.dim_selections
-        , then: order_master.status
-
-        , when: 'Product Categories' in param_model_nam.dim_selections
-        , then: map_categories.category
-      ) ;;
-    }
-
 }

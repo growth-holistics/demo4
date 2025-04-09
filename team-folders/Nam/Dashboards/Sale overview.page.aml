@@ -44,7 +44,7 @@ Dashboard sale_overview {
         alignment: 'center'
         metric_value {
           font_size: 45
-          font_color: '#156064FF'
+          font_color: '#000000FF'
         }
       }
     }
@@ -65,8 +65,8 @@ Dashboard sale_overview {
         MetricHeading {
           label: '🎯Orders'
           settings {
-            background_color: '#FFE8D1FF'
-            text_color: '#000000FF'
+            background_color: '#000000FF'
+            text_color: '#FFFFFFFF'
           }
         },
         MetricSeries {
@@ -126,8 +126,8 @@ Dashboard sale_overview {
         MetricHeading {
           label: '💰 Revenue'
           settings {
-            background_color: '#FFE8D1FF'
-            text_color: '#000000FF'
+            background_color: '#000000FF'
+            text_color: '#FFFFFFFF'
           }
         },
         MetricSeries {
@@ -203,7 +203,7 @@ Dashboard sale_overview {
         alignment: 'center'
         metric_value {
           font_size: 45
-          font_color: '#156064FF'
+          font_color: '#000000FF'
         }
         progress {
           bar {
@@ -239,7 +239,7 @@ Dashboard sale_overview {
         alignment: 'center'
         metric_value {
           font_size: 45
-          font_color: '#156064FF'
+          font_color: '#000004'
         }
       }
     }
@@ -276,7 +276,7 @@ Dashboard sale_overview {
         alignment: 'center'
         metric_value {
           font_size: 45
-          font_color: '#156064FF'
+          font_color: '#000004'
         }
       }
     }
@@ -317,7 +317,7 @@ Dashboard sale_overview {
         alignment: 'center'
         metric_value {
           font_size: 45
-          font_color: '#156064FF'
+          font_color: '#000004'
         }
         progress {
           bar {
@@ -337,7 +337,7 @@ Dashboard sale_overview {
     }
     default {
       operator: 'matches'
-      value: 'this quarter'
+      value: 'this year'
     }
   }
   block f2: FilterBlock {
@@ -409,14 +409,6 @@ Dashboard sale_overview {
       }
       fields: [
         VizFieldFull {
-          ref: ref('order_master', 'order_created_at')
-          transformation: 'datetrunc quarter'
-          format {
-            type: 'date'
-            pattern: 'yyyy Qq'
-          }
-        },
-        VizFieldFull {
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
@@ -482,60 +474,12 @@ Dashboard sale_overview {
             type: 'number'
             pattern: '[$$]#,###'
           }
-        },
-        VizFieldFull {
-          label: 'Completed Orders'
-          ref: ref('order_master', 'completed_order_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Refunded Orders'
-          ref: ref('order_master', 'refunded_orders_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-          uname: 'custom_refunded_orders_count'
-        },
-        VizFieldFull {
-          label: 'Cancelled Orders'
-          ref: ref('order_master', 'cancelled_orders_count')
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-          uname: 'custom_cancelled_orders_count'
         }
       ]
       settings {
         row_height: 'multiple_lines'
         show_row_number: true
         conditional_formats: [
-          ConditionalFormat {
-            key: 'custom_refunded_orders_count'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 5
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          },
-          ConditionalFormat {
-            key: 'custom_cancelled_orders_count'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 5
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          },
           ConditionalFormat {
             key: 'custom_revenue_delivered'
             format: SingleFormat {
@@ -618,7 +562,7 @@ Dashboard sale_overview {
             }
           }
           settings {
-            color: '#156064FF'
+            color: '#5CC863'
             color_palette: -1
           }
         }
@@ -639,7 +583,7 @@ Dashboard sale_overview {
     }
   }
   block f7: FilterBlock {
-    label: 'Metric Selections'
+    label: 'I want to see'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce
@@ -654,7 +598,7 @@ Dashboard sale_overview {
     }
   }
   block f8: FilterBlock {
-    label: 'Dim selection'
+    label: 'By'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce
@@ -688,10 +632,10 @@ Dashboard sale_overview {
       }
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc day'
+        transformation: 'datetrunc week'
         format {
           type: 'date'
-          pattern: 'LLL dd, yyyy'
+          pattern: 'wwww'
         }
       }
       y_axis {
@@ -705,7 +649,7 @@ Dashboard sale_overview {
             }
           }
           settings {
-            color: '#D1EDEC'
+            color: '#CCFF00FF'
             line_interpolation: 'smooth'
           }
         }
@@ -729,13 +673,14 @@ Dashboard sale_overview {
             }
           }
           settings {
-            color: '#18A59E'
+            color: '#84A110FF'
             line_interpolation: 'smooth'
           }
         }
       }
       settings {
         legend_label: 'right'
+        x_axis_show_null_datetime: true
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1244,7 +1189,7 @@ Dashboard sale_overview {
         layer: 1
       }
       block v6 {
-        position: pos(45, 260, 1150, 370)
+        position: pos(45, 290, 1150, 340)
         layer: 1
       }
       block v10 {
@@ -1268,15 +1213,15 @@ Dashboard sale_overview {
         layer: 7
       }
       block f2 {
-        position: pos(275, 195, 295, 70)
+        position: pos(275, 195, 295, 85)
         layer: 1
       }
       block f3 {
-        position: pos(575, 195, 295, 70)
+        position: pos(575, 195, 295, 85)
         layer: 1
       }
       block f4 {
-        position: pos(880, 190, 310, 70)
+        position: pos(880, 195, 305, 85)
         layer: 1
       }
       block v128 {
@@ -1300,11 +1245,11 @@ Dashboard sale_overview {
         layer: 9
       }
       block f8 {
-        position: pos(895, 1615, 300, 100)
+        position: pos(895, 1575, 300, 100)
         layer: 10
       }
       block p1 {
-        position: pos(865, 705, 300, 100)
+        position: pos(880, 705, 300, 100)
         layer: 12
       }
       block v131 {
@@ -1370,5 +1315,4 @@ Dashboard sale_overview {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440
   }
-  theme: fashion
 }
