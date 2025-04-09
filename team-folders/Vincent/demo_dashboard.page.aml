@@ -400,6 +400,18 @@ Dashboard demo_dashboard {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation male_users {
+        label: 'Male Users'
+        formula: @aql order_master.revenue | where(ecommerce_users.gender == 'Male');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation female_users {
+        label: 'Female Users'
+        formula: @aql order_master.revenue | where(ecommerce_users.gender == 'Female');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       date_field: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
         transformation: 'datetrunc month'
@@ -420,7 +432,7 @@ Dashboard demo_dashboard {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'order_count')
+            ref: 'male_users'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -429,16 +441,7 @@ Dashboard demo_dashboard {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: ref('order_master', 'users_count')
+            ref: 'female_users'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -638,7 +641,7 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block v13 {
-        position: pos(520, 880, 1560, 240)
+        position: pos(60, 860, 1560, 240)
         layer: 16
       }
       block f3 {
