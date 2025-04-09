@@ -1,5 +1,5 @@
 view: orders {
-  sql_table_name: analytics.orders ;;
+  sql_table_name: ecommerce.orders ;;
 
   dimension: order_id {
     type: number

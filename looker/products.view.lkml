@@ -1,9 +1,9 @@
 view: products {
-  sql_table_name: analytics.products ;;
+  sql_table_name: ecommerce.products ;;
 
-  dimension: product_id {
+  dimension: d {
     type: number
-    sql: ${TABLE}.product_id ;;
+    sql: ${TABLE}.id ;;
     primary_key: yes
     hidden: yes
   }

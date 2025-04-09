@@ -1,27 +1,24 @@
-connection: " "
+connection: "demodb"
 
 include: "*.view.lkml"         # include all views in this project
 include: "*.dashboard.lookml"  # include all dashboards in this project
 
-explore: orders {
-  join: order_items {
-    sql_on: ${order_items.order_id} = ${orders.order_id} ;;
+explore: order_items {
+  join: orders {
+    sql_on: ${order_items.order_id} = ${orders.id} ;;
     type: left_outer
     relationship: one_to_many
   }
   join: users {
     type: left_outer
     relationship: many_to_one
-    sql_on: ${orders.user_id} = ${customers.id} ;;
+    sql_on: ${orders.user_id} = ${users.id} ;;
   }
-}
-
-explore: order_items {
   join: products {
     type: left_outer
-    relationship: many_to_one
-    sql_on: ${order_items.product_id} = ${products.product_id} ;;
+    relationshio: many_to_one
+    sql_on: ${order_items.product_id} = ${products.id} ;;
   }
 }
 
-explore: customers {}
+explore: users {}
