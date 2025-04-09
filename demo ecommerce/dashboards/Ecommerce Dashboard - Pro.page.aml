@@ -221,7 +221,8 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       settings {
-        display_as_donut: true
+        show_percentage: true
+        data_label_position: 'inside'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -254,11 +255,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           uname: 'ecommerce_products_product_google_link'
         },
         VizFieldFull {
-          ref: 'f_28374b6'
+          ref: ref('ecommerce_products', 'product_image')
           format {
             type: 'html'
           }
-          uname: 'f_28374b6_text'
         },
         VizFieldFull {
           ref: ref('order_master', 'discount')
@@ -294,50 +294,16 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             direction: 'desc'
           }
         ]
-        conditional_formats: [
-          ConditionalFormat {
-            ref: ref('order_master', 'gmv')
-            format: ScaleFormat {
-              min {
-                value: 0
-                color: '#E9EFFB'
-              }
-              max {
-                value: 100000
-                color: '#255DD4'
-              }
-            }
-          },
-          ConditionalFormat {
-            ref: ref('order_master', 'order_count')
-            format: ScaleFormat {
-              min {
-                value: 0
-                color: '#FFFFFF'
-              }
-              max {
-                value: 600
-                color: '#47B881'
-              }
-            }
-          }
-        ]
-        column_width {
-          manual_widths: [
-            ColumnWidth {
-              key: 'ecommerce_products_product_google_link'
-              width: 145
-            },
-            ColumnWidth {
-              key: 'f_28374b6_text'
-              width: 99
-            }
-          ]
-        }
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_products_product_google_link'
+            width: 145
+          }
+        ]
       }
     }
   }
@@ -623,7 +589,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       y_axis {
         settings {
-          axis_max: 12000000
           show_data_label_by: 'value'
         }
         series {
@@ -682,6 +647,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       settings {
         legend_label: 'left'
+        x_axis_show_null_datetime: true
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -852,13 +818,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
       }
     }
-  }
-  block t39: TextBlock {
-    content: @md <picture>
-   <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
-   <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
-   " height="35">
- </picture>;;
   }
   block t40: TextBlock {
     content: @md <style>
@@ -1031,75 +990,13 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
     }
   }
-  block v18: VizBlock {
-    label: 'Customer Info and Buying Behavior'
-    viz: DataTable {
-      dataset: demo_ecommerce
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'full_name')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'age_group')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'gender')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('order_master', 'order_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'total_products')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('order_master', 'cancelled_order_ratio')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        frozen_columns: 0
-      }
-    }
-  }
   block p1: PopBlock {
     label: 'Compare with Period'
   }
   view: CanvasLayout {
     label: 'View 1'
     width: 1540
-    height: 4460
+    height: 3910
     grid_size: 20
     block hd1 {
       position: pos(1320, 20, 180, 50)
@@ -1190,14 +1087,11 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       position: pos(780, 1280, 720, 460)
     }
     block t38 {
-      position: pos(0, 4300, 1540, 170)
+      position: pos(0, 3720, 1540, 170)
       layer: -1
     }
-    block t39 {
-      position: pos(60, 3760, 200, 70)
-    }
     block t40 {
-      position: pos(1120, 4340, 400, 110)
+      position: pos(1120, 3760, 400, 110)
     }
     block t47 {
       position: pos(1420, 1140, 80, 100)
@@ -1232,9 +1126,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
     block v17 {
       position: pos(40, 1760, 1480, 420)
-    }
-    block v18 {
-      position: pos(60, 3720, 1480, 500)
     }
     block p1 {
       position: pos(1300, 2860, 220, 60)
