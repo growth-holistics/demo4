@@ -1,0 +1,143 @@
+Dashboard my_first_dashboard {
+  title: 'My First Dashboard'
+  block v1: VizBlock {
+    label: 'Revenue by Order Created At'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Moving Average'
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: MovingCalculationField {
+              type: 'avg'
+              order: 'row'
+              range {
+                previous: 5
+                next: 0
+              }
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Moving Sum'
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: MovingCalculationField {
+              type: 'sum'
+              order: 'row'
+              range {
+                next: 0
+              }
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block p1: PopBlock {
+    label: 'Compare with Period'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+      show_growth_rate: true
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Revenue and Orders'
+      height: 840
+      grid_size: 20
+      block f1 {
+        position: pos(840, 60, 300, 100)
+        layer: 2
+      }
+      block p1 {
+        position: pos(840, 180, 300, 100)
+        layer: 3
+      }
+      block v1 {
+        position: pos(20, 60, 800, 300)
+        layer: 1
+      }
+    }
+  }
+  theme: H.themes.classic
+}
