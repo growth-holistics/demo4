@@ -197,6 +197,8 @@ Dataset demo_ecommerce {
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
     ,
     relationship(order_master.user_id > ecommerce_users.id, true)
+    ,
+    relationship(order_master.order_id > ecommerce_orders.id, true)
   ]
   metric total_orders {
     label: "Total Orders"
@@ -205,6 +207,24 @@ Dataset demo_ecommerce {
     description: ""
     definition: @aql count(ecommerce_orders.id);;
   }
+
+  metric male_users {
+    label: "male_users"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql order_master.revenue | where(ecommerce_users.gender == 'Male');;
+  }
+
+  
+  metric female_users {
+    label: "female_users"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql order_master.revenue | where(ecommerce_users.gender == 'Female');;
+  }
+
   metric total_orders_across_all {
     label: "Total Orders Across All"
     type: "number"
