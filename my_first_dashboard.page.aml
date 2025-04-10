@@ -195,6 +195,80 @@ Dashboard my_first_dashboard {
       }
     }
   }
+  block v5: VizBlock {
+    label: 'Categories Leaderboard by Revenue'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation profits {
+        label: 'Profits'
+        formula: @aql order_master.revenue - sum(ecommerce_products.cost);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('map_categories', 'category')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('order_master', 'revenue')
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'profits'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     PopInteraction {
       from: 'p1'
@@ -247,6 +321,10 @@ Dashboard my_first_dashboard {
       block v4 {
         position: pos(820, 140, 400, 400)
         layer: 6
+      }
+      block v5 {
+        position: pos(20, 20, 400, 300)
+        layer: 7
       }
       width: 1240
     }
