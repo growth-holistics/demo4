@@ -432,25 +432,24 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     }
   }
   block v12: VizBlock {
-    label: 'Daily GMV vs. 7-day Moving Average'
-    viz: CombinationChart {
+    label: 'GMV Over Time'
+    viz: ColumnChart {
       dataset: demo_ecommerce
       filter {
         field: ref('order_master', 'order_created_at')
         operator: 'matches'
-        value: '2023'
+        value: '12 months ago till now'
       }
       x_axis: VizFieldFull {
         ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc day'
+        transformation: 'datetrunc month'
         format {
           type: 'date'
-          pattern: 'LLL dd, yyyy'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
         series {
-          mark_type: 'line'
           field: VizFieldFull {
             ref: ref('order_master', 'gmv')
             format {
@@ -460,36 +459,12 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
           settings {
             color: '#D1EDEC'
-            line_interpolation: 'smooth'
-          }
-        }
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            label: '7-day MovAvg of GMV'
-            ref: ref('order_master', 'gmv')
-            format {
-              type: 'number'
-              pattern: '#,###'
-            }
-            analytic: MovingCalculationField {
-              type: 'avg'
-              order: 'row'
-              range {
-                previous: 7
-                next: 0
-              }
-              null_if_not_enough_values: true
-            }
-          }
-          settings {
-            color: '#18A59E'
-            line_interpolation: 'smooth'
           }
         }
       }
       settings {
-        legend_label: 'right'
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: true
         aggregate_awareness {
           enabled: true
           debug_comments: true

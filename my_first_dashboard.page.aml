@@ -97,67 +97,10 @@ Dashboard my_first_dashboard {
       }
     }
   }
-  block v3: VizBlock {
-    label: 'Orders by Categories and Demograhics'
-    viz: PivotTable {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('ecommerce_users', 'age_group')
-        operator: 'is_not'
-        value: '3. From 40 to 49'
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('map_categories', 'parent_category')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('map_categories', 'category')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_total: true
-        show_column_total: true
-        show_sub_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        frozen_columns: 0
-      }
-    }
-  }
   block v4: VizBlock {
-    label: 'Categories Leaderboard'
+    label: 'Revenue by Countries'
     viz: DataTable {
       dataset: demo_ecommerce
-      filter {
-        field: ref('map_categories', 'category')
-        operator: 'top'
-        value: 10
-        options {
-          rank_by {
-            field: ref('order_master', 'revenue')
-            aggregation: 'custom'
-            logic: 'standard'
-          }
-        }
-      }
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_countries', 'name')
@@ -263,6 +206,40 @@ Dashboard my_first_dashboard {
       }
     }
   }
+  block v6: VizBlock {
+    label: 'Revenue by Countries (dup)'
+    viz: BarChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     PopInteraction {
       from: 'p1'
@@ -297,7 +274,7 @@ Dashboard my_first_dashboard {
         layer: 2
       }
       block p1 {
-        position: pos(420, 40, 300, 100)
+        position: pos(340, 20, 300, 100)
         layer: 3
       }
       block v1 {
@@ -308,17 +285,17 @@ Dashboard my_first_dashboard {
         position: pos(20, 460, 780, 300)
         layer: 4
       }
-      block v3 {
-        position: pos(20, 780, 1020, 300)
-        layer: 5
-      }
       block v4 {
         position: pos(820, 140, 400, 400)
         layer: 6
       }
       block v5 {
-        position: pos(820, 560, 400, 300)
+        position: pos(40, 1160, 780, 300)
         layer: 7
+      }
+      block v6 {
+        position: pos(20, 780, 780, 400)
+        layer: 6
       }
       width: 1240
     }
