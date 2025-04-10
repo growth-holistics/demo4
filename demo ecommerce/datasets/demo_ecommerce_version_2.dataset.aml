@@ -1,0 +1,43 @@
+Dataset demo_ecommerce_version_2 {
+  label: 'Demo Ecommerce Version 2'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    ecommerce_products,
+    ecommerce_categories,
+    ecommerce_merchants,
+    ecommerce_countries,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_order_items,
+    ecommerce_cities
+  ]
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_countries.code > ecommerce_cities.country_code, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_products.category_id > ecommerce_categories.id, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
+  ]
+
+  metric total_orders_2 {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+
+  metric total_revenue_2 {
+    label: "Total Revenue"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+
+  }
+
+  owner: 'vincent@holistics.io'
+}

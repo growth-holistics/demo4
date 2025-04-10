@@ -140,28 +140,28 @@ Model order_master {
     label: 'Order Created Date'
     type: 'date'
     description: "Date portion (YYYY-MM-DD) of when the order was created."
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.order_created_at }}::date;;
   }
   dimension order_created_month {
     label: 'Order Created Month'
     type: 'date'
     description: "Month of the order creation, truncated to the first day of the month."
-    hidden: false
+    hidden: true
     definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date);;
   }
   dimension last_month {
     label: 'Last Month'
     type: 'date'
     description: "The month before the order_created_month — useful for period-over-period comparisons."
-    hidden: false
+    hidden: true
     definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date) - interval '1 month';;
   }
   dimension final_item_value {
     label: 'Final Item Value'
     type: 'number'
     description: "Final value per item after applying the discount (price * (1 - discount))."
-    hidden: false
+    hidden: true
     definition: @sql {{ #SOURCE.price }} * (1 - {{ #SOURCE.discount }}) ;;
   }
   dimension order_is_delivered {
@@ -173,9 +173,9 @@ Model order_master {
   }
   dimension date_and_merchant_id {
     label: 'Date And Merchant ID'
-    description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
     type: 'text'
-    hidden: false
+    description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
+    hidden: true
     definition: @sql concat ({{ #SOURCE.order_created_at }}::date,'_',{{ #SOURCE.merchant_id }});;
   }
   dimension last_order_value {
@@ -189,7 +189,7 @@ Model order_master {
     label: 'Quantity Threshold'
     type: 'text'
     description: 'Text-based flag showing if quantity is above, at, or below the 30-unit threshold.'
-    hidden: false
+    hidden: true
     definition: @sql CASE
     WHEN {{ #SOURCE.quantity }} > 30 then 'The quantity is greater than 30'
     WHEN {{ #SOURCE.quantity }} = 30 then 'The quantity is 30'
