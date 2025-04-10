@@ -1,5 +1,5 @@
 Dashboard my_first_dashboard {
-  title: 'My First Dashboard'
+  title: 'My Last Dashboard'
   block v1: VizBlock {
     label: 'Revenue by Order Created At'
     viz: LineChart {
@@ -120,20 +120,6 @@ Dashboard my_first_dashboard {
           }
         }
       ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'age_group')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'gender')
-          format {
-            type: 'text'
-          }
-        }
-      ]
       values: [
         VizFieldFull {
           ref: 'total_orders'
@@ -146,12 +132,66 @@ Dashboard my_first_dashboard {
       settings {
         show_row_total: true
         show_column_total: true
+        show_sub_total: true
         row_limit: 5000
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
         frozen_columns: 0
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Categories Leaderboard'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('map_categories', 'category')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: ref('order_master', 'revenue')
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -189,20 +229,24 @@ Dashboard my_first_dashboard {
         layer: 2
       }
       block p1 {
-        position: pos(840, 140, 300, 100)
+        position: pos(420, 40, 300, 100)
         layer: 3
       }
       block v1 {
-        position: pos(20, 140, 800, 300)
+        position: pos(20, 140, 780, 300)
         layer: 1
       }
       block v2 {
-        position: pos(20, 460, 800, 300)
+        position: pos(20, 460, 780, 300)
         layer: 4
       }
       block v3 {
         position: pos(20, 780, 1020, 300)
         layer: 5
+      }
+      block v4 {
+        position: pos(820, 140, 400, 400)
+        layer: 6
       }
       width: 1240
     }
