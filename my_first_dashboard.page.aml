@@ -25,52 +25,6 @@ Dashboard my_first_dashboard {
             color_palette: 0
           }
         }
-        series {
-          field: VizFieldFull {
-            label: 'Moving Average'
-            ref: ref('order_master', 'revenue')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-            analytic: MovingCalculationField {
-              type: 'avg'
-              order: 'row'
-              range {
-                previous: 5
-                next: 0
-              }
-            }
-          }
-          settings {
-            line_style: 'dashed'
-          }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-        }
-        series {
-          field: VizFieldFull {
-            label: 'Moving Sum'
-            ref: ref('order_master', 'revenue')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-            analytic: MovingCalculationField {
-              type: 'sum'
-              order: 'row'
-              range {
-                next: 0
-              }
-            }
-          }
-          settings {
-            line_style: 'dashed'
-          }
-        }
       }
       settings {
         row_limit: 5000
@@ -99,9 +53,53 @@ Dashboard my_first_dashboard {
       show_growth_rate: true
     }
   }
+  block v2: VizBlock {
+    label: 'Count of Order Id by Order Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('order_master', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'order_id')
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
-    FilterInteraction {
-      from: 'f1'
+    PopInteraction {
+      from: 'p1'
       to: [
         CustomMapping {
           block: 'v1'
@@ -109,11 +107,14 @@ Dashboard my_first_dashboard {
         }
       ]
     },
-    PopInteraction {
-      from: 'p1'
+    FilterInteraction {
+      from: 'f1'
       to: [
         CustomMapping {
-          block: 'v1'
+          block: [
+            'v1',
+            'v2'
+          ]
           field: ref('order_master', 'order_created_at')
         }
       ]
@@ -126,16 +127,20 @@ Dashboard my_first_dashboard {
       height: 840
       grid_size: 20
       block f1 {
-        position: pos(840, 60, 300, 100)
+        position: pos(20, 20, 300, 100)
         layer: 2
       }
       block p1 {
-        position: pos(840, 180, 300, 100)
+        position: pos(840, 260, 300, 100)
         layer: 3
       }
       block v1 {
-        position: pos(20, 60, 800, 300)
+        position: pos(20, 140, 800, 300)
         layer: 1
+      }
+      block v2 {
+        position: pos(20, 460, 800, 300)
+        layer: 4
       }
     }
   }
