@@ -8,21 +8,8 @@ Dashboard _1_country_breakdown {
       field: ref('ecommerce_orders', 'created_at')
     }
     default {
-      operator: 'last'
-      value: '30'
-      modifier: 'day'
-      options {
-        include_current_period: true
-      }
-    }
-    settings {
-      drillthrough: Drillthrough {
-        enabled: true
-        sources: [
-          AutoDrillthroughSource {
-          }
-        ]
-      }
+      operator: 'matches'
+      value: '$H_NIL$'
     }
   }
   block country: FilterBlock {
@@ -56,15 +43,6 @@ Dashboard _1_country_breakdown {
     default {
       operator: 'is'
       value: []
-    }
-    settings {
-      drillthrough: Drillthrough {
-        enabled: true
-        sources: [
-          AutoDrillthroughSource {
-          }
-        ]
-      }
     }
   }
   block customer_gender: FilterBlock {
@@ -120,6 +98,15 @@ Dashboard _1_country_breakdown {
       operator: 'is'
       value: []
     }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
   }
   block date_drill: DateDrillBlock {
     label: 'Date Drill'
@@ -142,64 +129,25 @@ Dashboard _1_country_breakdown {
           ref: ref('order_master', 'revenue')
           format {
             type: 'number'
+            pattern: 'inherited'
           }
         },
         VizFieldFull {
           ref: ref('order_master', 'revenue_delivered')
           format {
             type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
       settings {
+        pagination_size: 100
         show_row_total: true
         show_column_total: true
-        conditional_formats: [
-          ConditionalFormat {
-            ref: ref('order_master', 'revenue')
-            format: SingleFormat {
-              condition {
-                operator: 'less_than'
-                value: 20000
-              }
-              text_color: '#A50E43'
-              background_color: '#FCB8B8'
-            }
-          },
-          ConditionalFormat {
-            ref: ref('order_master', 'revenue')
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 20000
-              }
-              text_color: '#21908D'
-              background_color: '#C3E8C2'
-            }
-          },
-          ConditionalFormat {
-            ref: ref('order_master', 'revenue_delivered')
-            format: SingleFormat {
-              condition {
-                operator: 'less_than'
-                value: 20000
-              }
-              text_color: '#A50E43'
-              background_color: '#FCB8B8'
-            }
-          },
-          ConditionalFormat {
-            ref: ref('order_master', 'revenue_delivered')
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 20000
-              }
-              text_color: '#21908D'
-              background_color: '#C3E8C2'
-            }
-          }
-        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -219,7 +167,11 @@ Dashboard _1_country_breakdown {
             ref: ref('order_master', 'revenue_delivered')
             format {
               type: 'number'
+              pattern: 'inherited'
             }
+          }
+          settings {
+            color_palette: -1
           }
         }
       }
@@ -234,6 +186,7 @@ Dashboard _1_country_breakdown {
         transformation: 'datetrunc month'
         format {
           type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -242,10 +195,12 @@ Dashboard _1_country_breakdown {
             ref: ref('order_master', 'revenue_delivered')
             format {
               type: 'number'
+              pattern: 'inherited'
             }
           }
           settings {
             color: '#479980'
+            color_palette: -1
           }
         }
       }
@@ -266,6 +221,7 @@ Dashboard _1_country_breakdown {
         transformation: 'datetrunc month'
         format {
           type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -279,6 +235,7 @@ Dashboard _1_country_breakdown {
             ref: ref('order_master', 'revenue_delivered')
             format {
               type: 'number'
+              pattern: 'inherited'
             }
           }
           settings {
@@ -568,6 +525,7 @@ Dashboard _1_country_breakdown {
           ref: ref('order_master', 'product_id')
           format {
             type: 'number'
+            pattern: 'inherited'
           }
         },
         VizFieldFull {
@@ -580,33 +538,13 @@ Dashboard _1_country_breakdown {
           ref: ref('ecommerce_products', 'merchant_id')
           format {
             type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
       settings {
         show_row_number: true
         row_limit: 1000
-      }
-    }
-  }
-  block f1: FilterBlock {
-    label: 'Date'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('order_master', 'order_created_at')
-    }
-    default {
-      operator: 'matches'
-      value: '$H_NIL$'
-    }
-    settings {
-      drillthrough: Drillthrough {
-        enabled: true
-        sources: [
-          AutoDrillthroughSource {
-          }
-        ]
       }
     }
   }
@@ -620,8 +558,7 @@ Dashboard _1_country_breakdown {
             'product_name',
             'customer_gender',
             'city',
-            'age_demographic',
-            'f1'
+            'age_demographic'
           ]
           disabled: true
         }
@@ -635,8 +572,8 @@ Dashboard _1_country_breakdown {
             'created_at',
             'product_name',
             'customer_gender',
-            'age_demographic',
-            'f1'
+            'city',
+            'age_demographic'
           ]
           disabled: true
         }
@@ -651,8 +588,7 @@ Dashboard _1_country_breakdown {
             'country',
             'customer_gender',
             'city',
-            'age_demographic',
-            'f1'
+            'age_demographic'
           ]
           disabled: true
         }
@@ -667,8 +603,7 @@ Dashboard _1_country_breakdown {
             'country',
             'product_name',
             'city',
-            'age_demographic',
-            'f1'
+            'age_demographic'
           ]
           disabled: true
         }
@@ -683,8 +618,7 @@ Dashboard _1_country_breakdown {
             'country',
             'product_name',
             'customer_gender',
-            'age_demographic',
-            'f1'
+            'age_demographic'
           ]
           disabled: true
         }
@@ -699,43 +633,9 @@ Dashboard _1_country_breakdown {
             'country',
             'product_name',
             'customer_gender',
-            'city',
-            'f1'
+            'city'
           ]
           disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'created_at',
-            'country',
-            'product_name',
-            'customer_gender',
-            'city',
-            'age_demographic'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    DateDrillInteraction {
-      from: 'date_drill'
-      to: [
-        CustomMapping {
-          block: 'v3'
-          field: ref('ecommerce_products', 'created_at')
-        },
-        CustomMapping {
-          block: 'v4'
-          field: ref('order_master', 'order_created_date')
-        },
-        CustomMapping {
-          block: 'v5'
-          field: ref('ecommerce_orders', 'created_date')
         }
       ]
     }
@@ -745,6 +645,34 @@ Dashboard _1_country_breakdown {
     width: 1220
     height: 1410
     grid_size: 20
+    block created_at {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block product_name {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block customer_gender {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block city {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block age_demographic {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(620, 140, 280, 100)
+      layer: 1
+    }
     block v1 {
       position: pos(20, 260, 580, 380)
       layer: 1
@@ -764,38 +692,6 @@ Dashboard _1_country_breakdown {
     block v5 {
       position: pos(20, 1060, 1180, 330)
       layer: 1
-    }
-    block city {
-      position: pos(20, 140, 280, 100)
-      layer: 1
-    }
-    block country {
-      position: pos(320, 20, 280, 100)
-      layer: 1
-    }
-    block created_at {
-      position: pos(20, 20, 280, 100)
-      layer: 1
-    }
-    block date_drill {
-      position: pos(620, 140, 280, 100)
-      layer: 1
-    }
-    block product_name {
-      position: pos(620, 20, 280, 100)
-      layer: 1
-    }
-    block age_demographic {
-      position: pos(320, 140, 280, 100)
-      layer: 1
-    }
-    block customer_gender {
-      position: pos(920, 20, 280, 100)
-      layer: 1
-    }
-    block f1 {
-      position: pos(920, 140, 280, 100)
-      layer: 2
     }
   }
   theme: H.themes.classic
