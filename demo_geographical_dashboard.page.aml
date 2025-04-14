@@ -1,0 +1,86 @@
+Dashboard demo_geographical_dashboard {
+  title: '[Demo] Geographical Dashboard'
+  description: 'Different Geographical Visualizations'
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'AirBnB Listing Concentration'
+    viz: PointMap {
+      dataset: airbnb_data
+      lng: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'longitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'latitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'id')
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Reviews Per Month'
+    viz: Heatmap {
+      dataset: airbnb_data
+      lng: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'longitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'latitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: ref('ecommerce_demo_pointmap_airbnb', 'reviews_per_month')
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 590
+    grid_size: 20
+    block date_drill {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block v1 {
+      position: pos(20, 140, 580, 430)
+      layer: 1
+    }
+    block v2 {
+      position: pos(620, 140, 580, 380)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}
