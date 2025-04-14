@@ -390,73 +390,6 @@ Dashboard demo_dashboard {
       hide_label: true
     }
   }
-  block v13: VizBlock {
-    label: 'Metrics Sheets'
-    viz: MetricSheet {
-      dataset: demo_ecommerce
-      calculation clothes {
-        label: 'Clothes'
-        formula: @aql order_master.revenue | where(map_categories.parent_category == 'Clothes');;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation male_users {
-        label: 'Male Users'
-        formula: @aql order_master.revenue | where(ecommerce_users.gender == 'Male');;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation female_users {
-        label: 'Female Users'
-        formula: @aql order_master.revenue | where(ecommerce_users.gender == 'Female');;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      date_field: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
-      rows: [
-        MetricSeries {
-          field: VizFieldFull {
-            ref: ref('order_master', 'revenue')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: 'male_users'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: 'female_users'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block f3: FilterBlock {
     label: 'Child Category'
     type: 'field'
@@ -597,7 +530,7 @@ Dashboard demo_dashboard {
         layer: 6
       }
       block f1 {
-        position: pos(640, 940, 300, 100)
+        position: pos(1200, 740, 300, 100)
         layer: 7
       }
       block p1 {
@@ -639,10 +572,6 @@ Dashboard demo_dashboard {
       block v12 {
         position: pos(1900, 20, 300, 140)
         layer: 6
-      }
-      block v13 {
-        position: pos(60, 860, 1560, 240)
-        layer: 16
       }
       block f3 {
         position: pos(400, 740, 300, 100)
