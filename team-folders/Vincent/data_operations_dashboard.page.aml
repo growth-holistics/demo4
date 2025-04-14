@@ -1,0 +1,227 @@
+Dashboard untitled_6 {
+  title: '[Demo] Data Operations Dashboard'
+  description: ''''''
+  block v2: VizBlock {
+    label: 'Sales by Category'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation profits {
+        label: 'Profits'
+        formula: @aql ecommerce_products.price-ecommerce_products.cost;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_date')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Count of Order Created At by Quarter Order Created At'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'order_created_at')
+            aggregation: 'count'
+            format {
+              type: 'number'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block p1: PopBlock {
+    label: 'Compare To'
+    default {
+      type: 'relative'
+      duration: 6
+      granularity: 'month'
+      show_growth_rate: true
+    }
+  }
+  block v5: VizBlock {
+    label: 'Order Listing'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'quantity')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'desc'
+          },
+          SortSetting {
+            field_index: 1
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block t1: TextBlock {
+    content: @md <hr>;;
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1340
+    grid_size: 20
+    block v2 {
+      position: pos(20, 380, 1160, 400)
+      layer: 2
+    }
+    block v4 {
+      position: pos(20, 20, 680, 260)
+    }
+    block p1 {
+      position: pos(720, 180, 300, 100)
+      layer: 3
+    }
+    block v5 {
+      position: pos(20, 800, 1160, 520)
+    }
+    block f1 {
+      position: pos(720, 20, 300, 100)
+      layer: 4
+    }
+    block t1 {
+      position: pos(20, 300, 1160, 60)
+      layer: 5
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.classic
+  interactions: [
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v4'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+}

@@ -50,12 +50,14 @@ Model order_master {
   dimension order_id {
     label: "Order Id"
     type: "number"
+    description: "Unique identifier for the order."
+    hidden: false
     definition: @sql {{ #SOURCE.order_id }};;
-    description: "this is id"
   }
   dimension user_id {
     label: 'User Id'
     type: 'number'
+    description: "Unique identifier for the customer who placed the order."
     hidden: false
     definition: @sql {{ #SOURCE.user_id }};;
   }
@@ -63,12 +65,14 @@ Model order_master {
   dimension status {
     label: 'Status'
     type: 'text'
+    description: "Current status of the order (e.g., delivered, cancelled, refunded)."
     hidden: false
     definition: @sql {{ #SOURCE.status }};;
   }
   dimension order_created_at {
     label: 'Order Created At'
     type: 'datetime'
+    description: "Timestamp indicating when the order was created."
     hidden: false
     definition: @sql {{ #SOURCE.order_created_at }};;
   }
@@ -76,48 +80,57 @@ Model order_master {
   dimension date_html {
     label: "Date Html"
     type: "text"
+    description: "HTML-rendered order date (used for styled dashboards or custom formatting)."
+    hidden: false
     definition: @sql CONCAT('<p style="background-color:tomato;">',{{ order_created_at }}, '</p>');;
   }
 
   dimension delivery_attempts {
     label: 'Delivery Attempts'
     type: 'number'
+    description: "Number of attempts made to deliver the order."
     hidden: false
     definition: @sql {{ #SOURCE.delivery_attempts }};;
   }
   dimension discount {
     label: 'Discount'
     type: 'number'
+    description: "Discount applied to the item, represented as a decimal (e.g., 0.1 for 10%)."
     hidden: false
     definition: @sql {{ #SOURCE.discount }};;
   }
   dimension quantity {
     label: 'Quantity'
     type: 'number'
+    description: "Number of units of the product in this order item."
     hidden: false
     definition: @sql {{ #SOURCE.quantity }};;
   }
   dimension product_id {
     label: 'Product Id'
     type: 'number'
+    description: "Unique identifier for the product."
     hidden: false
     definition: @sql {{ #SOURCE.product_id }};;
   }
   dimension price {
     label: 'Price'
     type: 'number'
+    description: "Unit price of the product before discount."
     hidden: false
     definition: @sql {{ #SOURCE.price }};;
   }
   dimension merchant_id {
     label: 'Merchant Id'
     type: 'number'
+    description: "Unique identifier for the merchant or seller."
     hidden: false
     definition: @sql {{ #SOURCE.merchant_id }};;
   }
   dimension test_broken {
     label: 'Test Broken'
     type: 'number'
+    description: "Duplicate field for testing/debugging."
     hidden: true
     definition: @sql {{ #SOURCE.test_broken }};;
   }
@@ -126,63 +139,68 @@ Model order_master {
   dimension order_created_date {
     label: 'Order Created Date'
     type: 'date'
-    hidden: false
+    description: "Date portion (YYYY-MM-DD) of when the order was created."
+    hidden: true
     definition: @sql {{ #SOURCE.order_created_at }}::date;;
   }
   dimension order_created_month {
     label: 'Order Created Month'
     type: 'date'
-    hidden: false
+    description: "Month of the order creation, truncated to the first day of the month."
+    hidden: true
     definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date);;
   }
   dimension last_month {
     label: 'Last Month'
     type: 'date'
-    hidden: false
+    description: "The month before the order_created_month — useful for period-over-period comparisons."
+    hidden: true
     definition: @sql date_trunc('month', {{ #SOURCE.order_created_at }}::date) - interval '1 month';;
   }
   dimension final_item_value {
     label: 'Final Item Value'
     type: 'number'
-    hidden: false
+    description: "Final value per item after applying the discount (price * (1 - discount))."
+    hidden: true
     definition: @sql {{ #SOURCE.price }} * (1 - {{ #SOURCE.discount }}) ;;
   }
   dimension order_is_delivered {
     label: 'Order Is Delivered'
     type: 'truefalse'
+    description: "Boolean flag indicating whether the order was delivered."
     hidden: false
     definition: @sql {{#SOURCE.status}} = 'delivered';;
   }
   dimension date_and_merchant_id {
     label: 'Date And Merchant ID'
-    description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
     type: 'text'
-    hidden: false
+    description: 'This field is for data teams to use as a key that consists of date and merchant ids concatenated.'
+    hidden: true
     definition: @sql concat ({{ #SOURCE.order_created_at }}::date,'_',{{ #SOURCE.merchant_id }});;
   }
   dimension last_order_value {
     label: 'Last Order Value'
-    description: 'This is what we get'
     type: 'number'
+    description: 'Estimated value after applying discount (price - discount).'
     hidden: false
     definition: @sql {{ #SOURCE.price }} - {{ #SOURCE.discount }};;
   }
   dimension quantity_threshold {
     label: 'Quantity Threshold'
-    description: 'Used to check stock level (threshold = 30)'
     type: 'text'
-    hidden: false
-    definition: @sql 
-        CASE
-            WHEN {{ #SOURCE.quantity }} > 30 then 'The quantity is greater than 30'
-            WHEN {{ #SOURCE.quantity }} = 30 then 'The quantity is 30'
-            ELSE 'The quantity is under 30'
-        END
-      ;;
+    description: 'Text-based flag showing if quantity is above, at, or below the 30-unit threshold.'
+    hidden: true
+    definition: @sql CASE
+    WHEN {{ #SOURCE.quantity }} > 30 then 'The quantity is greater than 30'
+    WHEN {{ #SOURCE.quantity }} = 30 then 'The quantity is 30'
+    ELSE 'The quantity is under 30'
+END;;
   }
   dimension amount {
     label: "Amount"
     type: "number"
+    description: "Calculated revenue per line item (quantity * price * (1 - discount))."
+    hidden: false
     definition: @sql {{ quantity }} * {{ price }} * (1 - {{ discount }});;
     format: "[\$\$]#,###"
   }
@@ -191,30 +209,39 @@ Model order_master {
   measure order_count {
     label: "Order Count"
     type: "number"
+    description: "Total number of unique orders."
+    hidden: false
     definition: @sql count(distinct {{ #SOURCE.order_id }});;
+    aggregation_type: "custom"
   }
   measure aov {
     label: "AOV - Average Order Value"
     type: "number"
+    description: "AOV - Average Order Value: Average value per order (total price / number of orders)."
+    hidden: false
     definition: @sql sum({{ #SOURCE.price }}) / count(distinct {{ #SOURCE.order_id }});;
-    format: "[$$]#,###0"
+    aggregation_type: "custom"
+    format: "[\$\$]#,###0.00"
   }
 
   measure cancel_value_ratio {
     label: "Cancel Value Ratio"
     type: "number"
-    definition: @sql            
-      sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float / sum({{ #SOURCE.price }})::float;;
+    description: "Ratio of cancelled order value to total order value."
+    hidden: false
+    definition: @sql sum(case when {{ #SOURCE.status }} = 'cancelled' then {{ #SOURCE.price }} else 0 end)::float / sum({{ #SOURCE.price }})::float;;
+    aggregation_type: "custom"
     format: "#,###0.00"
   }
   measure cancelled_order_ratio {
     label: "Cancelled Order Ratio"
     type: "number"
-    definition: @sql             
-      count(distinct case when {{ #SOURCE.status }} = 'cancelled'
-                    then {{ #SOURCE.order_id }} else null end)::float / 
-        count(distinct {{ #SOURCE.order_id }})::float ;;
-    description: "Total number of cancelled orders/Total numbers of orders"
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    hidden: false
+    definition: @sql count(distinct case when {{ #SOURCE.status }} = 'cancelled'
+              then {{ #SOURCE.order_id }} else null end)::float / 
+  count(distinct {{ #SOURCE.order_id }})::float ;;
+    aggregation_type: "custom"
     format: FullNumberFormat {
       pattern: "#,###0.00"
       groupSeparator: "."
@@ -238,45 +265,63 @@ Model order_master {
   }
   measure completed_order_count {
     label: "Completed Order Count"
-    description: 'Refunded and Delivered Orders'
     type: "number"
+    description: 'Number of completed orders (all statuses except \"cancelled\").'
+    hidden: false
     definition: @sql count(distinct case when {{ #SOURCE.status }} <> 'cancelled' then {{ #SOURCE.order_id }} else null end);;
+    aggregation_type: "custom"
   }
   measure count_distinct_users {
     label: "Count Distinct Users"
     type: "number"
+    description: "Number of unique users who placed orders."
+    hidden: false
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
+    aggregation_type: "custom"
   }
   measure delivered_orders_count {
     label: "Delivered Orders Count"
     type: "number"
+    description: "Total number of orders marked as \"delivered\"."
+    hidden: false
     definition: @sql count(distinct case when {{ #SOURCE.status }} = 'delivered' then {{ #SOURCE.order_id }} else null end);;
+    aggregation_type: "custom"
   }
   measure gmv {
     label: "GMV - Gross Merchandise Value"
     type: "number"
+    description: "GMV - Gross Merchandise Value: Total value of all orders, regardless of status."
+    hidden: false
     definition: @sql sum({{ #SOURCE.price }});;
-    description: "Total value regardless of order status"
-    format: "[$$]#,###0"
+    aggregation_type: "custom"
+    format: "[\$\$]#,###0"
   }
 
   measure nmv {
     label: "NMV - Net Merchandise Value"
     type: "number"
+    description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
+    hidden: false
     definition: @sql sum(case when {{ #SOURCE.status }} in ('cancelled', 'refunded') then 0 else {{ #SOURCE.price }} end);;
-    format: "[$$]#,###0"
+    aggregation_type: "custom"
+    format: "[\$\$]#,###0"
   }
   measure refunded_orders_count {
     label: "Refunded Orders Count"
     type: "number"
+    description: "Number of orders that were refunded."
+    hidden: false
     definition: @sql count(distinct case when {{ #SOURCE.status }} = 'refunded' then {{ #SOURCE.order_id }} else null end);;
+    aggregation_type: "custom"
   }
   measure revenue {
     label: "Revenue"
     type: "number"
+    description: "Total revenue generated (price * quantity)."
+    hidden: false
     definition: @sql sum({{ #SOURCE.price }}*{{ #SOURCE.quantity }});;
-    description: "P x Q"
-    format: "[$$]#,###0"
+    aggregation_type: "custom"
+    format: "[\$\$]#,###0"
   }
   measure revenue_delivered {
     label: "Revenue Delivered"
@@ -288,6 +333,20 @@ Model order_master {
   measure users_count {
     label: "Users Count"
     type: "number"
+    description: "Total number of unique users who placed orders (same as count_distinct_users)."
+    hidden: false
     definition: @sql count(distinct {{ #SOURCE.user_id }});;
+    aggregation_type: "custom"
+  }
+
+  // Parameter to allow users to choose which dimension to use dynamically
+  param dim_selector {
+    label: 'Dimension Selector'
+    type: 'text'
+    allowed_values: [
+      'Countries',
+      'Cities',
+      'Gender'
+    ]
   }
 }
