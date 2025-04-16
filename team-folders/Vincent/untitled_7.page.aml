@@ -52,6 +52,72 @@ Dashboard untitled_7 {
       }
     }
   }
+  block v2: VizBlock {
+    label: 'Revenue by Month Order Created At'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      conditions: [
+        'order_master.order_created_at is @(last 12 months)'
+      ]
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 10
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: '%∆ Revenue (prev. 1y)'
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+            analytic: PeriodOverPeriodComparison {
+              time_dimension: ref('order_master', 'order_created_at')
+              display: 'percent_change'
+              comparison_period: 'relative to previous 1 year'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     height: 840
@@ -59,6 +125,10 @@ Dashboard untitled_7 {
     block v1 {
       position: pos(20, 20, 860, 300)
       layer: 1
+    }
+    block v2 {
+      position: pos(20, 340, 720, 300)
+      layer: 2
     }
   }
   theme: H.themes.classic
