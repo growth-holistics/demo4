@@ -6,6 +6,7 @@ Dataset khai_ecommerce {
   models: [
     orders,
     users,
+    sales_model,
     order_items,
     countries,
     merchants,
@@ -21,7 +22,8 @@ Dataset khai_ecommerce {
     relationship(users.city_id > cities.id, true),
     relationship(order_items.product_id > products.id, true),
     relationship(products.merchant_id > merchants.id, true),
-    relationship(merchants.city_id > cities.id, false)
+    relationship(merchants.city_id > cities.id, false),
+    relationship(order_items.order_id - sales_model.order_id, true)
   ]
 
   owner: 'khai.to+demo4@holistics.io'
@@ -57,6 +59,20 @@ Dataset khai_ecommerce {
         , then: total_users
       )
      ;;
+  }
+
+  dimension dynamic_dim {
+    model: users
+    label: 'Dynamic Breakdown Dimension'
+    type: 'text'
+    definition: @aql case(
+      when: 'Countries' in param_model.dim_choice
+      , then: countries.name
+      , when: 'Cities' in param_model.dim_choice
+      , then: cities.name
+      , when: 'Gender' in param_model.dim_choice
+      , then: users.gender
+    ) ;;
   }
 
 }

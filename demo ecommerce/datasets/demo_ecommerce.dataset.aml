@@ -167,6 +167,7 @@ Dataset demo_ecommerce {
 
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
     type: 'text'
     model: order_master
     definition: @aql case(
@@ -181,6 +182,8 @@ Dataset demo_ecommerce {
 
         , when: 'Product Categories' in param_model_nam.dim_selections
         , then: map_categories.category
+
+        , else: ecommerce_countries.name
       ) ;;
   }
 
