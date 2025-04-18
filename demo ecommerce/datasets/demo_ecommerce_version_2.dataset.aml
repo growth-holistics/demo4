@@ -10,8 +10,8 @@ Dataset demo_ecommerce_version_2 {
     ecommerce_users,
     ecommerce_order_items,
     ecommerce_cities,
-    map_categories
-    ,
+    map_categories,
+    param_model_nam
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -19,10 +19,8 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
     relationship(ecommerce_countries.code > ecommerce_cities.country_code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
-    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
-    ,
-    relationship(ecommerce_products.category_id > map_categories.category_id, true)
-    ,
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+    relationship(ecommerce_products.category_id > map_categories.category_id, true),
   ]
 
   metric total_orders {
@@ -33,12 +31,20 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql count(ecommerce_orders.id);;
   }
 
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+  }
+
   metric revenue {
     label: "Total Revenue"
     type: "number"
     hidden: false
-    description: ""
-    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    description: "Total Revenue: Total value of all orders after discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount));;
   }
 
   metric nmv {
@@ -46,15 +52,15 @@ Dataset demo_ecommerce_version_2 {
     type: "number"
     description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
     hidden: false
-    definition: @aql revenue | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    definition: @aql gmv | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
   }
 
   metric aov {
     label: "AOV - Average Order Value"
     type: "number"
-    description: "AOV - Average Order Value: Average value per order (revenue / number of orders)."
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
     hidden: false
-    definition: @aql revenue / total_orders;;
+    definition: @aql gmv / total_orders;;
   }
 
   metric total_orders_across_all {
@@ -114,7 +120,7 @@ Dataset demo_ecommerce_version_2 {
     type: "number"
     hidden: false
     description: "Total Value of Cancelled Orders"
-    definition: @aql revenue | where(ecommerce_orders.status is 'cancelled');;
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
   }
 
   metric cancelled_value_ratio {
@@ -122,7 +128,7 @@ Dataset demo_ecommerce_version_2 {
     type: "number"
     hidden: false
     description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
-    definition: @aql cancelled_value / revenue;;
+    definition: @aql cancelled_value / gmv;;
     format: FullNumberFormat {
       pattern: "0.00"
       decimalSeparator: "."
