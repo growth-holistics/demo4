@@ -201,22 +201,22 @@ Dataset demo_ecommerce {
     ,
     relationship(order_master.user_id > ecommerce_users.id, true)
   ]
-  metric total_orders {
-    label: "Total Orders"
+  metric order_count {
+    label: "Order Count"
     type: "number"
     hidden: false
     description: ""
     definition: @aql count(ecommerce_orders.id);;
   }
-  metric total_orders_across_all {
-    label: "Total Orders Across All"
+  metric order_count_across_all {
+    label: "Order Count Across All"
     type: "number"
     hidden: false
     description: ""
     definition: @aql count(ecommerce_orders.id) | of_all(ecommerce_orders);;
   }
   metric percent_of_total {
-    label: "Percent Of Total"
+    label: "Percent of Order Across All"
     type: "number"
     hidden: false
     description: ""
@@ -236,13 +236,19 @@ Dataset demo_ecommerce {
     description: ""
     definition: @aql ecommerce_orders.created_at | month_num();;
   }
-  metric running_total {
-    label: "Running Total"
+  metric running_total_order_count {
+    label: "Running Total Order Count"
     type: "number"
     hidden: false
     description: ""
     definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
+  metric completed_order_count {
+    label: "Completed Order Count"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;  }
 
   metric dynamic_metric {
     label: 'Dynamic Metric'
