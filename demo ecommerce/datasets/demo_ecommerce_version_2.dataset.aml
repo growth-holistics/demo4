@@ -23,6 +23,15 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_products.category_id > map_categories.category_id, true),
   ]
 
+  dimension month_number {
+    model: ecommerce_orders
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+  }
+
   metric total_orders {
     label: "Total Orders"
     type: "number"
@@ -135,13 +144,6 @@ Dataset demo_ecommerce_version_2 {
     }
   }
 
-  metric month_number {
-    label: "Month Number"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql ecommerce_orders.created_at | month_num();;
-  }
   metric running_total {
     label: "Running Total Orders"
     type: "number"
