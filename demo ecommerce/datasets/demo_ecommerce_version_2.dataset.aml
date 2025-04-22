@@ -4,13 +4,14 @@ Dataset demo_ecommerce_version_2 {
   data_source_name: 'demodb'
   models: [
     ecommerce_products,
-    ecommerce_categories,
     ecommerce_merchants,
     ecommerce_countries,
     ecommerce_orders,
     ecommerce_users,
     ecommerce_order_items,
-    ecommerce_cities
+    ecommerce_cities,
+    map_categories,
+    param_model_nam
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -18,11 +19,20 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
     relationship(ecommerce_countries.code > ecommerce_cities.country_code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
-    relationship(ecommerce_products.category_id > ecommerce_categories.id, true),
-    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true)
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+    relationship(ecommerce_products.category_id > map_categories.category_id, true),
   ]
 
-  metric total_orders_vin1 {
+  dimension month_number {
+    model: ecommerce_orders
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+  }
+
+  metric total_orders {
     label: "Total Orders"
     type: "number"
     hidden: false
@@ -30,15 +40,134 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql count(ecommerce_orders.id);;
   }
 
-  metric revenue_vin1 {
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+  }
+
+  metric revenue {
     label: "Total Revenue"
     type: "number"
     hidden: false
-    description: ""
-    definition: @aql (count(ecommerce_order_items.quantity) * ecommerce_products.price);;
+    description: "Total Revenue: Total value of all orders after discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount));;
   }
 
+  metric nmv {
+    label: "NMV - Net Merchandise Value"
+    type: "number"
+    description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
+    hidden: false
+    definition: @aql gmv | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+  }
 
-  
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+  }
+
+  metric total_orders_across_all {
+    label: "Total Orders Across All"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | of_all(ecommerce_orders);;
+  }
+
+  metric percent_of_total {
+    label: "Percent Of Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders * 1.0 / total_orders_across_all;;
+  }
+
+  metric total_delivered_orders {
+    label: "Total Delivered Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
+  }
+
+  metric total_refunded_orders {
+    label: "Total Refunded Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
+  }
+
+  metric total_cancelled_orders {
+    label: "Total Cancelled Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
+  }
+
+  metric cancelled_orders_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: FullNumberFormat {
+      pattern: "0.00"
+      decimalSeparator: "."
+    }
+  }
+
+  metric cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Cancelled Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+  }
+
+  metric cancelled_value_ratio {
+    label: "Cancelled Value Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
+    definition: @aql cancelled_value / gmv;;
+    format: FullNumberFormat {
+      pattern: "0.00"
+      decimalSeparator: "."
+    }
+  }
+
+  metric running_total {
+    label: "Running Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
+  }
+
+  metric dynamic_metric {
+    label: 'Dynamic Metric'
+    type: 'number'
+    definition: @aql
+      case(
+        when: 'total users' in param_model_nam.metric_selections
+        , then: ecommerce_users.total_users
+
+        , when: 'total orders' in param_model_nam.metric_selections
+        , then: total_orders
+
+        , when: 'total products' in param_model_nam.metric_selections
+        , then: ecommerce_products.total_products
+      )
+     ;;
+  }
+
   owner: 'vincent@holistics.io'
 }
