@@ -6,7 +6,7 @@ Dashboard demo_ecommerce_overview_funky {
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -18,7 +18,7 @@ Dashboard demo_ecommerce_overview_funky {
     label: 'User Gender'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'gender')
     }
     default {
@@ -30,7 +30,7 @@ Dashboard demo_ecommerce_overview_funky {
     label: 'Age Demographic'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'age_group')
     }
     default {
@@ -44,21 +44,21 @@ Dashboard demo_ecommerce_overview_funky {
   block v1: VizBlock {
     label: 'GMV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_03802b5 {
         label: 'GMV Last Year'
-        formula: @aml order_master.gmv * 0.87;;
+        formula: @aql gmv * 0.87;;
         calc_type: 'measure'
         data_type: 'number'
       }
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'last'
         value: 1
         modifier: 'month'
       }
       value: VizFieldFull {
-        ref: ref('order_master', 'gmv')
+        ref: 'gmv'
         format {
           type: 'number'
           pattern: '#,###'
@@ -111,7 +111,7 @@ Dashboard demo_ecommerce_overview_funky {
   block v6: VizBlock {
     label: 'KPI Overview'
     viz: MetricSheet {
-      dataset: demo_ecommerce_metrics
+      dataset: demo_ecommerce_version_2
       date_field: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc month'
@@ -173,7 +173,7 @@ Dashboard demo_ecommerce_overview_funky {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -188,7 +188,7 @@ Dashboard demo_ecommerce_overview_funky {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'nmv')
+            ref: 'nmv'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -197,7 +197,7 @@ Dashboard demo_ecommerce_overview_funky {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -210,7 +210,7 @@ Dashboard demo_ecommerce_overview_funky {
   block v7: VizBlock {
     label: 'Total Orders count by Country Name and Status'
     viz: BarChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -258,7 +258,7 @@ display: block;
   block v8: VizBlock {
     label: 'GMV by Country'
     viz: BarChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       legend: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -348,7 +348,7 @@ display: block;
     label: 'Registered User'
     description: 'This is a description'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_c70646c {
         label: 'Target Users'
         formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
@@ -379,7 +379,7 @@ display: block;
   block v12: VizBlock {
     label: 'Top selling products'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_28374b6 {
         label: 'Product Image'
         formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="float:left;width:100px;height:100px;object-fit:contain" />');;
@@ -387,7 +387,7 @@ display: block;
         data_type: 'text'
       }
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
       }
@@ -402,14 +402,6 @@ display: block;
           ref: ref('ecommerce_products', 'name')
           format {
             type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'GMV'
-          ref: ref('order_master', 'gmv')
-          format {
-            type: 'number'
-            pattern: '[$$]#,###'
           }
         }
       ]
@@ -432,7 +424,10 @@ display: block;
   block v13: VizBlock {
     label: 'GMV by Age Group - Gender'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_countries', 'continent_name')
@@ -469,7 +464,7 @@ display: block;
       ]
       values: [
         VizFieldFull {
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -489,7 +484,7 @@ display: block;
   block v14: VizBlock {
     label: 'Cohort Retention'
     viz: RetentionHeatmap {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
         field: ref('user_cohort_retention', 'cohort_month')
         operator: 'matches'
@@ -538,7 +533,7 @@ display: block;
   block v15: VizBlock {
     label: '[YOY] Users vs Orders Growth'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'sign_up_date')
         transformation: 'datetrunc quarter'
@@ -579,7 +574,7 @@ display: block;
   block v16: VizBlock {
     label: 'AOV Monthly'
     viz: LineChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc month'
@@ -590,7 +585,7 @@ display: block;
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: '#,###0.00'
