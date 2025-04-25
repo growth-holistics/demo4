@@ -28,6 +28,72 @@ Dataset khai_ecommerce {
 
   owner: 'khai.to+demo4@holistics.io'
 
+  dimension acquisition_month {
+    model: users
+    label: 'Acquisition Month'
+    type: 'date'
+    definition: @aql min(orders.created_at | month()) | exact_grains(users.id) ;;
+  }
+
+  dimension acquisition_quarter {
+    model: users
+    label: 'Acquisition Quarter'
+    type: 'date'
+    definition: @aql min(orders.created_at | quarter()) | exact_grains(users.id) ;;
+  }
+
+  dimension acquisition_year {
+    model: users
+    label: 'Acquisition Year'
+    type: 'date'
+    definition: @aql min(orders.created_at | year()) | exact_grains(users.id) ;;
+  }
+
+  dimension dynamic_acquisition {
+    model: users
+    label: 'Dynamic Acquisition'
+    type: 'date'
+    definition: @aql case(
+      when: 'Month' in param_model.time_grain , then: users.acquisition_month
+      , when: 'Quarter' in param_model.time_grain, then: users.acquisition_quarter  
+      , when: 'Year' in param_model.time_grain, then: users.acquisition_year
+      , else: users.acquisition_month
+    ) ;;
+  }
+
+  dimension cohort_month_number {
+    model: orders
+    label: 'Cohort Month Number'
+    type: 'number'
+    definition: @aql date_diff('month', users.acquisition_month, (orders.created_at | month())) ;;
+  }
+
+  dimension cohort_quarter_number {
+    model: orders
+    label: 'Cohort Quarter Number'
+    type: 'number'
+    definition: @aql date_diff('quarter', users.acquisition_month, (orders.created_at | quarter())) ;;
+  }
+
+  dimension cohort_year_number {
+    model: orders
+    label: 'Cohort Year Number'
+    type: 'number'
+    definition: @aql date_diff('year', users.acquisition_month, (orders.created_at | year())) ;;
+  }
+
+  dimension dynamic_cohort_number {
+    model: orders
+    label: 'Dynamic Cohort Numner'
+    type: 'number'
+    definition: @aql case(
+      when: 'Month' in param_model.time_grain , then: orders.cohort_month_number
+      , when: 'Quarter' in param_model.time_grain, then: orders.cohort_quarter_number
+      , when: 'Year' in param_model.time_grain, then: orders.cohort_year_number
+      , else: orders.cohort_month_number
+    ) ;;
+  }
+  
   metric revenue {
     label: 'Revenue'
     type: 'number'

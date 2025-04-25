@@ -4,7 +4,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_at')
     }
     default {
@@ -17,7 +17,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -29,7 +29,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'category')
     }
     default {
@@ -41,7 +41,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Gender'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'gender')
     }
     default {
@@ -53,7 +53,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Order Status'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'status')
     }
     default {
@@ -65,7 +65,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Item Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'parent_category')
     }
     default {
@@ -77,7 +77,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'Order Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_date')
     }
     default {
@@ -89,7 +89,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'User Sign Up Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'sign_up_date')
     }
     default {
@@ -113,7 +113,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
     label: 'City'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_cities', 'name')
     }
     default {
@@ -124,34 +124,22 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v1: VizBlock {
     label: 'Order Conversion by Country'
     viz: ConversionFunnel {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_ad1924b {
         label: 'delivered orders'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'delivered'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_delivered_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
       calculation f_fc0e443 {
         label: 'cancelled orders'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'cancelled'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_cancelled_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
       calculation f_0f1a86f {
         label: 'refunded order'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'refunded'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_refunded_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -238,7 +226,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v3: VizBlock {
     label: 'Cumulative Buyers Count'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           label: 'Users'
@@ -264,7 +252,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v4: VizBlock {
     label: 'GMV Total'
     viz: LineChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc month'
@@ -275,7 +263,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: '[$$]#,###'
@@ -294,7 +282,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v5: VizBlock {
     label: 'Revenue Distribution by Country'
     viz: PieChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       legend: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -304,7 +292,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
       series {
         field: VizFieldFull {
           label: ' '
-          ref: ref('order_master', 'revenue')
+          ref: 'revenue'
           format {
             type: 'number'
           }
@@ -320,7 +308,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v6: VizBlock {
     label: 'Total Users by Age Demographic'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'age_group')
         format {
@@ -350,7 +338,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   block v7: VizBlock {
     label: 'Count of Order Id by Country'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -360,8 +348,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'order_id')
-            aggregation: 'count'
+            ref: 'total_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -549,7 +536,7 @@ Dashboard _0_ecommerce_dashboard_30_demo {
   view: CanvasLayout {
     label: 'Canvas Layout'
     width: 1220
-    height: 1800
+    height: 1680
     grid_size: 20
     block v1 {
       position: pos(20, 380, 580, 630)

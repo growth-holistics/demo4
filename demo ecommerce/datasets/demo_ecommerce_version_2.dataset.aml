@@ -11,7 +11,9 @@ Dataset demo_ecommerce_version_2 {
     ecommerce_order_items,
     ecommerce_cities,
     map_categories,
-    param_model_nam
+    param_model_nam,
+    dim_dates,
+    ecommerce_product_images
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -21,6 +23,7 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
     relationship(ecommerce_products.category_id > map_categories.category_id, true),
+    relationship(ecommerce_orders_dim_dates, true),
   ]
 
   dimension month_number {
@@ -142,6 +145,14 @@ Dataset demo_ecommerce_version_2 {
       pattern: "0.00"
       decimalSeparator: "."
     }
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
   }
 
   metric running_total {
