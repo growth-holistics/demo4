@@ -35,6 +35,21 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql ecommerce_orders.created_at | month_num();;
   }
 
+  dimension product_performance_analysis {
+    model: ecommerce_products
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      gmv,
+      '+and+the+AOV+for+this+product+is+',
+      aov,
+      )
+     ;;
+  }
+
   metric total_orders {
     label: "Total Orders"
     type: "number"
