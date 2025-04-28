@@ -43,9 +43,9 @@ Dataset demo_ecommerce_version_2 {
       'https://claude.ai/new?q=write+an_analysis+for+',
       ecommerce_products.name,
       '.+The+GMV+for+this+product+is+',
-      gmv,
+      cast(gmv, 'text'),
       '+and+the+AOV+for+this+product+is+',
-      aov,
+      cast(aov, 'text'),
       )
      ;;
   }
@@ -80,6 +80,14 @@ Dataset demo_ecommerce_version_2 {
     description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
     hidden: false
     definition: @aql gmv | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
   }
 
   metric aov {
@@ -168,6 +176,14 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "Total Value of Delivered Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
   }
 
   metric running_total {
