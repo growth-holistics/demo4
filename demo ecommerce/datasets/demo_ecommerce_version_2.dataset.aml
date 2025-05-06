@@ -19,10 +19,10 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
     relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
-    relationship(ecommerce_countries.code > ecommerce_cities.country_code, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
-    relationship(ecommerce_products.category_id > map_categories.category_id, true),
+    relationship(ecommerce_products_map_categories, true),
     relationship(ecommerce_orders_dim_dates, true),
   ]
 
@@ -79,6 +79,22 @@ Dataset demo_ecommerce_version_2 {
     label: 'Is Repeated Buyer'
     type: 'truefalse'
     definition: @aql ecommerce_users.total_orders_all_time > 1;;
+  }
+
+  metric total_buyers {
+    label: "Total Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+  }
+
+  metric total_repeated_buyers {
+    label: "Total Repeated Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
   }
 
   dimension product_performance_analysis {
@@ -263,6 +279,25 @@ Dataset demo_ecommerce_version_2 {
         , then: ecommerce_products.total_products
       )
      ;;
+  }
+
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: ecommerce_orders
+    definition: @aql case(
+        when: 'Country Names' in param_model_nam.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_nam.dim_selections
+        , then: ecommerce_orders.status
+
+        , else: ecommerce_countries.name
+      ) ;;
   }
 
   owner: 'vincent@holistics.io'
