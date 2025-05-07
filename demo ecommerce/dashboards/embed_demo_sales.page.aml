@@ -5,7 +5,7 @@ Dashboard embed_demo_landing_page_2 {
   block v1: VizBlock {
     label: 'Merchant'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_merchants', 'name')
@@ -27,7 +27,7 @@ Dashboard embed_demo_landing_page_2 {
     label: 'Merchant Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_merchants', 'name')
     }
     default {
@@ -38,7 +38,7 @@ Dashboard embed_demo_landing_page_2 {
   block v2: VizBlock {
     label: 'Product Performance'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_products', 'name')
@@ -49,7 +49,7 @@ Dashboard embed_demo_landing_page_2 {
             type: 'GoToUrl'
             label: 'Product analysis (By AI)'
             url: ActionFieldInput {
-              ref: ref('order_master', 'product_performance_analysis')
+              ref: ref('ecommerce_products', 'product_performance_analysis')
               aggregation: 'min'
             }
           }
@@ -64,7 +64,7 @@ Dashboard embed_demo_landing_page_2 {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -74,7 +74,7 @@ Dashboard embed_demo_landing_page_2 {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: ref('order_master', 'aov')
+          ref: 'aov'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -100,7 +100,7 @@ Dashboard embed_demo_landing_page_2 {
   block v3: VizBlock {
     label: 'Users'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_users', 'email')
@@ -118,7 +118,7 @@ Dashboard embed_demo_landing_page_2 {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -128,7 +128,7 @@ Dashboard embed_demo_landing_page_2 {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: ref('order_master', 'aov')
+          ref: 'aov'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -140,7 +140,7 @@ Dashboard embed_demo_landing_page_2 {
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
@@ -162,7 +162,7 @@ Dashboard embed_demo_landing_page_2 {
   block v4: VizBlock {
     label: 'Total Users'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         ref: ref('ecommerce_users', 'total_users')
         format {
@@ -183,7 +183,7 @@ Dashboard embed_demo_landing_page_2 {
   block v5: VizBlock {
     label: 'Total Orders'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'Total Orders'
         ref: ref('ecommerce_orders', 'total_orders_count')
@@ -193,7 +193,7 @@ Dashboard embed_demo_landing_page_2 {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         duration: 1
         granularity: 'month'
       }
@@ -205,10 +205,10 @@ Dashboard embed_demo_landing_page_2 {
   block v6: VizBlock {
     label: 'Total GMV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'GMV'
-        ref: ref('order_master', 'gmv')
+        ref: 'gmv'
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,"K"'
@@ -217,7 +217,7 @@ Dashboard embed_demo_landing_page_2 {
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         duration: 1
         granularity: 'month'
       }
@@ -229,17 +229,17 @@ Dashboard embed_demo_landing_page_2 {
   block v7: VizBlock {
     label: 'Metric AOV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'AOV'
-        ref: ref('order_master', 'aov')
+        ref: 'aov'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         duration: 1
         granularity: 'month'
       }
@@ -251,7 +251,7 @@ Dashboard embed_demo_landing_page_2 {
   block v8: VizBlock {
     label: 'User Growth'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_3f16a1c {
         label: 'Running Total'
         formula: @aql          running_total!(
@@ -333,7 +333,7 @@ ecommerce_users.sign_up_date
   block v11: VizBlock {
     label: 'Product Performance (dup)'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc month'
@@ -365,7 +365,7 @@ ecommerce_users.sign_up_date
           mark_type: 'line'
           field {
             label: 'GMV'
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -384,7 +384,7 @@ ecommerce_users.sign_up_date
           mark_type: 'line'
           field {
             label: 'AOV'
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -407,7 +407,7 @@ ecommerce_users.sign_up_date
   block v12: VizBlock {
     label: 'Total Products'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         ref: ref('ecommerce_products', 'total_products')
         format {
@@ -424,7 +424,7 @@ ecommerce_users.sign_up_date
     label: 'Product'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -492,7 +492,7 @@ ecommerce_users.sign_up_date
   block v13: VizBlock {
     label: 'Users'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_users', 'id')
@@ -533,7 +533,7 @@ ecommerce_users.sign_up_date
   block v14: VizBlock {
     label: 'Companies (For Illustrative Purposes)'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_merchants', 'id')
@@ -694,7 +694,7 @@ ecommerce_users.sign_up_date
             'v6',
             'v7'
           ]
-          field: ref('order_master', 'order_created_at')
+          field: ref('ecommerce_orders', 'created_at')
         },
         CustomMapping {
           block: 'v11'

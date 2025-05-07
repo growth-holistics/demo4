@@ -4,7 +4,7 @@ Dashboard _2_category_breakdown_demo {
     label: 'Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'parent_category')
     }
     default {
@@ -26,7 +26,7 @@ Dashboard _2_category_breakdown_demo {
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -47,7 +47,7 @@ Dashboard _2_category_breakdown_demo {
     label: 'Product Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -68,7 +68,7 @@ Dashboard _2_category_breakdown_demo {
     label: 'Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_date')
     }
     default {
@@ -89,7 +89,7 @@ Dashboard _2_category_breakdown_demo {
     label: 'Customer Gender'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'gender')
     }
     default {
@@ -112,7 +112,7 @@ Dashboard _2_category_breakdown_demo {
   block v1: VizBlock {
     label: 'Product Revenue Breakdown'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       rows: [
         VizFieldFull {
           ref: ref('map_categories', 'parent_category')
@@ -129,14 +129,14 @@ Dashboard _2_category_breakdown_demo {
       ]
       values: [
         VizFieldFull {
-          ref: ref('order_master', 'revenue')
+          ref: 'revenue'
           format {
             type: 'number'
             pattern: '#,###0.00'
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'revenue_delivered')
+          ref: 'delivered_value'
           format {
             type: 'number'
             pattern: '#,###0.00'
@@ -149,7 +149,7 @@ Dashboard _2_category_breakdown_demo {
         show_column_total: true
         conditional_formats: [
           ConditionalFormat {
-            ref: ref('order_master', 'revenue')
+            ref: 'revenue'
             format: SingleFormat {
               condition {
                 operator: 'less_than'
@@ -160,7 +160,7 @@ Dashboard _2_category_breakdown_demo {
             }
           },
           ConditionalFormat {
-            ref: ref('order_master', 'revenue')
+            ref: 'revenue'
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
@@ -171,7 +171,7 @@ Dashboard _2_category_breakdown_demo {
             }
           },
           ConditionalFormat {
-            ref: ref('order_master', 'revenue_delivered')
+            ref: 'delivered_value'
             format: SingleFormat {
               condition {
                 operator: 'less_than'
@@ -182,7 +182,7 @@ Dashboard _2_category_breakdown_demo {
             }
           },
           ConditionalFormat {
-            ref: ref('order_master', 'revenue_delivered')
+            ref: 'delivered_value'
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
