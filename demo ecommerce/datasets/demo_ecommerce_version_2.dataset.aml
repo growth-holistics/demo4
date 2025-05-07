@@ -11,25 +11,105 @@ Dataset demo_ecommerce_version_2 {
     ecommerce_order_items,
     ecommerce_cities,
     map_categories,
-    param_model_nam
+    param_model_nam,
+    dim_dates,
+    ecommerce_product_images
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
     relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
-    relationship(ecommerce_countries.code > ecommerce_cities.country_code, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
-    relationship(ecommerce_products.category_id > map_categories.category_id, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_orders_dim_dates, true),
   ]
+
+  dimension cohort_month {
+    model: ecommerce_users
+    label: "Cohort Month"
+    type: 'date'
+    definition: @aql min(ecommerce_orders.created_at | month()) | dimensionalize(ecommerce_users.id);;
+  }
 
   dimension month_number {
     model: ecommerce_orders
-    label: "Month Number"
+    label: 'Month Number'
+    type: 'number'
+    definition: @aql date_diff('month', ecommerce_users.cohort_month, (ecommerce_orders.created_at | month())) ;;
+  }
+
+  dimension cohort_size {
+    model: ecommerce_orders
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  metric total_users {
+    label: 'Total Users'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric retention {
+    label: 'Cohort Retention'
+    type: 'number'
+    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+  }
+
+  dimension total_orders_all_time {
+    model: ecommerce_users
+    label: 'Total Orders (Users)'
+    type: 'number'
+    definition: @aql total_orders | dimensionalize(ecommerce_users.id);;
+  }
+
+  dimension is_buyer {
+    model: ecommerce_users
+    label: 'Is Buyer'
+    type: 'truefalse'
+    definition: @aql ecommerce_users.total_orders_all_time > 0;;
+  }
+
+  dimension is_repeated_buyer {
+    model: ecommerce_users
+    label: 'Is Repeated Buyer'
+    type: 'truefalse'
+    definition: @aql ecommerce_users.total_orders_all_time > 1;;
+  }
+
+  metric total_buyers {
+    label: "Total Buyers"
     type: "number"
     hidden: false
     description: ""
-    definition: @aql ecommerce_orders.created_at | month_num();;
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+  }
+
+  metric total_repeated_buyers {
+    label: "Total Repeated Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
+  }
+
+  dimension product_performance_analysis {
+    model: ecommerce_products
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      cast(gmv, 'text'),
+      '+and+the+AOV+for+this+product+is+',
+      cast(aov, 'text'),
+      )
+     ;;
   }
 
   metric total_orders {
@@ -46,6 +126,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
   }
 
   metric revenue {
@@ -54,6 +135,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "Total Revenue: Total value of all orders after discount."
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount));;
+    format: "[\$\$]#,###0"
   }
 
   metric nmv {
@@ -62,6 +144,16 @@ Dataset demo_ecommerce_version_2 {
     description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
     hidden: false
     definition: @aql gmv | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
   }
 
   metric aov {
@@ -70,6 +162,7 @@ Dataset demo_ecommerce_version_2 {
     description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
     hidden: false
     definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
   }
 
   metric total_orders_across_all {
@@ -130,6 +223,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "Total Value of Cancelled Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
   }
 
   metric cancelled_value_ratio {
@@ -142,6 +236,24 @@ Dataset demo_ecommerce_version_2 {
       pattern: "0.00"
       decimalSeparator: "."
     }
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
   }
 
   metric running_total {
@@ -167,6 +279,25 @@ Dataset demo_ecommerce_version_2 {
         , then: ecommerce_products.total_products
       )
      ;;
+  }
+
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: ecommerce_orders
+    definition: @aql case(
+        when: 'Country Names' in param_model_nam.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_nam.dim_selections
+        , then: ecommerce_orders.status
+
+        , else: ecommerce_countries.name
+      ) ;;
   }
 
   owner: 'vincent@holistics.io'
