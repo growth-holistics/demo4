@@ -227,15 +227,15 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: ref('ecommerce_products', 'product_google_link')
           format {
-            type: 'text'
+            type: 'html'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'product_google_link')
+          ref: ref('ecommerce_product_images', 'product_image')
           format {
-            type: 'text'
+            type: 'html'
           }
         },
         VizFieldFull {
@@ -243,7 +243,9 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           aggregation: 'avg'
           format {
             type: 'number'
-            pattern: 'inherited'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
           }
         },
         VizFieldFull {
@@ -259,10 +261,32 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_gmv'
         }
       ]
       settings {
-        show_row_number: true
+        row_height: 'multiple_lines'
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#D3DFF6'
+              }
+              max {
+                value: 100000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
         aggregate_awareness {
           enabled: true
           debug_comments: true

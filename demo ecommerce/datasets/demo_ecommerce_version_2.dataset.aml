@@ -21,6 +21,7 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
     relationship(ecommerce_products_map_categories, true),
     relationship(ecommerce_orders_dim_dates, true),
@@ -58,6 +59,7 @@ Dataset demo_ecommerce_version_2 {
     label: 'Cohort Retention'
     type: 'number'
     definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+    format: "#,###0.00%"
   }
 
   dimension total_orders_all_time {
@@ -110,6 +112,13 @@ Dataset demo_ecommerce_version_2 {
       cast(aov, 'text'),
       )
      ;;
+  }
+
+  dimension product_image {
+    model: ecommerce_product_images
+    label: 'Product Image'
+    type: 'text'
+    definition: @aql concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />') ;;
   }
 
   metric total_orders {
@@ -179,6 +188,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: ""
     definition: @aql total_orders * 1.0 / total_orders_across_all;;
+    format: "#,###0.00%"
   }
 
   metric total_delivered_orders {
@@ -211,10 +221,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
     definition: @aql total_cancelled_orders / total_orders;;
-    format: FullNumberFormat {
-      pattern: "0.00"
-      decimalSeparator: "."
-    }
+    format: "#,###0.00%"
   }
 
   metric cancelled_value {
@@ -232,10 +239,7 @@ Dataset demo_ecommerce_version_2 {
     hidden: false
     description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
     definition: @aql cancelled_value / gmv;;
-    format: FullNumberFormat {
-      pattern: "0.00"
-      decimalSeparator: "."
-    }
+    format: "#,###0.00%"
   }
 
   metric delivered_value {
