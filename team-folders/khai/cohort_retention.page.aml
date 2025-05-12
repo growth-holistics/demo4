@@ -1,0 +1,128 @@
+Dashboard khai_cohort_retention {
+  title: 'Cohort Retention (from Khai)'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    mobile {
+      mode: 'auto'
+    }
+    block v1 {
+      position: pos(40, 120, 1260, 700)
+      layer: 1
+    }
+    block f1 {
+      position: pos(40, 20, 300, 80)
+      layer: 2
+    }
+    block f2 {
+      position: pos(380, 20, 300, 80)
+      layer: 3
+    }
+    width: 1340
+  }
+
+  theme: H.themes.vanilla
+  block v1: VizBlock {
+    label: 'Cohort Retention'
+    viz: PivotTable {
+      dataset: khai_ecommerce
+      theme {
+
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('users', 'dynamic_acquisition')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('orders', 'dynamic_cohort_number')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'total_users'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_total_users'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'custom_total_users'
+            width: 119
+          }
+        ]
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: khai_ecommerce
+      field: ref('users', 'dynamic_acquisition')
+    }
+    default {
+      operator: 'matches'
+      value: '2022 to 2023'
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Time Granularity '
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: khai_ecommerce
+      field: ref('param_model', 'time_grain')
+    }
+    default {
+      operator: 'is'
+      value: 'Month'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

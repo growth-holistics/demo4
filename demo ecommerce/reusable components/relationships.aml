@@ -1,0 +1,126 @@
+//relationship names don't exist in short-form, so it's not reusable (Wudi, Vincent 31 Oct 2024)
+// relationship(ecommerce_orders.created_date > dim_dates.date_key, true),
+// relationship(ecommerce_orders.user_id - order_master.user_id, true),
+// relationship(ecommerce_products.category_id > map_categories.category_id, true),
+// relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+// relationship(order_master.product_id > ecommerce_products.id, true),
+// relationship(order_master.merchant_id > ecommerce_merchants.id, true),
+// relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+// relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+// relationship(order_master.order_created_date > dim_dates.date_key, true),
+// relationship(ecommerce_users.id - user_facts_aggr.user_id, true)
+
+Relationship ecommerce_orders_dim_dates {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'ecommerce_orders'
+    field: 'created_date'
+  }
+  to: FieldRef {
+    model: 'dim_dates'
+    field: 'date_key'
+  }
+}
+Relationship order_master_ecommerce_orders {
+  type: 'one_to_one'
+  from: FieldRef {
+    model: 'ecommerce_orders'
+    field: 'user_id'
+  }
+  to: FieldRef {
+    model: 'order_master'
+    field: 'user_id'
+  }
+}
+Relationship ecommerce_products_map_categories {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'ecommerce_products'
+    field: 'category_id'
+  }
+  to: FieldRef {
+    model: 'map_categories'
+    field: 'category_id'
+  }
+}
+Relationship ecommerce_users_ecommerce_cities {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'ecommerce_users'
+    field: 'city_id'
+  }
+  to: FieldRef {
+    model: 'ecommerce_cities'
+    field: 'id'
+  }
+}
+Relationship order_master_ecommerce_products {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'order_master'
+    field: 'product_id'
+  }
+  to: FieldRef {
+    model: 'ecommerce_products'
+    field: 'id'
+  }
+}
+Relationship order_master_ecommerce_merchants {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'order_master'
+    field: 'merchant_id'
+  }
+  to: FieldRef {
+    model: 'ecommerce_merchants'
+    field: 'id'
+  }
+}
+Relationship ecommerce_cities_ecommerce_countries {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'ecommerce_cities'
+    field: 'country_code'
+  }
+  to: FieldRef {
+    model: 'ecommerce_countries'
+    field: 'code'
+  }
+}
+Relationship ecommerce_orders_ecommerce_users {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'ecommerce_orders'
+    field: 'user_id'
+  }
+  to: FieldRef {
+    model: 'ecommerce_users'
+    field: 'id'
+  }
+}
+
+Relationship order_master_dim_dates {
+  type: 'many_to_one'
+  from: FieldRef {
+    model: 'order_master'
+    field: 'order_created_date'
+  }
+  to: FieldRef {
+    model: 'dim_dates'
+    field: 'date_key'
+  }
+}
+
+Relationship ecommerce_users_user_facts_aggr {
+  type: 'one_to_one'
+  from: FieldRef {
+    model: 'ecommerce_users'
+    field: 'id'
+  }
+  to: FieldRef {
+    model: 'user_facts_aggr'
+    field: 'user_id'
+  }
+}
+
+// Relationship ecommerce_users_users_facts_aggr {}

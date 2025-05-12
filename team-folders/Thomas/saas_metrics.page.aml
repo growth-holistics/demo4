@@ -1,0 +1,630 @@
+
+Dashboard saas_metric {
+  title: 'SaaS metric'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1040
+    grid_size: 20
+    mobile {
+      mode: 'auto'
+    }
+    block v1 {
+      position: pos(40, 40, 200, 120)
+      layer: 1
+    }
+    block v2 {
+      position: pos(300, 40, 200, 120)
+      layer: 1
+    }
+    block v3 {
+      position: pos(20, 20, 240, 160)
+    }
+    block t1 {
+      position: pos(280, 20, 240, 160)
+    }
+    block v4 {
+      position: pos(560, 40, 200, 120)
+      layer: 1
+    }
+    block t2 {
+      position: pos(540, 20, 240, 160)
+    }
+    block v5 {
+      position: pos(820, 40, 200, 120)
+      layer: 2
+    }
+    block t3 {
+      position: pos(800, 20, 240, 160)
+      layer: 1
+    }
+    block v6 {
+      position: pos(40, 220, 460, 360)
+      layer: 3
+    }
+    block t4 {
+      position: pos(20, 200, 500, 400)
+    }
+    block v7 {
+      position: pos(40, 640, 460, 360)
+      layer: 3
+    }
+    block t5 {
+      position: pos(20, 620, 500, 400)
+    }
+    block v8 {
+      position: pos(1080, 40, 360, 260)
+      layer: 4
+    }
+    block t6 {
+      position: pos(1060, 20, 400, 300)
+      layer: 1
+    }
+    block v9 {
+      position: pos(1080, 360, 360, 200)
+      layer: 5
+    }
+    block t7 {
+      position: pos(1060, 340, 400, 260)
+      layer: 1
+    }
+    block v10 {
+      position: pos(560, 220, 460, 360)
+      layer: 3
+    }
+    block t8 {
+      position: pos(540, 200, 500, 400)
+    }
+    block v11 {
+      position: pos(560, 640, 460, 360)
+      layer: 3
+    }
+    block t9 {
+      position: pos(540, 620, 500, 400)
+    }
+    width: 1480
+  }
+  block v1: VizBlock {
+    label: 'MRR'
+    viz: MetricKpi {
+      dataset: saas
+      calculation net_mrr {
+        label: 'Net MRR'
+        formula: @aql sum(saas_subscriptions.daily_mrr) | where(saas_subscriptions.status == 'active');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_mrr_previous {
+        label: 'Previous Net MRR'
+        formula: @aql net_mrr * 0.7;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_transactions', 'transaction_date')
+        operator: 'last'
+        value: '1'
+        modifier: 'week'
+      }
+      value: VizFieldFull {
+        label: 'MRR - WEEKLY'
+        ref: 'net_mrr'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'net_mrr_previous'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 12
+          font_color: '#07326C'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#255DD4'
+        }
+      }
+    }
+  }
+  block v3: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v2: VizBlock {
+    label: 'NET NEW MRR - WEEKLY'
+    viz: MetricKpi {
+      dataset: saas
+      calculation net_new_mrr {
+        label: 'Net MRR'
+        formula: @aql sum(saas_subscriptions.daily_mrr) | where(saas_subscriptions.status == 'active' and saas_subscriptions.subscription_type == 'new');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_mrr_previous {
+        label: 'Previous Net MRR'
+        formula: @aql net_new_mrr * 1.2;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_transactions', 'transaction_date')
+        operator: 'last'
+        value: '1'
+        modifier: 'week'
+      }
+      value: VizFieldFull {
+        label: 'NEW MRR - WEEKLY'
+        ref: 'net_new_mrr'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'net_mrr_previous'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 12
+          font_color: '#07326C'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#255DD4'
+        }
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v4: VizBlock {
+    label: 'UPGRADE MRR - WEEKLY'
+    viz: MetricKpi {
+      dataset: saas
+      calculation net_new_mrr {
+        label: 'Net MRR'
+        formula: @aql sum(saas_subscriptions.daily_mrr) | where(saas_subscriptions.status == 'active' and saas_subscriptions.subscription_type == 'upgrade');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_mrr_previous {
+        label: 'Previous Net MRR'
+        formula: @aql net_new_mrr * 1.2;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_transactions', 'transaction_date')
+        operator: 'last'
+        value: '1'
+        modifier: 'week'
+      }
+      value: VizFieldFull {
+        label: 'UPGRADE MRR - WEEKLY'
+        ref: 'net_new_mrr'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'net_mrr_previous'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 12
+          font_color: '#07326C'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#255DD4'
+        }
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v5: VizBlock {
+    label: 'CHURN MRR - WEEKLY'
+    viz: MetricKpi {
+      dataset: saas
+      calculation net_new_mrr {
+        label: 'Net MRR'
+        formula: @aql coalesce(
+  sum(saas_subscriptions.daily_mrr) 
+  | where(saas_subscriptions.status == 'canceled' and saas_subscriptions.subscription_type == 'downgrade')
+  , 0);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_mrr_previous {
+        label: 'Previous Net MRR'
+        formula: @aql net_new_mrr * 1.2;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_transactions', 'transaction_date')
+        operator: 'last'
+        value: '1'
+        modifier: 'week'
+      }
+      value: VizFieldFull {
+        label: 'CHURN MRR - WEEKLY'
+        ref: 'net_new_mrr'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'net_mrr_previous'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 12
+          font_color: '#07326C'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#255DD4'
+        }
+      }
+    }
+  }
+  block t3: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v6: VizBlock {
+    label: ' QUATERLY MRR'
+    viz: ColumnChart {
+      dataset: saas
+      filter {
+        field: ref('saas_subscriptions', 'status')
+        operator: 'is'
+        value: 'active'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('saas_transactions', 'transaction_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'MRR'
+            ref: ref('saas_subscriptions', 'daily_mrr')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v7: VizBlock {
+    label: 'QUARTERLY UPGRADE MRR'
+    viz: ColumnChart {
+      dataset: saas
+      calculation upgrade_mrr {
+        label: 'Untitled Metric'
+        formula: @aql sum(saas_subscriptions.daily_mrr) | where(saas_subscriptions.status == 'active' and saas_subscriptions.subscription_type == 'upgrade');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_subscriptions', 'status')
+        operator: 'is'
+        value: 'active'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('saas_transactions', 'transaction_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'UPGRADE MRR'
+            ref: 'upgrade_mrr'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t5: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v8: VizBlock {
+    label: 'MRR PROGRESS'
+    viz: GaugeChart {
+      dataset: saas
+      calculation mrr {
+        label: 'Mrr'
+        formula: @aql sum(saas_subscriptions.daily_mrr);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation mrr_goal {
+        label: 'Untitled Metric'
+        formula: @aql mrr * 1.6;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'mrr'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      max_value: VizFieldFull {
+        ref: 'mrr_goal'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        label: 'MRR PROGRESS'
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t6: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v9: VizBlock {
+    label: 'MRR Breakdown'
+    viz: DataTable {
+      dataset: saas
+      calculation mrr {
+        label: 'Mrr'
+        formula: @aql sum(saas_subscriptions.daily_mrr);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('saas_subscriptions', 'subscription_type')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'mrr'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t7: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v10: VizBlock {
+    label: 'QUARTERLY NET NEW MRR'
+    viz: ColumnChart {
+      dataset: saas
+      calculation mrr {
+        label: 'Untitled Metric'
+        formula: @aql sum(saas_subscriptions.daily_mrr) | where(saas_subscriptions.status == 'active' and saas_subscriptions.subscription_type == 'new');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('saas_subscriptions', 'status')
+        operator: 'is'
+        value: 'active'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('saas_transactions', 'transaction_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: 'mrr'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t8: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v11: VizBlock {
+    label: 'QUARTERLY MRR CHURN'
+    viz: ColumnChart {
+      dataset: saas
+      calculation churn_mrr {
+        label: 'Untitled Metric'
+        formula: @aql sum(saas_subscriptions.monthly_amount) | where(saas_subscriptions.status == 'canceled' and saas_subscriptions.subscription_type == 'downgrade');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('saas_transactions', 'transaction_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'UPGRADE MRR'
+            ref: 'churn_mrr'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t9: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+}

@@ -1,10 +1,10 @@
-Dashboard _0_ecommerce_dashboard_30 {
-  title: '0. Ecommerce Dashboard 3.0'
+Dashboard _0_ecommerce_dashboard_30_demo {
+  title: '0. Ecommerce Dashboard  4.0'
   block date: FilterBlock {
     label: 'Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_at')
     }
     default {
@@ -12,11 +12,12 @@ Dashboard _0_ecommerce_dashboard_30 {
       value: '$H_NIL$'
     }
   }
+
   block country: FilterBlock {
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -28,7 +29,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'category')
     }
     default {
@@ -40,7 +41,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'Gender'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'gender')
     }
     default {
@@ -52,7 +53,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'Order Status'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'status')
     }
     default {
@@ -64,7 +65,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'Item Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'parent_category')
     }
     default {
@@ -76,19 +77,19 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'Order Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_date')
     }
     default {
       operator: 'matches'
-      value: 'This month until today'
+      value: '$H_NIL$'
     }
   }
   block user_sign_up_date: FilterBlock {
     label: 'User Sign Up Date'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'sign_up_date')
     }
     default {
@@ -104,7 +105,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     default {
       type: 'relative'
       duration: 1
-      granularity: 'year'
+      granularity: 'month'
       show_growth_rate: true
     }
   }
@@ -112,7 +113,7 @@ Dashboard _0_ecommerce_dashboard_30 {
     label: 'City'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_cities', 'name')
     }
     default {
@@ -123,34 +124,22 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v1: VizBlock {
     label: 'Order Conversion by Country'
     viz: ConversionFunnel {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_ad1924b {
         label: 'delivered orders'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'delivered'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_delivered_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
       calculation f_fc0e443 {
         label: 'cancelled orders'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'cancelled'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_cancelled_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
       calculation f_0f1a86f {
         label: 'refunded order'
-        formula: @aml count(case(
-  when: ecommerce_orders.status == 'refunded'
-  , then: ecommerce_orders.id
-  , else: null
-));;
+        formula: @aml total_refunded_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -189,7 +178,7 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v2: VizBlock {
     label: 'Cumulative Buyers Count'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
         field: ref('ecommerce_users', 'sign_up_date')
         operator: 'matches'
@@ -237,7 +226,7 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v3: VizBlock {
     label: 'Cumulative Buyers Count'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           label: 'Users'
@@ -263,7 +252,7 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v4: VizBlock {
     label: 'GMV Total'
     viz: LineChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc month'
@@ -274,7 +263,7 @@ Dashboard _0_ecommerce_dashboard_30 {
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: '[$$]#,###'
@@ -293,7 +282,7 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v5: VizBlock {
     label: 'Revenue Distribution by Country'
     viz: PieChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       legend: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -303,7 +292,7 @@ Dashboard _0_ecommerce_dashboard_30 {
       series {
         field: VizFieldFull {
           label: ' '
-          ref: ref('order_master', 'revenue')
+          ref: 'revenue'
           format {
             type: 'number'
           }
@@ -319,7 +308,7 @@ Dashboard _0_ecommerce_dashboard_30 {
   block v6: VizBlock {
     label: 'Total Users by Age Demographic'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'age_group')
         format {
@@ -339,6 +328,45 @@ Dashboard _0_ecommerce_dashboard_30 {
       }
       settings {
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Count of Order Id by Country'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: 'total_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -493,7 +521,6 @@ Dashboard _0_ecommerce_dashboard_30 {
         CustomMapping {
           block: [
             'date',
-            'country',
             'category',
             'gender',
             'order_status',
@@ -504,15 +531,6 @@ Dashboard _0_ecommerce_dashboard_30 {
           disabled: true
         }
       ]
-    },
-    FilterInteraction {
-      from: 'city'
-      to: [
-        CustomMapping {
-          block: 'country'
-          field: ref('ecommerce_cities', 'name')
-        }
-      ]
     }
   ]
   view: CanvasLayout {
@@ -520,50 +538,6 @@ Dashboard _0_ecommerce_dashboard_30 {
     width: 1220
     height: 1680
     grid_size: 20
-    block date {
-      position: pos(20, 20, 280, 100)
-      layer: 1
-    }
-    block country {
-      position: pos(320, 20, 280, 100)
-      layer: 1
-    }
-    block category {
-      position: pos(620, 20, 280, 100)
-      layer: 1
-    }
-    block gender {
-      position: pos(920, 20, 280, 100)
-      layer: 1
-    }
-    block order_status {
-      position: pos(20, 140, 280, 100)
-      layer: 1
-    }
-    block item_category {
-      position: pos(320, 140, 280, 100)
-      layer: 1
-    }
-    block order_date {
-      position: pos(620, 140, 280, 100)
-      layer: 1
-    }
-    block user_sign_up_date {
-      position: pos(920, 140, 280, 100)
-      layer: 1
-    }
-    block date_drill {
-      position: pos(20, 260, 280, 100)
-      layer: 1
-    }
-    block sale_comparison {
-      position: pos(320, 260, 280, 100)
-      layer: 1
-    }
-    block city {
-      position: pos(620, 260, 280, 100)
-      layer: 1
-    }
     block v1 {
       position: pos(20, 380, 580, 630)
       layer: 1
@@ -585,7 +559,55 @@ Dashboard _0_ecommerce_dashboard_30 {
       layer: 1
     }
     block v6 {
-      position: pos(20, 1030, 580, 380)
+      position: pos(20, 1030, 580, 350)
+      layer: 1
+    }
+    block v7 {
+      position: pos(20, 1400, 580, 260)
+      layer: 2
+    }
+    block city {
+      position: pos(620, 260, 280, 100)
+      layer: 1
+    }
+    block date {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block gender {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block country {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block category {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(20, 260, 280, 100)
+      layer: 1
+    }
+    block order_date {
+      position: pos(620, 140, 280, 100)
+      layer: 1
+    }
+    block order_status {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block item_category {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block sale_comparison {
+      position: pos(320, 260, 280, 100)
+      layer: 1
+    }
+    block user_sign_up_date {
+      position: pos(920, 140, 280, 100)
       layer: 1
     }
   }

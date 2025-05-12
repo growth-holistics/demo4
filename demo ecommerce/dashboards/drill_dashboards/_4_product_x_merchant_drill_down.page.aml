@@ -1,10 +1,10 @@
-Dashboard _4_product_x_merchant_drill_down {
+Dashboard _4_product_x_merchant_drill_down_demo {
   title: '4. Product X Merchant Drill Down'
   block product: FilterBlock {
     label: 'Product'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'product_google_link')
     }
     default {
@@ -16,6 +16,7 @@ Dashboard _4_product_x_merchant_drill_down {
         enabled: true
         sources: [
           AutoDrillthroughSource {
+            excluded_sources: []
           }
         ]
       }
@@ -27,7 +28,7 @@ Dashboard _4_product_x_merchant_drill_down {
   block v1: VizBlock {
     label: 'Product X Merchant Drill Down'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
         field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
@@ -60,14 +61,14 @@ Dashboard _4_product_x_merchant_drill_down {
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'revenue')
+          ref: 'delivered_value'
           format {
             type: 'number'
             pattern: '[$$]#,###0.00'
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'delivered_orders_count')
+          ref: 'total_delivered_orders'
           format {
             type: 'number'
             pattern: '#,###0.00'
@@ -78,7 +79,7 @@ Dashboard _4_product_x_merchant_drill_down {
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            ref: ref('order_master', 'revenue')
+            ref: 'revenue'
             format: SingleFormat {
               condition {
                 operator: 'less_than_equal'
@@ -89,7 +90,7 @@ Dashboard _4_product_x_merchant_drill_down {
             }
           },
           ConditionalFormat {
-            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            ref: 'total_cancelled_orders'
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'

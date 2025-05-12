@@ -1,0 +1,84 @@
+Dashboard dynamic_multi_dim {
+  title: 'Dynamic Multi Dim'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    mobile {
+      mode: 'auto'
+    }
+    block v1 {
+      position: pos(320, 20, 860, 460)
+      layer: 1
+    }
+    block f1 {
+      position: pos(0, 20, 300, 100)
+      layer: 2
+    }
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'Total Orders by Month Created At and Dynamic Breakdown Dimension'
+    viz: ColumnChart {
+      dataset: khai_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('orders', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('users', 'dynamic_dim')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('orders', 'total_orders')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'left'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Dim Choice'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: khai_ecommerce
+      field: ref('param_model', 'dim_choice')
+    }
+    default {
+      operator: 'is'
+      value: 'Countries'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+}
