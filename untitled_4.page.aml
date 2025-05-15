@@ -110,6 +110,95 @@ Dashboard untitled_4 {
       }
     }
   }
+  block v3: VizBlock {
+    label: 'Top Selling Games'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation total_sales_value {
+        label: 'total_sales_value'
+        formula: @aql order_master | sum(order_master.amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation product_rank_by_sales_value {
+        label: 'product_rank_by_sales_value'
+        formula: @aql rank(order: total_sales_value | desc());;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation untitled_metric_00c3385 {
+        label: 'Untitled Metric'
+        formula: @aql total_sales_value * product_rank_by_sales_value;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: 'product_rank_by_sales_value'
+        operator: 'less_than'
+        value: '11'
+      }
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'product_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Sales Value'
+          ref: 'total_sales_value'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Product Rank By Sales Value'
+          ref: 'product_rank_by_sales_value'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          ref: 'untitled_metric_00c3385'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          },
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          },
+
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     height: 840
@@ -124,6 +213,10 @@ Dashboard untitled_4 {
     block v2 {
       position: pos(660, 160, 400, 300)
       layer: 2
+    }
+    block v3 {
+      position: pos(660, 480, 400, 300)
+      layer: 3
     }
   }
   theme: H.themes.classic
