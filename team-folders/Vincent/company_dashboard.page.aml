@@ -151,47 +151,6 @@ Dashboard company_dashboard_v {
       }
     }
   }
-  block v24: VizBlock {
-    label: 'Users Split by Age Demographic'
-    viz: BarChart {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_users', 'age_group')
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_data_label_by: 'percentage'
-          hidden: true
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'total_users'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#479980'
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block v25: VizBlock {
     label: 'All-Time Merchants'
     viz: MetricKpi {
@@ -227,7 +186,7 @@ Dashboard company_dashboard_v {
     }
   }
   block v27: VizBlock {
-    label: 'Orders by Country'
+    label: 'GMV (Sales) by Country'
     viz: FilledMap {
       dataset: demo_ecommerce_version_2
       theme {
@@ -244,14 +203,13 @@ Dashboard company_dashboard_v {
         primary_field: true
       }
       value: VizFieldFull {
-        ref: 'total_orders'
+        ref: 'gmv'
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       settings {
-        map_background: 'street'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -400,97 +358,171 @@ Dashboard company_dashboard_v {
 </div>;;
   }
   block t7: TextBlock {
-    content: @md # 🏠 Ecommerce Overview
+    content: @md ## 🛍️ Ecommerce Overview  
+This is the **Company Snapshot Dashboard** — your high-level, always-on overview of ecommerce performance.  
+It’s designed to give everyone a shared view of key metrics, customer segments, and market distribution, based on the **latest available data**.
 
-Welcome to the **Company Snapshot Dashboard** — your high-level summary of all-time ecommerce performance.
-
-This tab presents key business metrics **as of today**, without any interactive filters, giving everyone a shared baseline view.
-
----
+> This tab is read-only and shows **cumulative metrics**. For interactive exploration and filters, visit other tabs like **Users**, **Orders**, or **Products**.
 ;;
   }
   block t8: TextBlock {
-    content: @md ## 📊 What's in this overview
+    content: @md ## 📊 What’s in this overview
 
-- **All-Time KPIs**:  
-  Total Orders, Users, Merchants, Products, and Average Order Value.
-  
-- **Monthly KPI Trends**:  
-  Use the metric sheet below to track changes across months.
+- **All-Time Metrics**: Orders, Users, Merchants, Products, and AOV (Average Order Value).
+- **KPI Trend Table**: Monthly breakdowns of orders and GMV to observe trends.
+- **Geographic Distribution**:
+  - **Map** of orders by country
+  - **Bar chart** of GMV by country
+  - **Pie chart** of orders by continent
+- **Customer Demographics**:
+  - Total users split by **gender**
+  - Regional demand footprints;;
+  }
+  block v30: VizBlock {
+    label: 'Total Orders by Continents'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      theme {
 
-- **Order Distribution by Country**:  
-  A global map of where your orders are coming from.
+      }
+      legend: VizFieldFull {
+        label: 'Continent'
+        ref: ref('ecommerce_countries', 'continent_name')
+        format {
+          type: 'text'
+        }
+        uname: 'ecommerce_countries_continent_name'
+      }
+      series {
+        field: VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          color_palette: 0
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        row_limit: 5000
+        legend_label: 'hidden'
+        show_percentage: true
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v31: VizBlock {
+    label: 'GMV (Sales) by Country Name'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      theme {
 
-- **User Demographics**:  
-  Gender and age breakdown of your total user base.
-
----
-
-> This dashboard is *read-only* and fixed to show **cumulative stats**.  
-> For interactive exploration, visit the other tabs like **Users**, **Orders**, or **Products**.
-
----
-
-**📅 Data Last Updated On:**  
-`{{ max(order_created_date) | date: "%A, %d %B %Y" }}`  ;;
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'left'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
   }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
-      label: 'Snapshot'
-      height: 1760
+      label: 'Overview'
+      height: 2360
       grid_size: 20
       block v20 {
-        position: pos(720, 560, 200, 100)
+        position: pos(700, 360, 200, 100)
         layer: 1
       }
       block v21 {
-        position: pos(260, 560, 210, 100)
+        position: pos(240, 360, 210, 100)
         layer: 1
       }
       block v22 {
-        position: pos(40, 560, 200, 100)
+        position: pos(20, 360, 200, 100)
         layer: 2
       }
       block t5 {
-        position: pos(20, 0, 240, 120)
+        position: pos(20, 0, 280, 120)
         layer: 1
       }
       block v23 {
-        position: pos(40, 1740, 520, 300)
+        position: pos(600, 2020, 540, 300)
         layer: 3
       }
-      block v24 {
-        position: pos(580, 1740, 580, 300)
-        layer: 4
-      }
       block v25 {
-        position: pos(480, 560, 220, 100)
+        position: pos(460, 360, 220, 100)
         layer: 1
       }
       block v27 {
-        position: pos(40, 1140, 1140, 580)
+        position: pos(20, 940, 1140, 580)
         layer: 6
       }
       block v28 {
-        position: pos(940, 560, 240, 100)
+        position: pos(920, 360, 240, 100)
         layer: 7
       }
       block v29 {
-        position: pos(40, 680, 1140, 440)
+        position: pos(20, 480, 1140, 440)
         layer: 8
       }
       block t6 {
-        position: pos(880, 0, 280, 120)
+        position: pos(20, 200, 280, 120)
         layer: 9
       }
       block t7 {
-        position: pos(20, 140, 480, 200)
+        position: pos(320, 0, 360, 320)
         layer: 10
       }
       block t8 {
-        position: pos(520, 140, 600, 400)
+        position: pos(680, 0, 480, 320)
         layer: 11
+      }
+      block v30 {
+        position: pos(20, 2020, 540, 300)
+        layer: 12
+      }
+      block v31 {
+        position: pos(20, 1520, 1140, 480)
+        layer: 13
       }
       mobile {
         mode: 'auto'
@@ -502,13 +534,13 @@ This tab presents key business metrics **as of today**, without any interactive 
       width: 1420
       height: 1530
       grid_size: 20
-      block t5 {
-        position: pos(20, 20, 200, 120)
-        layer: 1
-      }
       block t6 {
-        position: pos(240, 20, 280, 120)
+        position: pos(1100, 20, 280, 120)
         layer: 2
+      }
+      block t5 {
+        position: pos(20, 20, 280, 120)
+        layer: 1
       }
     }
   }
