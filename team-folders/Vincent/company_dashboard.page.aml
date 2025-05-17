@@ -775,6 +775,261 @@ This format is especially useful for:
 - While **Asia** contributes the most orders by volume, Western markets like the US, Australia, and Germany outperform in **order value per customer**.
 - This indicates that while demand is global, **spending power is concentrated in a few strategic markets**.;;
   }
+  block v37: VizBlock {
+    label: 'Users Sign Up Over Time'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_users'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '18 months ago till now'
+    }
+  }
+  block v39: VizBlock {
+    label: 'Average Age'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      calculation average_age {
+        label: 'Average Age'
+        formula: @aql average(ecommerce_users.age);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'Average Age'
+        ref: 'average_age'
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v40: VizBlock {
+    label: 'Total Buyers'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        ref: 'total_buyers'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t15: TextBlock {
+    content: @md <hr>;;
+  }
+  block f2: FilterBlock {
+    label: 'Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t16: TextBlock {
+    content: @md ## 👥 User Demographic Insight
+**Analysis Last Updated on 20 May 2025 by Uncle Ben** </br>
+<br>
+Young adult females (under 30) are our most valuable and loyal customer segment — contributing the majority of revenue, orders, and repeat purchases across the board.
+
+---
+
+### 🧑‍🤝‍🧑 Gender Summary
+- **Female users** generated over **$6.8M** in total revenue — more than **2×** male users.
+- They account for **68% of repeat buyers** (3,834 out of 5,682) and **67% of total orders**.
+- Female customers are dominant across all age brackets, with particularly high engagement under 30.
+
+---
+
+### 🎯 Age Group Performance
+- The **20–29** age segment is our largest by both revenue ($4.9M) and orders (16K), across both genders.
+- The **under-20** group is also very active, contributing $4.7M in revenue — mainly driven by females.
+- Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
+  }
+  block v41: VizBlock {
+    label: 'User Demographics'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_316015f {
+        label: 'Untitled Metric'
+        formula: @aql total_repeated_buyers/total_buyers;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_repeated_buyers'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        value_labels_position {
+          placement: 'rows'
+        }
+      }
+    }
+  }
+  block v42: VizBlock {
+    label: 'Total Users by Gender'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'gender')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_data_label_by: 'percentage'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_users'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -868,16 +1123,52 @@ This format is especially useful for:
       height: 1530
       grid_size: 20
       block t6 {
-        position: pos(1100, 20, 280, 120)
+        position: pos(340, 20, 280, 140)
         layer: 2
       }
-      block t5 {
-        position: pos(20, 20, 280, 120)
+      block v34 {
+        position: pos(40, 1680, 800, 580)
         layer: 1
       }
-      block v34 {
-        position: pos(20, 160, 800, 580)
+      block t5 {
+        position: pos(40, 20, 280, 140)
         layer: 1
+      }
+      block v37 {
+        position: pos(40, 1360, 1320, 300)
+        layer: 3
+      }
+      block f1 {
+        position: pos(640, 20, 300, 80)
+        layer: 4
+      }
+      block v39 {
+        position: pos(860, 180, 220, 120)
+        layer: 6
+      }
+      block v40 {
+        position: pos(620, 180, 220, 120)
+        layer: 7
+      }
+      block t15 {
+        position: pos(40, 1200, 1380, 60)
+        layer: 8
+      }
+      block f2 {
+        position: pos(960, 20, 300, 80)
+        layer: 9
+      }
+      block t16 {
+        position: pos(40, 180, 560, 580)
+        layer: 1
+      }
+      block v41 {
+        position: pos(1700, 420, 640, 580)
+        layer: 2
+      }
+      block v42 {
+        position: pos(620, 320, 660, 300)
+        layer: 10
       }
     }
     tab tab3: CanvasLayout {
@@ -901,7 +1192,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -913,7 +1209,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -925,7 +1226,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -937,7 +1243,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -949,7 +1260,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -961,7 +1277,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -973,7 +1294,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -985,7 +1311,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -997,7 +1328,12 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
-            'v35'
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -1039,7 +1375,12 @@ This format is especially useful for:
             'v30',
             'v31',
             'v34',
-            'v36'
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
           ]
           disabled: true
         }
@@ -1051,9 +1392,149 @@ This format is especially useful for:
         CustomMapping {
           block: [
             'v34',
+            'v35',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v37'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v39'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v40'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
             'v35'
           ]
           disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v41'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v42'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'v37'
+          field: ref('ecommerce_users', 'sign_up_at')
         }
       ]
     }
