@@ -8,18 +8,20 @@ Dashboard company_dashboard_v {
 ![Holistics Logo](https://cdn.holistics.io/landing/logo-color.svg);;
   }
   block v20: VizBlock {
-    label: 'All-Time Products'
+    label: 'Products Listed'
     viz: MetricKpi {
       dataset: demo_ecommerce_version_2
       theme {
 
       }
       value: VizFieldFull {
-        label: 'All-Time Products'
+        label: 'Products Listed'
         ref: ref('ecommerce_products', 'total_products')
         format {
           type: 'number'
           pattern: '#,###'
+          group_separator: ','
+          decimal_separator: '.'
         }
       }
       compare_value: VizPopSettings {
@@ -41,14 +43,14 @@ Dashboard company_dashboard_v {
     }
   }
   block v21: VizBlock {
-    label: 'All-Time Users'
+    label: 'Total Users'
     viz: MetricKpi {
       dataset: demo_ecommerce_version_2
       theme {
 
       }
       value: VizFieldFull {
-        label: 'All-Time Users'
+        label: 'Total Users'
         ref: 'total_users'
         format {
           type: 'number'
@@ -106,60 +108,15 @@ Dashboard company_dashboard_v {
       hide_label: true
     }
   }
-  block v23: VizBlock {
-    label: 'Total Users by Gender'
-    viz: PieChart {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_users', 'gender')
-        format {
-          type: 'text'
-        }
-      }
-      series {
-        field: VizFieldFull {
-          ref: 'total_users'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-        settings {
-          point {
-            value: 'Female'
-            color: '#EA7A81'
-          }
-          point {
-            value: 'Male'
-            color: '#92AEEA'
-          }
-        }
-      }
-      settings {
-        show_total: true
-        row_limit: 5000
-        legend_label: 'hidden'
-        show_percentage: true
-        data_label_position: 'outside'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block v25: VizBlock {
-    label: 'All-Time Merchants'
+    label: 'Merchants Onboarded'
     viz: MetricKpi {
       dataset: demo_ecommerce_version_2
       theme {
 
       }
       value: VizFieldFull {
-        label: 'All-Time Merchants'
+        label: 'Merchants Onboarded'
         ref: ref('ecommerce_merchants', 'created_at')
         aggregation: 'count'
         format {
@@ -249,11 +206,6 @@ Dashboard company_dashboard_v {
     label: ' KPI Overview'
     viz: MetricSheet {
       dataset: demo_ecommerce_version_2
-      filter {
-        field: ref('dim_dates', 'date_key')
-        operator: 'matches'
-        value: '12 months ago till now'
-      }
       theme {
 
       }
@@ -345,6 +297,7 @@ Dashboard company_dashboard_v {
         }
       ]
       settings {
+        max_column: 7
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -450,7 +403,7 @@ This tab provides a company-wide snapshot that brings together key indicators of
       }
       settings {
         row_limit: 5000
-        legend_label: 'left'
+        legend_label: 'hidden'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
@@ -459,110 +412,53 @@ This tab provides a company-wide snapshot that brings together key indicators of
       }
     }
   }
-  block v32: VizBlock {
-    label: 'Top Merchants by Revenue'
-    viz: PivotTable {
-      dataset: demo_ecommerce_version_2
-      filter {
-        field: ref('ecommerce_merchants', 'name')
-        operator: 'top'
-        value: 10
-        options {
-          rank_by {
-            field: 'revenue'
-            aggregation: 'custom'
-            logic: 'standard'
-          }
-        }
-      }
-      theme {
-        table {
-          general {
-            bg_color: '#FFFFFFFF'
-            font_size: 16
-            cell_padding {
-              top: 7
-              left: 8
-              bottom: 7
-              right: 8
-            }
-            borders {
-              outer: true
-              vertical: true
-              header: true
-              row_header: true
-            }
-          }
-        }
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Merchant'
-          ref: ref('ecommerce_merchants', 'name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_merchants_name'
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: '[$$]#,###'
-          }
-        },
-        VizFieldFull {
-          label: 'PoT Revenue'
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: '#,###%'
-          }
-          analytic: PercentOfTotalField {
-            of_all: 'grand_total'
-          }
-          uname: 'custom_revenue_1'
-        }
-      ]
-      settings {
-        row_height: 'multiple_lines'
-        show_row_total: true
-        show_column_total: true
-        conditional_formats: [
-          ConditionalFormat {
-            key: 'custom_revenue_1'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 0.1
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          }
-        ]
-        sorts: [
-          SortSetting {
-            field_index: 1
-            direction: 'desc'
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        column_styles: [
-          ColumnStyle {
-            key: 'ecommerce_merchants_name'
-            width: 245
-          }
-        ]
-      }
-    }
+  block t9: TextBlock {
+    content: @md ## 🌍 Regional Sales Distribution Insight
+**Analysis Last Updated on 20 May 2025 by Peter Parker** </br>
+
+Our sales performance is anchored in developed Western markets, with the United States, Australia, and Germany emerging as our top revenue contributors — while order activity remains strongest in Asia.
+
+---
+### 💵 Top Revenue Regions
+- **United States** leads in total GMV at **$1.34M**, followed closely by:
+  - **Australia**: $1.24M
+  - **Germany**: $1.24M
+- These three countries alone contribute over **36%** of total GMV across the top 10 markets.
+
+---
+
+### 📦 Order Volume vs. Value
+- While **Asia** contributes the most orders by volume, Western markets like the US, Australia, and Germany outperform in **order value per customer**.
+- This indicates that while demand is global, **spending power is concentrated in a few strategic markets**.
+
+---
+
+### 🌐 Regional Performance Takeaways
+- **North America** and **Europe** offer the highest-value customers.
+- **Asia-Pacific** shows strong engagement and scale, ideal for volume-based growth.
+- These patterns validate our positioning in established ecommerce markets, while highlighting opportunities to increase monetization in high-volume regions like Asia.;;
   }
-  block v33: VizBlock {
+  block t10: TextBlock {
+    content: @md ## 👥 User Demographic Insight
+**Analysis Last Updated on 20 May 2025 by Uncle Ben** </br>
+<br>
+Young adult females (under 30) are our most valuable and loyal customer segment — contributing the majority of revenue, orders, and repeat purchases across the board.
+
+---
+
+### 🧑‍🤝‍🧑 Gender Summary
+- **Female users** generated over **$6.8M** in total revenue — more than **2×** male users.
+- They account for **68% of repeat buyers** (3,834 out of 5,682) and **67% of total orders**.
+- Female customers are dominant across all age brackets, with particularly high engagement under 30.
+
+---
+
+### 🎯 Age Group Performance
+- The **20–29** age segment is our largest by both revenue ($4.9M) and orders (16K), across both genders.
+- The **under-20** group is also very active, contributing $4.7M in revenue — mainly driven by females.
+- Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
+  }
+  block v34: VizBlock {
     label: 'Top 10 Users by Orders'
     viz: PivotTable {
       dataset: demo_ecommerce_version_2
@@ -678,46 +574,272 @@ This tab provides a company-wide snapshot that brings together key indicators of
       }
     }
   }
+  block v35: VizBlock {
+    label: 'Top Merchants by Revenue'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: ref('ecommerce_merchants', 'name')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: 'revenue'
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Merchant'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_merchants_name'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'PoT Revenue'
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PercentOfTotalField {
+            of_all: 'grand_total'
+          }
+          uname: 'custom_revenue_1'
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_revenue_1'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0.1
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_merchants_name'
+            width: 245
+          }
+        ]
+      }
+    }
+  }
+  block v36: VizBlock {
+    label: 'User Demographics'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_316015f {
+        label: 'Untitled Metric'
+        formula: @aql total_repeated_buyers/total_buyers;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_repeated_buyers'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        value_labels_position {
+          placement: 'rows'
+        }
+      }
+    }
+  }
+  block t11: TextBlock {
+    content: @md ## 📊 Platform Growth Summary
+
+This section highlights our **all-time platform performance**, capturing key milestones across both customer engagement and supply-side activity.
+
+These metrics are designed to offer a concise snapshot of how our ecosystem has scaled — from user acquisition and merchant onboarding to transaction volume and retention.
+
+- **Total Users** reflects our cumulative reach on the demand side.
+- **Merchants Onboarded** and **Products Listed** illustrate the breadth and growth of our supplier network.
+- **All-Time Orders** and **Average Order Value (AOV)** capture marketplace activity and monetization health.
+- **Total Repeated Buyers** is a signal of customer loyalty and returning purchase behavior — a leading indicator of long-term retention and LTV.;;
+  }
+  block v37: VizBlock {
+    label: 'Total Repeat Buyers'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        ref: 'total_repeated_buyers'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t12: TextBlock {
+    content: @md ## 📑 Executive KPI Metrics Sheet
+
+This table provides a **flexible, high-level view of our key business metrics** across time — allowing senior leaders to analyze performance in a familiar tabular format.
+
+You can adjust:
+- **Date aggregation** (e.g., daily, weekly, monthly, quarterly, yearly)
+- **Time range columns** to fit the review period
+
+This format is especially useful for:
+- Board meetings or investor updates
+- Period-over-period tracking of orders, revenue, and fulfillment performance
+- Deep-diving into patterns that require more granularity than charts alone can offer
+
+> For executives who are accustomed to working in spreadsheets, this table provides an accessible way to track performance trends and validate key figures in a structured format — from top-line metrics down to operational breakdowns.
+;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: 'Overview'
-      height: 3040
+      height: 3440
       grid_size: 20
       block v20 {
-        position: pos(780, 360, 200, 100)
+        position: pos(1180, 480, 220, 120)
         layer: 1
       }
       block v21 {
-        position: pos(320, 360, 210, 100)
+        position: pos(940, 340, 220, 120)
         layer: 1
       }
       block v22 {
-        position: pos(100, 360, 200, 100)
+        position: pos(680, 340, 240, 120)
         layer: 2
       }
       block t5 {
         position: pos(20, 0, 280, 120)
         layer: 1
       }
-      block v23 {
-        position: pos(600, 2020, 800, 300)
-        layer: 3
-      }
       block v25 {
-        position: pos(540, 360, 220, 100)
+        position: pos(1180, 340, 220, 120)
         layer: 1
       }
       block v27 {
-        position: pos(20, 940, 1380, 580)
+        position: pos(620, 1620, 780, 580)
         layer: 6
       }
       block v28 {
-        position: pos(1000, 360, 240, 100)
+        position: pos(680, 480, 240, 120)
         layer: 7
       }
       block v29 {
-        position: pos(20, 480, 1380, 440)
+        position: pos(40, 1060, 1340, 440)
         layer: 8
       }
       block t6 {
@@ -733,20 +855,36 @@ This tab provides a company-wide snapshot that brings together key indicators of
         layer: 11
       }
       block v30 {
-        position: pos(20, 2020, 540, 300)
+        position: pos(20, 2360, 580, 440)
         layer: 12
       }
       block v31 {
-        position: pos(20, 1520, 1380, 480)
+        position: pos(620, 2220, 780, 580)
         layer: 13
       }
-      block v32 {
-        position: pos(20, 2340, 540, 580)
-        layer: 14
+      block t9 {
+        position: pos(20, 1620, 580, 720)
+        layer: 15
       }
-      block v33 {
-        position: pos(600, 2340, 800, 580)
-        layer: 14
+      block t10 {
+        position: pos(20, 2840, 560, 580)
+        layer: 16
+      }
+      block v36 {
+        position: pos(600, 2840, 800, 580)
+        layer: 17
+      }
+      block t11 {
+        position: pos(40, 340, 620, 360)
+        layer: 18
+      }
+      block v37 {
+        position: pos(940, 480, 220, 120)
+        layer: 1
+      }
+      block t12 {
+        position: pos(40, 720, 620, 320)
+        layer: 19
       }
       mobile {
         mode: 'auto'
@@ -754,7 +892,7 @@ This tab provides a company-wide snapshot that brings together key indicators of
       width: 1420
     }
     tab tab1: CanvasLayout {
-      label: 'Tab 1'
+      label: 'Users'
       width: 1420
       height: 1530
       grid_size: 20
@@ -766,7 +904,201 @@ This tab provides a company-wide snapshot that brings together key indicators of
         position: pos(20, 20, 280, 120)
         layer: 1
       }
+      block v34 {
+        position: pos(20, 160, 800, 580)
+        layer: 1
+      }
+    }
+    tab tab3: CanvasLayout {
+      label: 'Merchants'
+      height: 800
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
+      block v35 {
+        position: pos(20, 20, 540, 580)
+        layer: 1
+      }
     }
   }
   theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'v20'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v21'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v22'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v25'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v27'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v28'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v29'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v30'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v31'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v34'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v35',
+            'v36',
+            'v37'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v35'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v36',
+            'v37'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v36'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v37'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
 }
