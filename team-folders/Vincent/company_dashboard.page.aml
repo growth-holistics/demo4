@@ -358,25 +358,20 @@ Dashboard company_dashboard_v {
 </div>;;
   }
   block t7: TextBlock {
-    content: @md ## 🛍️ Ecommerce Overview  
-This is the **Company Snapshot Dashboard** — your high-level, always-on overview of ecommerce performance.  
-It’s designed to give everyone a shared view of key metrics, customer segments, and market distribution, based on the **latest available data**.
+    content: @md ## 📦 Dashboard Overview
 
-> This tab is read-only and shows **cumulative metrics**. For interactive exploration and filters, visit other tabs like **Users**, **Orders**, or **Products**.
-;;
+Use this tab to get a **big-picture health check** of your ecommerce business.
+
+This tab provides a **company-wide snapshot** that brings together key indicators of performance, geography, and customer behavior — helping your team stay aligned on how the business is doing. It’s designed for daily visibility and strategic awareness across all teams.;;
   }
   block t8: TextBlock {
-    content: @md ## 📊 What’s in this overview
+    content: @md ## 🧠 How to use this dashboard
 
-- **All-Time Metrics**: Orders, Users, Merchants, Products, and AOV (Average Order Value).
-- **KPI Trend Table**: Monthly breakdowns of orders and GMV to observe trends.
-- **Geographic Distribution**:
-  - **Map** of orders by country
-  - **Bar chart** of GMV by country
-  - **Pie chart** of orders by continent
-- **Customer Demographics**:
-  - Total users split by **gender**
-  - Regional demand footprints;;
+- This tab is **static and filter-free**, optimized for **executive monitoring** and **team-wide alignment**.
+- Read the KPIs from top to bottom — starting from volume metrics to customer insights.
+- Use the tables, charts, and maps to spot trends, regional dynamics, and potential opportunities.
+- Metrics are **cumulative** and automatically updated with the latest data.
+- To explore data in more detail or apply filters, head to the other tabs like **Users**, **Orders**, or **Locations**.;;
   }
   block v30: VizBlock {
     label: 'Total Orders by Continents'
@@ -462,22 +457,241 @@ It’s designed to give everyone a shared view of key metrics, customer segments
       }
     }
   }
+  block v32: VizBlock {
+    label: 'Top Merchants by Revenue'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: ref('ecommerce_merchants', 'name')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: 'revenue'
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Merchant'
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_merchants_name'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'PoT Revenue'
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PercentOfTotalField {
+            of_all: 'grand_total'
+          }
+          uname: 'custom_revenue_1'
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_revenue_1'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 0.1
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_merchants_name'
+            width: 245
+          }
+        ]
+      }
+    }
+  }
+  block v33: VizBlock {
+    label: 'Top 10 Users by Orders'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: ref('ecommerce_users', 'email_pii')
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: 'total_orders'
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_users_full_name'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_name'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'days_since_last_order')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_days_since_last_order'
+        }
+      ]
+      settings {
+        row_height: 'multiple_lines'
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_days_since_last_order'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 90
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_users_full_name'
+            width: 175
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 156
+          }
+        ]
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: 'Overview'
-      height: 2360
+      height: 3040
       grid_size: 20
       block v20 {
-        position: pos(700, 360, 200, 100)
+        position: pos(780, 360, 200, 100)
         layer: 1
       }
       block v21 {
-        position: pos(240, 360, 210, 100)
+        position: pos(320, 360, 210, 100)
         layer: 1
       }
       block v22 {
-        position: pos(20, 360, 200, 100)
+        position: pos(100, 360, 200, 100)
         layer: 2
       }
       block t5 {
@@ -485,35 +699,35 @@ It’s designed to give everyone a shared view of key metrics, customer segments
         layer: 1
       }
       block v23 {
-        position: pos(600, 2020, 540, 300)
+        position: pos(600, 2020, 800, 300)
         layer: 3
       }
       block v25 {
-        position: pos(460, 360, 220, 100)
+        position: pos(540, 360, 220, 100)
         layer: 1
       }
       block v27 {
-        position: pos(20, 940, 1140, 580)
+        position: pos(20, 940, 1380, 580)
         layer: 6
       }
       block v28 {
-        position: pos(920, 360, 240, 100)
+        position: pos(1000, 360, 240, 100)
         layer: 7
       }
       block v29 {
-        position: pos(20, 480, 1140, 440)
+        position: pos(20, 480, 1380, 440)
         layer: 8
       }
       block t6 {
-        position: pos(20, 200, 280, 120)
+        position: pos(20, 140, 280, 120)
         layer: 9
       }
       block t7 {
-        position: pos(320, 0, 360, 320)
+        position: pos(320, 0, 400, 260)
         layer: 10
       }
       block t8 {
-        position: pos(680, 0, 480, 320)
+        position: pos(760, 0, 620, 260)
         layer: 11
       }
       block v30 {
@@ -521,13 +735,21 @@ It’s designed to give everyone a shared view of key metrics, customer segments
         layer: 12
       }
       block v31 {
-        position: pos(20, 1520, 1140, 480)
+        position: pos(20, 1520, 1380, 480)
         layer: 13
+      }
+      block v32 {
+        position: pos(20, 2340, 540, 580)
+        layer: 14
+      }
+      block v33 {
+        position: pos(600, 2340, 800, 580)
+        layer: 14
       }
       mobile {
         mode: 'auto'
       }
-      width: 1180
+      width: 1420
     }
     tab tab1: CanvasLayout {
       label: 'Tab 1'
