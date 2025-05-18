@@ -117,29 +117,6 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql count(ecommerce_users.id) ;;
   }
 
-  metric retention {
-    label: 'Cohort Retention'
-    type: 'number'
-    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
-    format: "#,###0.00%"
-  }
-
-  metric total_buyers {
-    label: "Total Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
-  }
-
-  metric total_repeated_buyers {
-    label: "Total Repeated Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
-  }
-
   metric total_orders {
     label: "Total Orders"
     type: "number"
@@ -156,14 +133,16 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
     format: "[\$\$]#,###0"
   }
-  metric revenue {
-    label: "Total Revenue (Platform)"
+
+  metric total_discount {
+    label: "Total Discount"
     type: "number"
     hidden: false
-    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
-    definition: @aql nmv * revenue_commission;;
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
     format: "[\$\$]#,###0"
   }
+  
   metric nmv {
     label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
     type: "number"
@@ -173,12 +152,12 @@ Dataset demo_ecommerce_version_2 {
     format: "[\$\$]#,###0"
   }
 
-  metric total_discount {
-    label: "Total Discount"
+  metric revenue {
+    label: "Total Revenue (Platform)"
     type: "number"
     hidden: false
-    description: "Total Discount: Total discount value of all orders."
-    definition: @aql gmv - revenue;;
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
     format: "[\$\$]#,###0"
   }
 
@@ -276,6 +255,31 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
     format: "[\$\$]#,###0"
   }
+
+
+  metric retention {
+    label: 'Cohort Retention'
+    type: 'number'
+    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+    format: "#,###0.00%"
+  }
+
+  metric total_buyers {
+    label: "Total Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+  }
+
+  metric total_repeated_buyers {
+    label: "Total Repeated Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
+  }
+
 
   metric running_total {
     label: "Running Total Orders"
