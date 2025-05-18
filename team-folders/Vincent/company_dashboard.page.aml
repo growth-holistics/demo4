@@ -1137,31 +1137,68 @@ Use this to:
     }
   }
   block t21: TextBlock {
-    content: @md ### 🧾 Understanding GMV, NMV, Discounts, and Revenue
+    content: @md ### 🧠 Concept Alignment: GMV, NMV, Discounts, and Revenue
 
-This section walks through how value flows from what customers **intend to pay**, to what the platform **actually earns**:
+To ensure consistent interpretation of financial metrics, here’s how value flows through the order lifecycle and how each metric is defined:
 
 1. **GMV (Gross Merchandise Value)**  
-   → The total value of all customer orders before any discounts or fulfillment filters.  
+   The total value of all orders before any discounts or fulfillment status is applied.  
    _Formula: Quantity × Price (all orders)_
 
 2. **Total Discount**  
-   → The difference between the original order value (GMV) and what the customer actually paid for fulfilled orders.  
+   The monetary value of all discounts offered. It reflects the difference between what customers could have paid (GMV) and what they actually paid for fulfilled orders.  
    _Formula: GMV – NMV_
 
 3. **NMV (Net Merchandise Value – Post-Discount & Fulfillment)**  
-   → The actual amount **paid** by customers for **successfully fulfilled** orders, after subtracting discounts and excluding cancelled/refunded orders.  
-   This serves as the **true revenue base**.  
+   The actual amount paid by customers for orders that were **fulfilled** and **not cancelled or refunded**, adjusted for any applied discounts.  
+   This is the true revenue base — the value realized by the platform before commission.  
    _Formula: Quantity × Price × (1 – Discount), only for fulfilled orders_
 
 4. **Revenue (Platform)**  
-   → The portion of NMV that the platform earns as commission.  
-   In this demo, we assume a **50% commission margin**.  
-   _Formula: NMV × Commission Rate (0.5)_
+   The amount our platform earns by applying a commission rate to NMV.  
+   In this demo, a **50% commission margin** is assumed.  
+   _Formula: NMV × revenue_commission_
+;;
+  }
+  block v44: VizBlock {
+    label: 'GMV - Gross Merchandise Value by Quarter Created At and Parent Category'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
 
----
-
-> 💡 This flow allows you to diagnose how much customer value is lost due to **discounts**, and how much is kept as **revenue** after filtering for fulfillment quality.;;
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
   }
   view: TabLayout {
     label: 'View 1'
@@ -1255,7 +1292,7 @@ This section walks through how value flows from what customers **intend to pay**
       height: 1160
       grid_size: 20
       block f3 {
-        position: pos(640, 340, 260, 100)
+        position: pos(720, 360, 260, 100)
         layer: 2
       }
       block t17 {
@@ -1267,16 +1304,21 @@ This section walks through how value flows from what customers **intend to pay**
         layer: 5
       }
       block f4 {
-        position: pos(920, 340, 260, 100)
+        position: pos(1000, 360, 260, 100)
         layer: 6
       }
       block t21 {
-        position: pos(40, 340, 600, 400)
+        position: pos(20, 360, 680, 460)
         layer: 8
+      }
+      block v44 {
+        position: pos(720, 480, 600, 340)
+        layer: 9
       }
       mobile {
         mode: 'auto'
       }
+      width: 1340
     }
     tab tab4: CanvasLayout {
       label: 'Products'
@@ -1379,7 +1421,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1397,7 +1440,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1415,7 +1459,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1433,7 +1478,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1451,7 +1497,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1469,7 +1516,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1487,7 +1535,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1505,7 +1554,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1523,7 +1573,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1544,7 +1595,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1571,7 +1623,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1589,7 +1642,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v44'
           ]
           disabled: true
         }
@@ -1610,7 +1664,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1631,7 +1686,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1652,7 +1708,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1673,7 +1730,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v34',
-            'v35'
+            'v35',
+            'v44'
           ]
           disabled: true
         }
@@ -1703,7 +1761,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1724,7 +1783,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1745,7 +1805,8 @@ This section walks through how value flows from what customers **intend to pay**
             'v30',
             'v31',
             'v35',
-            'v36'
+            'v36',
+            'v44'
           ]
           disabled: true
         }
@@ -1784,6 +1845,34 @@ This section walks through how value flows from what customers **intend to pay**
       to: [
         CustomMapping {
           block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v44'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43'
+          ]
           disabled: true
         }
       ]
