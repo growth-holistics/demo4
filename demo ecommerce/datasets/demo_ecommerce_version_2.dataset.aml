@@ -161,17 +161,15 @@ Dataset demo_ecommerce_version_2 {
     type: "number"
     hidden: false
     description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
-    definition: @aql ((ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded'])
-)* revenue_commission;;
+    definition: @aql nmv * revenue_commission;;
     format: "[\$\$]#,###0"
   }
-
   metric nmv {
     label: "NMV - Net Merchandise Value"
     type: "number"
-    description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
     hidden: false
-    definition: @aql gmv | where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
     format: "[\$\$]#,###0"
   }
 
