@@ -48,20 +48,6 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
 
-  metric total_users {
-    label: 'Total Users'
-    type: 'number'
-    description: "Total number of users"
-    definition: @aql count(ecommerce_users.id) ;;
-  }
-
-  metric retention {
-    label: 'Cohort Retention'
-    type: 'number'
-    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
-    format: "#,###0.00%"
-  }
-
   dimension total_orders_all_time {
     model: ecommerce_users
     label: 'Total Orders (Users)'
@@ -81,22 +67,6 @@ Dataset demo_ecommerce_version_2 {
     label: 'Is Repeated Buyer'
     type: 'truefalse'
     definition: @aql ecommerce_users.total_orders_all_time > 1;;
-  }
-
-  metric total_buyers {
-    label: "Total Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
-  }
-
-  metric total_repeated_buyers {
-    label: "Total Repeated Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
   }
 
   dimension product_performance_analysis {
@@ -121,6 +91,55 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />') ;;
   }
 
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: ecommerce_orders
+    definition: @aql case(
+        when: 'Country Names' in param_model_nam.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_nam.dim_selections
+        , then: ecommerce_orders.status
+
+        , else: ecommerce_countries.name
+      ) ;;
+  }
+
+  metric total_users {
+    label: 'Total Users'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric retention {
+    label: 'Cohort Retention'
+    type: 'number'
+    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+    format: "#,###0.00%"
+  }
+
+  metric total_buyers {
+    label: "Total Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+  }
+
+  metric total_repeated_buyers {
+    label: "Total Repeated Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
+  }
+
   metric total_orders {
     label: "Total Orders"
     type: "number"
@@ -137,13 +156,12 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
     format: "[\$\$]#,###0"
   }
-
   metric revenue {
-    label: "Total Revenue"
+    label: "Platform Revenue (Commission-Based)"
     type: "number"
     hidden: false
-    description: "Total Revenue: Total value of all orders after discount."
-    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount));;
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
     format: "[\$\$]#,###0"
   }
 
@@ -284,24 +302,13 @@ Dataset demo_ecommerce_version_2 {
       )
      ;;
   }
-
-  dimension breakdown_dim {
-    label: 'Dynamic Breakdown Dimension'
-    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
-    type: 'text'
-    model: ecommerce_orders
-    definition: @aql case(
-        when: 'Country Names' in param_model_nam.dim_selections
-        , then: ecommerce_countries.name
-
-        , when: 'Age Demographic' in param_model_nam.dim_selections
-        , then: ecommerce_users.age_group
-
-        , when: 'Order Status' in param_model_nam.dim_selections
-        , then: ecommerce_orders.status
-
-        , else: ecommerce_countries.name
-      ) ;;
+  metric revenue_commission {
+    label: "Revenue Commission Rate (Demo from May 2025)"
+    type: "number"
+    hidden: false
+    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    definition: @aql 0.5;;
+    format: "#,###%"
   }
 
   owner: 'vincent@holistics.io'
