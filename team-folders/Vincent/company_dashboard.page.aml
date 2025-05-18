@@ -1097,86 +1097,6 @@ Young adult females (under 30) are our most valuable and loyal customer segment 
       }
     }
   }
-  block v44: VizBlock {
-    label: 'GMV and NMV Over Time'
-    viz: CombinationChart {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
-        transformation: 'datetrunc quarter'
-        format {
-          type: 'date'
-          pattern: 'yyyy Qq'
-        }
-      }
-      y_axis {
-        series {
-          mark_type: 'column'
-          field: VizFieldFull {
-            ref: 'gmv'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#C8D7F4'
-            color_palette: 0
-          }
-        }
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            ref: 'nmv'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#255DD4'
-            color_palette: 0
-          }
-        }
-      }
-      tooltips: [
-        VizTooltip {
-          field: VizFieldFull {
-            ref: 'aov'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        row_limit: 5000
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    description: @md ###### 💡 What are GMV and NMV?
-
-**Formulas:**  
-• GMV = Quantity × Price (all orders)  
-• NMV = GMV minus cancelled and refunded orders
-
-**GMV (Gross Merchandise Value):**  
-Represents the total value of all customer orders — before any refunds or cancellations.
-
-**NMV (Net Merchandise Value):**  
-Reflects the actual value of fulfilled orders. A better indicator of what was truly sold.
-
-**In short:**  
-GMV shows *demand* while NMV shows *realized demand*.;;
-  }
   block f3: FilterBlock {
     label: 'Date'
     type: 'date'
@@ -1201,65 +1121,6 @@ Use this to:
 - Quantify the **true revenue contribution** to the platform
 - Enable finance and ops teams to **forecast, benchmark, and optimize earnings**;;
   }
-  block v45: VizBlock {
-    label: 'GMV and NMV Over Time (Data Table)'
-    viz: DataTable {
-      dataset: demo_ecommerce_version_2
-      theme {
-        table {
-          general {
-            bg_color: '#C8D7F4'
-            borders {
-              outer: true
-              vertical: true
-              horizontal: true
-            }
-          }
-        }
-      }
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'created_at')
-          transformation: 'datetrunc quarter'
-          format {
-            type: 'date'
-            pattern: 'yyyy Qq'
-          }
-        },
-        VizFieldFull {
-          ref: 'gmv'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'nmv'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        sorts: [
-          SortSetting {
-            field_index: 0
-            direction: 'desc'
-          }
-        ]
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block t19: TextBlock {
     content: @md <hr>;;
   }
@@ -1275,15 +1136,32 @@ Use this to:
       value: []
     }
   }
-  block t20: TextBlock {
-    content: @md ### 📈 GMV and NMV Over Time
-Monitor how customer demand (GMV) converts into realized sales (NMV) over time.
+  block t21: TextBlock {
+    content: @md ### 🧾 Understanding GMV, NMV, Discounts, and Revenue
 
-**GMV (Gross Merchandise Value):**  
-Represents the total value of all customer orders — before any refunds or cancellations.
+This section walks through how value flows from what customers **intend to pay**, to what the platform **actually earns**:
 
-**NMV (Net Merchandise Value):**  
-Reflects the actual value of fulfilled orders. A better indicator of what was truly sold.;;
+1. **GMV (Gross Merchandise Value)**  
+   → The total value of all customer orders before any discounts or fulfillment filters.  
+   _Formula: Quantity × Price (all orders)_
+
+2. **Total Discount**  
+   → The difference between the original order value (GMV) and what the customer actually paid for fulfilled orders.  
+   _Formula: GMV – NMV_
+
+3. **NMV (Net Merchandise Value – Post-Discount & Fulfillment)**  
+   → The actual amount **paid** by customers for **successfully fulfilled** orders, after subtracting discounts and excluding cancelled/refunded orders.  
+   This serves as the **true revenue base**.  
+   _Formula: Quantity × Price × (1 – Discount), only for fulfilled orders_
+
+4. **Revenue (Platform)**  
+   → The portion of NMV that the platform earns as commission.  
+   In this demo, we assume a **50% commission margin**.  
+   _Formula: NMV × Commission Rate (0.5)_
+
+---
+
+> 💡 This flow allows you to diagnose how much customer value is lost due to **discounts**, and how much is kept as **revenue** after filtering for fulfillment quality.;;
   }
   view: TabLayout {
     label: 'View 1'
@@ -1376,33 +1254,25 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
       label: 'Finance'
       height: 1160
       grid_size: 20
-      block v44 {
-        position: pos(20, 620, 600, 540)
-        layer: 1
-      }
       block f3 {
-        position: pos(640, 580, 260, 100)
+        position: pos(640, 340, 260, 100)
         layer: 2
       }
       block t17 {
         position: pos(20, 0, 620, 280)
         layer: 3
       }
-      block v45 {
-        position: pos(640, 720, 540, 380)
-        layer: 1
-      }
       block t19 {
         position: pos(20, 300, 1180, 20)
         layer: 5
       }
       block f4 {
-        position: pos(920, 580, 260, 100)
+        position: pos(920, 340, 260, 100)
         layer: 6
       }
-      block t20 {
-        position: pos(20, 340, 500, 260)
-        layer: 7
+      block t21 {
+        position: pos(40, 340, 600, 400)
+        layer: 8
       }
       mobile {
         mode: 'auto'
@@ -1509,9 +1379,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1529,9 +1397,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1549,9 +1415,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1569,9 +1433,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1589,9 +1451,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1609,9 +1469,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1629,9 +1487,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1649,9 +1505,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1669,9 +1523,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1692,9 +1544,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1721,9 +1571,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1741,9 +1589,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v40',
             'v41',
             'v42',
-            'v43',
-            'v44',
-            'v45'
+            'v43'
           ]
           disabled: true
         }
@@ -1764,9 +1610,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1787,9 +1631,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1810,9 +1652,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1833,9 +1673,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v34',
-            'v35',
-            'v44',
-            'v45'
+            'v35'
           ]
           disabled: true
         }
@@ -1865,9 +1703,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1888,9 +1724,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
+            'v36'
           ]
           disabled: true
         }
@@ -1911,65 +1745,7 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
             'v30',
             'v31',
             'v35',
-            'v36',
-            'v44',
-            'v45'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v44'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v39',
-            'v40',
-            'v41',
-            'v42',
-            'v43'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v45'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v39',
-            'v40',
-            'v41',
-            'v42',
-            'v43'
+            'v36'
           ]
           disabled: true
         }
@@ -2018,18 +1794,6 @@ Reflects the actual value of fulfilled orders. A better indicator of what was tr
         CustomMapping {
           block: 'v37'
           field: ref('ecommerce_users', 'sign_up_at')
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: [
-            'v44',
-            'v45'
-          ]
-          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     }
