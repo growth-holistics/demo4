@@ -165,10 +165,10 @@ Dataset demo_ecommerce_version_2 {
     format: "[\$\$]#,###0"
   }
   metric nmv {
-    label: "NMV - Net Merchandise Value"
+    label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
     type: "number"
     hidden: false
-    description: "NMV - Net Merchandise Value: Total value of all non-cancelled and non-refunded orders."
+    description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
     definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
     format: "[\$\$]#,###0"
   }
