@@ -1203,6 +1203,66 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   block t22: TextBlock {
     content: @md <hr>;;
   }
+  block v45: VizBlock {
+    label: 'Total Orders vs Net Orders'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation net_orders {
+        label: 'Net Orders'
+        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_order_ratio {
+        label: 'Net Order Ratio'
+        formula: @aql net_orders/total_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_at')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'net_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'net_order_ratio'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -1292,7 +1352,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
     }
     tab tab6: CanvasLayout {
       label: 'Finance'
-      height: 1160
+      height: 1260
       grid_size: 20
       block f3 {
         position: pos(640, 360, 320, 100)
@@ -1321,6 +1381,10 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
       block t22 {
         position: pos(20, 900, 1280, 20)
         layer: 1
+      }
+      block v45 {
+        position: pos(20, 940, 620, 300)
+        layer: 10
       }
       mobile {
         mode: 'auto'
@@ -1429,7 +1493,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1448,7 +1513,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1467,7 +1533,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1486,7 +1553,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1505,7 +1573,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1524,7 +1593,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1543,7 +1613,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1562,7 +1633,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1581,7 +1653,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1603,7 +1676,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1631,7 +1705,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1650,7 +1725,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v41',
             'v42',
             'v43',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1672,7 +1748,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1694,7 +1771,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1716,7 +1794,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1738,7 +1817,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v34',
             'v35',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1769,7 +1849,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1791,7 +1872,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1813,7 +1895,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v31',
             'v35',
             'v36',
-            'v44'
+            'v44',
+            'v45'
           ]
           disabled: true
         }
@@ -1858,6 +1941,34 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
     },
     FilterInteraction {
       from: 'v44'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v45'
       to: [
         CustomMapping {
           block: [
