@@ -1205,7 +1205,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
       }
       calculation net_order_ratio {
         label: 'Net Order Ratio'
-        formula: @aql net_orders/total_orders;;
+        formula: @aql net_orders*1.0/total_orders;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -1251,6 +1251,169 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
           debug_comments: true
         }
       }
+    }
+  }
+  block v46: VizBlock {
+    label: 'Products Listed'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'Products Listed'
+        ref: ref('ecommerce_products', 'total_products')
+        format {
+          type: 'number'
+          pattern: '#,###'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v47: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: 'total_users'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v48: VizBlock {
+    label: 'All-Time Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'All-Time Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v49: VizBlock {
+    label: 'Merchants Onboarded'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'Merchants Onboarded'
+        ref: ref('ecommerce_merchants', 'created_at')
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v50: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: 'Average Order Value'
+        ref: 'aov'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
     }
   }
   view: TabLayout {
@@ -1466,6 +1629,26 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
       mobile {
         mode: 'auto'
       }
+      block v46 {
+        position: pos(580, 220, 180, 120)
+        layer: 1
+      }
+      block v47 {
+        position: pos(100, 160, 220, 120)
+        layer: 2
+      }
+      block v48 {
+        position: pos(840, 140, 200, 120)
+        layer: 3
+      }
+      block v49 {
+        position: pos(720, 380, 260, 120)
+        layer: 4
+      }
+      block v50 {
+        position: pos(340, 180, 200, 100)
+        layer: 5
+      }
     }
   }
   theme: H.themes.classic
@@ -1484,7 +1667,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1504,7 +1692,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1524,7 +1717,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1544,7 +1742,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1564,7 +1767,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1584,7 +1792,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1604,7 +1817,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1624,7 +1842,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1644,7 +1867,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1667,7 +1895,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1696,7 +1929,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1716,7 +1954,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v42',
             'v43',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1739,7 +1982,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1762,7 +2010,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1785,7 +2038,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1808,7 +2066,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v34',
             'v35',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1840,7 +2103,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1863,7 +2131,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1886,7 +2159,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v35',
             'v36',
             'v44',
-            'v45'
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1914,7 +2192,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1951,7 +2234,12 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
           ]
           disabled: true
         }
@@ -1979,7 +2267,162 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
             'v40',
             'v41',
             'v42',
-            'v43'
+            'v43',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v46'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43',
+            'v44',
+            'v45'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v47'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43',
+            'v44',
+            'v45'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v48'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43',
+            'v44',
+            'v45'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v49'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43',
+            'v44',
+            'v45'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v50'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v39',
+            'v40',
+            'v41',
+            'v42',
+            'v43',
+            'v44',
+            'v45'
           ]
           disabled: true
         }
