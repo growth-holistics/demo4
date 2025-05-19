@@ -452,17 +452,22 @@ Young adult female customers (under 30) are currently our most valuable and loya
   }
   block v34: VizBlock {
     label: 'Top 10 Users by Orders'
-    viz: PivotTable {
+    viz: DataTable {
       dataset: demo_ecommerce_version_2
+      calculation average_nmv {
+        label: 'Average NMV '
+        formula: @aql nmv/total_delivered_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       filter {
         field: ref('ecommerce_users', 'email_pii')
         operator: 'top'
-        value: 10
+        value: 50
         options {
           rank_by {
-            field: 'total_orders'
+            field: 'nmv'
             aggregation: 'custom'
-            logic: 'standard'
           }
         }
       }
@@ -486,7 +491,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
           }
         }
       }
-      rows: [
+      fields: [
         VizFieldFull {
           ref: ref('ecommerce_users', 'full_name')
           format {
@@ -500,18 +505,17 @@ Young adult female customers (under 30) are currently our most valuable and loya
             type: 'text'
           }
           uname: 'ecommerce_countries_name'
-        }
-      ]
-      values: [
+        },
         VizFieldFull {
-          ref: 'total_orders'
+          label: 'NMV - Net Merchandise Value (Delivered)'
+          ref: 'nmv'
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'aov'
+          ref: 'total_delivered_orders'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -524,12 +528,24 @@ Young adult female customers (under 30) are currently our most valuable and loya
             pattern: 'inherited'
           }
           uname: 'custom_days_since_last_order'
+        },
+        VizFieldFull {
+          ref: 'average_nmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
         }
       ]
       settings {
         row_height: 'multiple_lines'
-        show_row_total: true
-        show_column_total: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
         conditional_formats: [
           ConditionalFormat {
             key: 'custom_days_since_last_order'
@@ -543,16 +559,11 @@ Young adult female customers (under 30) are currently our most valuable and loya
             }
           }
         ]
-        sorts: [
-          SortSetting {
-            field_index: 2
-            direction: 'desc'
-          }
-        ]
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
+        frozen_columns: 2
         column_styles: [
           ColumnStyle {
             key: 'ecommerce_users_full_name'
@@ -1257,6 +1268,25 @@ Young adult females (under 30) are our most valuable and loyal customer segment 
 - The **under-20** group is also very active, contributing $4.7M in revenue — mainly driven by females.
 - Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
   }
+  block t24: TextBlock {
+    content: @md ### 🛎 Inactivity Alert: Detecting Dormant Power Users
+
+This widget highlights the **Top 10 Customers by Order Count**, along with their:
+
+- **Average Order Value (AOV)**
+- **Days Since Last Order**
+
+To proactively manage customer retention, we’ve set up an **automated alert**:
+
+> 🔔 **Customers who have not made a purchase in the last 90 days are automatically flagged.**
+
+This helps you quickly identify high-value users who may be slipping away, so your team can take action—whether it’s through a personalized email campaign or sales outreach.
+
+> Example: Customers like **Hehr Elliott**, **Francis Kub**, and **Dahill Phebe** are flagged due to over 90 days of inactivity.
+
+All of this is seamlessly powered through Holistics’ alerting and visualization layer—no manual checks required.
+;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -1425,6 +1455,10 @@ Young adult females (under 30) are our most valuable and loyal customer segment 
       block t23 {
         position: pos(40, 180, 560, 580)
         layer: 1
+      }
+      block t24 {
+        position: pos(840, 1300, 560, 480)
+        layer: 10
       }
     }
     tab tab4: CanvasLayout {
