@@ -227,9 +227,15 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: ref('ecommerce_products', 'product_google_link')
           format {
-            type: 'text'
+            type: 'html'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_product_images', 'product_image')
+          format {
+            type: 'html'
           }
         },
         VizFieldFull {
@@ -237,7 +243,9 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           aggregation: 'avg'
           format {
             type: 'number'
-            pattern: 'inherited'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
           }
         },
         VizFieldFull {
@@ -253,10 +261,32 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_gmv'
         }
       ]
       settings {
-        show_row_number: true
+        row_height: 'multiple_lines'
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#D3DFF6'
+              }
+              max {
+                value: 100000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -267,38 +297,36 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v7: VizBlock {
     label: 'Cohort Retention'
     viz: RetentionHeatmap {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('user_cohort_retention', 'cohort_month')
-        operator: 'matches'
-        value: '2023'
+      dataset: demo_ecommerce_version_2
+      theme {
+
       }
       cohort: VizFieldFull {
-        label: 'Cohort Month'
-        ref: ref('user_cohort_retention', 'cohort_month')
+        ref: ref('ecommerce_users', 'cohort_month')
         transformation: 'datetrunc month'
         format {
           type: 'date'
-        }
-      }
-      cohort_size: VizFieldFull {
-        ref: ref('user_cohort_retention', 'cohort_size')
-        format {
-          type: 'number'
-          pattern: 'inherited'
+          pattern: 'LLL yyyy'
         }
       }
       cohort_duration: VizFieldFull {
-        ref: ref('user_cohort_retention', 'relative_month_disp')
-        format {
-          type: 'text'
-        }
-      }
-      cohort_value: VizFieldFull {
-        ref: ref('user_cohort_retention', 'active_users_count')
+        ref: ref('ecommerce_orders', 'month_number')
         format {
           type: 'number'
           pattern: 'inherited'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: 'retention'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -965,7 +993,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       position: pos(80, 2920, 260, 40)
     }
     block t5 {
-      position: pos(40, 220, 1460, 70)
+      position: pos(60, 200, 1460, 70)
     }
     block t6 {
       position: pos(40, 1190, 1460, 80)
