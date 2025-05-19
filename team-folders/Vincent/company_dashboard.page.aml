@@ -463,7 +463,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
       filter {
         field: ref('ecommerce_users', 'email_pii')
         operator: 'top'
-        value: 50
+        value: 10
         options {
           rank_by {
             field: 'nmv'
@@ -497,6 +497,14 @@ Young adult female customers (under 30) are currently our most valuable and loya
           format {
             type: 'text'
           }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'email_user')
+              aggregation: 'min'
+            }
+          }
           uname: 'ecommerce_users_full_name'
         },
         VizFieldFull {
@@ -507,7 +515,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
           uname: 'ecommerce_countries_name'
         },
         VizFieldFull {
-          label: 'NMV - Net Merchandise Value (Delivered)'
+          label: 'NMV'
           ref: 'nmv'
           format {
             type: 'number'
@@ -515,6 +523,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
           }
         },
         VizFieldFull {
+          label: 'Total Orders'
           ref: 'total_delivered_orders'
           format {
             type: 'number'
@@ -1269,23 +1278,27 @@ Young adult females (under 30) are our most valuable and loyal customer segment 
 - Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
   }
   block t24: TextBlock {
-    content: @md ### 🛎 Inactivity Alert: Detecting Dormant Power Users
+    content: @md ### 🎯 Identifying and Engaging Top Customers
 
-This widget highlights the **Top 10 Customers by Order Count**, along with their:
+This widget highlights our **top customers by order volume and value**, showing:
 
-- **Average Order Value (AOV)**
-- **Days Since Last Order**
+- Net Merchandise Value (NMV)
+- Total Orders
+- Days Since Last Order
+- Average Order Value
 
-To proactively manage customer retention, we’ve set up an **automated alert**:
+The goal is to help us **identify high-value customers** for further engagement—whether through tailored offers, loyalty campaigns, or direct outreach.
 
-> 🔔 **Customers who have not made a purchase in the last 90 days are automatically flagged.**
+👉 You can **click on a customer’s name** to send them an email instantly—making it easy to follow up in one click.  
+This is powered by [Holistics Dashboard Actions](https://docs.holistics.io/docs/actions), which enables one-click workflows like sending emails, Slack messages, or triggering external tools.
 
-This helps you quickly identify high-value users who may be slipping away, so your team can take action—whether it’s through a personalized email campaign or sales outreach.
+👉 You can also **right-click a customer row** and select **“View Underlying Data”** to explore which **Product Categories** they’ve purchased from.  
+This interaction is explained in the [Holistics View Underlying Data docs](https://docs.holistics.io/docs/interactions/view-underlying-data), and helps you personalize engagement based on real customer behavior.
 
-> Example: Customers like **Hehr Elliott**, **Francis Kub**, and **Dahill Phebe** are flagged due to over 90 days of inactivity.
+🔍 If you want to analyze more than the top 10, just **click “Explore Data”** to expand the list to any number of customers based on your campaign needs.
 
-All of this is seamlessly powered through Holistics’ alerting and visualization layer—no manual checks required.
-;;
+⚠️ Customers who haven’t ordered in over **90 days** are visually flagged.  
+If you'd like to receive automated alerts for this, you can request the data team to set it up. Holistics supports alerting via **Slack**, **Email**, or **Webhooks**—see the [Holistics Data Alert documentation](https://docs.holistics.io/docs/delivery/data-alert) for setup details.;;
   }
   view: TabLayout {
     label: 'View 1'
@@ -1457,7 +1470,7 @@ All of this is seamlessly powered through Holistics’ alerting and visualizatio
         layer: 1
       }
       block t24 {
-        position: pos(840, 1300, 560, 480)
+        position: pos(840, 1300, 560, 580)
         layer: 10
       }
     }
