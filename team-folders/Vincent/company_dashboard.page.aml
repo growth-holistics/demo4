@@ -1581,8 +1581,8 @@ Improving this realization rate by even a few percentage points could lead to si
     }
   }
   block v55: VizBlock {
-    label: 'Dynamic Dim & Metric'
-    viz: BarChart {
+    label: 'Freeform Analysis'
+    viz: ColumnChart {
       dataset: demo_ecommerce_version_2
       theme {
 
@@ -1594,13 +1594,6 @@ Improving this realization rate by even a few percentage points could lead to si
         }
       }
       y_axis {
-        settings {
-          show_stack_total: true
-          show_total_in_tooltip: true
-          group_values_into: 5
-          show_data_label_by: 'percentage'
-          stack_series_by: 'value'
-        }
         series {
           field: VizFieldFull {
             ref: 'dynamic_metric'
@@ -1609,25 +1602,53 @@ Improving this realization rate by even a few percentage points could lead to si
               pattern: 'inherited'
             }
           }
-          settings {
-            color: '#000004'
-            color_palette: -1
-          }
         }
       }
       settings {
         row_limit: 5000
-        sort {
-          field_index: 0
-          direction: 'desc'
-          type: 'series'
-        }
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
       }
+    }
+  }
+  block f5: FilterBlock {
+    label: 'Dimensions'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('param_model_nam', 'dim_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'Age Demographic'
+    }
+    settings {
+      input_type: 'single'
+      drillthrough: Drillthrough {
+        enabled: false
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block f6: FilterBlock {
+    label: 'Select Metric'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('param_model_nam', 'metric_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'total users'
+    }
+    settings {
+      input_type: 'single'
     }
   }
   view: TabLayout {
@@ -1637,37 +1658,9 @@ Improving this realization rate by even a few percentage points could lead to si
       width: 1280
       height: 3240
       grid_size: 20
-      block v20 {
-        position: pos(1020, 640, 240, 120)
-        layer: 1
-      }
-      block v21 {
-        position: pos(500, 640, 220, 120)
-        layer: 1
-      }
-      block v22 {
-        position: pos(20, 640, 200, 120)
-        layer: 2
-      }
       block t5 {
         position: pos(20, 20, 280, 140)
         layer: 1
-      }
-      block v25 {
-        position: pos(740, 640, 260, 120)
-        layer: 1
-      }
-      block v27 {
-        position: pos(620, 2160, 620, 480)
-        layer: 6
-      }
-      block v28 {
-        position: pos(240, 640, 240, 120)
-        layer: 7
-      }
-      block v29 {
-        position: pos(20, 1120, 1220, 440)
-        layer: 8
       }
       block t6 {
         position: pos(20, 180, 280, 160)
@@ -1677,14 +1670,6 @@ Improving this realization rate by even a few percentage points could lead to si
         position: pos(320, 20, 920, 320)
         layer: 10
       }
-      block v30 {
-        position: pos(620, 1580, 620, 360)
-        layer: 12
-      }
-      block v31 {
-        position: pos(20, 2160, 580, 480)
-        layer: 13
-      }
       block t9 {
         position: pos(20, 1580, 580, 360)
         layer: 15
@@ -1692,10 +1677,6 @@ Improving this realization rate by even a few percentage points could lead to si
       block t10 {
         position: pos(20, 2660, 560, 580)
         layer: 16
-      }
-      block v36 {
-        position: pos(600, 2660, 640, 580)
-        layer: 17
       }
       block t11 {
         position: pos(20, 360, 1220, 260)
@@ -1713,9 +1694,45 @@ Improving this realization rate by even a few percentage points could lead to si
         position: pos(620, 1960, 620, 180)
         layer: 21
       }
-      block v55 {
-        position: pos(20, 3260, 400, 300)
-        layer: 22
+      block v20 {
+        position: pos(1020, 640, 240, 120)
+        layer: 1
+      }
+      block v21 {
+        position: pos(500, 640, 220, 120)
+        layer: 1
+      }
+      block v22 {
+        position: pos(20, 640, 200, 120)
+        layer: 2
+      }
+      block v25 {
+        position: pos(740, 640, 260, 120)
+        layer: 1
+      }
+      block v27 {
+        position: pos(620, 2160, 620, 480)
+        layer: 6
+      }
+      block v28 {
+        position: pos(240, 640, 240, 120)
+        layer: 7
+      }
+      block v29 {
+        position: pos(20, 1120, 1220, 440)
+        layer: 8
+      }
+      block v30 {
+        position: pos(620, 1580, 620, 360)
+        layer: 12
+      }
+      block v31 {
+        position: pos(20, 2160, 580, 480)
+        layer: 13
+      }
+      block v36 {
+        position: pos(600, 2660, 640, 580)
+        layer: 17
       }
       mobile {
         mode: 'auto'
@@ -1730,6 +1747,10 @@ Improving this realization rate by even a few percentage points could lead to si
         position: pos(660, 180, 320, 100)
         layer: 2
       }
+      block f4 {
+        position: pos(980, 180, 320, 100)
+        layer: 6
+      }
       block t17 {
         position: pos(20, 0, 620, 280)
         layer: 3
@@ -1738,17 +1759,9 @@ Improving this realization rate by even a few percentage points could lead to si
         position: pos(20, 300, 1280, 20)
         layer: 5
       }
-      block f4 {
-        position: pos(980, 180, 320, 100)
-        layer: 6
-      }
       block t21 {
         position: pos(20, 360, 600, 520)
         layer: 8
-      }
-      block v44 {
-        position: pos(640, 360, 740, 520)
-        layer: 9
       }
       block t22 {
         position: pos(20, 900, 1280, 20)
@@ -1757,6 +1770,10 @@ Improving this realization rate by even a few percentage points could lead to si
       block t25 {
         position: pos(20, 940, 1240, 320)
         layer: 11
+      }
+      block v44 {
+        position: pos(640, 360, 740, 520)
+        layer: 9
       }
       block v52 {
         position: pos(920, 1280, 340, 300)
@@ -1770,42 +1787,50 @@ Improving this realization rate by even a few percentage points could lead to si
         mode: 'auto'
       }
     }
+    tab tab7: CanvasLayout {
+      label: 'Analysis'
+      height: 800
+      grid_size: 20
+      block f5 {
+        position: pos(680, 40, 300, 100)
+        layer: 2
+      }
+      block f6 {
+        position: pos(680, 160, 300, 100)
+        layer: 3
+      }
+      block v55 {
+        position: pos(60, 40, 580, 280)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
     tab tab1: CanvasLayout {
       label: 'Users'
       width: 1420
       height: 2640
       grid_size: 20
-      block t6 {
-        position: pos(340, 20, 280, 140)
-        layer: 2
-      }
-      block v34 {
-        position: pos(20, 1300, 800, 580)
-        layer: 1
-      }
-      block t5 {
-        position: pos(40, 20, 280, 140)
-        layer: 1
-      }
-      block v37 {
-        position: pos(20, 980, 1320, 300)
-        layer: 3
-      }
       block f1 {
         position: pos(20, 880, 300, 80)
         layer: 4
-      }
-      block t15 {
-        position: pos(0, 800, 1380, 60)
-        layer: 8
       }
       block f2 {
         position: pos(340, 880, 300, 80)
         layer: 9
       }
-      block v43 {
-        position: pos(620, 180, 640, 580)
+      block t5 {
+        position: pos(40, 20, 280, 140)
         layer: 1
+      }
+      block t6 {
+        position: pos(340, 20, 280, 140)
+        layer: 2
+      }
+      block t15 {
+        position: pos(0, 800, 1380, 60)
+        layer: 8
       }
       block t23 {
         position: pos(40, 180, 560, 580)
@@ -1815,17 +1840,29 @@ Improving this realization rate by even a few percentage points could lead to si
         position: pos(840, 1300, 560, 580)
         layer: 10
       }
+      block v34 {
+        position: pos(20, 1300, 800, 580)
+        layer: 1
+      }
+      block v37 {
+        position: pos(20, 980, 1320, 300)
+        layer: 3
+      }
+      block v43 {
+        position: pos(620, 180, 640, 580)
+        layer: 1
+      }
     }
     tab tab4: CanvasLayout {
       label: 'Products'
       height: 800
       grid_size: 20
-      mobile {
-        mode: 'auto'
-      }
       block v54 {
         position: pos(20, 20, 600, 600)
         layer: 1
+      }
+      mobile {
+        mode: 'auto'
       }
     }
     tab tab3: CanvasLayout {
@@ -1844,9 +1881,6 @@ Improving this realization rate by even a few percentage points could lead to si
       label: 'Region'
       height: 800
       grid_size: 20
-      mobile {
-        mode: 'auto'
-      }
       block v46 {
         position: pos(580, 220, 180, 120)
         layer: 1
@@ -1866,6 +1900,9 @@ Improving this realization rate by even a few percentage points could lead to si
       block v50 {
         position: pos(340, 180, 200, 100)
         layer: 5
+      }
+      mobile {
+        mode: 'auto'
       }
     }
   }
@@ -1888,7 +1925,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -1911,7 +1949,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -1934,7 +1973,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -1957,7 +1997,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -1980,7 +2021,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2003,7 +2045,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2026,7 +2069,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2049,7 +2093,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2072,7 +2117,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2159,7 +2205,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54'
+            'v54',
+            'v55'
           ]
           disabled: true
         }
@@ -2231,7 +2278,11 @@ Improving this realization rate by even a few percentage points could lead to si
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'f4'
+          block: [
+            'f4',
+            'f5',
+            'f6'
+          ]
           disabled: true
         }
       ]
@@ -2304,7 +2355,11 @@ Improving this realization rate by even a few percentage points could lead to si
       from: 'f4'
       to: [
         CustomMapping {
-          block: 'f2'
+          block: [
+            'f2',
+            'f5',
+            'f6'
+          ]
           disabled: true
         }
       ]
@@ -2594,8 +2649,18 @@ Improving this realization rate by even a few percentage points could lead to si
       to: [
         CustomMapping {
           block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
             'v34',
             'v35',
+            'v36',
             'v37',
             'v43',
             'v44',
@@ -2609,6 +2674,102 @@ Improving this realization rate by even a few percentage points could lead to si
             'v52',
             'v53',
             'v54'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v54'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f5'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f6'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v54'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f5'
           ]
           disabled: true
         }
