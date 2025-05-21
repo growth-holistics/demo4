@@ -1038,7 +1038,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   }
   block v45: VizBlock {
     label: 'Total Orders vs Net Orders'
-    viz: DataTable {
+    viz: ColumnChart {
       dataset: demo_ecommerce_version_2
       calculation net_orders {
         label: 'Net Orders'
@@ -1061,46 +1061,42 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
       theme {
 
       }
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'created_at')
-          transformation: 'datetrunc quarter'
-          format {
-            type: 'date'
-            pattern: 'yyyy Qq'
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'net_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'undelivered_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+          settings {
+            color_palette: 0
           }
         }
-      ]
+      }
       settings {
-        show_row_number: true
-        sorts: [
-          SortSetting {
-            field_index: 0
-            direction: 'desc'
-          }
-        ]
         row_limit: 5000
+        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1443,7 +1439,7 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
   }
   block v53: VizBlock {
     label: 'Total Orders by Total Orders By Status'
-    viz: ColumnChart {
+    viz: DataTable {
       dataset: demo_ecommerce_version_2
       calculation total_orders_by_status {
         label: 'Total Orders By Status'
@@ -1455,40 +1451,45 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
       theme {
 
       }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_products', 'created_at')
-        transformation: 'datetrunc quarter'
-        format {
-          type: 'date'
-          pattern: 'yyyy Qq'
-        }
-      }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'total_orders_by_status')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      y_axis {
-        settings {
-          show_stack_total: true
-          show_data_label_by: 'value'
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'total_orders'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'created_at')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'status')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_orders', 'total_orders_by_status')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'total_orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
-      }
+      ]
       settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'asc'
+          }
+        ]
         row_limit: 5000
-        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
