@@ -1516,70 +1516,6 @@ Improving this realization rate by even a few percentage points could lead to si
       }
     }
   }
-  block v54: VizBlock {
-    label: 'Top Products'
-    viz: DataTable {
-      dataset: demo_ecommerce_version_2
-      filter {
-        field: ref('ecommerce_products', 'product_image_100px')
-        operator: 'not_null'
-        value: []
-      }
-      theme {
-        table {
-          general {
-            bg_color: '#8BD2CE'
-          }
-        }
-      }
-      fields: [
-        VizFieldFull {
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-          uname: 'custom_revenue'
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_products_name'
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_products', 'product_image_100px')
-          format {
-            type: 'html'
-          }
-          uname: 'ecommerce_products_product_image_100px'
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        column_styles: [
-          ColumnStyle {
-            key: 'custom_revenue'
-            width: 134
-          },
-          ColumnStyle {
-            key: 'ecommerce_products_name'
-            width: 172
-          },
-          ColumnStyle {
-            key: 'ecommerce_products_product_image_100px'
-            width: 176
-          }
-        ]
-      }
-    }
-  }
   block v55: VizBlock {
     label: 'Freeform Analysis'
     viz: ColumnChart {
@@ -1649,6 +1585,119 @@ Improving this realization rate by even a few percentage points could lead to si
     }
     settings {
       input_type: 'single'
+    }
+  }
+  block v56: VizBlock {
+    label: 'Product Categories'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+        table {
+          general {
+            bg_color: '#8BD2CE'
+            borders {
+              outer: true
+              header: true
+              vertical: true
+              horizontal: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v57: VizBlock {
+    label: 'Order Over Time'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f7: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f8: FilterBlock {
+    label: 'Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: false
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
     }
   }
   view: TabLayout {
@@ -1857,9 +1906,21 @@ Improving this realization rate by even a few percentage points could lead to si
       label: 'Products'
       height: 800
       grid_size: 20
-      block v54 {
-        position: pos(20, 20, 600, 600)
-        layer: 1
+      block v56 {
+        position: pos(40, 120, 500, 620)
+        layer: 2
+      }
+      block v57 {
+        position: pos(560, 120, 560, 360)
+        layer: 3
+      }
+      block f7 {
+        position: pos(380, 0, 300, 100)
+        layer: 4
+      }
+      block f8 {
+        position: pos(60, 0, 300, 100)
+        layer: 5
       }
       mobile {
         mode: 'auto'
@@ -1925,8 +1986,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -1949,8 +2011,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -1973,8 +2036,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -1997,8 +2061,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2021,8 +2086,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2045,8 +2111,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2069,8 +2136,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2093,8 +2161,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2117,8 +2186,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2148,8 +2218,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2181,8 +2252,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2205,8 +2277,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2236,8 +2309,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2267,8 +2341,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2281,7 +2356,9 @@ Improving this realization rate by even a few percentage points could lead to si
           block: [
             'f4',
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -2311,8 +2388,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2344,8 +2422,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2358,7 +2437,9 @@ Improving this realization rate by even a few percentage points could lead to si
           block: [
             'f2',
             'f5',
-            'f6'
+            'f6',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
@@ -2390,8 +2471,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v50',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2419,8 +2501,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v44',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2448,8 +2531,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v44',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2477,8 +2561,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v44',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2506,8 +2591,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v44',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2535,8 +2621,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v44',
             'v52',
             'v53',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2547,8 +2634,9 @@ Improving this realization rate by even a few percentage points could lead to si
       to: [
         CustomMapping {
           block: [
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2559,8 +2647,9 @@ Improving this realization rate by even a few percentage points could lead to si
       to: [
         CustomMapping {
           block: [
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2590,8 +2679,9 @@ Improving this realization rate by even a few percentage points could lead to si
             'v48',
             'v49',
             'v50',
-            'v54',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2602,43 +2692,9 @@ Improving this realization rate by even a few percentage points could lead to si
       to: [
         CustomMapping {
           block: [
-            'v54',
-            'v55'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v54'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v55'
+            'v55',
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2673,7 +2729,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v53a',
             'v52',
             'v53',
-            'v54'
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2708,7 +2765,8 @@ Improving this realization rate by even a few percentage points could lead to si
             'v53a',
             'v52',
             'v53',
-            'v54'
+            'v56',
+            'v57'
           ]
           disabled: true
         }
@@ -2721,55 +2779,230 @@ Improving this realization rate by even a few percentage points could lead to si
           block: [
             'f2',
             'f4',
+            'f6',
+            'f7',
+            'f8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v56',
+            'v57'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f5',
+            'f7',
+            'f8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v56'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v57'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f7'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55',
+            'v56'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f7'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f5',
+            'f6',
+            'f8'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f8'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f5',
             'f6'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v54'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: [
-            'f2',
-            'f4',
-            'f5'
           ]
           disabled: true
         }
