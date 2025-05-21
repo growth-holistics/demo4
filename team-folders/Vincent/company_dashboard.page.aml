@@ -1244,11 +1244,19 @@ If you'd like to receive automated alerts for this, you can request the data tea
 
 This section highlights how efficiently the platform is turning customer orders into actual fulfilled value.
 
-- **Total Orders** are broken down by **successful** vs **failed** (cancelled or refunded) delivery outcomes.
-- The **% of GMV Realized** gauge shows what portion of gross customer demand (GMV) was actually fulfilled and paid — this is our **NMV realization rate**.
-- A healthy platform typically sees **85–95% of GMV** realized as NMV. Our current rate sits at **~70%**, indicating room for operational improvement.
+- **Total Orders** are grouped into two simplified delivery outcomes:
+  - ✅ **Success** = Delivered orders  
+  - ❌ **Failed** = Cancelled or Refunded orders  
+  This grouping is used instead of the system's default `[delivered, cancelled, refunded]` statuses to make high-level analysis clearer and more actionable.
 
-> Even a small lift in this percentage would drive significant gains in NMV, platform revenue, and profitability.;;
+- The **% of GMV Realized** gauge reflects the portion of gross customer value (GMV) that was actually fulfilled and paid — our **NMV realization rate**. A healthy benchmark is **85–95%**. Currently, we’re at **~70%**, highlighting a gap worth investigating.
+
+> 📌 **Want to go deeper?**  
+Use the **[Drill Down]** or **[View Underlying Data]** features to explore breakdowns by:
+- Refund vs cancellation volumes  
+- Order categories, vendors, or regions driving leakage
+
+Improving this realization rate by even a few percentage points could lead to significant gains in NMV, platform revenue, and overall profitability.;;
   }
   block v52a: VizBlock {
     label: 'NMV Realized from GMV'
@@ -1371,7 +1379,7 @@ This section highlights how efficiently the platform is turning customer orders 
   }
   block v52: VizBlock {
     label: 'Total Orders and Net Order Ratio by Quarter Created At and Status'
-    viz: CombinationChart {
+    viz: GaugeChart {
       dataset: demo_ecommerce_version_2
       calculation net_orders {
         label: 'Net Orders'
@@ -1391,45 +1399,32 @@ This section highlights how efficiently the platform is turning customer orders 
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('ecommerce_orders', 'status')
-        operator: 'is_not'
-        value: 'delivered'
+      calculation realized_gmv_target {
+        label: 'Realized GMV Target'
+        formula: @aql 0.85;;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       theme {
 
       }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
-        transformation: 'datetrunc quarter'
+      value: VizFieldFull {
+        ref: 'net_order_ratio'
         format {
-          type: 'date'
-          pattern: 'yyyy Qq'
+          type: 'number'
+          pattern: '#,###%'
         }
       }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'status')
+      max_value: VizFieldFull {
+        ref: 'realized_gmv_target'
         format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'total_orders'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
+          type: 'number'
+          pattern: '#,###%'
         }
       }
       settings {
+        label: 'Success Order Rate'
         row_limit: 5000
-        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1438,9 +1433,20 @@ This section highlights how efficiently the platform is turning customer orders 
     }
   }
   block v53: VizBlock {
-    label: 'Total Orders by Quarter Created At and Status'
+    label: 'Total Orders by Delivery Status'
     viz: ColumnChart {
       dataset: demo_ecommerce_version_2
+      calculation order_success_status {
+        label: 'Order Success Status'
+        formula: @aql case(
+  when: ecommerce_orders.status is 'delivered'
+  , then: 'success_order'
+  , else: 'failed_order'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
       calculation net_orders {
         label: 'Net Orders'
         formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
@@ -1459,11 +1465,6 @@ This section highlights how efficiently the platform is turning customer orders 
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: ref('ecommerce_orders', 'status')
-        operator: 'is_not'
-        value: 'delivered'
-      }
       theme {
 
       }
@@ -1476,13 +1477,15 @@ This section highlights how efficiently the platform is turning customer orders 
         }
       }
       legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'status')
+        ref: ref('ecommerce_orders', 'order_success_status')
         format {
           type: 'text'
         }
       }
       y_axis {
         settings {
+          show_stack_total: true
+          show_data_label_by: 'value'
           stack_series_by: 'value'
         }
         series {
@@ -1588,21 +1591,13 @@ This section highlights how efficiently the platform is turning customer orders 
         position: pos(620, 1960, 620, 180)
         layer: 21
       }
-      block v52 {
-        position: pos(20, 3260, 400, 300)
-        layer: 22
-      }
-      block v53 {
-        position: pos(440, 3260, 400, 300)
-        layer: 23
-      }
       mobile {
         mode: 'auto'
       }
     }
     tab tab6: CanvasLayout {
       label: 'Finance'
-      width: 1460
+      width: 1540
       height: 1780
       grid_size: 20
       block f3 {
@@ -1634,15 +1629,15 @@ This section highlights how efficiently the platform is turning customer orders 
         layer: 1
       }
       block t25 {
-        position: pos(20, 980, 500, 340)
+        position: pos(20, 980, 520, 440)
         layer: 11
       }
       block v52 {
-        position: pos(1100, 980, 280, 180)
+        position: pos(1200, 980, 340, 300)
         layer: 13
       }
       block v53 {
-        position: pos(540, 980, 540, 340)
+        position: pos(560, 980, 620, 420)
         layer: 12
       }
       mobile {
@@ -2352,81 +2347,6 @@ This section highlights how efficiently the platform is turning customer orders 
             'v48',
             'v49',
             'v50'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v53'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52',
-            'v53'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v52'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v35',
-            'v37',
-            'v43',
-            'v44',
-            'v45',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v51'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v53'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v35',
-            'v37',
-            'v43',
-            'v44',
-            'v45',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v51'
           ]
           disabled: true
         }
