@@ -1378,7 +1378,7 @@ Improving this realization rate by even a few percentage points could lead to si
     }
   }
   block v52: VizBlock {
-    label: 'Total Orders and Net Order Ratio by Quarter Created At and Status'
+    label: 'Last Quarter Success Order Rate'
     viz: GaugeChart {
       dataset: demo_ecommerce_version_2
       calculation net_orders {
@@ -1405,6 +1405,12 @@ Improving this realization rate by even a few percentage points could lead to si
         calc_type: 'measure'
         data_type: 'number'
       }
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'last'
+        value: '1'
+        modifier: 'quarter'
+      }
       theme {
 
       }
@@ -1412,7 +1418,9 @@ Improving this realization rate by even a few percentage points could lead to si
         ref: 'net_order_ratio'
         format {
           type: 'number'
-          pattern: '#,###%'
+          pattern: '#,###0.00%'
+          group_separator: ','
+          decimal_separator: '.'
         }
       }
       max_value: VizFieldFull {
@@ -1629,15 +1637,15 @@ Improving this realization rate by even a few percentage points could lead to si
         layer: 1
       }
       block t25 {
-        position: pos(20, 980, 520, 440)
+        position: pos(20, 940, 1240, 320)
         layer: 11
       }
       block v52 {
-        position: pos(1200, 980, 340, 300)
+        position: pos(920, 1280, 340, 300)
         layer: 13
       }
       block v53 {
-        position: pos(560, 980, 620, 420)
+        position: pos(20, 1280, 880, 300)
         layer: 12
       }
       mobile {
@@ -2358,6 +2366,19 @@ Improving this realization rate by even a few percentage points could lead to si
         CustomMapping {
           block: 'v37'
           field: ref('ecommerce_users', 'sign_up_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v53a',
+            'v52a',
+            'v53'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     }
