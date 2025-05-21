@@ -970,7 +970,7 @@ Use this to:
     }
   }
   block t21: TextBlock {
-    content: @md ### 🧠 Concept Alignment: GMV, NMV, Discounts, and Revenue
+    content: @md ### 🧠 Defining GMV, NMV, Discounts, and Revenue
 
 To ensure consistent interpretation of financial metrics, here’s how value flows through the order lifecycle and how each metric is defined:
 
@@ -990,8 +990,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
 4. **Revenue (Platform)**  
    The amount our platform earns by applying a commission rate to NMV.  
    In this demo, a **50% commission margin** is assumed.  
-   _Formula: NMV × revenue_commission_
-;;
+   _Formula: NMV × revenue_commission_;;
   }
   block v44: VizBlock {
     label: 'GMV Over Time'
@@ -1035,74 +1034,6 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   }
   block t22: TextBlock {
     content: @md <hr>;;
-  }
-  block v45: VizBlock {
-    label: 'Total Orders vs Net Orders'
-    viz: ColumnChart {
-      dataset: demo_ecommerce_version_2
-      calculation net_orders {
-        label: 'Net Orders'
-        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation net_order_ratio {
-        label: 'Net Order Ratio'
-        formula: @aql net_orders*1.0/total_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation undelivered_orders {
-        label: 'Undelivered Orders'
-        formula: @aql total_orders-net_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      theme {
-
-      }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
-        transformation: 'datetrunc quarter'
-        format {
-          type: 'date'
-          pattern: 'yyyy Qq'
-        }
-      }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'status')
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_stack_total: true
-          show_data_label_by: 'value'
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'total_orders'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color_palette: 0
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
   }
   block v46: VizBlock {
     label: 'Products Listed'
@@ -1309,81 +1240,18 @@ This interaction is explained in the [Holistics View Underlying Data docs](https
 If you'd like to receive automated alerts for this, you can request the data team to set it up. Holistics supports alerting via **Slack**, **Email**, or **Webhooks**—see the [Holistics Data Alert documentation](https://docs.holistics.io/docs/delivery/data-alert) for setup details.;;
   }
   block t25: TextBlock {
-    content: @md #### NMV % of GMV
-A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
-  }
-  block v51: VizBlock {
-    label: 'Undelivered Orders by Status'
-    viz: ColumnChart {
-      dataset: demo_ecommerce_version_2
-      calculation net_orders {
-        label: 'Net Orders'
-        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation net_order_ratio {
-        label: 'Net Order Ratio'
-        formula: @aql net_orders*1.0/total_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation undelivered_orders {
-        label: 'Undelivered Orders'
-        formula: @aql total_orders-net_orders;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      filter {
-        field: ref('ecommerce_orders', 'status')
-        operator: 'is_not'
-        value: 'delivered'
-      }
-      theme {
+    content: @md ### 🧠 Order Fulfillment & Value Realization
 
-      }
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
-        transformation: 'datetrunc quarter'
-        format {
-          type: 'date'
-          pattern: 'yyyy Qq'
-        }
-      }
-      legend: VizFieldFull {
-        ref: ref('ecommerce_orders', 'status')
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_stack_total: true
-          show_data_label_by: 'value'
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'total_orders'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
+This section highlights how efficiently the platform is turning customer orders into actual fulfilled value.
+
+- **Total Orders** are broken down by **successful** vs **failed** (cancelled or refunded) delivery outcomes.
+- The **% of GMV Realized** gauge shows what portion of gross customer demand (GMV) was actually fulfilled and paid — this is our **NMV realization rate**.
+- A healthy platform typically sees **85–95% of GMV** realized as NMV. Our current rate sits at **~70%**, indicating room for operational improvement.
+
+> Even a small lift in this percentage would drive significant gains in NMV, platform revenue, and profitability.;;
   }
   block v52: VizBlock {
-    label: 'Net Order Ratio'
+    label: 'NMV Realized from GMV'
     viz: GaugeChart {
       dataset: demo_ecommerce_version_2
       calculation net_orders {
@@ -1428,7 +1296,7 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
         }
       }
       settings {
-        label: 'Net Order Ratio'
+        label: 'Realized NMV from GMV'
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -1436,60 +1304,64 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
         }
       }
     }
+    settings {
+      hide_label: true
+    }
   }
   block v53: VizBlock {
-    label: 'Total Orders by Total Orders By Status'
-    viz: DataTable {
+    label: 'Total Orders Count by Delivery Status'
+    viz: CombinationChart {
       dataset: demo_ecommerce_version_2
-      calculation total_orders_by_status {
-        label: 'Total Orders By Status'
-        formula: @aql dimensionalize(total_orders, ecommerce_orders.status);;
+      calculation order_status_success_fail {
+        label: 'Order Status Success Fail'
+        formula: @aql case(
+  when: ecommerce_orders.status is 'delivered'
+  , then: 'success'
+  , else: 'failed'
+);;
         calc_type: 'dimension'
-        data_type: 'number'
+        data_type: 'text'
         model: ecommerce_orders
       }
       theme {
 
       }
-      fields: [
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'created_at')
-          transformation: 'datetrunc quarter'
-          format {
-            type: 'date'
-            pattern: 'yyyy Qq'
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'order_status_success_fail')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_order')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'status')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_orders', 'total_orders_by_status')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+          settings {
+            color_palette: 0
           }
         }
-      ]
+      }
       settings {
-        show_row_number: true
-        sorts: [
-          SortSetting {
-            field_index: 1
-            direction: 'asc'
-          }
-        ]
         row_limit: 5000
+        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1610,31 +1482,23 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
         layer: 8
       }
       block v44 {
-        position: pos(640, 360, 660, 520)
+        position: pos(640, 360, 740, 520)
         layer: 9
       }
       block t22 {
         position: pos(20, 900, 1280, 20)
         layer: 1
       }
-      block v45 {
-        position: pos(20, 960, 800, 340)
-        layer: 10
-      }
       block t25 {
-        position: pos(840, 960, 500, 80)
+        position: pos(20, 980, 500, 340)
         layer: 11
       }
-      block v51 {
-        position: pos(20, 1320, 800, 440)
-        layer: 10
-      }
       block v52 {
-        position: pos(840, 1080, 200, 180)
-        layer: 10
+        position: pos(1100, 980, 280, 180)
+        layer: 13
       }
       block v53 {
-        position: pos(840, 1320, 580, 420)
+        position: pos(540, 980, 540, 340)
         layer: 12
       }
       mobile {
@@ -1748,13 +1612,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1772,13 +1634,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1796,13 +1656,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1820,13 +1678,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1844,13 +1700,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1868,13 +1722,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1892,13 +1744,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1916,13 +1766,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1940,13 +1788,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -1971,13 +1817,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v35',
             'v36',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2004,13 +1848,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2028,13 +1870,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2059,13 +1899,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v35',
             'v36',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2090,13 +1928,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v34',
             'v35',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2130,13 +1966,11 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v35',
             'v36',
             'v44',
-            'v45',
             'v46',
             'v47',
             'v48',
             'v49',
             'v50',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2212,35 +2046,6 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
       ]
     },
     FilterInteraction {
-      from: 'v45'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v46'
       to: [
         CustomMapping {
@@ -2260,8 +2065,6 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2289,8 +2092,6 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2318,8 +2119,6 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2347,8 +2146,6 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
-            'v51',
             'v52',
             'v53'
           ]
@@ -2376,39 +2173,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v37',
             'v43',
             'v44',
-            'v45',
-            'v51',
             'v52',
             'v53'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v51'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50'
           ]
           disabled: true
         }
