@@ -1380,6 +1380,74 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
       }
     }
   }
+  block v52: VizBlock {
+    label: 'Total Orders and Net Order Ratio by Quarter Created At and Status'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation net_orders {
+        label: 'Net Orders'
+        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_order_ratio {
+        label: 'Net Order Ratio'
+        formula: @aql net_orders*1.0/total_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation undelivered_orders {
+        label: 'Undelivered Orders'
+        formula: @aql total_orders-net_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_orders', 'status')
+        operator: 'is_not'
+        value: 'delivered'
+      }
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -1462,6 +1530,10 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
       block t14 {
         position: pos(620, 1960, 620, 180)
         layer: 21
+      }
+      block v52 {
+        position: pos(20, 3260, 400, 300)
+        layer: 22
       }
       mobile {
         mode: 'auto'
@@ -1834,7 +1906,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v48',
             'v49',
             'v50',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -1865,7 +1938,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v48',
             'v49',
             'v50',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -1916,7 +1990,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v48',
             'v49',
             'v50',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -1945,7 +2020,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v48',
             'v49',
             'v50',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -1983,7 +2059,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v48',
             'v49',
             'v50',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2012,7 +2089,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v47',
             'v48',
             'v49',
-            'v50'
+            'v50',
+            'v52'
           ]
           disabled: true
         }
@@ -2050,7 +2128,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v47',
             'v48',
             'v49',
-            'v50'
+            'v50',
+            'v52'
           ]
           disabled: true
         }
@@ -2079,7 +2158,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v47',
             'v48',
             'v49',
-            'v50'
+            'v50',
+            'v52'
           ]
           disabled: true
         }
@@ -2106,7 +2186,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v43',
             'v44',
             'v45',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2133,7 +2214,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v43',
             'v44',
             'v45',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2160,7 +2242,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v43',
             'v44',
             'v45',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2187,7 +2270,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v43',
             'v44',
             'v45',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2214,7 +2298,8 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v43',
             'v44',
             'v45',
-            'v51'
+            'v51',
+            'v52'
           ]
           disabled: true
         }
@@ -2243,7 +2328,30 @@ A healthy platform typically sees **85–95% of GMV** realized as NMV.;;
             'v47',
             'v48',
             'v49',
-            'v50'
+            'v50',
+            'v52'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v35',
+            'v37',
+            'v43',
+            'v44',
+            'v45',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v51'
           ]
           disabled: true
         }
