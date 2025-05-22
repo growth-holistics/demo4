@@ -11,7 +11,7 @@ Dataset demo_ecommerce_version_2 {
     ecommerce_order_items,
     ecommerce_cities,
     map_categories,
-    param_model_nam,
+    param_model_demo,
     dim_dates,
     ecommerce_product_images
   ]
@@ -97,13 +97,13 @@ Dataset demo_ecommerce_version_2 {
     type: 'text'
     model: ecommerce_orders
     definition: @aql case(
-        when: 'Country Names' in param_model_nam.dim_selections
+        when: 'Country Names' in param_model_demo.dim_selections
         , then: ecommerce_countries.name
 
-        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , when: 'Age Demographic' in param_model_demo.dim_selections
         , then: ecommerce_users.age_group
 
-        , when: 'Order Status' in param_model_nam.dim_selections
+        , when: 'Order Status' in param_model_demo.dim_selections
         , then: ecommerce_orders.status
 
         , else: ecommerce_countries.name
@@ -294,14 +294,25 @@ Dataset demo_ecommerce_version_2 {
     type: 'number'
     definition: @aql
       case(
-        when: 'total users' in param_model_nam.metric_selections
+        
+        when: 'total users' in param_model_demo.metric_selections
         , then: ecommerce_users.total_users
 
-        , when: 'total orders' in param_model_nam.metric_selections
+        , when: 'total orders' in param_model_demo.metric_selections
         , then: total_orders
 
-        , when: 'total products' in param_model_nam.metric_selections
-        , then: ecommerce_products.total_products
+        , when: 'platform revenue' in param_model_demo.metric_selections
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections
+        , then: aov
+
       )
      ;;
   }

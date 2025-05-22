@@ -1656,7 +1656,7 @@ Improving this realization rate by even a few percentage points could lead to si
         }
         series {
           field: VizFieldFull {
-            ref: 'total_orders'
+            ref: 'dynamic_metric'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -1773,6 +1773,21 @@ Whether you're in the main chart or within a drilled-down view:
 
 - Click **“View Underlying Data”** to explore the exact list of users who signed up.
 - Filter or export this raw data to investigate anomalies, campaign performance, or to follow up with user cohorts.;;
+  }
+  block f10: FilterBlock {
+    label: 'Select Metric'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('param_model_demo', 'metric_selections')
+    }
+    default {
+      operator: 'is'
+      value: 'total orders'
+    }
+    settings {
+      input_type: 'single'
+    }
   }
   view: TabLayout {
     label: 'View 1'
@@ -2007,6 +2022,10 @@ Whether you're in the main chart or within a drilled-down view:
       block f9 {
         position: pos(680, 40, 300, 100)
         layer: 7
+      }
+      block f10 {
+        position: pos(740, 440, 300, 100)
+        layer: 8
       }
       mobile {
         mode: 'auto'
@@ -2454,13 +2473,7 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f2'
       to: [
         CustomMapping {
-          block: [
-            'f4',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
-          ]
+          block: 'f10'
           disabled: true
         }
       ]
@@ -2537,13 +2550,7 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f4'
       to: [
         CustomMapping {
-          block: [
-            'f2',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
-          ]
+          block: 'f10'
           disabled: true
         }
       ]
@@ -2851,110 +2858,6 @@ Whether you're in the main chart or within a drilled-down view:
       ]
     },
     FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v56',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f5'
-      to: [
-        CustomMapping {
-          block: [
-            'f2',
-            'f4',
-            'f6',
-            'f7',
-            'f8'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v56',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f6'
-      to: [
-        CustomMapping {
-          block: [
-            'f2',
-            'f4',
-            'f5',
-            'f7',
-            'f8'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v56'
       to: [
         CustomMapping {
@@ -3064,13 +2967,7 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f7'
       to: [
         CustomMapping {
-          block: [
-            'f2',
-            'f4',
-            'f5',
-            'f6',
-            'f8'
-          ]
+          block: 'f10'
           disabled: true
         }
       ]
@@ -3114,12 +3011,7 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f8'
       to: [
         CustomMapping {
-          block: [
-            'f2',
-            'f4',
-            'f5',
-            'f6'
-          ]
+          block: 'f10'
           disabled: true
         }
       ]
@@ -3154,6 +3046,57 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f10'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55',
+            'v56',
+            'v58'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f10'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f7',
+            'f8'
           ]
           disabled: true
         }
