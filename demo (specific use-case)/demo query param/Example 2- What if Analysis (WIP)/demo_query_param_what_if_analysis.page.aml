@@ -1,0 +1,622 @@
+Dashboard demo_query_param_what_if_analysis {
+  title: '[Demo] Query Param - What if Analysis '
+  block date_range: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last month'
+    }
+  }
+  block discount_rate: FilterBlock {
+    label: 'Discount Rate'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: what_if_analysis
+      field: ref('aggr_total_product_revenue', 'discount_rate')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block category: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: what_if_analysis
+      field: ref('products_1', 'category_name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block merchant_name: FilterBlock {
+    label: 'Merchant Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: what_if_analysis
+      field: ref('ecommerce_merchants', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      input_type: 'multiple'
+    }
+  }
+  block category_param: FilterBlock {
+    label: 'Category Param'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: what_if_analysis
+      field: ref('aggr_total_product_revenue', 'category_param')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      input_type: 'multiple'
+    }
+  }
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v1: VizBlock {
+    label: 'Total Revenue, Cost, Profit (For sold stock)'
+    viz: ColumnChart {
+      dataset: what_if_analysis
+      x_axis: VizFieldFull {
+        ref: ref('aggr_total_product_revenue', 'product_name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_revenue_sold')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_cost_sold')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_profit_sold')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md # Current month cost, profit and revenue;;
+  }
+  block v2: VizBlock {
+    label: 'Sold Quantity'
+    viz: PieChart {
+      dataset: what_if_analysis
+      legend: VizFieldFull {
+        ref: ref('aggr_total_product_revenue', 'product_name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'Sold Quantity'
+          ref: ref('aggr_total_product_revenue', 'sold_quantity')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+        settings {
+          color_palette: 0
+        }
+      }
+      settings {
+        show_total: true
+        show_data_label: true
+        group_values_into: 5
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Available Quantity in Stock'
+    viz: PieChart {
+      dataset: what_if_analysis
+      legend: VizFieldFull {
+        ref: ref('aggr_total_product_revenue', 'product_name')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'Available Quantity'
+          ref: ref('aggr_total_product_revenue', 'available_quantity')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+        settings {
+          color_palette: 0
+        }
+      }
+      settings {
+        show_total: true
+        show_data_label: true
+        group_values_into: 5
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Revenue, Cost, Profit (for available stock)'
+    viz: ColumnChart {
+      dataset: what_if_analysis
+      x_axis: VizFieldFull {
+        ref: ref('aggr_total_product_revenue', 'product_name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_revenue_available_stock')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_cost_available_stock')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('aggr_total_product_revenue', 'total_profit_available_stock')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###'
+            }
+          }
+          settings {
+            color_palette: -1
+          }
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Merchant Name'
+    viz: DataTable {
+      dataset: what_if_analysis
+      fields: [
+        VizFieldFull {
+          ref: ref('products_1', 'merchant_name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Product Info'
+    viz: DataTable {
+      dataset: what_if_analysis
+      fields: [
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'merchant_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'product_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'product_price')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Sold Quantity'
+          ref: ref('aggr_total_product_revenue', 'sold_quantity')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Available Quantity'
+          ref: ref('aggr_total_product_revenue', 'available_quantity')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md  <h1 style="background-color: #B5E3CD; padding:0px 10px"> Sold quantity;;
+  }
+  block t3: TextBlock {
+    content: @md  <h1 style="background-color: #B5E3CD; padding:0px 10px"> Available quantity;;
+  }
+  block v7: VizBlock {
+    label: 'Test'
+    viz: DataTable {
+      dataset: what_if_analysis
+      fields: [
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'product_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'product_cost')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('aggr_total_product_revenue', 'discount_percentage')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'discount_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'discount_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'category',
+            'merchant_name',
+            'category_param'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'category'
+      to: [
+        CustomMapping {
+          block: [
+            'discount_rate',
+            'merchant_name',
+            'category_param'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'merchant_name'
+      to: [
+        CustomMapping {
+          block: [
+            'discount_rate',
+            'category',
+            'category_param'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'category_param'
+      to: [
+        CustomMapping {
+          block: [
+            'discount_rate',
+            'category',
+            'merchant_name'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: [
+            'v2',
+            'v3',
+            'v4',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v3',
+            'v4',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v3'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v4',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v4'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v5',
+            'v6',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v5'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v6',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v6'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v5',
+            'v7'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v7'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v2',
+            'v3',
+            'v4',
+            'v5',
+            'v6'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'date_range'
+      to: [
+        CustomMapping {
+          block: [
+            'v6',
+            'v1',
+            'v4',
+            'v2',
+            'v3'
+          ]
+          field: ref('aggr_total_product_revenue', 'order_created_month')
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 1910
+    grid_size: 20
+    block date_range {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block discount_rate {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block category {
+      position: pos(620, 20, 280, 100)
+      layer: 1
+    }
+    block merchant_name {
+      position: pos(920, 20, 280, 100)
+      layer: 1
+    }
+    block category_param {
+      position: pos(20, 140, 280, 100)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(320, 140, 280, 100)
+      layer: 1
+    }
+    block v1 {
+      position: pos(570, 710, 630, 330)
+      layer: 1
+    }
+    block t1 {
+      position: pos(20, 260, 1180, 80)
+      layer: 1
+    }
+    block v2 {
+      position: pos(20, 710, 530, 330)
+      layer: 1
+    }
+    block v3 {
+      position: pos(20, 1160, 530, 330)
+      layer: 1
+    }
+    block v4 {
+      position: pos(570, 1160, 630, 330)
+      layer: 1
+    }
+    block v5 {
+      position: pos(20, 360, 580, 230)
+      layer: 1
+    }
+    block v6 {
+      position: pos(620, 360, 580, 230)
+      layer: 1
+    }
+    block t2 {
+      position: pos(20, 610, 1180, 80)
+      layer: 1
+    }
+    block t3 {
+      position: pos(20, 1060, 1180, 80)
+      layer: 1
+    }
+    block v7 {
+      position: pos(20, 1510, 580, 380)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 1440
+  }
+}
