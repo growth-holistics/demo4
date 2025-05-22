@@ -289,10 +289,9 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
 
-  metric dynamic_metric_unformatted_all {
-    label: 'Dynamic Metric (no format)'
+  metric dynamic_metric {
+    label: 'Dynamic Metric'
     type: 'number'
-    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
     definition: @aql
       case(
         
@@ -317,30 +316,6 @@ Dataset demo_ecommerce_version_2 {
       )
      ;;
   }
-
-  metric dynamic_metric_currency {
-    label: 'Dynamic Metric (Currency)'
-    type: 'number'
-    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
-    definition: @aql
-      case(
-        when: 'platform revenue' in param_model_demo.metric_selections_currency
-        , then: revenue
-
-        , when: 'GMV' in param_model_demo.metric_selections_currency
-        , then: gmv
-
-        , when: 'NMV' in param_model_demo.metric_selections_currency
-        , then: nmv
-
-        , when: 'AOV' in param_model_demo.metric_selections_currency
-        , then: aov
-
-      )
-     ;;
-     format: "[\$\$]#,###0"
-  }
-
   metric revenue_commission {
     label: "Revenue Commission Rate (Demo from May 2025)"
     type: "number"
