@@ -50,19 +50,62 @@ Model product_stock {
   }
 
   owner: 'huong.le+demo4@holistics.io'
-  query: @sql select 
-  date_trunc('month',{{ #ecommerce_orders.created_date }}) as order_created_month
-  , {{ #products_1.merchant_id }}
-  , {{ #products_1.merchant_name }}
-  , {{ #ecommerce_products.id }} as product_id
-  , sum({{ #ecommerce_order_items.quantity }}) as sold_quantity
-  , sum({{ #ecommerce_order_items.quantity }})*10 - sum({{ #ecommerce_order_items.quantity }}) as available_quantity
-  , sum({{ #ecommerce_order_items.quantity }})*10 as total_quantity
-from {{ #ecommerce_order_items }}
-LEFT join {{ #ecommerce_orders }} on {{ #ecommerce_order_items.order_id }} = {{ #ecommerce_orders.id }}
-left join {{ #ecommerce_products }} on {{ #ecommerce_products.id }} = {{ #ecommerce_order_items.product_id }}
-left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_products.id }}
-group by 1,2,3,4;;
+// vincent wants to change this logic below
+//   query: @sql select 
+//   date_trunc('month',{{ #ecommerce_orders.created_date }}) as order_created_month
+//   , {{ #products_1.merchant_id }}
+//   , {{ #products_1.merchant_name }}
+//   , {{ #ecommerce_products.id }} as product_id
+//   , sum({{ #ecommerce_order_items.quantity }}) as sold_quantity
+//   , sum({{ #ecommerce_order_items.quantity }})*10 - sum({{ #ecommerce_order_items.quantity }}) as available_quantity
+//   , sum({{ #ecommerce_order_items.quantity }})*10 as total_quantity
+
+// from {{ #ecommerce_order_items }}
+// LEFT join {{ #ecommerce_orders }} on {{ #ecommerce_order_items.order_id }} = {{ #ecommerce_orders.id }}
+// left join {{ #ecommerce_products }} on {{ #ecommerce_products.id }} = {{ #ecommerce_order_items.product_id }}
+// left join {{ #products_1 }} on {{ #products_1.id }} = {{ #ecommerce_products.id }}
+// group by 1,2,3,4;;
+
+
+query: @sql
+WITH inventory_base AS (
+  SELECT 
+    date_trunc('month', {{ #ecommerce_orders.created_date }}) AS order_created_month,
+    {{ #products_1.merchant_id }} AS merchant_id,
+    {{ #products_1.merchant_name }} AS merchant_name,
+    {{ #ecommerce_products.id }} AS product_id,
+
+    sum({{ #ecommerce_order_items.quantity }}) AS sold_quantity,
+
+    -- Randomize available_quantity
+    CASE
+      WHEN random() < 0.1 THEN sum({{ #ecommerce_order_items.quantity }}) * 12 + 1500
+      ELSE sum({{ #ecommerce_order_items.quantity }}) * (FLOOR(random() * 3 + 2)) + FLOOR(random() * 300)
+    END AS available_quantity
+
+  FROM {{ #ecommerce_order_items }}
+  LEFT JOIN {{ #ecommerce_orders }}
+    ON {{ #ecommerce_order_items.order_id }} = {{ #ecommerce_orders.id }}
+  LEFT JOIN {{ #ecommerce_products }}
+    ON {{ #ecommerce_products.id }} = {{ #ecommerce_order_items.product_id }}
+  LEFT JOIN {{ #products_1 }}
+    ON {{ #products_1.id }} = {{ #ecommerce_products.id }}
+
+  GROUP BY 1, 2, 3, 4
+)
+
+SELECT
+  order_created_month,
+  merchant_id,
+  merchant_name,
+  product_id,
+  sold_quantity,
+  available_quantity,
+  sold_quantity + available_quantity AS total_quantity
+FROM inventory_base;;
+
+
+
   models: [
     products_1,
     ecommerce_orders,
