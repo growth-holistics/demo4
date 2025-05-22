@@ -1579,7 +1579,7 @@ Improving this realization rate by even a few percentage points could lead to si
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('param_model_nam', 'metric_selections')
+      field: ref('param_model_demo', 'metric_selections')
     }
     default {
       operator: 'is'
@@ -1587,47 +1587,6 @@ Improving this realization rate by even a few percentage points could lead to si
     }
     settings {
       input_type: 'single'
-    }
-  }
-  block v56: VizBlock {
-    label: 'Product Categories'
-    viz: DataTable {
-      dataset: demo_ecommerce_version_2
-      theme {
-        table {
-          general {
-            bg_color: '#8BD2CE'
-            borders {
-              outer: true
-              header: true
-              vertical: true
-              horizontal: true
-            }
-          }
-        }
-      }
-      fields: [
-        VizFieldFull {
-          ref: ref('map_categories', 'parent_category')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: ref('map_categories', 'category')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
     }
   }
   block v57: VizBlock {
@@ -1639,6 +1598,12 @@ Improving this realization rate by even a few percentage points could lead to si
       }
       x_axis: VizFieldFull {
         ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'category')
         format {
           type: 'text'
         }
@@ -1660,45 +1625,12 @@ Improving this realization rate by even a few percentage points could lead to si
       }
       settings {
         row_limit: 5000
-        legend_label: 'left'
+        legend_label: 'hidden'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-      }
-    }
-  }
-  block f7: FilterBlock {
-    label: 'Category'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce_version_2
-      field: ref('map_categories', 'category')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-  }
-  block f8: FilterBlock {
-    label: 'Parent Category'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce_version_2
-      field: ref('map_categories', 'parent_category')
-    }
-    default {
-      operator: 'is'
-      value: []
-    }
-    settings {
-      drillthrough: Drillthrough {
-        enabled: false
-        sources: [
-          AutoDrillthroughSource {
-          }
-        ]
       }
     }
   }
@@ -1782,6 +1714,47 @@ Whether you're in the main chart or within a drilled-down view:
     settings {
       input_type: 'single'
     }
+  }
+  block f11: FilterBlock {
+    label: 'Countries Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t27: TextBlock {
+    content: @md # 📦 Product Overview
+
+This dashboard provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.
+
+Every widget here is **fully dynamic and filter-aware**, powered by Holistics’s semantic layer and Analytics-as-Code engine—allowing the BI team to define once and reuse everywhere.;;
+  }
+  block t28: TextBlock {
+    content: @md ## 🔁 Unified Metric Selector: Focused Exploration, One Metric at a Time
+
+This dropdown lets users switch between key metrics—`GMV`, `NMV`, `AOV`, and more—while preserving the same dimension (e.g., Product Category).
+
+The chart updates dynamically with each metric change. The dimension stays fixed, so users can make apples-to-apples comparisons across different KPIs.
+
+> ✅ **Why it matters**: BI teams can reduce the upfront complexity by guiding users to **explore one metric at a time**, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric.
+;;
+  }
+  block t29: TextBlock {
+    content: @md ## 📊 Dynamic Cohort Analysis: Cohort Slicing by Any Filter
+
+This cohort report is tightly integrated with the filters above (date, metric, geography). Any change in those filters will immediately update this cohort breakdown.
+
+It allows business users to answer advanced questions like:
+- How does user behavior change by country or product?
+- What is the monthly retention pattern by product launch cohorts?
+
+> 🎯 **Why it matters**: With dynamic cohort logic, users can **slice cohorts by any permutation**—without BI creating custom cohort reports for every dimension or segment.
+;;
   }
   view: TabLayout {
     label: 'View 1'
@@ -1896,19 +1869,19 @@ Whether you're in the main chart or within a drilled-down view:
         layer: 8
       }
       block t22 {
-        position: pos(20, 900, 1280, 20)
+        position: pos(20, 900, 1200, 20)
         layer: 1
       }
       block t25 {
-        position: pos(20, 940, 1240, 320)
+        position: pos(20, 940, 880, 320)
         layer: 11
       }
       block v44 {
-        position: pos(640, 360, 740, 520)
+        position: pos(640, 360, 580, 520)
         layer: 9
       }
       block v52 {
-        position: pos(920, 1280, 340, 300)
+        position: pos(920, 940, 300, 320)
         layer: 13
       }
       block v53 {
@@ -1993,38 +1966,42 @@ Whether you're in the main chart or within a drilled-down view:
       label: 'Products'
       height: 1580
       grid_size: 20
-      block v56 {
-        position: pos(40, 160, 520, 360)
-        layer: 2
-      }
       block v57 {
-        position: pos(40, 540, 1100, 360)
+        position: pos(360, 460, 800, 340)
         layer: 3
       }
-      block f7 {
-        position: pos(360, 40, 300, 100)
-        layer: 4
-      }
-      block f8 {
-        position: pos(40, 40, 300, 100)
-        layer: 5
-      }
       block v58 {
-        position: pos(40, 920, 1100, 460)
+        position: pos(20, 1080, 1100, 460)
         layer: 6
       }
       block f9 {
-        position: pos(680, 40, 300, 100)
+        position: pos(20, 580, 300, 100)
         layer: 7
       }
       block f10 {
-        position: pos(740, 440, 300, 100)
+        position: pos(20, 460, 300, 100)
         layer: 8
+      }
+      block f11 {
+        position: pos(20, 700, 300, 100)
+        layer: 9
+      }
+      block t27 {
+        position: pos(20, 20, 620, 200)
+        layer: 10
+      }
+      block t28 {
+        position: pos(20, 240, 1140, 200)
+        layer: 11
+      }
+      block t29 {
+        position: pos(20, 820, 1140, 240)
+        layer: 12
       }
       mobile {
         mode: 'auto'
       }
-      width: 1220
+      width: 1180
     }
     tab tab3: CanvasLayout {
       label: 'Merchants'
@@ -2087,7 +2064,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2113,7 +2089,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2139,7 +2114,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2165,7 +2139,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2191,7 +2164,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2217,7 +2189,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2243,7 +2214,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2269,7 +2239,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2295,7 +2264,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2328,7 +2296,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2363,7 +2330,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2389,7 +2355,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2422,7 +2387,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2455,7 +2419,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2467,7 +2430,10 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f2'
       to: [
         CustomMapping {
-          block: 'f10'
+          block: [
+            'f10',
+            'f11'
+          ]
           disabled: true
         }
       ]
@@ -2497,7 +2463,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2532,7 +2497,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2544,7 +2508,10 @@ Whether you're in the main chart or within a drilled-down view:
       from: 'f4'
       to: [
         CustomMapping {
-          block: 'f10'
+          block: [
+            'f10',
+            'f11'
+          ]
           disabled: true
         }
       ]
@@ -2576,7 +2543,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2607,7 +2573,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2638,7 +2603,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2669,7 +2633,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2700,7 +2663,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2731,7 +2693,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2745,7 +2706,6 @@ Whether you're in the main chart or within a drilled-down view:
         CustomMapping {
           block: [
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2759,7 +2719,6 @@ Whether you're in the main chart or within a drilled-down view:
         CustomMapping {
           block: [
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2792,7 +2751,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v49',
             'v50',
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2806,7 +2764,6 @@ Whether you're in the main chart or within a drilled-down view:
         CustomMapping {
           block: [
             'v55',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2843,7 +2800,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v53a',
             'v52',
             'v53',
-            'v56',
             'v57',
             'v58'
           ]
@@ -2852,36 +2808,19 @@ Whether you're in the main chart or within a drilled-down view:
       ]
     },
     FilterInteraction {
-      from: 'v56'
+      from: 'f5'
       to: [
         CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v55'
-          ]
+          block: 'f11'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f6'
+      to: [
+        CustomMapping {
+          block: 'f11'
           disabled: true
         }
       ]
@@ -2917,95 +2856,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v53',
             'v55'
           ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f7'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v55',
-            'v56'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f7'
-      to: [
-        CustomMapping {
-          block: 'f10'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f8'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v55'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f8'
-      to: [
-        CustomMapping {
-          block: 'f10'
           disabled: true
         }
       ]
@@ -3075,7 +2925,6 @@ Whether you're in the main chart or within a drilled-down view:
             'v52',
             'v53',
             'v55',
-            'v56',
             'v58'
           ]
           disabled: true
@@ -3089,8 +2938,57 @@ Whether you're in the main chart or within a drilled-down view:
           block: [
             'f2',
             'f4',
-            'f7',
-            'f8'
+            'f11'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f11'
+      to: [
+        CustomMapping {
+          block: [
+            'v20',
+            'v21',
+            'v22',
+            'v25',
+            'v27',
+            'v28',
+            'v29',
+            'v30',
+            'v31',
+            'v34',
+            'v35',
+            'v36',
+            'v37',
+            'v43',
+            'v44',
+            'v46',
+            'v47',
+            'v48',
+            'v49',
+            'v50',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f11'
+      to: [
+        CustomMapping {
+          block: [
+            'f2',
+            'f4',
+            'f5',
+            'f6',
+            'f10'
           ]
           disabled: true
         }
