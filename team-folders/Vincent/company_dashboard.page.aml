@@ -476,18 +476,6 @@ Young adult female customers (under 30) are currently our most valuable and loya
           general {
             bg_color: '#FFFFFFFF'
             font_size: 16
-            cell_padding {
-              top: 7
-              left: 8
-              bottom: 7
-              right: 8
-            }
-            borders {
-              outer: true
-              vertical: true
-              header: true
-              row_header: true
-            }
           }
         }
       }
@@ -529,6 +517,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_total_delivered_orders'
         },
         VizFieldFull {
           ref: ref('ecommerce_orders', 'days_since_last_order')
@@ -544,6 +533,7 @@ Young adult female customers (under 30) are currently our most valuable and loya
             type: 'number'
             pattern: '[$$]#,###'
           }
+          uname: 'custom_average_nmv'
         }
       ]
       settings {
@@ -575,12 +565,24 @@ Young adult female customers (under 30) are currently our most valuable and loya
         frozen_columns: 2
         column_styles: [
           ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 156
+          },
+          ColumnStyle {
             key: 'ecommerce_users_full_name'
             width: 175
           },
           ColumnStyle {
-            key: 'ecommerce_countries_name'
-            width: 156
+            key: 'custom_days_since_last_order'
+            width: 85
+          },
+          ColumnStyle {
+            key: 'custom_total_delivered_orders'
+            width: 101
+          },
+          ColumnStyle {
+            key: 'custom_average_nmv'
+            width: 102
           }
         ]
       }
@@ -1630,22 +1632,27 @@ Improving this realization rate by even a few percentage points could lead to si
   }
   block v57: VizBlock {
     label: 'Order Over Time'
-    viz: ColumnChart {
+    viz: BarChart {
       dataset: demo_ecommerce_version_2
       theme {
 
       }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_date')
-        transformation: 'datetrunc quarter'
+        ref: ref('map_categories', 'parent_category')
         format {
-          type: 'date'
-          pattern: 'yyyy Qq'
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'category')
+        format {
+          type: 'text'
         }
       }
       y_axis {
         settings {
           show_data_label_by: 'value'
+          stack_series_by: 'value'
         }
         series {
           field: VizFieldFull {
@@ -1659,6 +1666,7 @@ Improving this realization rate by even a few percentage points could lead to si
       }
       settings {
         row_limit: 5000
+        legend_label: 'left'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
@@ -1701,7 +1709,7 @@ Improving this realization rate by even a few percentage points could lead to si
     }
   }
   block v58: VizBlock {
-    label: 'Cohort Report'
+    label: 'Cohort Report by Product'
     viz: RetentionHeatmap {
       dataset: demo_ecommerce_version_2
       theme {
@@ -1742,9 +1750,29 @@ Improving this realization rate by even a few percentage points could lead to si
     type: 'date'
     default {
       operator: 'last'
-      value: '18'
+      value: '12'
       modifier: 'month'
     }
+  }
+  block t26: TextBlock {
+    content: @md ### 📊 Explore User Sign-ups Over Time
+
+This chart shows how user sign-ups have evolved quarter by quarter. You can go beyond the surface and dig deeper into the data with a few simple interactions:
+
+---
+
+#### 🔍 Drill Down for Deeper Insight
+
+Right-click on any bar (e.g., Q1 2025) to **drill down** into dimensions like: **Gender, Age group, Country** etc. This lets you analyze which segments contributed most to user growth in that specific period.
+
+---
+
+#### 🧑‍💻 View Underlying Data
+
+Whether you're in the main chart or within a drilled-down view:
+
+- Click **“View Underlying Data”** to explore the exact list of users who signed up.
+- Filter or export this raw data to investigate anomalies, campaign performance, or to follow up with user cohorts.;;
   }
   view: TabLayout {
     label: 'View 1'
@@ -1904,15 +1932,15 @@ Improving this realization rate by even a few percentage points could lead to si
     }
     tab tab1: CanvasLayout {
       label: 'Users'
-      width: 1420
+      width: 1480
       height: 2640
       grid_size: 20
       block f1 {
-        position: pos(20, 880, 300, 80)
+        position: pos(620, 880, 300, 80)
         layer: 4
       }
       block f2 {
-        position: pos(340, 880, 300, 80)
+        position: pos(940, 880, 300, 80)
         layer: 9
       }
       block t5 {
@@ -1924,56 +1952,60 @@ Improving this realization rate by even a few percentage points could lead to si
         layer: 2
       }
       block t15 {
-        position: pos(0, 800, 1380, 60)
+        position: pos(0, 800, 1420, 60)
         layer: 8
       }
       block t23 {
-        position: pos(40, 180, 560, 580)
+        position: pos(40, 180, 580, 580)
         layer: 1
       }
       block t24 {
-        position: pos(840, 1300, 560, 580)
+        position: pos(860, 1300, 560, 580)
         layer: 10
       }
       block v34 {
-        position: pos(20, 1300, 800, 580)
+        position: pos(20, 1300, 820, 580)
         layer: 1
       }
       block v37 {
-        position: pos(20, 980, 1320, 300)
+        position: pos(620, 980, 800, 300)
         layer: 3
       }
       block v43 {
-        position: pos(620, 180, 640, 580)
+        position: pos(640, 180, 640, 580)
         layer: 1
+      }
+      block t26 {
+        position: pos(20, 880, 580, 400)
+        layer: 11
       }
     }
     tab tab4: CanvasLayout {
       label: 'Products'
-      height: 1180
+      height: 1580
       grid_size: 20
       block v56 {
-        position: pos(40, 120, 520, 360)
+        position: pos(40, 160, 520, 360)
         layer: 2
       }
       block v57 {
-        position: pos(560, 120, 560, 360)
+        position: pos(40, 540, 1100, 360)
         layer: 3
       }
       block f7 {
-        position: pos(380, 0, 300, 100)
+        position: pos(360, 40, 300, 100)
         layer: 4
       }
       block f8 {
-        position: pos(60, 0, 300, 100)
+        position: pos(40, 40, 300, 100)
         layer: 5
       }
       block v58 {
-        position: pos(40, 900, 1160, 660)
+        position: pos(40, 920, 1100, 460)
         layer: 6
       }
       block f9 {
-        position: pos(700, 0, 300, 100)
+        position: pos(680, 40, 300, 100)
         layer: 7
       }
       mobile {
@@ -3153,10 +3185,11 @@ Improving this realization rate by even a few percentage points could lead to si
       from: 'f9'
       to: [
         CustomMapping {
-          block: [
-            'v58',
-            'v57'
-          ]
+          block: 'v58'
+          field: ref('ecommerce_users', 'cohort_month')
+        },
+        CustomMapping {
+          block: 'v57'
           field: ref('ecommerce_orders', 'created_at')
         }
       ]
