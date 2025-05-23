@@ -1037,169 +1037,6 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   block t22: TextBlock {
     content: @md <hr>;;
   }
-  block v46: VizBlock {
-    label: 'Products Listed'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      value: VizFieldFull {
-        label: 'Products Listed'
-        ref: ref('ecommerce_products', 'total_products')
-        format {
-          type: 'number'
-          pattern: '#,###'
-          group_separator: ','
-          decimal_separator: '.'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_users', 'sign_up_date')
-        duration: 1
-        granularity: 'quarter'
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v47: VizBlock {
-    label: 'Total Users'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      value: VizFieldFull {
-        label: 'Total Users'
-        ref: 'total_users'
-        format {
-          type: 'number'
-          pattern: '#,###'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_users', 'sign_up_date')
-        duration: 1
-        granularity: 'quarter'
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v48: VizBlock {
-    label: 'All-Time Orders'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      value: VizFieldFull {
-        label: 'All-Time Orders'
-        ref: ref('ecommerce_orders', 'total_orders_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
-        duration: 1
-        granularity: 'quarter'
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v49: VizBlock {
-    label: 'Merchants Onboarded'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      value: VizFieldFull {
-        label: 'Merchants Onboarded'
-        ref: ref('ecommerce_merchants', 'created_at')
-        aggregation: 'count'
-        format {
-          type: 'number'
-          pattern: '#,###'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_users', 'sign_up_date')
-        duration: 1
-        granularity: 'quarter'
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v50: VizBlock {
-    label: 'AOV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      value: VizFieldFull {
-        label: 'Average Order Value'
-        ref: 'aov'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block t23: TextBlock {
     content: @md ## 👥 User Demographic Insight
 **Analysis Last Updated on 20 May 2025 by Uncle Ben** </br>
@@ -1249,16 +1086,11 @@ This section highlights how efficiently the platform is turning customer orders 
 - **Total Orders** are grouped into two simplified delivery outcomes:
   - ✅ **Success** = Delivered orders  
   - ❌ **Failed** = Cancelled or Refunded orders  
-  This grouping is used instead of the system's default `[delivered, cancelled, refunded]` statuses to make high-level analysis clearer and more actionable.
-
-- The **% of GMV Realized** gauge reflects the portion of gross customer value (GMV) that was actually fulfilled and paid — our **NMV realization rate**. A healthy benchmark is **85–95%**. Currently, we’re at **~70%**, highlighting a gap worth investigating.
 
 > 📌 **Want to go deeper?**  
 Use the **[Drill Down]** or **[View Underlying Data]** features to explore breakdowns by:
 - Refund vs cancellation volumes  
-- Order categories, vendors, or regions driving leakage
-
-Improving this realization rate by even a few percentage points could lead to significant gains in NMV, platform revenue, and overall profitability.;;
+- Order categories, vendors, or regions driving leakage;;
   }
   block v52a: VizBlock {
     label: 'NMV Realized from GMV'
@@ -1756,6 +1588,38 @@ It allows business users to answer advanced questions like:
 > 🎯 **Why it matters**: With dynamic cohort logic, users can **slice cohorts by any permutation**—without BI creating custom cohort reports for every dimension or segment.
 ;;
   }
+  block t30: TextBlock {
+    content: @md The **% of GMV Realized** gauge reflects the portion of gross customer value (GMV) that was actually fulfilled and paid — our **NMV realization rate**. A healthy benchmark is **85–95%**. Currently, we’re at **~70%**, highlighting a gap worth investigating.
+;;
+  }
+  block t31: TextBlock {
+    content: @md ### 📚 Data Exploration Mini Tutorial
+
+Explore beyond static charts. Holistics empowers you to ask and answer your own questions with just a few clicks. Use the tutorials below to customize visualizations and unlock deeper insights from the same dataset — no SQL required.
+;;
+  }
+  block t32: TextBlock {
+    content: @md #### 📊 Tutorial 1: Add an Additional Metric (NMV)
+
+Overlay **Net Merchandise Value (NMV)** on top of the GMV chart to compare intended vs realized order value.
+
+1. Click **Explore Data** on the top-right of the GMV chart.
+2. Search and add the `NMV` field alongside `GMV`.
+3. Change the visualization from **Column Chart** to **Combination Chart** (Column + Line).
+4. Click **Save As** and store it to your **Private Workspace** folder for future use.
+5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
+  }
+  block t33: TextBlock {
+    content: @md #### 🔁 Tutorial 2: Add a Period-over-Period Comparison
+
+Uncover trends by comparing current performance against a previous period.
+
+1. Open *Explore Data** and go to **Visual Settings**.
+2. Under **Quick Period Comparison**, choose the time field: `ecommerce_orders.created_at`.
+3. Select a comparison window — e.g., **Previous 1 Year**.
+4. Use **Save As** to create and keep a version in your **Private Workspace** library.
+5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -1845,8 +1709,8 @@ It allows business users to answer advanced questions like:
     }
     tab tab6: CanvasLayout {
       label: 'Finance'
-      width: 1540
-      height: 1780
+      width: 1320
+      height: 1900
       grid_size: 20
       block f3 {
         position: pos(660, 180, 320, 100)
@@ -1865,28 +1729,44 @@ It allows business users to answer advanced questions like:
         layer: 5
       }
       block t21 {
-        position: pos(20, 360, 600, 520)
+        position: pos(20, 360, 680, 440)
         layer: 8
       }
       block t22 {
-        position: pos(20, 900, 1200, 20)
+        position: pos(20, 1220, 1280, 20)
         layer: 1
       }
       block t25 {
-        position: pos(20, 940, 880, 320)
+        position: pos(20, 1260, 880, 280)
         layer: 11
       }
       block v44 {
-        position: pos(640, 360, 580, 520)
+        position: pos(720, 360, 580, 600)
         layer: 9
       }
       block v52 {
-        position: pos(920, 940, 300, 320)
+        position: pos(940, 1260, 360, 280)
         layer: 13
       }
       block v53 {
-        position: pos(20, 1280, 880, 300)
+        position: pos(20, 1560, 880, 300)
         layer: 12
+      }
+      block t30 {
+        position: pos(940, 1560, 360, 180)
+        layer: 14
+      }
+      block t31 {
+        position: pos(20, 820, 680, 140)
+        layer: 15
+      }
+      block t32 {
+        position: pos(20, 980, 680, 220)
+        layer: 16
+      }
+      block t33 {
+        position: pos(720, 980, 580, 220)
+        layer: 17
       }
       mobile {
         mode: 'auto'
@@ -2008,36 +1888,8 @@ It allows business users to answer advanced questions like:
       height: 800
       grid_size: 20
       block v35 {
-        position: pos(20, 20, 640, 580)
+        position: pos(40, 80, 640, 580)
         layer: 1
-      }
-      mobile {
-        mode: 'auto'
-      }
-    }
-    tab tab5: CanvasLayout {
-      label: 'Region'
-      height: 800
-      grid_size: 20
-      block v46 {
-        position: pos(580, 220, 180, 120)
-        layer: 1
-      }
-      block v47 {
-        position: pos(100, 160, 220, 120)
-        layer: 2
-      }
-      block v48 {
-        position: pos(840, 140, 200, 120)
-        layer: 3
-      }
-      block v49 {
-        position: pos(720, 380, 260, 120)
-        layer: 4
-      }
-      block v50 {
-        position: pos(340, 180, 200, 100)
-        layer: 5
       }
       mobile {
         mode: 'auto'
@@ -2056,11 +1908,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2081,11 +1928,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2106,11 +1948,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2131,11 +1968,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2156,11 +1988,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2181,11 +2008,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2206,11 +2028,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2231,11 +2048,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2256,11 +2068,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2288,11 +2095,6 @@ It allows business users to answer advanced questions like:
             'v35',
             'v36',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2322,11 +2124,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2347,11 +2144,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2379,11 +2171,6 @@ It allows business users to answer advanced questions like:
             'v35',
             'v36',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2411,11 +2198,6 @@ It allows business users to answer advanced questions like:
             'v34',
             'v35',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2455,11 +2237,6 @@ It allows business users to answer advanced questions like:
             'v35',
             'v36',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2489,11 +2266,6 @@ It allows business users to answer advanced questions like:
             'v36',
             'v37',
             'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52',
             'v53',
             'v55',
@@ -2535,161 +2307,6 @@ It allows business users to answer advanced questions like:
             'v36',
             'v37',
             'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
-            'v52',
-            'v53',
-            'v55',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v46'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v55',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v47'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v55',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v48'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v55',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v49'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v55',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v50'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v35',
-            'v36',
-            'v37',
-            'v43',
-            'v44',
             'v52',
             'v53',
             'v55',
@@ -2745,11 +2362,6 @@ It allows business users to answer advanced questions like:
             'v36',
             'v37',
             'v43',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v55',
             'v57',
             'v58'
@@ -2791,11 +2403,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52a',
             'v53a',
             'v52',
@@ -2845,11 +2452,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52a',
             'v53a',
             'v52',
@@ -2880,11 +2482,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52a',
             'v53a',
             'v52',
@@ -2915,11 +2512,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52a',
             'v53a',
             'v52',
@@ -2966,11 +2558,6 @@ It allows business users to answer advanced questions like:
             'v37',
             'v43',
             'v44',
-            'v46',
-            'v47',
-            'v48',
-            'v49',
-            'v50',
             'v52a',
             'v53a',
             'v52',
