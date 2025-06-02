@@ -1,0 +1,47 @@
+Model customers {
+  type: 'query'
+  label: 'Customers'
+  description: ''
+  data_source_name: 'demodb'
+  dimension customer_id {
+    label: 'Customer ID'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension sign_up_date {
+    label: 'Sign Up Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.sign_up_date }};;
+  }
+ dimension churn_date {
+    label: 'Churn Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.churn_date }};;
+  }
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+WITH customer_dates AS (
+    SELECT
+        ROW_NUMBER() OVER () AS customer_id, -- Sequential customer_id
+        (('2023-01-01'::date + (RANDOM() * (('2025-01-01'::date - '2023-01-01'::date) / 300))::int * interval '1 day') + (customer_idx * interval '1 day')) AS sign_up_date
+    FROM generate_series(1, 300) AS customer_idx -- Generate 200 synthetic customers
+),
+churn_data AS (
+    SELECT
+        customer_id,
+        sign_up_date,
+        CASE
+            WHEN RANDOM() < 0.7 THEN NULL -- 70% of customers don't churn
+            ELSE sign_up_date + ((RANDOM() * 12 + 3)::int * interval '1 month') -- 30% churn after 3-15 months
+        END AS churn_date
+    FROM customer_dates
+)
+SELECT customer_id, sign_up_date, churn_date
+FROM churn_data
+ORDER BY customer_id;;;
+  models: [
+  ]
+}
