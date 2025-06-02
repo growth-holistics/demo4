@@ -32,30 +32,34 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v1: VizBlock {
     label: ' KPI Overview'
     viz: MetricSheet {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
         field: ref('dim_dates', 'date_key')
         operator: 'matches'
-        value: '12 months ago to last month end'
+        value: '12 months ago till now'
+      }
+      theme {
+
       }
       date_field: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc month'
         format {
           type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       rows: [
         MetricHeading {
           label: '🎯Orders'
           settings {
-            background_color: '#255DD4'
-            text_color: '#FFFFFF'
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
           }
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'total_orders_count')
+            ref: 'total_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -64,7 +68,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            ref: 'total_cancelled_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -73,7 +77,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'refunded_orders_count')
+            ref: 'total_refunded_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -82,7 +86,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'delivered_orders_count')
+            ref: 'total_delivered_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -92,31 +96,31 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         MetricHeading {
           label: '💰 Revenue'
           settings {
-            background_color: '#255DD4'
-            text_color: '#FFFFFF'
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
           }
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'nmv')
+            ref: 'nmv'
             format {
               type: 'number'
-              pattern: '[$$]#,###0.00'
+              pattern: 'inherited'
             }
           }
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
-              pattern: '[$$]#,###0.00'
+              pattern: 'inherited'
             }
           }
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -125,7 +129,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       ]
       settings {
-        max_column: 3
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -139,30 +142,33 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v2: VizBlock {
     label: 'GMV'
     viz: MetricKpi {
-      dataset: demo_ecommerce
-      // calculation f_2fb1cc3 {
-      //   label: 'GMT last year'
-      //   formula: @aml order_master.gmv * 0.87;;
-      //   calc_type: 'measure'
-      //   data_type: 'number'
-      // }
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
       }
+      theme {
+
+      }
       value: VizFieldFull {
-        label: 'Gross Merchandise Value'
-        ref: ref('order_master', 'gmv')
+        ref: 'gmv'
         format {
           type: 'number'
-          pattern: '[$$]#,###'
+          pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         duration: 1
         granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
       }
     }
     settings {
@@ -172,11 +178,14 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v2_dup_dup: VizBlock {
     label: 'Top selling product category'
     viz: PieChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
+      }
+      theme {
+
       }
       legend: VizFieldFull {
         ref: ref('map_categories', 'parent_category')
@@ -187,36 +196,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       series {
         field: VizFieldFull {
           label: ' '
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
-            pattern: '[$$]#,###'
-          }
-        }
-        settings {
-          point {
-            value: 'Clothes'
-            color: '#255DD4'
-          }
-          point {
-            value: 'Groceries'
-            color: '#18A59E'
-          }
-          point {
-            value: 'Skin Care'
-            color: '#F2B602'
-          }
-          point {
-            value: 'Home Furniture'
-            color: '#AF7DED'
-          }
-          point {
-            value: 'Mobiles & Tablets'
-            color: '#A50E43'
-          }
-          point {
-            value: 'Home Entertainment'
-            color: '#07326C'
+            pattern: 'inherited'
           }
         }
       }
@@ -233,60 +216,55 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v6: VizBlock {
     label: 'Top selling products'
     viz: DataTable {
-      dataset: demo_ecommerce
-      calculation f_28374b6 {
-        label: 'Product Image'
-        formula: @aml concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />');;
-        calc_type: 'dimension'
-        data_type: 'text'
-      }
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
       }
+      theme {
+
+      }
       fields: [
         VizFieldFull {
-          label: 'Product Name'
           ref: ref('ecommerce_products', 'product_google_link')
           format {
             type: 'html'
           }
-          uname: 'ecommerce_products_product_google_link'
         },
         VizFieldFull {
-          ref: ref('ecommerce_products', 'product_image')
+          ref: ref('ecommerce_product_images', 'product_image')
           format {
             type: 'html'
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'discount')
+          ref: ref('ecommerce_orders', 'discount')
           aggregation: 'avg'
           format {
             type: 'number'
-            pattern: '#,###%'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
           }
         },
         VizFieldFull {
-          label: 'Quantity Sold'
-          ref: ref('order_master', 'order_count')
+          ref: 'total_orders'
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          label: 'GMV'
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
-            pattern: '[$$]#,###'
+            pattern: 'inherited'
           }
+          uname: 'custom_gmv'
         }
       ]
       settings {
-        pagination_size: 100
         row_height: 'multiple_lines'
         sorts: [
           SortSetting {
@@ -294,54 +272,61 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
             direction: 'desc'
           }
         ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#D3DFF6'
+              }
+              max {
+                value: 100000
+                color: '#255DD4'
+              }
+            }
+          }
+        ]
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-        column_styles: [
-          ColumnStyle {
-            key: 'ecommerce_products_product_google_link'
-            width: 145
-          }
-        ]
       }
     }
   }
   block v7: VizBlock {
     label: 'Cohort Retention'
     viz: RetentionHeatmap {
-      dataset: demo_ecommerce
-      filter {
-        field: ref('user_cohort_retention', 'cohort_month')
-        operator: 'matches'
-        value: '2023'
+      dataset: demo_ecommerce_version_2
+      theme {
+
       }
       cohort: VizFieldFull {
-        label: 'Cohort Month'
-        ref: ref('user_cohort_retention', 'cohort_month')
+        ref: ref('ecommerce_users', 'cohort_month')
         transformation: 'datetrunc month'
         format {
           type: 'date'
-        }
-      }
-      cohort_size: VizFieldFull {
-        ref: ref('user_cohort_retention', 'cohort_size')
-        format {
-          type: 'number'
-          pattern: 'inherited'
+          pattern: 'LLL yyyy'
         }
       }
       cohort_duration: VizFieldFull {
-        ref: ref('user_cohort_retention', 'relative_month_disp')
-        format {
-          type: 'text'
-        }
-      }
-      cohort_value: VizFieldFull {
-        ref: ref('user_cohort_retention', 'active_users_count')
+        ref: ref('ecommerce_orders', 'month_number')
         format {
           type: 'number'
           pattern: 'inherited'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: 'retention'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -349,12 +334,16 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v8: VizBlock {
     label: 'Users vs Orders Growth'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'sign_up_date')
         transformation: 'datetrunc quarter'
         format {
           type: 'date'
+          pattern: 'yyyy Qq'
         }
       }
       y_axis {
@@ -379,9 +368,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: ref('order_master', 'delivered_orders_count')
+            ref: ref('ecommerce_orders', 'delivered_orders_count')
             format {
               type: 'number'
+              pattern: 'inherited'
             }
           }
           settings {
@@ -391,6 +381,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       settings {
+        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -401,12 +392,15 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v10: VizBlock {
     label: 'Total Users compared with Target Users'
     viz: MetricKpi {
-      dataset: demo_ecommerce
-      calculation f_d80427a {
-        label: 'Target Users'
-        formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_af1e4dd {
+        label: 'Untitled Metric'
+        formula: @aql ecommerce_users.users_signed_up_count * 1.38;;
         calc_type: 'measure'
         data_type: 'number'
+      }
+      theme {
+
       }
       value: VizFieldFull {
         ref: ref('ecommerce_users', 'total_users')
@@ -416,7 +410,8 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       compare_value: VizFieldFull {
-        ref: 'f_d80427a'
+        label: 'Target Users'
+        ref: 'untitled_metric_af1e4dd'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -424,6 +419,11 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       settings {
         display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
       }
     }
     settings {
@@ -434,14 +434,17 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v12: VizBlock {
     label: 'GMV Over Time'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '12 months ago till now'
       }
+      theme {
+
+      }
       x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
+        ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -451,20 +454,16 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
-              pattern: '#,###'
+              pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#255DD4'
           }
         }
       }
       settings {
-        legend_label: 'hidden'
-        x_axis_show_null_datetime: true
+        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -476,7 +475,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -555,7 +554,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v13: VizBlock {
     label: 'GMV by Country'
     viz: BarChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
       legend: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -568,61 +570,18 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
         series {
           field: VizFieldFull {
-            label: '  '
-            ref: ref('order_master', 'gmv')
+            label: ' '
+            ref: 'gmv'
             format {
               type: 'number'
-              pattern: '#,###'
-            }
-          }
-          settings {
-            color: '#255DD4'
-            point {
-              value: 'India'
-              color: '#AF7DED'
-            }
-            point {
-              value: 'France'
-              color: '#18A59E'
-            }
-            point {
-              value: 'Germany'
-              color: '#07326C'
-            }
-            point {
-              value: 'Vietnam'
-              color: '#07326C'
-            }
-            point {
-              value: 'Australia'
-              color: '#255DD4'
-            }
-            point {
-              value: 'Indonesia'
-              color: '#A50E43'
-            }
-            point {
-              value: 'Singapore'
-              color: '#F2B602'
-            }
-            point {
-              value: 'South Korea'
-              color: '#E27712'
-            }
-            point {
-              value: 'United States'
-              color: '#18A59E'
-            }
-            point {
-              value: 'United Kingdom'
-              color: '#255DD4'
+              pattern: 'inherited'
             }
           }
         }
       }
       settings {
         legend_label: 'left'
-        x_axis_show_null_datetime: true
+        x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -651,7 +610,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     label: 'Age Group'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'age_group')
     }
     default {
@@ -674,7 +633,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     label: 'City'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_cities', 'name')
     }
     default {
@@ -698,15 +657,18 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   }
   block v15: VizBlock {
     label: 'Average Order Value over time'
-    viz: CombinationChart {
-      dataset: demo_ecommerce
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
       }
+      theme {
+
+      }
       x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
+        ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc week'
         format {
           type: 'date'
@@ -715,9 +677,8 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       }
       y_axis {
         series {
-          mark_type: 'line'
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -729,8 +690,9 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         }
       }
       settings {
+        x_axis_show_null_datetime: false
         pop {
-          field: ref('order_master', 'order_created_at')
+          field: ref('ecommerce_orders', 'created_at')
           duration: 1
           granularity: 'year'
           show_growth_rate: true
@@ -745,7 +707,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v16: VizBlock {
     label: 'Sales Funnel'
     viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
+      dataset: demo_ecommerce_version_2
       breakdown_by: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -761,7 +723,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         },
         VizFieldFull {
           label: 'Users Purchased'
-          ref: ref('user_facts_aggr', 'buyers_count')
+          ref: 'total_buyers'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -769,7 +731,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         },
         VizFieldFull {
           label: 'Users Repeated Purchased'
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
+          ref: 'total_repeated_buyers'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -903,11 +865,14 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block v17: VizBlock {
     label: 'Total Users and Delivered Orders Count by Quarter Sign Up Date'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
         field: ref('ecommerce_users', 'age_group')
         operator: 'is_not'
         value: '3. From 40 to 49'
+      }
+      theme {
+
       }
       rows: [
         VizFieldFull {
@@ -939,14 +904,15 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       ]
       values: [
         VizFieldFull {
-          ref: ref('order_master', 'revenue')
+          ref: 'revenue'
           format {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_revenue'
         },
         VizFieldFull {
-          ref: ref('order_master', 'order_count')
+          ref: 'total_orders'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -956,12 +922,24 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       settings {
         show_row_total: true
         show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_revenue'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 300000
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
-        frozen_columns: 0
       }
     }
   }
@@ -1015,7 +993,7 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       position: pos(80, 2920, 260, 40)
     }
     block t5 {
-      position: pos(40, 220, 1460, 70)
+      position: pos(60, 200, 1460, 70)
     }
     block t6 {
       position: pos(40, 1190, 1460, 80)

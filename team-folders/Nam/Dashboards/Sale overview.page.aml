@@ -4,22 +4,22 @@ Dashboard sale_overview {
     label: 'GMV'
     description: 'Total value regardless of order status'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_03802b5 {
         label: 'GMV Last Year'
-        formula: @aml order_master.gmv * 0.87;;
+        formula: @aml gmv * 0.87;;
         calc_type: 'measure'
         data_type: 'number'
       }
       calculation untitled_metric_14c719b {
         label: 'Untitled Metric'
-        formula: @aql order_master.gmv * 0.87;;
+        formula: @aql gmv * 0.87;;
         calc_type: 'measure'
         data_type: 'number'
       }
       value: VizFieldFull {
         label: ' '
-        ref: ref('order_master', 'gmv')
+        ref: 'gmv'
         format {
           type: 'number'
           pattern: '[$$]#,###'
@@ -52,7 +52,7 @@ Dashboard sale_overview {
   block v6: VizBlock {
     label: ' '
     viz: MetricSheet {
-      dataset: demo_ecommerce_metrics
+      dataset: demo_ecommerce_version_2
       date_field: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc week'
@@ -71,7 +71,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'total_order')
+            ref: 'total_orders'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -80,7 +80,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'delivered_orders_count')
+            ref: 'total_delivered_orders'
             format {
               type: 'number'
               pattern: '#,###'
@@ -92,7 +92,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            ref: 'total_cancelled_orders'
             format {
               type: 'number'
               pattern: '#,###'
@@ -104,7 +104,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('ecommerce_orders', 'refunded_orders_count')
+            ref: 'total_refunded_orders'
             format {
               type: 'number'
               pattern: '#,###'
@@ -116,7 +116,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'aov')
+            ref: 'aov'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -132,7 +132,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'nmv')
+            ref: 'nmv'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -141,7 +141,7 @@ Dashboard sale_overview {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -161,7 +161,7 @@ Dashboard sale_overview {
   block v10: VizBlock {
     label: 'Registered Users'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation f_c70646c {
         label: 'Target Users'
         formula: @aml ecommerce_users.users_signed_up_count * 1.38;;
@@ -217,11 +217,10 @@ Dashboard sale_overview {
   block v125: VizBlock {
     label: 'Total Discount Given'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: ' '
-        ref: ref('order_master', 'discount')
-        aggregation: 'sum'
+        ref: 'total_discount'
         format {
           type: 'number'
           pattern: '#,###'
@@ -247,10 +246,10 @@ Dashboard sale_overview {
   block v126: VizBlock {
     label: 'Total Amount Refunded'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation untitled_metric_f5cb50b {
         label: 'Untitled Metric'
-        formula: @aql order_master.refunded_orders_count * average(order_master.price);;
+        formula: @aql refunded_value;;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -284,7 +283,7 @@ Dashboard sale_overview {
   block v127: VizBlock {
     label: 'Total Order Count'
     viz: MetricKpi {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation untitled_metric_c018fb0 {
         label: 'Untitled Metric'
         formula: @aql total_orders * 1.02;;
@@ -293,8 +292,7 @@ Dashboard sale_overview {
       }
       value: VizFieldFull {
         label: ' '
-        ref: ref('order_master', 'order_id')
-        aggregation: 'count distinct'
+        ref: 'total_orders'
         format {
           type: 'number'
           pattern: 'inherited'
@@ -332,8 +330,8 @@ Dashboard sale_overview {
     label: 'Date Filter'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('order_master', 'order_created_at')
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_orders', 'created_at')
     }
     default {
       operator: 'matches'
@@ -344,7 +342,7 @@ Dashboard sale_overview {
     label: 'Product Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'category')
     }
     default {
@@ -356,7 +354,7 @@ Dashboard sale_overview {
     label: 'Product Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -368,7 +366,7 @@ Dashboard sale_overview {
     label: 'Customer Age Demographic'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'age_group')
     }
     default {
@@ -379,7 +377,7 @@ Dashboard sale_overview {
   block v128: VizBlock {
     label: 'Products & Merchants'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       calculation profits {
         label: 'Profits'
         formula: @aql ecommerce_products.price-ecommerce_products.cost;;
@@ -446,7 +444,7 @@ Dashboard sale_overview {
         },
         VizFieldFull {
           label: 'Revenue'
-          ref: ref('order_master', 'revenue_delivered')
+          ref: 'delivered_value'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -455,7 +453,7 @@ Dashboard sale_overview {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: ref('order_master', 'aov')
+          ref: 'aov'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -515,7 +513,7 @@ Dashboard sale_overview {
     label: 'Product Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -527,7 +525,7 @@ Dashboard sale_overview {
     label: 'Merchant Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_merchants', 'name')
     }
     default {
@@ -538,9 +536,9 @@ Dashboard sale_overview {
   block v129: VizBlock {
     label: 'Dynamic Dim & Metric'
     viz: BarChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
-        ref: ref('order_master', 'breakdown_dim')
+        ref: ref('ecommerce_orders', 'breakdown_dim')
         format {
           type: 'text'
         }
@@ -562,7 +560,7 @@ Dashboard sale_overview {
             }
           }
           settings {
-            color: '#5CC863'
+            color: '#000004'
             color_palette: -1
           }
         }
@@ -586,8 +584,8 @@ Dashboard sale_overview {
     label: 'I want to see'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('param_model_nam', 'metric_selections')
+      dataset: demo_ecommerce_version_2
+      field: ref('param_model_demo', 'metric_selections')
     }
     default {
       operator: 'is'
@@ -601,8 +599,8 @@ Dashboard sale_overview {
     label: 'By'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
-      field: ref('param_model_nam', 'dim_selections')
+      dataset: demo_ecommerce_version_2
+      field: ref('param_model_demo', 'dim_selections')
     }
     default {
       operator: 'is'
@@ -622,16 +620,19 @@ Dashboard sale_overview {
     }
   }
   block v131: VizBlock {
-    label: 'Daily GMV vs. 7-day Moving Average'
+    label: 'Weekly GMV'
     viz: CombinationChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('order_master', 'order_created_at')
+        field: ref('ecommerce_orders', 'created_at')
         operator: 'matches'
         value: '2023'
       }
+      theme {
+
+      }
       x_axis: VizFieldFull {
-        ref: ref('order_master', 'order_created_at')
+        ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc week'
         format {
           type: 'date'
@@ -642,38 +643,14 @@ Dashboard sale_overview {
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: ref('order_master', 'gmv')
+            ref: 'gmv'
             format {
               type: 'number'
               pattern: '#,###'
             }
           }
           settings {
-            color: '#CCFF00FF'
-            line_interpolation: 'smooth'
-          }
-        }
-        series {
-          mark_type: 'line'
-          field: VizFieldFull {
-            label: '7-day MovAvg of GMV'
-            ref: ref('order_master', 'gmv')
-            format {
-              type: 'number'
-              pattern: '#,###'
-            }
-            analytic: MovingCalculationField {
-              type: 'avg'
-              order: 'row'
-              range {
-                previous: 7
-                next: 0
-              }
-              null_if_not_enough_values: true
-            }
-          }
-          settings {
-            color: '#84A110FF'
+            color: '#000004'
             line_interpolation: 'smooth'
           }
         }
@@ -691,7 +668,7 @@ Dashboard sale_overview {
   block v132: VizBlock {
     label: 'Sales Funnel'
     viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
+      dataset: demo_ecommerce_version_2
       breakdown_by: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -707,14 +684,14 @@ Dashboard sale_overview {
           }
         },
         VizFieldFull {
-          ref: ref('user_facts_aggr', 'buyers_count')
+          ref: 'total_buyers'
           format {
             type: 'number'
             pattern: '#,###'
           }
         },
         VizFieldFull {
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
+          ref: 'total_repeated_buyers'
           format {
             type: 'number'
             pattern: '#,###'
@@ -733,7 +710,7 @@ Dashboard sale_overview {
   block v133: VizBlock {
     label: 'GMV by Age Group - Gender'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       rows: [
         VizFieldFull {
           ref: ref('ecommerce_countries', 'continent_name')
@@ -773,7 +750,7 @@ Dashboard sale_overview {
       ]
       values: [
         VizFieldFull {
-          ref: ref('order_master', 'gmv')
+          ref: 'gmv'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -822,23 +799,23 @@ Dashboard sale_overview {
   block v134: VizBlock {
     label: 'Ecom User Retention'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('user_cohort_retention', 'cohort_month')
+        field: ref('ecommerce_users', 'cohort_month')
         operator: 'matches'
         value: 'last 12 months - today'
       }
       rows: [
         VizFieldFull {
           label: 'Cohort Month'
-          ref: ref('user_cohort_retention', 'cohort_month')
+          ref: ref('ecommerce_users', 'cohort_month')
           transformation: 'datetrunc month'
           format {
             type: 'date'
           }
         },
         VizFieldFull {
-          ref: ref('user_cohort_retention', 'cohort_size')
+          ref: ref('ecommerce_orders', 'cohort_size')
           format {
             type: 'number'
             pattern: '#,###'
@@ -848,7 +825,7 @@ Dashboard sale_overview {
       columns: [
         VizFieldFull {
           label: 'Relative Month'
-          ref: ref('user_cohort_retention', 'relative_month_disp')
+          ref: ref('ecommerce_orders', 'month_number')
           format {
             type: 'text'
           }
@@ -856,8 +833,7 @@ Dashboard sale_overview {
       ]
       values: [
         VizFieldFull {
-          ref: ref('user_cohort_retention', 'active_users_count')
-          aggregation: 'sum'
+          ref: 'total_users'
           format {
             type: 'number'
             pattern: '#,###0.00'
@@ -911,10 +887,6 @@ Dashboard sale_overview {
         CustomMapping {
           block: 'v131'
           disabled: true
-        },
-        CustomMapping {
-          block: 'v6'
-          field: ref('order_master', 'order_created_at')
         }
       ]
     },
@@ -978,22 +950,6 @@ Dashboard sale_overview {
             'v131',
             'v133',
             'v134'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'f2',
-            'f3',
-            'f5',
-            'f6',
-            'f7',
-            'f8'
           ]
           disabled: true
         }
@@ -1172,7 +1128,7 @@ Dashboard sale_overview {
       to: [
         CustomMapping {
           block: 'v131'
-          field: ref('order_master', 'order_created_at')
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     }
@@ -1302,7 +1258,7 @@ Dashboard sale_overview {
         layer: 1
       }
       block f1 {
-        position: pos(20, 20, 225, 85)
+        position: pos(570, 20, 225, 85)
         layer: 1
       }
       block v134 {
@@ -1315,5 +1271,5 @@ Dashboard sale_overview {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440
   }
-  theme: fashion
+  theme: travel_theme
 }

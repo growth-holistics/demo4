@@ -4,7 +4,7 @@ Dashboard _1_country_breakdown {
     label: 'Created At'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_orders', 'created_at')
     }
     default {
@@ -16,7 +16,7 @@ Dashboard _1_country_breakdown {
     label: 'Country'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_countries', 'name')
     }
     default {
@@ -37,7 +37,7 @@ Dashboard _1_country_breakdown {
     label: 'Product Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -49,7 +49,7 @@ Dashboard _1_country_breakdown {
     label: 'Customer Gender'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'gender')
     }
     default {
@@ -70,7 +70,7 @@ Dashboard _1_country_breakdown {
     label: 'City'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_cities', 'name')
     }
     default {
@@ -91,7 +91,7 @@ Dashboard _1_country_breakdown {
     label: 'Age Demographic'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'age_group')
     }
     default {
@@ -114,7 +114,7 @@ Dashboard _1_country_breakdown {
   block v1: VizBlock {
     label: 'Merchant x GMV'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       rows: [
         VizFieldFull {
           label: 'Merchant'
@@ -126,14 +126,14 @@ Dashboard _1_country_breakdown {
       ]
       values: [
         VizFieldFull {
-          ref: ref('order_master', 'revenue')
+          ref: 'revenue'
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'revenue_delivered')
+          ref: 'delivered_value'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -154,7 +154,7 @@ Dashboard _1_country_breakdown {
   block v2: VizBlock {
     label: 'Sales by City'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_cities', 'name')
         format {
@@ -164,7 +164,7 @@ Dashboard _1_country_breakdown {
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'revenue_delivered')
+            ref: 'delivered_value'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -180,7 +180,7 @@ Dashboard _1_country_breakdown {
   block v3: VizBlock {
     label: 'Sales Revenue by Year'
     viz: LineChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('ecommerce_products', 'created_at')
         transformation: 'datetrunc month'
@@ -192,7 +192,7 @@ Dashboard _1_country_breakdown {
       y_axis {
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'revenue_delivered')
+            ref: 'delivered_value'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -209,7 +209,7 @@ Dashboard _1_country_breakdown {
   block v4: VizBlock {
     label: 'Revenue Delivered by Category'
     viz: ColumnChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: ref('map_categories', 'category')
         format {
@@ -217,7 +217,7 @@ Dashboard _1_country_breakdown {
         }
       }
       legend: VizFieldFull {
-        ref: ref('order_master', 'order_created_date')
+        ref: ref('ecommerce_orders', 'created_at')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -232,7 +232,7 @@ Dashboard _1_country_breakdown {
         }
         series {
           field: VizFieldFull {
-            ref: ref('order_master', 'revenue_delivered')
+            ref: 'delivered_value'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -487,7 +487,7 @@ Dashboard _1_country_breakdown {
   block v5: VizBlock {
     label: 'Table View Chart'
     viz: DataTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
           ref: ref('ecommerce_countries', 'name')
@@ -522,7 +522,7 @@ Dashboard _1_country_breakdown {
           }
         },
         VizFieldFull {
-          ref: ref('order_master', 'product_id')
+          ref: ref('ecommerce_order_items', 'product_id')
           format {
             type: 'number'
             pattern: 'inherited'
