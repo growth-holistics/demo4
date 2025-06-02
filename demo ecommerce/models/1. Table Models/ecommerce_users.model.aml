@@ -13,11 +13,34 @@ Model ecommerce_users {
   }
 
 
+
   dimension sign_up_date {
     label: "Sign Up Date"
     type: "date"
     definition: @sql {{ #SOURCE.sign_up_date }};;
     description: "This is signup date"
+  }
+
+  dimension email_user {
+    label: 'Email User'
+    type: 'text'
+    definition: @aql concat(
+      'mailto:', ecommerce_users.email
+    );;
+  }
+
+  dimension phone {
+    label: 'Call User'
+    type: 'text'
+    definition: @aql concat(
+      'tel:', '5126329032'
+    );;
+  }
+
+  dimension visit_time {
+    label: 'Visit Time'
+    type: 'text'
+    definition: @sql to_char({{ sign_up_date }}, 'Month') ;;
   }
 
   dimension sign_up_at {
@@ -41,9 +64,25 @@ Model ecommerce_users {
   dimension email {
     label: "Email"
     type: "text"
+    hidden: true
     definition: @sql {{ #SOURCE.email }};;
     description: "Email address"
   }
+
+
+  dimension email_pii {
+    label: 'Email'
+    type: 'text'
+    definition: @aml
+      case (
+        when: 
+          in(1, H.current_user.pii_access),
+        then: ecommerce_users.email,
+        else: '(redacted)'
+      );;
+  }
+
+
 
   dimension birth_date {
     label: "Birth Date"
@@ -56,6 +95,7 @@ Model ecommerce_users {
   dimension gender {
     label: 'Gender'
     type: 'text'
+    description: 'Available values: Female, Male'
     hidden: false
     definition: @sql            case
   when {{#SOURCE.gender}} = 'f' then 'Female'
@@ -70,12 +110,14 @@ end;;
     hidden: true
     definition: @sql {{ #SOURCE.city_id }};;
   }
+
   dimension full_name {
     label: 'Full Name'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
   }
+
 
   // Custom fields
   dimension age {
@@ -84,18 +126,19 @@ end;;
     hidden: false
     definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
   }
-
   dimension age_group {
     label: "Age Demographic"
     type: "text"
+    description: "Grouping of the age demographics by age group\nUnder 20\n21-29\n30 and Above"
+    hidden: false
     definition: @sql case
   when {{ age }} < 20 then '1. Under 20'
   when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
-  when {{ age }} >= 30 and {{ age }} < 40 then '3. From 30 to 39'
-  when {{ age }} >= 40 then '4. 40 and up'
+  when {{ age }} >= 30 then '3. 30 and above'
 end;;
-    description: "Grouping of the age demographics by age group\nUnder 20\n21-30\n31-40\nAbove 40"
   }
+
+
   dimension date_datum {
     label: "Date Datum"
     type: "date"
@@ -119,6 +162,14 @@ end;;
     definition: @sql count({{ id }});;
     hidden: false
   }
+
+  measure total_users_aql {
+    label: "Total Users (AQL)"
+    type: "number"
+    definition: @aql count(ecommerce_users.id);;
+    hidden: false
+  }
+
   measure date_datum_2 {
     label: "Date Datum 2"
     type: "date"

@@ -1,0 +1,354 @@
+Dataset demo_ecommerce_version_2 {
+  label: '[Demo] Ecommerce Official (2025)'
+  description: 'New dataset starting 2025'
+  data_source_name: 'demodb'
+  models: [
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_countries,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_order_items,
+    ecommerce_cities,
+    map_categories,
+    param_model_demo,
+    dim_dates,
+    ecommerce_product_images
+  ]
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_orders_dim_dates, true),
+  ]
+
+  dimension cohort_month {
+    model: ecommerce_users
+    label: "Cohort Month"
+    type: 'date'
+    definition: @aql min(ecommerce_orders.created_at | month()) | dimensionalize(ecommerce_users.id);;
+  }
+
+  dimension month_number {
+    model: ecommerce_orders
+    label: 'Month Number'
+    type: 'number'
+    definition: @aql date_diff('month', ecommerce_users.cohort_month, (ecommerce_orders.created_at | month())) ;;
+  }
+
+  dimension cohort_size {
+    model: ecommerce_orders
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  dimension total_orders_all_time {
+    model: ecommerce_users
+    label: 'Total Orders (Users)'
+    type: 'number'
+    definition: @aql total_orders | dimensionalize(ecommerce_users.id);;
+  }
+
+  dimension is_buyer {
+    model: ecommerce_users
+    label: 'Is Buyer'
+    type: 'truefalse'
+    definition: @aql ecommerce_users.total_orders_all_time > 0;;
+  }
+
+  dimension is_repeated_buyer {
+    model: ecommerce_users
+    label: 'Is Repeated Buyer'
+    type: 'truefalse'
+    definition: @aql ecommerce_users.total_orders_all_time > 1;;
+  }
+
+  dimension product_performance_analysis {
+    model: ecommerce_products
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      cast(gmv, 'text'),
+      '+and+the+AOV+for+this+product+is+',
+      cast(aov, 'text'),
+      )
+     ;;
+  }
+
+  dimension product_image {
+    model: ecommerce_product_images
+    label: 'Product Image'
+    type: 'text'
+    definition: @aql concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />') ;;
+  }
+
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: ecommerce_orders
+    definition: @aql case(
+        when: 'Country Names' in param_model_demo.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_demo.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_demo.dim_selections
+        , then: ecommerce_orders.status
+
+        , else: ecommerce_countries.name
+      ) ;;
+  }
+
+  metric total_users {
+    label: 'Total Users'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
+  }
+  
+  metric nmv {
+    label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
+    type: "number"
+    hidden: false
+    description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue {
+    label: "Total Revenue (Platform)"
+    type: "number"
+    hidden: false
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_orders_across_all {
+    label: "Total Orders Across All"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | of_all(ecommerce_orders);;
+  }
+
+  metric percent_of_total {
+    label: "Percent Of Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders * 1.0 / total_orders_across_all;;
+    format: "#,###0.00%"
+  }
+
+  metric total_delivered_orders {
+    label: "Total Delivered Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
+  }
+
+  metric total_refunded_orders {
+    label: "Total Refunded Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
+  }
+
+  metric total_cancelled_orders {
+    label: "Total Cancelled Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
+  }
+
+  metric cancelled_orders_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: "#,###0.00%"
+  }
+
+  metric cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Cancelled Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cancelled_value_ratio {
+    label: "Cancelled Value Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
+    definition: @aql cancelled_value / gmv;;
+    format: "#,###0.00%"
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
+  }
+
+
+  metric retention {
+    label: 'Cohort Retention'
+    type: 'number'
+    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+    format: "#,###0.00%"
+  }
+
+  metric total_buyers {
+    label: "Total Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+  }
+
+  metric total_repeated_buyers {
+    label: "Total Repeated Buyers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
+  }
+
+
+  metric running_total {
+    label: "Running Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
+  }
+
+  metric dynamic_metric {
+    label: 'Dynamic Metric (no format)'
+    type: 'number'
+    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
+    definition: @aql
+      case(
+        
+        when: 'total users' in param_model_demo.metric_selections
+        , then: ecommerce_users.total_users
+
+        , when: 'total orders' in param_model_demo.metric_selections
+        , then: total_orders
+
+        , when: 'platform revenue' in param_model_demo.metric_selections
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections
+        , then: aov
+
+      )
+     ;;
+  }
+
+  metric dynamic_metric_currency {
+    label: 'Dynamic Metric (Currency)'
+    type: 'number'
+    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
+    definition: @aql
+      case(
+        when: 'platform revenue' in param_model_demo.metric_selections_currency
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections_currency
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections_currency
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections_currency
+        , then: aov
+
+      )
+     ;;
+     format: "[\$\$]#,###0"
+  }
+
+  metric revenue_commission {
+    label: "Revenue Commission Rate (Demo from May 2025)"
+    type: "number"
+    hidden: false
+    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    definition: @aql 0.5;;
+    format: "#,###%"
+  }
+
+  owner: 'vincent@holistics.io'
+}

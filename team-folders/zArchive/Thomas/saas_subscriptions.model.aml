@@ -1,0 +1,117 @@
+Model saas_subscriptions {
+  type: 'query'
+  label: 'Saas Subscriptions'
+  description: ''
+  data_source_name: 'demodb'
+  dimension subscription_id {
+    label: 'Subscription Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.subscription_id }};;
+  }
+  dimension customer_id {
+    label: 'Customer Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension plan_name {
+    label: 'Plan Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+  dimension monthly_amount {
+    label: 'Monthly Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_amount }};;
+  }
+  dimension start_date {
+    label: 'Start Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.start_date }};;
+  }
+  dimension end_date {
+    label: 'End Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.end_date }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+
+  dimension subscription_type {
+    label: 'Subscription Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.subscription_type }};;
+  }
+
+  dimension daily_mrr {
+    label: 'Daily MRR'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.daily_mrr }};;
+  }
+
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+WITH fake_subscriptions AS (
+    SELECT * FROM (
+        VALUES
+            (1, 1, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-03-01', NULL::DATE, 'active', 'new'),
+            (2, 2, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-04-01', DATE '2025-02-28', 'canceled', 'new'), -- Churned Feb 28
+            (3, 3, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-05-01', NULL::DATE, 'active', 'upgrade'),
+            (4, 4, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-06-01', NULL::DATE, 'active', 'new'),
+            (5, 5, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-07-01', DATE '2024-11-01', 'canceled', 'new'),
+            (6, 6, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-08-01', NULL::DATE, 'active', 'reactivation'),
+            (7, 7, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-09-01', DATE '2025-02-27', 'canceled', 'new'), -- Churned Feb 27
+            (8, 8, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-10-01', NULL::DATE, 'active', 'upgrade'),
+            (9, 9, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-11-01', NULL::DATE, 'active', 'new'),
+            (10, 10, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-12-01', DATE '2025-01-15', 'canceled', 'new'),
+            (11, 11, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-03-15', NULL::DATE, 'active', 'new'),
+            (12, 12, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-04-15', DATE '2024-08-15', 'canceled', 'downgrade'), -- Old downgrade
+            (13, 13, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-05-15', NULL::DATE, 'active', 'upgrade'),
+            (14, 14, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-06-15', DATE '2025-02-26', 'canceled', 'downgrade'), -- New downgrade Feb 26
+            (15, 15, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-07-15', NULL::DATE, 'active', 'reactivation'),
+            (16, 1, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-08-15', NULL::DATE, 'active', 'upgrade'),
+            (17, 6, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-09-15', NULL::DATE, 'active', 'new'),
+            (18, 8, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-10-15', NULL::DATE, 'active', 'upgrade'),
+            (19, 11, 'Enterprise Plan', 150000.00::DECIMAL(10,2), DATE '2024-11-15', NULL::DATE, 'active', 'reactivation'),
+            (20, 13, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-12-15', NULL::DATE, 'active', 'new'),
+            (21, 5, 'Basic Plan', 25000.00::DECIMAL(10,2), DATE '2024-07-01', DATE '2025-03-01', 'canceled', 'downgrade'), -- New downgrade Mar 1
+            (22, 7, 'Pro Plan', 50000.00::DECIMAL(10,2), DATE '2024-09-01', DATE '2025-03-02', 'canceled', 'downgrade') -- New downgrade Mar 2
+    ) AS t (subscription_id, customer_id, plan_name, monthly_amount, start_date, end_date, status, subscription_type)
+)
+SELECT 
+    subscription_id,
+    customer_id,
+    plan_name,
+    monthly_amount,
+    start_date,
+    end_date,
+    status,
+    subscription_type,
+    generate_series(
+        GREATEST(start_date, DATE '2025-02-25'),
+        LEAST(COALESCE(end_date, DATE '2025-03-03'), DATE '2025-03-03'),
+        '1 day'::interval
+    ) AS transaction_date,
+    CASE 
+        WHEN status = 'active' THEN monthly_amount / 
+            (LEAST(COALESCE(end_date, DATE '2025-03-03'), DATE '2025-03-03') - 
+             GREATEST(start_date, DATE '2025-02-25') + 1)::DECIMAL
+        ELSE 0::DECIMAL
+    END AS daily_mrr
+FROM fake_subscriptions
+WHERE (status = 'active' AND start_date <= DATE '2025-03-03' AND (end_date IS NULL OR end_date >= DATE '2025-02-25'))
+   OR (status = 'canceled' AND start_date <= DATE '2025-03-03' AND end_date >= DATE '2025-02-25');;;
+  models: [
+  ]
+}

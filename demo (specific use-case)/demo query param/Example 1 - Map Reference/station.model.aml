@@ -1,0 +1,38 @@
+Model station {
+  type: 'query'
+  label: 'Station'
+  description: ''
+  data_source_name: 'demo_bigquery'
+  dimension station {
+    label: 'Station'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station }};;
+  }
+  dimension station_pt {
+    label: 'Station Pt'
+    type: 'unknown'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_pt }};;
+  }
+  dimension station_lat {
+    label: "Station Lat"
+    type: "number"
+    definition: @sql {{ #SOURCE.station_lat }};;
+  }
+  dimension station_lon {
+    label: "Station Lon"
+    type: "number"
+    definition: @sql {{ #SOURCE.station_lon }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql select {{ #dim_station.station_name }} as station
+      , {{ #dim_station.lat }} as station_lat
+      , {{ #dim_station.lon }} as station_lon
+      , ST_GEOGPOINT({{ #dim_station.lon }}, {{ #dim_station.lat }}) as station_pt
+        from  {{ #dim_station }};;
+  models: [
+    dim_station
+  ]
+}

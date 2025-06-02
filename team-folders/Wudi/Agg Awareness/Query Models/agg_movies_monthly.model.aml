@@ -1,0 +1,33 @@
+Model agg_movies_monthly {
+  type: 'query'
+  label: 'Agg Movies Monthly'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension month {
+    label: 'Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.day }};;
+  }
+  dimension movie_count {
+    label: 'Movie Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_count }};;
+  }
+  dimension user_count {
+    label: 'User Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_count }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql
+    select date_trunc('month', {{ #public_ratings.timestamp }}) as Month, count(distinct {{ #public_ratings.movie_id }}) as Movie_Count, count(distinct {{ #public_ratings.user_id }}) as User_Count
+    from {{ #public_ratings }}
+    group by 1;;
+  models: [
+    public_ratings
+  ]
+}

@@ -1,0 +1,65 @@
+Dataset rideshare_schema {
+  __engine__: 'aql'
+  label: 'rideshare schema'
+  description: 'Creating a rideshare schema based on trip history'
+  data_source_name: 'demodb'
+  models: [
+    rideshare_drivers,
+    rideshare_countries,
+    rideshare_customers,
+    rideshare_car_types,
+    rideshare_bookings,
+    rideshare_broadcasts,
+    drivers_agg
+    ,
+    customer_agg
+  ]
+  relationships: [
+    relationship(drivers_agg.id - rideshare_drivers.id, true)
+    ,
+    relationship(rideshare_customers.customer_id - customer_agg.user_id, true)
+    ,
+    relationship(rideshare_bookings.driver_id > drivers_agg.id, true)
+    ,
+    relationship(rideshare_bookings.user_id > customer_agg.user_id, true)
+    ,
+  ]
+  owner: 'vishal@holistics.io'
+
+  dimension top_drivers {
+    model: drivers_agg
+    label: 'Top Drivers'
+    type: 'text'
+    definition: @aql select(drivers_agg.realname| where(drivers_agg.driver_rank <= 10)) ;;
+  }
+
+  metric active_drivers {
+    label: 'Active Drivers'
+    type: 'number'
+    description: 'Active Driver Count'
+    definition: @aql where(count(drivers_agg.id), date_trunc(drivers_agg.last_trip_date, 'month') == @2018-03-01 00:00:00) ;;
+  }
+
+  metric active_riders {
+    label: 'Active Riders'
+    type: 'number'
+    description: 'Active Rider Count'
+    definition: @aql where(count_distinct(rideshare_bookings.user_id), date_trunc(rideshare_bookings.pickedup_at,'month') == @2018-03-01 00:00:00) ;;
+  }
+
+  metric trips {
+    label: 'Trips'
+    type: 'number'
+    description: 'Trips'
+    definition: @aql count_distinct(rideshare_bookings.id) | where(rideshare_bookings.pickedup_at is not null) ;;
+
+  }
+
+  metric incomplete_trips {
+    label: 'incomplete trips'
+    type: 'number'
+    description: 'Count of Incomplete Trips'
+    definition: @aql count_distinct(rideshare_bookings.id) | where(rideshare_bookings.pickedup_at is null) ;;
+
+  }
+}

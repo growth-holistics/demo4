@@ -1,0 +1,60 @@
+Model public_ratings {
+  type: 'table'
+  label: 'Ratings'
+  description: ''
+  data_source_name: 'movies_lens'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension movie_id {
+    label: 'Movie ID'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.movie_id }};;
+  }
+  dimension rating {
+    label: 'Rating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.rating }};;
+  }
+  dimension timestamp {
+    label: 'Timestamp'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.timestamp }};;
+  }
+
+  measure count_distinct_movies {
+    label: "Count Movies"
+    type: "number"
+    definition: @aml count_distinct(public_ratings.movie_id);;
+    format: "#,###"
+  }
+
+  measure count_all_ratings {
+    label: "Count Ratings"
+    type: "number"
+    description: ""
+    hidden: false
+    definition: @aml count(public_ratings.id);;
+    aggregation_type: "custom"
+    format: "#,###"
+  }
+
+  param dummy_timestamp {
+    label: 'Placeholder Timestamp'
+    type: 'datetime'
+  }
+
+  table_name: '"public"."ratings"'
+}

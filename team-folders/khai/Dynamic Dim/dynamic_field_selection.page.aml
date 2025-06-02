@@ -1,0 +1,66 @@
+Dashboard dynamic_field_selection {
+  title: 'Dynamic Field Selection'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    width: 1020
+    block v1 {
+      position: pos(20, 20, 620, 400)
+      layer: 1
+    }
+    block f1 {
+      position: pos(660, 20, 300, 100)
+      layer: 2
+    }
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'Dynamic Metrics'
+    viz: DataTable {
+      dataset: khai_ecommerce
+      fields: [
+        VizFieldFull {
+          label: 'Country Name'
+          ref: ref('countries', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'dynamic_metric'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Metrics Selection'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: khai_ecommerce
+      field: ref('param_model', 'metric_selection')
+    }
+    default {
+      operator: 'is'
+      value: 'Revenue'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+}

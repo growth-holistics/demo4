@@ -1,0 +1,435 @@
+Dashboard thong_embed_demo {
+  title: 'Thong Embed Demo'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Merchant'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+
+  block override_css: TextBlock {
+    content: @md <style>
+      .dac-text-block {
+        overflow: hidden !important;
+      }
+      .dac-canvas {
+        background: #fbfbfb;
+      }
+      .card-box {
+        background: #ffffff;
+        border-radius: 8px;
+        border: 2px solid rgba(0,0,0,0.05);
+        width: 100%; height: 100%;
+      }
+      .text-widget-content {
+        height: 100% !important
+      }
+      .card-title {
+        font-size: 18px;
+        font-weight: 500;
+      }
+    </style>;;
+  }
+  block f1: FilterBlock {
+    label: 'Merchant Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_merchants', 'name')
+    }
+    default {
+      operator: 'is'
+      value: 'Abernathy Group'
+    }
+  }
+  block v2: VizBlock {
+    label: 'Product Performance'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: TextBlock {
+    content: @md <div class="card-box">
+</div>;;
+  }
+  block t2: TextBlock {
+    content: @md <div class="card-title">Product Performance</div>;;
+  }
+  block v3: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('ecommerce_users', 'total_users')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_users', 'sign_up_date')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v5: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v6: VizBlock {
+    label: 'Total GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v7: VizBlock {
+    label: 'Metric AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        ref: ref('order_master', 'aov')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'month'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t3: TextBlock {
+    content: @md <div class="card-box">
+</div>;;
+  }
+  block t4: TextBlock {
+    content: @md  <div class="card-box">
+</div>;;
+  }
+  block v8: VizBlock {
+    label: 'User Growth'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql  running_total!(
+ecommerce_users.id | count() ,
+ecommerce_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_users', 'sign_up_date')
+        operator: 'matches'
+        value: 'last 1 year'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field {
+            ref: ref('ecommerce_users', 'total_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        pop {
+          field: ref('ecommerce_users', 'sign_up_date')
+          duration: 1
+          granularity: 'month'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 2 years'
+    }
+  }
+  block t5: TextBlock {
+    content: @md <h1>Ecomax</h1>;;
+  }
+  block t6: TextBlock {
+    content: @md <div class="card-box">
+</div>;;
+  }
+  block t7: TextBlock {
+    content: @md  <div class="card-box">
+</div>;;
+  }
+  block t8: TextBlock {
+    content: @md   <div class="card-box">
+</div>;;
+  }
+  block t9: TextBlock {
+    content: @md <div class="card-title">User Growth</div>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1440
+    height: 1040
+    block v1 {
+      position: pos(140, -20, 370, 80)
+    }
+    block override_css {
+      position: pos(-490, 100, 465, 160)
+    }
+    block f1 {
+      position: pos(-320, 10, 300, 80)
+    }
+    block v2 {
+      position: pos(750, 370, 650, 300)
+    }
+    block t1 {
+      position: pos(730, 310, 690, 710)
+      layer: -1
+    }
+    block t2 {
+      position: pos(750, 330, 650, 40)
+    }
+    block v3 {
+      position: pos(30, 760, 660, 240)
+    }
+    block v4 {
+      position: pos(40, 130, 260, 140)
+    }
+    block v5 {
+      position: pos(390, 130, 260, 140)
+    }
+    block v6 {
+      position: pos(750, 130, 260, 140)
+    }
+    block v7 {
+      position: pos(1110, 130, 260, 140)
+    }
+    block t3 {
+      position: pos(20, 100, 330, 190)
+      layer: -1
+    }
+    block t4 {
+      position: pos(20, 310, 690, 710)
+      layer: -1
+    }
+    block v8 {
+      position: pos(40, 390, 650, 320)
+    }
+    block f2 {
+      position: pos(1090, 20, 320, 80)
+    }
+    block t5 {
+      position: pos(50, 10, 130, 70)
+    }
+    block t6 {
+      position: pos(370, 100, 340, 190)
+      layer: -1
+    }
+    block t7 {
+      position: pos(730, 100, 340, 190)
+      layer: -1
+    }
+    block t8 {
+      position: pos(1090, 100, 330, 190)
+      layer: -1
+    }
+    block t9 {
+      position: pos(40, 330, 650, 40)
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v4',
+            'v8'
+          ]
+          field: ref('ecommerce_users', 'sign_up_date')
+        }
+      ]
+    }
+  ]
+
+}

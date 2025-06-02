@@ -1,72 +1,188 @@
-Dashboard new_dashboard {
-  title: 'New Dashboard'
+Dashboard test_syntax {
+  title: 'Test Syntax'
   description: ''''''
   view: CanvasLayout {
     label: 'View 1'
-    height: 800
+    height: 710
     block v1 {
-      position: pos(40, 30, 560, 400)
+      position: pos(10, 10, 750, 340)
+      layer: 1
     }
-    block d1 {
-      position: pos(630, 30, 300, 80)
+    block v2 {
+      position: pos(10, 380, 750, 300)
+      layer: 2
+    }
+    block v3 {
+      position: pos(790, 10, 390, 670)
+      layer: 3
     }
   }
   block v1: VizBlock {
-    label: 'Total Products and Sum of Cost by Month Created At'
-    viz: CombinationChart {
-      dataset: demo_ecommerce_metrics
-      x_axis: VizFieldFull {
-        ref: ref('ecommerce_products', 'created_at')
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-        }
-      }
-      y_axis {
-        series {
-          field {
-            ref: ref('ecommerce_products', 'total_products')
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+    label: 'Table'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
-        }
-      }
-      y_axis {
-        settings {
-          alignment: 'right'
-        }
-        series {
-          mark_type: 'line'
-          field {
-            ref: ref('ecommerce_products', 'cost')
-            aggregation: 'sum'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
           }
-        }
-      }
-      settings {
-        row_limit: 5000
-      }
-    }
-  }
-  block d1: DateDrillBlock {
-    label: 'Date Drill'
-  }
-  interactions: [
-    DateDrillInteraction {
-      from: 'd1'
-      to: [
-        CustomMapping {
-          block: 'v1'
-          field: ref('ecommerce_products', 'created_at')
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'product_merchant')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
         }
       ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
-  ]
-
+  }
+  block v2: VizBlock {
+    label: 'Table 2'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivery_attempts')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'discount')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'last_order_value')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'Table 3'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'last_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email_pii')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'birth_date')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'total_users')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 }

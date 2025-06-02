@@ -1,0 +1,228 @@
+Dashboard aql_use_cases {
+  title: 'AQL Use Cases'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Percent of Total'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      calculation f_2f31156 {
+        label: 'total_order_per_category'
+        formula: @aql count_distinct(order_master.order_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_a7855dd {
+        label: 'total_orders'
+        formula: @aql (count_distinct(order_master.order_id) | of_all(order_master));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_50259ff {
+        label: 'percent_of_total'
+        formula: @aql count_distinct(order_master.order_id) * 1.0
+/ (count_distinct(order_master.order_id) | of_all(order_master));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_2f31156'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_a7855dd'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_50259ff'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t1: TextBlock {
+    content: @md <h2> Percent of Total </h2>
+
+The Percent of Total analysis is a commonly used reporting technique that helps understand the contribution of each row value to the overall population.;;
+  }
+  block t2: TextBlock {
+    content: @md  <h1> AQL Use Cases </h1>
+<div> This Canvas Dashboard contains examples of using AQL to solve advanced analytics use cases </div>;;
+  }
+  block t3: TextBlock {
+    content: @md   <b> Scenario </b>
+
+You are an analyst working with an ecommerce dataset. The dataset contains information about various product categories and their respective orders detailed. 
+
+Your goal is to analyze the distribution of orders across different product categories and determine the percentage each category contributes to the total number of orders. 
+
+<b>Objective</b>
+
+Calculate the percentage of total orders contributed by each product category.
+
+<details style="border: 1px solid #aaa; border-radius: 4px; padding: 0.5em 0.5em 0;">
+        <summary style="font-weight: bold; cursor: pointer; display: list-item;">
+            Show solution
+        </summary>
+<b> Step by step calculation </b>
+<ol>
+<li>
+<b> total_order_per_category </b>: <code>count_distinct(order_master.order_id)</code>.
+</li>
+<li>
+<b> total_order </b>: <code>count_distinct(order_master.order_id) | of_all(order_master)</code>. 
+</li>
+<li>
+<b> percent_of_total </b>: <code>total_order_per_category / total_order </code>
+</li>
+</ol>
+
+In step (1),  Holistics automatically assumes the count is per category because <code>category</code> field is dropped in as the first column.
+
+In step (2), why do we ned to use <code>of_all</code>? Because we don't want Holistics to assume the above. We want to explicitly count all unique orders in the table, instead of being grouped by <code>category</code>,
+ </details>;;
+  }
+  block v2: VizBlock {
+    label: 'Cohort Analysis'
+    viz: PivotTable {
+      dataset: demo_ecommerce_internal_training
+      calculation f_612dcd4 {
+        label: 'Total Orders'
+        formula: @aql count_distinct(order_master.order_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_3f951bf {
+        label: 'Total Order'
+        formula: @aql count_distinct(order_master.order_id) | of_all(ecommerce_users.acquisition_year_cohort);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation f_fba65fa {
+        label: 'Percent Total'
+        formula: @aql count_distinct(order_master.order_id) * 1.0 / (count_distinct(order_master.order_id) | of_all(ecommerce_users.acquisition_year_cohort));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'acquisition_year_cohort')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Cohort Total Orders'
+          ref: 'f_612dcd4'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_3f951bf'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_fba65fa'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        }
+      ]
+      settings {
+        show_column_total: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t4: TextBlock {
+    content: @md <h2> Cohort Analysis </h2>
+
+Cohort Analysis is a methodology that involves studying and analyzing groups of users or customers who share a common characteristic or behavior.
+
+;;
+  }
+  block t5: TextBlock {
+    content: @md <b> Scenario </b>
+
+You are an analyst tasked with examining cohort analysis data for an ecommerce company. 
+
+Your goal is to analyze the percentage of total orders each cohort contributes per year to understand customer retention and purchasing behavior over time.
+
+<b>Objective</b>
+
+Calculate the percentage of total orders contributed by each acquisition year cohort for each subsequent year.
+
+<details style="border: 1px solid #aaa; border-radius: 4px; padding: 0.5em 0.5em 0;">
+        <summary style="font-weight: bold; cursor: pointer; display: list-item;">
+            Show solution
+        </summary>
+
+Solution
+
+ </details>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1350
+    height: 1410
+    block v1 {
+      position: pos(640, 220, 680, 410)
+    }
+    block t1 {
+      position: pos(30, 120, 1280, 90)
+    }
+    block t2 {
+      position: pos(30, 10, 670, 90)
+    }
+    block t3 {
+      position: pos(30, 210, 600, 430)
+    }
+    block v2 {
+      position: pos(640, 750, 680, 440)
+    }
+    block t4 {
+      position: pos(30, 650, 1280, 90)
+    }
+    block t5 {
+      position: pos(30, 750, 600, 430)
+    }
+  }
+
+}

@@ -1,0 +1,166 @@
+Dashboard query_parameters_map_reference {
+  title: 'Query Parameters [Map Reference]'
+  block reference_station: FilterBlock {
+    label: 'reference station'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: station_dataset
+      field: ref('station_param', 'ref_station')
+    }
+    default {
+      operator: 'is'
+      value: '11 Novembre 1918 - 8 Mai 1945'
+    }
+  }
+  block radius_from_ref: FilterBlock {
+    label: 'radius from ref'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: station_dataset
+      field: ref('station_param', 'distance')
+    }
+    default {
+      operator: 'between'
+      value: [
+        '1',
+        '8000'
+      ]
+    }
+  }
+  block v1: VizBlock {
+    label: 'Query Parameter Radius'
+    viz: PointMap {
+      dataset: station_dataset
+      lng: VizFieldFull {
+        ref: ref('station_param', 'station_lon')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('station_param', 'station_lat')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('station_param', 'station')
+        format {
+          type: 'text'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'List'
+    viz: DataTable {
+      dataset: station_dataset
+      fields: [
+        VizFieldFull {
+          ref: ref('station_param', 'station')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('station_param', 'ref_station')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('station_param', 'distance')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'reference_station'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('station_param', 'reference')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'reference_station'
+      to: [
+        CustomMapping {
+          block: 'radius_from_ref'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'radius_from_ref'
+      to: [
+        CustomMapping {
+          block: 'reference_station'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v1'
+      to: [
+        CustomMapping {
+          block: 'v2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 1040
+    grid_size: 20
+    block reference_station {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block radius_from_ref {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    block v1 {
+      position: pos(20, 140, 1180, 480)
+      layer: 1
+    }
+    block v2 {
+      position: pos(20, 640, 1180, 380)
+      layer: 1
+    }
+  }
+  theme: H.themes.classic
+  settings {
+    cache_duration: 6000
+  }
+}
