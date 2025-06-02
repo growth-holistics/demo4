@@ -1,5 +1,5 @@
 Dataset demo_ecommerce_version_2 {
-  label: 'Demo Ecommerce Version 2'
+  label: '[Demo] Ecommerce Official (2025)'
   description: 'New dataset starting 2025'
   data_source_name: 'demodb'
   models: [
@@ -11,7 +11,7 @@ Dataset demo_ecommerce_version_2 {
     ecommerce_order_items,
     ecommerce_cities,
     map_categories,
-    param_model_nam,
+    param_model_demo,
     dim_dates,
     ecommerce_product_images
   ]
@@ -97,13 +97,13 @@ Dataset demo_ecommerce_version_2 {
     type: 'text'
     model: ecommerce_orders
     definition: @aql case(
-        when: 'Country Names' in param_model_nam.dim_selections
+        when: 'Country Names' in param_model_demo.dim_selections
         , then: ecommerce_countries.name
 
-        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , when: 'Age Demographic' in param_model_demo.dim_selections
         , then: ecommerce_users.age_group
 
-        , when: 'Order Status' in param_model_nam.dim_selections
+        , when: 'Order Status' in param_model_demo.dim_selections
         , then: ecommerce_orders.status
 
         , else: ecommerce_countries.name
@@ -290,21 +290,57 @@ Dataset demo_ecommerce_version_2 {
   }
 
   metric dynamic_metric {
-    label: 'Dynamic Metric'
+    label: 'Dynamic Metric (no format)'
     type: 'number'
+    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
     definition: @aql
       case(
-        when: 'total users' in param_model_nam.metric_selections
+        
+        when: 'total users' in param_model_demo.metric_selections
         , then: ecommerce_users.total_users
 
-        , when: 'total orders' in param_model_nam.metric_selections
+        , when: 'total orders' in param_model_demo.metric_selections
         , then: total_orders
 
-        , when: 'total products' in param_model_nam.metric_selections
-        , then: ecommerce_products.total_products
+        , when: 'platform revenue' in param_model_demo.metric_selections
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections
+        , then: aov
+
       )
      ;;
   }
+
+  metric dynamic_metric_currency {
+    label: 'Dynamic Metric (Currency)'
+    type: 'number'
+    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
+    definition: @aql
+      case(
+        when: 'platform revenue' in param_model_demo.metric_selections_currency
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections_currency
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections_currency
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections_currency
+        , then: aov
+
+      )
+     ;;
+     format: "[\$\$]#,###0"
+  }
+
   metric revenue_commission {
     label: "Revenue Commission Rate (Demo from May 2025)"
     type: "number"
