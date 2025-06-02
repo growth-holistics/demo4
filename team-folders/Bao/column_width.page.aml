@@ -1,0 +1,196 @@
+Dashboard column_width {
+  title: 'Column Width'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    block v1 {
+      position: pos(0, 0, 1200, 260)
+    }
+    block v2 {
+      position: pos(0, 260, 1200, 280)
+    }
+    block v3 {
+      position: pos(20, 560, 400, 300)
+      layer: 1
+    }
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'avc'
+    viz: DataTable {
+      dataset: global_temps
+      fields: [
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'year')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_year'
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'jan')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_jan'
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'apr')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_apr'
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'may')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_may'
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'jul')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_jul'
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'oct')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'persisted_global_temps_apr'
+              width: 119
+            },
+            ColumnWidth {
+              key: 'persisted_global_temps_jan'
+              width: 164
+            },
+            ColumnWidth {
+              key: 'persisted_global_temps_jul'
+              width: 169
+            },
+            ColumnWidth {
+              key: 'persisted_global_temps_may'
+              width: 186
+            },
+            ColumnWidth {
+              key: 'persisted_global_temps_year'
+              width: 163
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'abc'
+    viz: PivotTable {
+      dataset: global_temps
+      rows: [
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'year')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'persisted_global_temps_year'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'jun')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'son')
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'sum_son'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'sum_son'
+              width: 155
+            },
+            ColumnWidth {
+              key: 'persisted_global_temps_year'
+              width: 133
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'wabc'
+    viz: DataTable {
+      dataset: global_temps
+      fields: [
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'apr')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('persisted_global_temps', 'aug')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}

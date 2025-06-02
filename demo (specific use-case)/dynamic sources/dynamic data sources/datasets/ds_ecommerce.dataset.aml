@@ -1,0 +1,25 @@
+Dataset ds_ecommerce {
+  label: 'Ds Ecommerce'
+  description: ''
+  data_source_name: dynamic_data_source
+  models: [
+    ds_categories,
+    ds_merchants,
+    ds_products,
+    ds_countries,
+    ds_cities,
+    ds_orders,
+    ds_users,
+    ds_order_items
+  ]
+  relationships: [
+    relationship(ds_order_items.order_id > ds_orders.id, true),
+    relationship(ds_order_items.product_id > ds_products.id, true),
+    relationship(ds_orders.user_id > ds_users.id, true),
+    relationship(ds_users.city_id > ds_cities.id, true),
+    relationship(ds_cities.country_code > ds_countries.code, true),
+    relationship(ds_products.category_id > ds_categories.id, true),
+    relationship(ds_products.merchant_id > ds_merchants.id, true)
+  ]
+  owner: 'khai.to@holistics.io'
+}

@@ -1,0 +1,56 @@
+Dashboard untitled_2 {
+  title: 'Untitled 2'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    block v1 {
+      position: pos(20, 20, 980, 800)
+    }
+  }
+
+  theme: H.themes.classic.extend(
+    {
+      block {
+        background {
+          bg_color: "black"
+        }
+      }
+    }
+  )
+
+
+  block v1: VizBlock {
+    label: 'Stream Chart'
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      custom_chart_id: 19763
+      field date: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      field count: VizFieldFull {
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field series: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      setting chart_width: 800
+      setting chart_height: 400
+      setting color_scheme: 'category20b'
+      setting opacity_unselected: 0.2
+    }
+  }
+}

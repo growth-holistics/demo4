@@ -1,0 +1,98 @@
+Dashboard untitled {
+  title: 'Custom Chart'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 540
+    grid_size: 20
+    block v1 {
+      position: pos(20, 20, 960, 500)
+    }
+    width: 1000
+  }
+
+  theme: H.themes.classic
+  block v1: VizBlock {
+    label: 'GMV by Product '
+    viz: CustomChart {
+      dataset: demo_ecommerce
+      calculation custom_status {
+        label: 'Status'
+        formula: @aql case(
+  when: order_master.status == "refunded", then: "Occupancy"
+  , when: order_master.status == "delivered", then: "Unoccupied and Not Automating"
+  , else: "Unoccupied and Automating"
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: order_master
+      }
+      calculation humidity {
+        label: 'Humidity'
+        formula: @aql order_master.aov * 0.05 + 20;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation ambient_temp {
+        label: 'Ambient Temperature'
+        formula: @aql order_master.cancelled_value + 300;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2024-12-02 - 2024-12-04'
+      }
+      custom_chart_id: 23624
+      field status: VizFieldFull {
+        ref: ref('order_master', 'custom_status')
+        format {
+          type: 'text'
+        }
+      }
+      field humidity: VizFieldFull {
+        ref: 'humidity'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field setpoint: VizFieldFull {
+        label: 'Setpoint'
+        ref: ref('order_master', 'revenue_delivered')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field timestamp: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        format {
+          type: 'datetime'
+        }
+      }
+      field ambient_temp: VizFieldFull {
+        ref: 'ambient_temp'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting chart_width: 800
+      setting yscale_temp: 2000
+      setting chart_height: 400
+      setting humidity_color: '#07326C'
+      setting occupied_color: '#92AEEA'
+      setting setpoint_color: '#18A59E'
+      setting yscale_humidity: 100
+      setting automating_color: '#18A59E'
+      setting unoccupied_color: '#A50E43'
+      setting ambient_temp_color: '#255DD4'
+    }
+    settings {
+      hide_label: true
+    }
+  }
+}

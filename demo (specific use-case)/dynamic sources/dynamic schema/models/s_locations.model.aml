@@ -1,0 +1,49 @@
+Model s_locations {
+  type: 'query'
+  label: 'Ds Locations'
+  description: ''
+  data_source_name: 'dev_data_source'
+  dimension city_id {
+    label: 'City Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.city_id }};;
+  }
+  dimension city_name {
+    label: 'City Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.city_name }};;
+  }
+  dimension country_code {
+    label: 'Country Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_code }};;
+  }
+  dimension country_name {
+    label: 'Country Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_name }};;
+  }
+  dimension continent_name {
+    label: 'Continent Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.continent_name }};;
+  }
+
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    SELECT 
+      ci.id as city_id
+      , ci.name as city_name
+      , co.code as country_code
+      , co.name as country_name
+      , co.continent_name as continent_name
+    FROM ${dynamic_schema}.cities ci
+      LEFT JOIN ${dynamic_schema}.countries co on ci.country_code = co.code;;
+  models: [
+  ]
+}

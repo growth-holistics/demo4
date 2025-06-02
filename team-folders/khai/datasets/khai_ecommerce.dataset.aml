@@ -2,26 +2,143 @@ Dataset khai_ecommerce {
   __engine__: 'aql'
   label: 'Khai Ecommerce'
   description: "This is Dataset for AQL testing"
-  data_source_name: 'demo_public'
+  data_source_name: "demodb"
   models: [
-    khai_orders,
-    khai_users,
-    khai_order_items,
-    khai_countries,
-    khai_merchants,
-    khai_products,
-    khai_cities
+    orders,
+    users,
+    sales_model,
+    order_items,
+    countries,
+    merchants,
+    products,
+    cities,
+    param_model
   ]
 
   relationships: [
-    relationship(khai_orders.user_id > khai_users.id, true),
-    relationship(khai_order_items.order_id > khai_orders.id, true),
-    relationship(khai_cities.country_code > khai_countries.code, true),
-    relationship(khai_users.city_id > khai_cities.id, true),
-    relationship(khai_order_items.product_id > khai_products.id, true),
-    relationship(khai_products.merchant_id > khai_merchants.id, true),
-    relationship(khai_merchants.city_id > khai_cities.id, false)
+    relationship(orders.user_id > users.id, true),
+    relationship(order_items.order_id > orders.id, true),
+    relationship(cities.country_code > countries.code, true),
+    relationship(users.city_id > cities.id, true),
+    relationship(order_items.product_id > products.id, true),
+    relationship(products.merchant_id > merchants.id, true),
+    relationship(merchants.city_id > cities.id, false),
+    relationship(order_items.order_id - sales_model.order_id, true)
   ]
 
   owner: 'khai.to+demo4@holistics.io'
+
+  dimension acquisition_month {
+    model: users
+    label: 'Acquisition Month'
+    type: 'date'
+    definition: @aql min(orders.created_at | month()) | exact_grains(users.id) ;;
+  }
+
+  dimension acquisition_quarter {
+    model: users
+    label: 'Acquisition Quarter'
+    type: 'date'
+    definition: @aql min(orders.created_at | quarter()) | exact_grains(users.id) ;;
+  }
+
+  dimension acquisition_year {
+    model: users
+    label: 'Acquisition Year'
+    type: 'date'
+    definition: @aql min(orders.created_at | year()) | exact_grains(users.id) ;;
+  }
+
+  dimension dynamic_acquisition {
+    model: users
+    label: 'Dynamic Acquisition'
+    type: 'date'
+    definition: @aql case(
+      when: 'Month' in param_model.time_grain , then: users.acquisition_month
+      , when: 'Quarter' in param_model.time_grain, then: users.acquisition_quarter  
+      , when: 'Year' in param_model.time_grain, then: users.acquisition_year
+      , else: users.acquisition_month
+    ) ;;
+  }
+
+  dimension cohort_month_number {
+    model: orders
+    label: 'Cohort Month Number'
+    type: 'number'
+    definition: @aql date_diff('month', users.acquisition_month, (orders.created_at | month())) ;;
+  }
+
+  dimension cohort_quarter_number {
+    model: orders
+    label: 'Cohort Quarter Number'
+    type: 'number'
+    definition: @aql date_diff('quarter', users.acquisition_month, (orders.created_at | quarter())) ;;
+  }
+
+  dimension cohort_year_number {
+    model: orders
+    label: 'Cohort Year Number'
+    type: 'number'
+    definition: @aql date_diff('year', users.acquisition_month, (orders.created_at | year())) ;;
+  }
+
+  dimension dynamic_cohort_number {
+    model: orders
+    label: 'Dynamic Cohort Numner'
+    type: 'number'
+    definition: @aql case(
+      when: 'Month' in param_model.time_grain , then: orders.cohort_month_number
+      , when: 'Quarter' in param_model.time_grain, then: orders.cohort_quarter_number
+      , when: 'Year' in param_model.time_grain, then: orders.cohort_year_number
+      , else: orders.cohort_month_number
+    ) ;;
+  }
+  
+  metric revenue {
+    label: 'Revenue'
+    type: 'number'
+    definition: @aql sum(order_items, order_items.quantity * products.price) ;;
+  }
+
+  metric total_orders {
+    label: 'Total Orders'
+    type: 'number'
+    definition: @aql count(orders.id) ;;
+  }
+
+  metric total_users {
+    label: 'Total Users'
+    type: 'number'
+    definition: @aql count(users.id) ;;
+  }
+
+  metric dynamic_metric {
+    label: 'Dynamic Metric'
+    type: 'number'
+    definition: @aql
+      case(
+        when: (param_model.metric_selection | first()) == 'Revenue'
+        , then: revenue
+        , when: (param_model.metric_selection | first()) == 'Total Orders'
+        , then: total_orders
+        , when: (param_model.metric_selection | first()) == 'Total Users'
+        , then: total_users
+      )
+     ;;
+  }
+
+  dimension dynamic_dim {
+    model: users
+    label: 'Dynamic Breakdown Dimension'
+    type: 'text'
+    definition: @aql case(
+      when: 'Countries' in param_model.dim_choice
+      , then: countries.name
+      , when: 'Cities' in param_model.dim_choice
+      , then: cities.name
+      , when: 'Gender' in param_model.dim_choice
+      , then: users.gender
+    ) ;;
+  }
+
 }

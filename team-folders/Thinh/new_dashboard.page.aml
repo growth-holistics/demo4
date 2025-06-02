@@ -5,37 +5,184 @@ Dashboard test_syntax {
     label: 'View 1'
     height: 710
     block v1 {
-      position: pos(170, 180, 180, 130)
+      position: pos(10, 10, 750, 340)
+      layer: 1
     }
-    block override_css {
-      position: pos(0, 0, 130, 110)
+    block v2 {
+      position: pos(10, 380, 750, 300)
+      layer: 2
+    }
+    block v3 {
+      position: pos(790, 10, 390, 670)
+      layer: 3
     }
   }
   block v1: VizBlock {
-    label: 'Order Count by Month Order Created At and Status'
-    viz: MetricKpi {
+    label: 'Table'
+    viz: DataTable {
       dataset: demo_ecommerce
-      value: VizFieldFull {
-        ref: ref('order_master', 'order_count')
-        format {
-          type: 'number'
-          pattern: 'inherited'
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'cost')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'product_merchant')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'total_products')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
-    settings {
-      hide_label: true
+  }
+  block v2: VizBlock {
+    label: 'Table 2'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivery_attempts')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'discount')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'last_order_value')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'price')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
   }
-  block override_css: TextBlock {
-    content: @md  <style>
-    .h-kpi-metric-kpi, .h-kpi-metric-label {
-      overflow: hidden !important;
-      font-family: serif;
-      color: red;
-      text-align: right;
+  block v3: VizBlock {
+    label: 'Table 3'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'last_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email_pii')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'birth_date')
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'total_users')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          hidden: true
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
     }
-    </style>;;
   }
-
 }

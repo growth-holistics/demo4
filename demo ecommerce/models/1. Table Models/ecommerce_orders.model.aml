@@ -58,8 +58,9 @@ Model ecommerce_orders {
   measure cumm_orders {
     label: 'Cumulative Orders'
     type: 'number'
-    definition: @aql running_total(ecommerce_orders.total_order, ecommerce_orders.order_month) ;;
     description: "The cumulative total of orders."
+    hidden: true
+    definition: @aql running_total(ecommerce_orders.total_order, ecommerce_orders.order_month) ;;
     aggregation_type: "custom"
   }
   measure delivered_orders_count {
@@ -84,7 +85,7 @@ Model ecommerce_orders {
     aggregation_type: "custom"
   }
   measure total_order {
-    label: "total_orders_count"
+    label: "Total Orders Count"
     type: "number"
     definition: @sql {{ id }};;
     description: "The total number of orders"
@@ -93,6 +94,8 @@ Model ecommerce_orders {
   measure total_orders_count {
     label: "Total Orders Count"
     type: "number"
+    description: ""
+    hidden: true
     definition: @sql {{ id }};;
     aggregation_type: "count"
   }
@@ -102,10 +105,23 @@ Model ecommerce_orders {
     type: "datetime"
     definition: @sql min({{ created_at }}) ;;
   }
+
   measure days_since_last_order {
     label: "Days Since Last Order"
     type: "number"
     definition: @sql DATE_PART('Day', CURRENT_TIMESTAMP - max({{ created_at }}));;
     aggregation_type: "custom"
+  }
+
+  measure orders_2023 {
+    label: '2023'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2023) ;;
+  }
+
+  measure orders_2024 {
+    label: '2024'
+    type: "number"
+    definition: @aql count(ecommerce_orders.id) | where(ecommerce_orders.created_at matches @2024) ;;
   }
 }

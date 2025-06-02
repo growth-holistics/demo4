@@ -1,0 +1,141 @@
+Model dynamic_dim_model {
+  type: 'query'
+  label: 'Dynamic Dim Model'
+  description: ''
+  data_source_name: 'demodb'
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension user_email {
+    label: 'User Email'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_email }};;
+  }
+  dimension gender {
+    label: 'Gender'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.gender }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+  dimension order_created_at {
+    label: 'Order Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_created_at }};;
+  }
+  dimension delivery_attempts {
+    label: 'Delivery Attempts'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivery_attempts }};;
+  }
+  dimension discount {
+    label: 'Discount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.discount }};;
+  }
+  dimension quantity {
+    label: 'Quantity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension product_name {
+    label: 'Product Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_name }};;
+  }
+  dimension price {
+    label: 'Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }};;
+  }
+  dimension merchant_id {
+    label: 'Merchant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension city_name {
+    label: 'City Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.city_name }};;
+  }
+  dimension country_name {
+    label: 'Country Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_name }};;
+  }
+
+  param dim_choice {
+    label: 'Dim Choice'
+    type: 'text'
+    allowed_values: ['Countries', 'Cities', 'Gender']
+  }
+
+  dimension dynamic_dim {
+    label: 'Dynamic Breakdown Dimension'
+    type: 'text'
+    definition: @aql case(
+      when: 'Countries' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.country_name
+      , when: 'Cities' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.city_name
+      , when: 'Gender' in dynamic_dim_model.dim_choice
+      , then: dynamic_dim_model.gender
+    ) ;;
+  }
+
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    select 
+      {{#o.id}} as order_id
+      , {{ #u.email }} as user_email
+      , {{ #u.gender }} 
+      , {{#o.status }}
+      , {{#o.created_at}} as order_created_at
+      , {{#o.delivery_attempts}}
+      , {{#o.discount}}
+      , {{#oi.quantity}}
+      , {{#oi.product_id}}
+      , {{ #p.name }} as product_name
+      , {{#p.price}}
+      , {{#p.merchant_id}}
+      , {{ #ci.name }} as city_name
+      , {{ #co.name }} as country_name
+    from {{ #ecommerce_order_items AS oi }} 
+    left join {{ #ecommerce_orders AS o }} on {{#oi.order_id}} = {{#o.id}}
+    left join {{ #ecommerce_users AS u }} on {{ #o.user_id }} = {{ #u.id }}
+    left join {{ #ecommerce_cities AS ci }} on {{ #u.city_id }} = {{ #ci.id }}
+    left join {{ #ecommerce_countries AS co }} on {{ #ci.country_code }} = {{ #co.code }}
+    left join {{ #ecommerce_products AS p }} on {{#oi.product_id}} = {{#p.id}};;
+  models: [
+    ecommerce_users,
+    ecommerce_cities,
+    ecommerce_orders,
+    ecommerce_products,
+    ecommerce_countries,
+    ecommerce_order_items
+  ]
+}
