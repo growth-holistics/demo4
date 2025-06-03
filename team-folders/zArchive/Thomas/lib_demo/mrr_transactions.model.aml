@@ -1,0 +1,325 @@
+Model mrr_transactions {
+  type: 'query'
+  label: 'Mrr Transactions'
+  description: 'Model for MRR transactions with both event types and continuous MRR tracking'
+  data_source_name: 'demodb'
+  dimension period_date {
+    label: 'Period Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.period_date }};;
+  }
+  dimension subscription_type {
+    label: 'Subscription Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.subscription_type }};;
+  }
+  dimension customer_id {
+    label: 'Customer ID'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension mrr_amount {
+    label: 'Mrr Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mrr_amount }};;
+  }
+
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+-- First, get all customers with their signup dates from the customers model
+WITH customer_cohorts AS (
+  SELECT 
+    customer_id,
+    DATE_TRUNC('month', sign_up_date) AS cohort_month,
+    sign_up_date,
+    churn_date
+  FROM {{#customers}}
+),
+
+-- Generate monthly periods for our analysis
+months AS (
+  SELECT 
+    DATE_TRUNC('month', period_date) AS month_date
+  FROM {{#time_periods}}
+  WHERE period_date >= '2023-02-01' AND period_date <= '2025-03-01'
+  GROUP BY DATE_TRUNC('month', period_date)
+  ORDER BY month_date
+),
+
+-- Create a base for all customer-month combinations
+customer_months AS (
+  SELECT 
+    c.customer_id,
+    c.cohort_month,
+    m.month_date,
+    c.churn_date,
+    -- Calculate months since signup (0 = first month)
+    EXTRACT(YEAR FROM m.month_date) * 12 + EXTRACT(MONTH FROM m.month_date) - 
+    (EXTRACT(YEAR FROM c.cohort_month) * 12 + EXTRACT(MONTH FROM c.cohort_month)) AS months_since_signup
+  FROM customer_cohorts c
+  CROSS JOIN months m
+  WHERE 
+    m.month_date >= c.cohort_month AND -- Only include months from signup onwards
+    (c.churn_date IS NULL OR m.month_date < DATE_TRUNC('month', c.churn_date)) -- Exclude months after churn
+),
+
+-- Define customer starting MRR and growth patterns
+customer_starting_mrr AS (
+  SELECT
+    customer_id,
+    cohort_month,
+    -- Generate a reasonable starting MRR for each customer (between $100 and $1000)
+    (100 + FLOOR(RANDOM() * 900))::numeric AS starting_mrr
+  FROM customer_cohorts
+),
+
+-- Generate events
+events AS (
+  -- New logo events (first month for each customer)
+  SELECT
+    customer_id,
+    cohort_month AS period_date,
+    'new_logo' AS subscription_type,
+    starting_mrr AS mrr_amount
+  FROM customer_starting_mrr
+  
+  UNION ALL
+  
+  -- Upgrade events (with seasonal patterns)
+  SELECT
+    cm.customer_id,
+    cm.month_date AS period_date,
+    'upgraded' AS subscription_type,
+    cs.starting_mrr * (0.2 + RANDOM() * 0.3) * -- Base upgrade amount 20-50%
+    CASE -- Seasonal adjustment with higher values
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 12 THEN 1.5 -- December boost
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 6 THEN 1.3 -- June boost
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 3 THEN 1.2 -- March boost
+      ELSE 1.0
+    END AS mrr_amount
+  FROM customer_months cm
+  JOIN customer_starting_mrr cs ON cm.customer_id = cs.customer_id
+  WHERE 
+    cm.months_since_signup > 0 AND -- Only for months after signup
+    -- More upgrades in specific months to offset churn and maintain growth
+    RANDOM() < CASE
+      WHEN EXTRACT(MONTH FROM cm.month_date) IN (11, 12) THEN 0.18 -- Q4 boost
+      WHEN EXTRACT(MONTH FROM cm.month_date) IN (5, 6) THEN 0.15 -- Q2 boost
+      WHEN EXTRACT(MONTH FROM cm.month_date) IN (2, 3) THEN 0.14 -- Q1 boost
+      ELSE 0.10 -- Base rate
+    END
+  
+  UNION ALL
+  
+  -- Downgrade events
+  SELECT
+    cm.customer_id,
+    cm.month_date AS period_date,
+    'downgraded' AS subscription_type,
+    -1 * cs.starting_mrr * (0.15 + RANDOM() * 0.25) * -- Base downgrade amount 15-40%
+    CASE -- Seasonal adjustment with bumpy patterns
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 1 THEN 1.5 -- January post-holiday spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 7 THEN 1.3 -- Mid-year adjustment
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 10 THEN 1.2 -- Q4 beginning
+      ELSE 1.0
+    END AS mrr_amount
+  FROM customer_months cm
+  JOIN customer_starting_mrr cs ON cm.customer_id = cs.customer_id
+  WHERE 
+    cm.months_since_signup > 0 AND -- Only for months after signup
+    -- Bumpy downgrade pattern
+    RANDOM() < CASE
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 1 THEN 0.15 -- January spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 7 THEN 0.12 -- July spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 10 THEN 0.10 -- October spike
+      ELSE 0.05 -- Base rate for other months
+    END
+  
+  UNION ALL
+  
+  -- Churn events for customers with specific churn date
+  SELECT
+    c.customer_id,
+    DATE_TRUNC('month', c.churn_date) AS period_date,
+    'churned' AS subscription_type,
+    -- Calculate the MRR amount to churn based on starting MRR
+    -- with a realistic growth factor based on tenure and bumpy seasonal patterns
+    -1 * cs.starting_mrr * 
+    (1 + (0.05 * EXTRACT(MONTH FROM AGE(c.churn_date, c.sign_up_date)))) *
+    CASE -- Seasonal churn spikes
+      WHEN EXTRACT(MONTH FROM c.churn_date) = 12 THEN 1.8 -- December spike
+      WHEN EXTRACT(MONTH FROM c.churn_date) = 6 THEN 1.6 -- June spike
+      WHEN EXTRACT(MONTH FROM c.churn_date) = 3 THEN 1.4 -- March spike
+      WHEN EXTRACT(MONTH FROM c.churn_date) = 9 THEN 1.5 -- September spike
+      ELSE 1.1
+    END AS mrr_amount
+  FROM customer_cohorts c
+  JOIN customer_starting_mrr cs ON c.customer_id = cs.customer_id
+  WHERE c.churn_date IS NOT NULL
+  
+  UNION ALL
+  
+  -- Add additional synthetic churn events to make churn more visible
+  SELECT
+    cm.customer_id,
+    cm.month_date AS period_date,
+    'churned' AS subscription_type,
+    -1 * cs.starting_mrr * (0.8 + RANDOM() * 0.5) * -- 80-130% of starting MRR
+    CASE -- Seasonal bumpy patterns
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 12 THEN 2.0 -- December spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 6 THEN 1.8 -- June spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 3 THEN 1.5 -- March spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 9 THEN 1.7 -- September spike
+      ELSE 1.0
+    END AS mrr_amount
+  FROM customer_months cm
+  JOIN customer_starting_mrr cs ON cm.customer_id = cs.customer_id
+  WHERE 
+    cm.months_since_signup >= 3 AND -- Only churn customers after 3+ months
+    -- Add bumpy churn pattern
+    RANDOM() < CASE
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 12 THEN 0.12 -- December spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 6 THEN 0.10 -- June spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 3 THEN 0.08 -- March spike
+      WHEN EXTRACT(MONTH FROM cm.month_date) = 9 THEN 0.09 -- September spike
+      ELSE 0.03 -- Base rate
+    END AND
+    -- Avoid duplicate churn for same customer
+    NOT EXISTS (
+      SELECT 1 FROM customer_cohorts cc 
+      WHERE cc.customer_id = cm.customer_id 
+      AND cc.churn_date IS NOT NULL 
+      AND DATE_TRUNC('month', cc.churn_date) = cm.month_date
+    )
+),
+
+-- Create a running sum of MRR changes for each customer by month
+customer_mrr_changes AS (
+  SELECT
+    customer_id,
+    period_date,
+    subscription_type,
+    mrr_amount
+  FROM events
+),
+
+-- Generate a monthly snapshot of each customer's MRR status
+customer_mrr_status AS (
+  SELECT
+    cm.customer_id,
+    cm.month_date AS period_date,
+    COALESCE(SUM(CASE WHEN cmc.subscription_type = 'new_logo' THEN cmc.mrr_amount ELSE 0 END), 0) AS new_logo_mrr,
+    COALESCE(SUM(CASE WHEN cmc.subscription_type = 'upgraded' THEN cmc.mrr_amount ELSE 0 END), 0) AS upgrade_mrr,
+    COALESCE(SUM(CASE WHEN cmc.subscription_type = 'downgraded' THEN cmc.mrr_amount ELSE 0 END), 0) AS downgrade_mrr,
+    COALESCE(SUM(CASE WHEN cmc.subscription_type = 'churned' THEN cmc.mrr_amount ELSE 0 END), 0) AS churn_mrr
+  FROM customer_months cm
+  LEFT JOIN customer_mrr_changes cmc ON cm.customer_id = cmc.customer_id 
+    AND cm.month_date = cmc.period_date
+  GROUP BY cm.customer_id, cm.month_date
+),
+
+-- Calculate running MRR for each customer
+customer_running_mrr AS (
+  SELECT
+    customer_id,
+    period_date,
+    new_logo_mrr,
+    upgrade_mrr,
+    downgrade_mrr,
+    churn_mrr,
+    SUM(new_logo_mrr + upgrade_mrr + downgrade_mrr + churn_mrr) OVER (
+      PARTITION BY customer_id
+      ORDER BY period_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS current_mrr
+  FROM customer_mrr_status
+),
+
+-- Generate continuous MRR records (for retention analysis)
+continuous_mrr AS (
+  SELECT
+    customer_id,
+    period_date,
+    'continued' AS subscription_type,
+    CASE
+      WHEN new_logo_mrr > 0 OR upgrade_mrr > 0 OR downgrade_mrr < 0 OR churn_mrr < 0 THEN 0 -- Events are handled separately
+      ELSE current_mrr -- This is the continuous MRR
+    END AS mrr_amount
+  FROM customer_running_mrr
+  WHERE current_mrr > 0 -- Only include positive MRR
+),
+
+-- Split out the transaction types for the MRR chart
+transaction_types AS (
+  -- New logo events
+  SELECT
+    customer_id,
+    period_date,
+    'new_logo' AS subscription_type,
+    new_logo_mrr AS mrr_amount
+  FROM customer_running_mrr
+  WHERE new_logo_mrr > 0
+  
+  UNION ALL
+  
+  -- Upgrade events
+  SELECT
+    customer_id,
+    period_date,
+    'upgraded' AS subscription_type,
+    upgrade_mrr AS mrr_amount
+  FROM customer_running_mrr
+  WHERE upgrade_mrr > 0
+  
+  UNION ALL
+  
+  -- Downgrade events
+  SELECT
+    customer_id,
+    period_date,
+    'downgraded' AS subscription_type,
+    downgrade_mrr AS mrr_amount
+  FROM customer_running_mrr
+  WHERE downgrade_mrr < 0
+  
+  UNION ALL
+  
+  -- Churn events
+  SELECT
+    customer_id,
+    period_date,
+    'churned' AS subscription_type,
+    churn_mrr AS mrr_amount
+  FROM customer_running_mrr
+  WHERE churn_mrr < 0
+  
+  UNION ALL
+  
+  -- Include continued MRR for cohort analysis
+  SELECT
+    customer_id,
+    period_date,
+    subscription_type,
+    mrr_amount
+  FROM continuous_mrr
+  WHERE mrr_amount > 0
+)
+
+-- Final output with all transaction types
+SELECT 
+  period_date,
+  subscription_type,
+  customer_id,
+  mrr_amount
+FROM transaction_types
+ORDER BY period_date, customer_id, subscription_type
+;;;
+  models: [
+    customers,
+    time_periods
+  ]
+}
