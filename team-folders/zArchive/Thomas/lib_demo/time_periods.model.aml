@@ -1,0 +1,23 @@
+Model time_periods {
+  type: 'query'
+  label: 'Time Periods'
+  description: ''
+  data_source_name: 'demodb'
+  dimension period_date {
+    label: 'Period Date'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.period_date }};;
+  }
+
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+    WITH time_periods_cte AS (
+        SELECT
+            generate_series('2023-01-01'::date, '2025-01-01'::date, interval '1 day') AS period_date
+    )
+    SELECT period_date
+    FROM time_periods_cte;;;
+  models: [
+  ]
+}
