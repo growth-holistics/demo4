@@ -588,109 +588,6 @@ Young adult female customers (under 30) are currently our most valuable and loya
       }
     }
   }
-  block v35: VizBlock {
-    label: 'Top Merchants by Revenue'
-    viz: PivotTable {
-      dataset: demo_ecommerce_version_2
-      filter {
-        field: ref('ecommerce_merchants', 'name')
-        operator: 'top'
-        value: 10
-        options {
-          rank_by {
-            field: 'revenue'
-            aggregation: 'custom'
-            logic: 'standard'
-          }
-        }
-      }
-      theme {
-        table {
-          general {
-            bg_color: '#FFFFFFFF'
-            font_size: 16
-            cell_padding {
-              top: 7
-              left: 8
-              bottom: 7
-              right: 8
-            }
-            borders {
-              outer: true
-              vertical: true
-              header: true
-              row_header: true
-            }
-          }
-        }
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Merchant'
-          ref: ref('ecommerce_merchants', 'name')
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_merchants_name'
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: '[$$]#,###'
-          }
-        },
-        VizFieldFull {
-          label: 'PoT Revenue'
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: '#,###%'
-          }
-          analytic: PercentOfTotalField {
-            of_all: 'grand_total'
-          }
-          uname: 'custom_revenue_1'
-        }
-      ]
-      settings {
-        row_height: 'multiple_lines'
-        show_row_total: true
-        show_column_total: true
-        conditional_formats: [
-          ConditionalFormat {
-            key: 'custom_revenue_1'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than_equal'
-                value: 0.1
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          }
-        ]
-        sorts: [
-          SortSetting {
-            field_index: 1
-            direction: 'desc'
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        column_styles: [
-          ColumnStyle {
-            key: 'ecommerce_merchants_name'
-            width: 245
-          }
-        ]
-      }
-    }
-  }
   block v36: VizBlock {
     label: 'User Demographics'
     viz: PivotTable {
@@ -996,7 +893,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   }
   block v44: VizBlock {
     label: 'GMV Over Time'
-    viz: ColumnChart {
+    viz: LineChart {
       dataset: demo_ecommerce_version_2
       theme {
 
@@ -1639,71 +1536,6 @@ Uncover trends by comparing current performance against a previous period.
         mode: 'auto'
       }
     }
-    tab tab6: CanvasLayout {
-      label: 'Finance'
-      width: 1320
-      height: 1900
-      grid_size: 20
-      block f3 {
-        position: pos(660, 200, 300, 100)
-        layer: 2
-      }
-      block f4 {
-        position: pos(980, 200, 320, 100)
-        layer: 6
-      }
-      block t17 {
-        position: pos(20, 20, 620, 280)
-        layer: 3
-      }
-      block t19 {
-        position: pos(20, 320, 1280, 20)
-        layer: 5
-      }
-      block t21 {
-        position: pos(20, 360, 680, 440)
-        layer: 8
-      }
-      block t22 {
-        position: pos(20, 1220, 1280, 20)
-        layer: 1
-      }
-      block t25 {
-        position: pos(20, 1260, 880, 280)
-        layer: 11
-      }
-      block v44 {
-        position: pos(720, 360, 580, 600)
-        layer: 9
-      }
-      block v52 {
-        position: pos(940, 1260, 360, 280)
-        layer: 13
-      }
-      block v53 {
-        position: pos(20, 1560, 880, 300)
-        layer: 12
-      }
-      block t30 {
-        position: pos(940, 1560, 360, 180)
-        layer: 14
-      }
-      block t31 {
-        position: pos(20, 820, 680, 140)
-        layer: 15
-      }
-      block t32 {
-        position: pos(20, 980, 680, 220)
-        layer: 16
-      }
-      block t33 {
-        position: pos(720, 980, 580, 220)
-        layer: 17
-      }
-      mobile {
-        mode: 'auto'
-      }
-    }
     tab tab1: CanvasLayout {
       label: 'Users'
       width: 1480
@@ -1737,6 +1569,10 @@ Uncover trends by comparing current performance against a previous period.
         position: pos(860, 1300, 560, 580)
         layer: 10
       }
+      block t26 {
+        position: pos(20, 880, 580, 400)
+        layer: 11
+      }
       block v34 {
         position: pos(20, 1300, 820, 580)
         layer: 1
@@ -1749,23 +1585,12 @@ Uncover trends by comparing current performance against a previous period.
         position: pos(640, 180, 640, 580)
         layer: 1
       }
-      block t26 {
-        position: pos(20, 880, 580, 400)
-        layer: 11
-      }
     }
     tab tab4: CanvasLayout {
       label: 'Products'
+      width: 1180
       height: 2240
       grid_size: 20
-      block v57 {
-        position: pos(360, 540, 800, 340)
-        layer: 3
-      }
-      block v58 {
-        position: pos(20, 1160, 1100, 460)
-        layer: 6
-      }
       block f9 {
         position: pos(660, 140, 300, 100)
         layer: 7
@@ -1794,18 +1619,78 @@ Uncover trends by comparing current performance against a previous period.
         position: pos(20, 1640, 1100, 580)
         layer: 13
       }
+      block v57 {
+        position: pos(360, 540, 800, 340)
+        layer: 3
+      }
+      block v58 {
+        position: pos(20, 1160, 1100, 460)
+        layer: 6
+      }
       mobile {
         mode: 'auto'
       }
-      width: 1180
     }
-    tab tab3: CanvasLayout {
-      label: 'Merchants'
-      height: 800
+    tab tab6: CanvasLayout {
+      label: 'Finance'
+      width: 1320
+      height: 1900
       grid_size: 20
-      block v35 {
-        position: pos(20, 80, 640, 580)
+      block f3 {
+        position: pos(660, 200, 300, 100)
+        layer: 2
+      }
+      block f4 {
+        position: pos(980, 200, 320, 100)
+        layer: 6
+      }
+      block t17 {
+        position: pos(20, 20, 620, 280)
+        layer: 3
+      }
+      block t19 {
+        position: pos(20, 320, 1280, 20)
+        layer: 5
+      }
+      block t21 {
+        position: pos(20, 360, 680, 440)
+        layer: 8
+      }
+      block t22 {
+        position: pos(20, 1220, 1280, 20)
         layer: 1
+      }
+      block t25 {
+        position: pos(20, 1260, 880, 280)
+        layer: 11
+      }
+      block t30 {
+        position: pos(940, 1560, 360, 180)
+        layer: 14
+      }
+      block t31 {
+        position: pos(20, 820, 680, 140)
+        layer: 15
+      }
+      block t32 {
+        position: pos(20, 980, 680, 220)
+        layer: 16
+      }
+      block t33 {
+        position: pos(720, 980, 580, 220)
+        layer: 17
+      }
+      block v44 {
+        position: pos(720, 360, 580, 600)
+        layer: 9
+      }
+      block v52 {
+        position: pos(940, 1260, 360, 280)
+        layer: 13
+      }
+      block v53 {
+        position: pos(20, 1560, 880, 300)
+        layer: 12
       }
       mobile {
         mode: 'auto'
@@ -1820,7 +1705,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1839,7 +1723,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1858,7 +1741,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1877,7 +1759,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1896,7 +1777,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1915,7 +1795,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1934,7 +1813,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1953,7 +1831,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1972,7 +1849,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -1999,36 +1875,7 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v35',
             'v36',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v35'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v36',
-            'v37',
-            'v43',
             'v44',
             'v52',
             'v53',
@@ -2045,7 +1892,6 @@ Uncover trends by comparing current performance against a previous period.
         CustomMapping {
           block: [
             'v34',
-            'v35',
             'v37',
             'v43',
             'v44',
@@ -2072,7 +1918,6 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v35',
             'v36',
             'v44',
             'v52',
@@ -2099,7 +1944,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v44',
             'v52',
             'v53',
@@ -2136,7 +1980,6 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v35',
             'v36',
             'v44',
             'v52',
@@ -2163,7 +2006,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2203,7 +2045,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2255,7 +2096,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2293,7 +2133,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2322,7 +2161,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2351,7 +2189,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
@@ -2394,7 +2231,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v35',
             'v36',
             'v37',
             'v43',
