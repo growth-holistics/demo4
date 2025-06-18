@@ -1,6 +1,5 @@
-Dataset demo_ecommerce_version_2 {
-  label: '[Demo] Ecommerce Official (2025)'
-  description: 'New dataset starting 2025'
+Dataset demo_finance {
+  label: '[Demo] Finance'
   data_source_name: 'demodb'
   models: [
     ecommerce_products,
@@ -13,7 +12,9 @@ Dataset demo_ecommerce_version_2 {
     map_categories,
     param_model_demo,
     dim_dates,
-    ecommerce_product_images
+    ecommerce_product_images,
+    ecommerce_budget_targets,
+    ecommerce_operating_expenses
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -24,73 +25,10 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
     relationship(ecommerce_products_map_categories, true),
-    relationship(ecommerce_orders_dim_dates, true),
-    relationship(ecommerce_users.sign_up_date > dim_dates.date_key, true)
+    relationship(ecommerce_budget_targets.date > dim_dates.date_key, true),
+    relationship(ecommerce_operating_expenses.date > dim_dates.date_key, true),
+    relationship(ecommerce_orders_dim_dates, true)
   ]
-
-  dimension cohort_month {
-    model: ecommerce_users
-    label: "Cohort Month"
-    type: 'date'
-    definition: @aql min(ecommerce_orders.created_at | month()) | dimensionalize(ecommerce_users.id);;
-  }
-
-  dimension month_number {
-    model: ecommerce_orders
-    label: 'Month Number'
-    type: 'number'
-    definition: @aql date_diff('month', ecommerce_users.cohort_month, (ecommerce_orders.created_at | month())) ;;
-  }
-
-  dimension cohort_size {
-    model: ecommerce_orders
-    label: 'Cohort Size'
-    type: 'number'
-    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
-  }
-
-  dimension total_orders_all_time {
-    model: ecommerce_users
-    label: 'Total Orders (Users)'
-    type: 'number'
-    definition: @aql total_orders | dimensionalize(ecommerce_users.id);;
-  }
-
-  dimension is_buyer {
-    model: ecommerce_users
-    label: 'Is Buyer'
-    type: 'truefalse'
-    definition: @aql ecommerce_users.total_orders_all_time > 0;;
-  }
-
-  dimension is_repeated_buyer {
-    model: ecommerce_users
-    label: 'Is Repeated Buyer'
-    type: 'truefalse'
-    definition: @aql ecommerce_users.total_orders_all_time > 1;;
-  }
-
-  dimension product_performance_analysis {
-    model: ecommerce_products
-    label: 'Product Performance Analysis'
-    type: 'text'
-    definition: @aql concat(
-      'https://claude.ai/new?q=write+an_analysis+for+',
-      ecommerce_products.name,
-      '.+The+GMV+for+this+product+is+',
-      cast(gmv, 'text'),
-      '+and+the+AOV+for+this+product+is+',
-      cast(aov, 'text'),
-      )
-     ;;
-  }
-
-  dimension product_image {
-    model: ecommerce_product_images
-    label: 'Product Image'
-    type: 'text'
-    definition: @aql concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />') ;;
-  }
 
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
@@ -145,7 +83,7 @@ Dataset demo_ecommerce_version_2 {
   }
   
   metric nmv {
-    label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
+    label: "NMV - Net Merchandise Value"
     type: "number"
     hidden: false
     description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
@@ -351,5 +289,86 @@ Dataset demo_ecommerce_version_2 {
     format: "#,###%"
   }
 
-  owner: 'vincent@holistics.io'
+  metric cost_of_goods_sold {
+    label: "Cost Of Goods Sold"
+    type: "number"
+    hidden: false
+    description: "Cost of goods sold for all orders."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.cost);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_operations {
+    label: "Cost Of Operations"
+    type: "number"
+    hidden: false
+    description: "Total operating expenses incurred."
+    definition: @aql sum(ecommerce_operating_expenses.amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cost {
+    label: "Total Expenses"
+    type: "number"
+    hidden: false
+    description: "Total cost incurred including cost of goods sold and cost of operations."
+    definition: @aql cost_of_goods_sold + cost_of_operations;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric expense_budgets {
+    label: "Expense Budgets"
+    type: "number"
+    hidden: false
+    description: "Total budgeted expenses for the period."
+    definition: @aql sum(ecommerce_budget_targets.budget_target);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit {
+    label: "Net Profit"
+    type: "number"
+    hidden: false
+    description: "Net profit calculated as net merchandise value minus total cost."
+    definition: @aql nmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric gross_profit {
+    label: "Gross Profit"
+    type: "number"
+    hidden: false
+    description: "Gross profit calculated as revenue minus total cost of goods sold."
+    definition: @aql revenue - cost_of_goods_sold;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit_margin {
+    label: "Net Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Net profit margin calculated as net profit divided by NMV."
+    definition: @aql net_profit / nmv;;
+    format: "#,###0.00%"
+  }
+
+  metric gross_profit_margin {
+    label: "Gross Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Gross profit margin calculated as gross profit divided by GMV."
+    definition: @aql gross_profit / gmv;;
+    format: "#,###0.00%"
+  }
+
+  metric budget_ratio {
+    label: "Budget Ratio"
+    type: "number"
+    hidden: false
+    description: "Budget ratio calculated as total cost divided by expense budgets."
+    definition: @aql total_cost / expense_budgets;;
+    format: "#,###0.00%"
+  }
+
+  owner: 'dong.ln@holistics.io'
 }
