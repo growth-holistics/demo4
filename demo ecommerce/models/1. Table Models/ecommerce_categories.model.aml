@@ -31,6 +31,14 @@ Model ecommerce_categories {
     hidden: false
     definition: @sql {{ #SOURCE.parent_id }};;
   }
+
+  dimension parent_category_name {
+    label: 'Parent Category Name'
+    type: 'text'
+    hidden: false
+    definition: @aql  ;;
+  }
+
   dimension category_cost {
     label: "Category Cost"
     type: "number"
@@ -69,6 +77,40 @@ when {{ name }} in ('Skin Care'
  then 0.1
  else '0.1' end;;
     format: "#,###%"
+  }
+  dimension min_price {
+    label: "Min Price"
+    type: "number"
+    hidden: false
+    definition: @sql {{ #SOURCE.min_price }};;
+  }
+  dimension max_price {
+    label: "Max Price"
+    type: "number"
+    hidden: false
+    definition: @sql {{ #SOURCE.max_price }};;
+  }
+  dimension category_image_url {
+    label: "Category Image Url"
+    type: "text"
+    hidden: false
+    definition: @sql {{ #SOURCE.category_image_url }};;
+  }
+
+  dimension category_image {
+    label: 'Category Image (50px)'
+    type: 'text'
+    description: "Category Image in html"
+    hidden: false
+    definition: @aql concat('<img src="', ecommerce_categories.category_image_url, '" style="text-align:center;height:50px;width:50px;object-fit:cover" />') ;;
+  }
+
+  dimension category_image_100px {
+    label: 'Category Image (100 px)'
+    type: 'text'
+    description: "Category Image in html"
+    hidden: false
+    definition: @aql concat('<img src="', ecommerce_categories.category_image_url, '" style="text-align:center;height:100px;width:100px;object-fit:cover" />') ;;
   }
 
   owner: 'ha.pham+demo4@holistics.io'
