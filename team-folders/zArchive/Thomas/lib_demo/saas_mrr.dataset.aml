@@ -1,0 +1,24 @@
+
+
+Dataset saas_mrr {
+  label: 'Saas Mrr'
+  description: ''
+  __engine__: 'aql'
+  data_source_name: 'demodb'
+  models: [
+    time_periods,
+    mrr_transactions,
+    customers,
+  ]
+  relationships: [
+    relationship(mrr_transactions.customer_id > customers.customer_id, true),
+    relationship(mrr_transactions.period_date > time_periods.period_date, true)
+  ]
+  owner: 'thanh.tm@holistics.io'
+  metric total_users {
+    label: "Total Users"
+    type: "number"
+    description: ""
+    definition: @aql count(customers.customer_id);;
+  }
+}

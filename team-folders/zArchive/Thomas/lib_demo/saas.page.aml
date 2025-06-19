@@ -1,0 +1,575 @@
+
+Func customer_segmentation(
+  dataset: Dataset = saas_mrr,
+  revenue_metric: VizFieldRef = ref('mrr_transactions', 'mrr_amount'),
+  cohort: VizFieldRef = ref('customers', 'sign_up_date'),
+  first_bin_number: Number = 2000,
+  second_bin_number: Number = 2500,
+  third_bin_number: Number = 4000,
+  third_bin_color: String = '#517DDD'
+) {
+  VizBlock {
+    label: 'Customer Segmentation Matrix '
+    viz: PivotTable {
+      dataset: dataset
+      calculation bin_definition {
+        label: 'Bin Definition'
+        formula: @aql case(
+  when: sum(${revenue_metric.model}.${revenue_metric.field}) < ${first_bin_number}
+  , then: 'Startup'
+  , when: sum(${revenue_metric.model}.${revenue_metric.field}) >= ${first_bin_number} and sum(${revenue_metric.model}.${revenue_metric.field}) < ${second_bin_number}
+  , then: 'SME'
+  , when: sum(${revenue_metric.model}.${revenue_metric.field}) >= ${second_bin_number} and sum(${revenue_metric.model}.${revenue_metric.field}) < ${third_bin_number}
+  , then: 'Mid Market'
+  , else: 'Enterprise'
+) | dimensionalize(${cohort.model}.${cohort.field});;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: mrr_transactions
+      }
+      rows: [
+        VizFieldFull {
+          ref: cohort
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('mrr_transactions', 'bin_definition')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'MRR'
+          ref: revenue_metric
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###0.00,"K"'
+          }
+          uname: 'sum_mrr_amount'
+        }
+      ]
+      settings {
+        empty_cell_as_zero: true
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'sum_mrr_amount'
+            aggregation: 'sum'
+            format: ScaleFormat {
+              min {
+                value: first_bin_number
+                color: '#E9EFFB'
+              }
+              mid {
+                value: second_bin_number
+                color: '#A8BEEE'
+              }
+              max {
+                value: third_bin_number
+                color: third_bin_color
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
+
+
+@template(
+  title = "MRR & PoP",
+  thumbnail = 'https://i.postimg.cc/65ZJFyqY/Screenshot-2025-03-09-at-6-57-38-PM.png',
+  description = "How does your revenue evolve over time and compare to last year?",
+  metadata = {
+    group: 'SaaS'
+    block_width: 620
+    block_height: 460
+    func: TemplateFuncMetadata {
+      param dataset: GeneralParamMetadata {
+        description: 'Revenue dataset'
+      }
+      param mrr_amount: NumberParamMetadata {
+        description: "The revenue metric you want to break down"
+      }
+      param break_down_dimension: NumberParamMetadata {
+        description: 'The dimension that is used to break down the metric above'
+      }
+      param date: NumberParamMetadata {
+        description: 'A date dimension'
+      }
+    }
+  }
+)
+Func mrr2(dataset: Dataset = saas_mrr
+, mrr_amount: VizFieldRef = ref('mrr_transactions', 'mrr_amount')
+, break_down_dimension: VizFieldRef = ref('mrr_transactions', 'subscription_type')
+, date: VizFieldRef = ref('time_periods', 'period_date')
+, comparison_period: Number = 12) {
+  VizBlock {
+    label: 'MRR'
+    viz: CombinationChart {
+      dataset: dataset
+      calculation pop_mrr {
+        label: 'MRR (1 year ago)'
+        // mrr_transactions.amount
+        formula: @aql sum(${mrr_amount.model}.${mrr_amount.field}) | relative_period(${date.model}.${date.field}, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_mrr {
+        label: 'MRR'
+        formula: @aql sum(${mrr_amount.model}.${mrr_amount.field});;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: date
+        operator: 'last'
+        value: comparison_period
+        modifier: 'month'
+      }
+      x_axis: VizFieldFull {
+        ref: date
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: break_down_dimension
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_mrr'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            point {
+              value: 'churned'
+              color: '#FB9494'
+            }
+            point {
+              value: 'downgraded'
+              color: '#FCB8B8'
+            }
+            point {
+              value: 'new_logo'
+              color: '#5C85DF'
+            }
+            point {
+              value: 'upgraded'
+              color: '#92AEEA'
+            }
+          }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'pop_mrr'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+            break_by_legend: false
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'total_mrr'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+            break_by_legend: false
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
+
+Func getPositionForBlock() {
+  pos(20, 460, 740, 480)
+}
+
+
+@template(
+  title = "Net MRR Retention",
+  description = "How well are you retaining your MRR?",
+  thumbnail = "https://i.postimg.cc/8PDhk0xr/Screenshot-2025-03-19-at-4-10-22-PM.png",
+  metadata = {
+    group: 'SaaS'
+  }
+)
+Func mrr_net_retention(dataset: Dataset, metric: VizFieldRef, row_grouped_by: VizFieldRef, column_date: VizFieldRef) {
+  VizBlock {
+    label: 'Net MRR Retention'
+    viz: RetentionHeatmap {
+      dataset: dataset
+      calculation month_since_first_signup {
+        label: 'Month Since First Signup'
+        formula: @aql case (
+  when: date_diff('month', ${row_grouped_by.model}.${row_grouped_by.field} | month(), ${column_date.model}.${column_date.field} | month()) >= 0,
+  then: date_diff('month', ${row_grouped_by.model}.${row_grouped_by.field} | month(), ${column_date.model}.${column_date.field} | month()));;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: mrr_transactions
+      }
+      calculation mrr {
+        label: 'Mrr'
+        formula: @aql sum(${metric.model}.${metric.field});;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation initial_mrr {
+        label: 'Initial Mrr'
+        formula: @aql mrr | where(mrr_transactions.month_since_first_signup == 0) | of_all(mrr_transactions.month_since_first_signup);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation mrr_retention {
+        label: 'Mrr Retention'
+        formula: @aql mrr * 1.0 / initial_mrr;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      cohort: VizFieldFull {
+        label: 'Sign Up At'
+        ref: ref('customers', 'sign_up_date')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      cohort_duration: VizFieldFull {
+        ref: ref('mrr_transactions', 'month_since_first_signup')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: 'mrr_retention'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
+
+
+Dashboard untitled_42 {
+  title: 'SaaS'
+  description: ''''''
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Untitled'
+      width: 1420
+      height: 1440
+      grid_size: 20
+      block v1 {
+        position: pos(340, 220, 240, 160)
+        layer: 1
+      }
+      block v2 {
+        position: pos(600, 220, 240, 160)
+        layer: 2
+      }
+      block v3 {
+        position: pos(860, 220, 220, 160)
+        layer: 3
+      }
+      block t1 {
+        position: pos(0, 0, 1420, 120)
+        layer: 4
+      }
+      block t2 {
+        position: pos(20, 20, 280, 80)
+        layer: 5
+      }
+      block t3 {
+        position: pos(20, 140, 240, 40)
+        layer: 6
+      }
+      block t4 {
+        position: pos(20, 160, 1380, 60)
+        layer: 7
+      }
+      block t5 {
+        position: pos(20, 400, 240, 40)
+        layer: 8
+      }
+      block t6 {
+        position: pos(20, 440, 1380, 20)
+        layer: 9
+      }
+      block t7 {
+        position: pos(20, 960, 340, 40)
+        layer: 12
+      }
+      block t8 {
+        position: pos(20, 1000, 1380, 20)
+        layer: 13
+      }
+      block v4 {
+        position: getPositionForBlock()
+        layer: 14
+      }
+      block v5 {
+        position: pos(20, 1040, 1380, 380)
+        layer: 15
+      }
+      block t9 {
+        position: pos(780, 400, 500, 40)
+        layer: 17
+      }
+      block v6 {
+        position: pos(780, 480, 620, 460)
+        layer: 18
+      }
+      block v7 {
+        position: pos(780, 480, 620, 460)
+        layer: 19
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+  }
+  block v1: VizBlock {
+    label: 'Sum of Mrr Amount over Mrr Goal'
+    viz: MetricKpi {
+      dataset: saas_mrr
+      calculation mrr_goal {
+        label: 'Mrr Goal'
+        formula: @aql sum(mrr_transactions.mrr_amount) * 1.6;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'MRR'
+        ref: ref('mrr_transactions', 'mrr_amount')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        label: '2025 MRR Goal'
+        ref: 'mrr_goal'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+        progress {
+
+          text {
+            font_color: '#92AEEA'
+          }
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Count of Customer ID'
+    viz: MetricKpi {
+      dataset: saas_mrr
+      calculation customers_goal {
+        label: 'Customers Goal'
+        formula: @aql count(customers.customer_id) * 1.7;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Total Customers'
+        ref: ref('customers', 'customer_id')
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'customers_goal'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+        progress {
+
+          text {
+            font_color: '#92AEEA'
+          }
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'ARPA'
+    viz: MetricKpi {
+      dataset: saas_mrr
+      calculation arpa {
+        label: 'Arpa'
+        formula: @aql sum(mrr_transactions.mrr_amount) / count(customers.customer_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation arpa_goal {
+        label: 'Arpa Goal'
+        formula: @aql 80000;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'ARPA'
+        ref: 'arpa'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        label: 'APRA 2025 Goal'
+        ref: 'arpa_goal'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+        progress {
+
+          text {
+            font_color: '#92AEEA'
+          }
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t1: getCompanyHeader()
+  block t2: ecomax_logo()
+  block t3: brand__title(
+    'Metric Overview'
+  )
+  block t4: separator()
+  block t5: brand__title(
+    'MRR Breakdown'
+  )
+  block t6: separator()
+  block t7: brand__title(
+    'MRR Net Retention'
+  )
+  block t8: separator()
+  block v4: mrr2(
+    saas_mrr,
+    ref('mrr_transactions', 'mrr_amount'),
+    ref('mrr_transactions', 'subscription_type'),
+    ref('time_periods', 'period_date')
+  )
+  block v5: mrr_net_retention(
+    saas_mrr,
+    ref('mrr_transactions', 'mrr_amount'),
+    ref('customers', 'sign_up_date'),
+    ref('time_periods', 'period_date')
+  )
+  block t9: brand__title(
+    'Customer Segmentation by Revenue'
+  )
+  block v6: customer_segmentation(
+    saas_mrr,
+    ref('mrr_transactions', 'mrr_amount'),
+    ref('customers', 'sign_up_date'),
+    2000,
+    2500,
+    4001
+  )
+  block v7: customer_segmentation(
+    saas_mrr,
+    ref('mrr_transactions', 'mrr_amount'),
+    ref('customers', 'sign_up_date'),
+    2000,
+    2500,
+    4000,
+    '#5C85DF'
+  )
+}
