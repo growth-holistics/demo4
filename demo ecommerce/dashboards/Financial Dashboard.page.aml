@@ -52,7 +52,13 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           enabled: true
           debug_comments: true
         }
+        label {
+          font_size: 14
+        }
         alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
       }
     }
     settings {
@@ -80,45 +86,14 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           enabled: true
           debug_comments: true
         }
+        label {
+          font_size: 14
+        }
         alignment: 'left'
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v5: VizBlock {
-    label: 'Net Profit Margin'
-    viz: CustomChart {
-      dataset: demo_finance
-      calculation full {
-        label: 'Full'
-        formula: @aql 1;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      custom_chart_id: 16582
-      field max: VizFieldFull {
-        ref: 'full'
-        format {
-          type: 'number'
-          pattern: 'inherited'
+        metric_value {
+          font_size: 20
         }
       }
-      field current: VizFieldFull {
-        ref: 'net_profit_margin'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      setting ring_gap: 8
-      setting ring_max: 140
-      setting label_size: 48
-      setting ring_width: 27
-      setting label_color: '#53586A'
-      setting ring1_color: '#18A59E'
-      setting ring_corner: 10
     }
     settings {
       hide_label: true
@@ -134,9 +109,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'year_month')
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
         format {
-          type: 'text'
+          type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -208,16 +185,16 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           debug_comments: true
         }
         label {
-          font_size: 14
+          font_size: 0
         }
         alignment: 'left'
         metric_value {
-          font_size: 32
+          font_size: 20
         }
         progress {
 
           text {
-            font_size: 10
+            font_size: 11
           }
         }
       }
@@ -336,14 +313,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     }
     default {
       operator: 'matches'
-      value: '$H_NIL$'
+      value: 'last 12 months'
     }
   }
-  block t6: TextBlock {
-    content: @md Net Profit Margin;;
-  }
   block v9: VizBlock {
-    label: 'Operation Expenses'
+    label: 'Operation Expenses by Category'
     viz: ColumnChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
@@ -472,7 +446,13 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           enabled: true
           debug_comments: true
         }
+        label {
+          font_size: 14
+        }
         alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
       }
     }
     settings {
@@ -480,8 +460,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     }
   }
   block v12: VizBlock {
-    label: 'Cash at end of Month (WIP)'
-    viz: LineChart {
+    label: 'Inflows vs Outflows'
+    viz: CombinationChart {
       dataset: demo_finance
       filter {
         field: ref('dim_dates', 'date_key')
@@ -489,9 +469,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'year_month')
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
         format {
-          type: 'text'
+          type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -500,11 +482,33 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
         series {
           field: VizFieldFull {
-            ref: 'delivered_value'
+            ref: 'total_inflows'
             format {
               type: 'number'
               pattern: 'inherited'
             }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_outflows'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'total_cash_balance'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D70909'
           }
         }
       }
@@ -518,10 +522,297 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       }
     }
   }
+  block v14: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_inflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v15: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_outflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v16: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_cash_balance'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v17: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_accounts_payable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v18: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_accounts_receivable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t6: TextBlock {
+    content: @md To-add: Revenue/Expense Forecast;;
+  }
+  block v20: VizBlock {
+    label: 'Account Payable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_bills', 'aging_bucket')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_accounts_payable'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v21: VizBlock {
+    label: 'Account Receivable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_invoices', 'aging_bucket')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_accounts_receivable'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v22: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'operating_profit'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
-    height: 1780
+    height: 2340
     grid_size: 20
     block t1 {
       position: pos(0, 0, 1200, 180)
@@ -540,55 +831,83 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       layer: 1
     }
     block t5 {
-      position: pos(20, 260, 1160, 340)
+      position: pos(20, 260, 1160, 400)
       layer: 1
     }
     block v1 {
-      position: pos(40, 440, 360, 140)
+      position: pos(40, 400, 300, 100)
       layer: 2
     }
     block v4 {
-      position: pos(420, 440, 360, 140)
-      layer: 1
-    }
-    block v5 {
-      position: pos(800, 280, 360, 300)
+      position: pos(360, 280, 280, 100)
       layer: 1
     }
     block v6 {
-      position: pos(20, 980, 580, 380)
+      position: pos(20, 1020, 580, 380)
       layer: 3
     }
     block v7 {
-      position: pos(420, 280, 360, 140)
+      position: pos(40, 520, 300, 120)
       layer: 4
     }
     block v8 {
-      position: pos(20, 620, 1160, 340)
+      position: pos(20, 680, 1160, 320)
       layer: 5
     }
     block f1 {
       position: pos(880, 200, 280, 60)
       layer: 6
     }
-    block t6 {
-      position: pos(920, 540, 140, 40)
-      layer: 7
-    }
     block v9 {
-      position: pos(620, 1380, 560, 380)
+      position: pos(620, 1420, 560, 380)
       layer: 8
     }
     block v10 {
-      position: pos(20, 1380, 580, 380)
+      position: pos(20, 1420, 580, 380)
       layer: 9
     }
     block v11 {
-      position: pos(40, 280, 360, 140)
+      position: pos(40, 280, 300, 100)
       layer: 1
     }
     block v12 {
-      position: pos(620, 980, 560, 380)
+      position: pos(20, 1820, 580, 500)
+      layer: 1
+    }
+    block v14 {
+      position: pos(660, 280, 220, 100)
+      layer: 1
+    }
+    block v15 {
+      position: pos(660, 400, 220, 100)
+      layer: 1
+    }
+    block v16 {
+      position: pos(660, 520, 220, 100)
+      layer: 1
+    }
+    block v17 {
+      position: pos(900, 280, 240, 100)
+      layer: 1
+    }
+    block v18 {
+      position: pos(900, 400, 240, 100)
+      layer: 1
+    }
+    block t6 {
+      position: pos(620, 1020, 440, 60)
+      layer: 11
+    }
+    block v20 {
+      position: pos(620, 1820, 560, 240)
+      layer: 1
+    }
+    block v21 {
+      position: pos(620, 2080, 560, 240)
+      layer: 1
+    }
+    block v22 {
+      position: pos(360, 400, 280, 100)
       layer: 1
     }
     mobile {
