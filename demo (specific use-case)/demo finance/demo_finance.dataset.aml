@@ -1,6 +1,5 @@
-Dataset demo_ecommerce_version_2 {
-  label: '[Demo] Ecommerce Official (2025)'
-  description: 'New dataset starting 2025'
+Dataset demo_finance {
+  label: '[Demo] Finance'
   data_source_name: 'demodb'
   models: [
     ecommerce_products,
@@ -13,7 +12,12 @@ Dataset demo_ecommerce_version_2 {
     map_categories,
     param_model_demo,
     dim_dates,
-    // ecommerce_product_images
+    ecommerce_product_images,
+    ecommerce_budget_targets,
+    ecommerce_operating_expenses,
+    ecommerce_bills,
+    ecommerce_invoices,
+    ecommerce_cash_movements
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -21,76 +25,16 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
-    // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
     relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_budget_targets.date > dim_dates.date_key, true),
+    relationship(ecommerce_operating_expenses.date > dim_dates.date_key, true),
     relationship(ecommerce_orders_dim_dates, true),
-    relationship(ecommerce_users.sign_up_date > dim_dates.date_key, false)
+    relationship(ecommerce_bills.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_invoices.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_cash_movements.date > dim_dates.date_key, true)
   ]
-
-  dimension cohort_month {
-    model: ecommerce_users
-    label: "Cohort Month"
-    type: 'date'
-    definition: @aql min(ecommerce_orders.created_at | month()) | dimensionalize(ecommerce_users.id);;
-  }
-
-  dimension month_number {
-    model: ecommerce_orders
-    label: 'Month Number'
-    type: 'number'
-    definition: @aql date_diff('month', ecommerce_users.cohort_month, (ecommerce_orders.created_at | month())) ;;
-  }
-
-  dimension cohort_size {
-    model: ecommerce_orders
-    label: 'Cohort Size'
-    type: 'number'
-    definition: @aql count_distinct(ecommerce_orders.user_id) | exact_grains(ecommerce_users.cohort_month) ;;
-  }
-
-  dimension total_orders_all_time {
-    model: ecommerce_users
-    label: 'Total Orders (Users)'
-    type: 'number'
-    definition: @aql total_orders | dimensionalize(ecommerce_users.id);;
-  }
-
-  dimension is_buyer {
-    model: ecommerce_users
-    label: 'Is Buyer'
-    type: 'truefalse'
-    definition: @aql ecommerce_users.total_orders_all_time > 0;;
-  }
-
-  dimension is_repeated_buyer {
-    model: ecommerce_users
-    label: 'Is Repeated Buyer'
-    type: 'truefalse'
-    definition: @aql ecommerce_users.total_orders_all_time > 1;;
-  }
-
-  dimension product_performance_analysis {
-    model: ecommerce_products
-    label: 'Product Performance Analysis'
-    type: 'text'
-    definition: @aql concat(
-      'https://claude.ai/new?q=write+an_analysis+for+',
-      ecommerce_products.name,
-      '.+The+GMV+for+this+product+is+',
-      cast(gmv, 'text'),
-      '+and+the+AOV+for+this+product+is+',
-      cast(aov, 'text'),
-      )
-     ;;
-  }
-
-  dimension product_image {
-    model: ecommerce_product_images
-    label: 'Product Image'
-    type: 'text'
-    definition: @aql concat('<img src="', ecommerce_product_images.url, '" style="text-align:center;height:50px;object-fit:cover" />') ;;
-  }
 
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
@@ -145,7 +89,7 @@ Dataset demo_ecommerce_version_2 {
   }
   
   metric nmv {
-    label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
+    label: "NMV - Net Merchandise Value"
     type: "number"
     hidden: false
     description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
@@ -171,47 +115,6 @@ Dataset demo_ecommerce_version_2 {
     format: "[\$\$]#,###0"
   }
 
-  metric total_orders_across_all {
-    label: "Total Orders Across All"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql total_orders | of_all(ecommerce_orders);;
-  }
-
-  metric percent_of_total {
-    label: "Percent Of Total Orders"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql total_orders * 1.0 / total_orders_across_all;;
-    format: "#,###0.00%"
-  }
-
-  metric total_delivered_orders {
-    label: "Total Delivered Orders"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
-  }
-
-  metric total_refunded_orders {
-    label: "Total Refunded Orders"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
-  }
-
-  metric total_cancelled_orders {
-    label: "Total Cancelled Orders"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
-  }
-
   metric cancelled_order_ratio {
     label: "Cancelled Order Ratio"
     type: "number"
@@ -230,15 +133,6 @@ Dataset demo_ecommerce_version_2 {
     format: "[\$\$]#,###0"
   }
 
-  metric cancelled_value_ratio {
-    label: "Cancelled Value Ratio"
-    type: "number"
-    hidden: false
-    description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
-    definition: @aql cancelled_value / gmv;;
-    format: "#,###0.00%"
-  }
-
   metric delivered_value {
     label: "Delivered Value"
     type: "number"
@@ -255,39 +149,6 @@ Dataset demo_ecommerce_version_2 {
     description: "Total Value of Refunded Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
     format: "[\$\$]#,###0"
-  }
-
-
-  metric retention {
-    label: 'Cohort Retention'
-    type: 'number'
-    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
-    format: "#,###0.00%"
-  }
-
-  metric total_buyers {
-    label: "Total Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
-  }
-
-  metric total_repeated_buyers {
-    label: "Total Repeated Buyers"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
-  }
-
-
-  metric running_total {
-    label: "Running Total Orders"
-    type: "number"
-    hidden: false
-    description: ""
-    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
 
   metric dynamic_metric {
@@ -351,5 +212,158 @@ Dataset demo_ecommerce_version_2 {
     format: "#,###%"
   }
 
-  owner: 'vincent@holistics.io'
+  metric cost_of_goods_sold {
+    label: "Cost Of Goods Sold"
+    type: "number"
+    hidden: false
+    description: "Cost of goods sold for all orders."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.cost);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_operations {
+    label: "Cost Of Operations"
+    type: "number"
+    hidden: false
+    description: "Total operating expenses incurred."
+    definition: @aql sum(ecommerce_operating_expenses.amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cost {
+    label: "Total Expenses"
+    type: "number"
+    hidden: false
+    description: "Total cost incurred including cost of goods sold and cost of operations."
+    definition: @aql cost_of_goods_sold + cost_of_operations;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric expense_budgets {
+    label: "Expense Budgets"
+    type: "number"
+    hidden: false
+    description: "Total budgeted expenses for the period."
+    definition: @aql sum(ecommerce_budget_targets.budget_target);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit {
+    label: "Net Profit"
+    type: "number"
+    hidden: false
+    description: "Net profit calculated as net merchandise value minus total cost."
+    definition: @aql nmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric operating_profit {
+    label: "Operating Profit"
+    type: "number"
+    hidden: false
+    description: "Operating profit calculated as revenue minus total cost."
+    definition: @aql gmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric gross_profit {
+    label: "Gross Profit"
+    type: "number"
+    hidden: false
+    description: "Gross profit calculated as revenue minus total cost of goods sold."
+    definition: @aql gmv - cost_of_goods_sold;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit_margin {
+    label: "Net Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Net profit margin calculated as net profit divided by NMV."
+    definition: @aql net_profit / nmv;;
+    format: "#,###0.00%"
+  }
+
+  metric operating_profit_margin {
+    label: "Operating Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Operating profit margin calculated as operating profit divided by revenue."
+    definition: @aql operating_profit / revenue;;
+    format: "#,###0.00%"
+  }
+
+  metric gross_profit_margin {
+    label: "Gross Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Gross profit margin calculated as gross profit divided by GMV."
+    definition: @aql gross_profit / gmv;;
+    format: "#,###0.00%"
+  }
+
+  metric budget_ratio {
+    label: "Budget Ratio"
+    type: "number"
+    hidden: false
+    description: "Budget ratio calculated as total cost divided by expense budgets."
+    definition: @aql total_cost / expense_budgets;;
+    format: "#,###0.00%"
+  }
+
+  metric total_inflows {
+    label: "Total Inflows"
+    type: "number"
+    hidden: false
+    description: "Total cash inflows, including all inflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Inflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_outflows {
+    label: "Total Outflows"
+    type: "number"
+    hidden: false
+    description: "Total cash outflows, including all outflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Outflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cash_balance {
+    label: "Total Cash Balance"
+    type: "number"
+    hidden: false
+    description: "Net cash balance calculated as total inflows minus total outflows."
+    definition: @aql total_inflows - total_outflows;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_payable {
+    label: "Total Accounts Payable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts payable, calculated as the sum of unpaid amounts for pending bills."
+    definition: @aql sum(ecommerce_bills.bill_amount) - sum(ecommerce_bills.paid_amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_receivable {
+    label: "Total Accounts Receivable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts receivable, calculated as the sum of unpaid amounts for pending invoices."
+    definition: @aql sum(ecommerce_invoices.invoice_amount) - sum(ecommerce_invoices.paid_amount);;
+    format: "[\$\$]#,###0"
+    }
+
+  metric one_hundred_percent {
+    label: "100% (Reference)"
+    type: "number"
+    hidden: false
+    description: "Reference metric representing 100% for ratio calculations."
+    definition: @aql 1;;
+    format: "#,###0.00%"
+    }
+
+  owner: 'dong.ln@holistics.io'
 }
