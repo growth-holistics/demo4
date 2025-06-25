@@ -104,19 +104,22 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: CombinationChart {
       dataset: demo_finance
       filter {
-        field: ref('dim_dates', 'date_key')
+        field: r(dim_dates.date_key)
         operator: 'after'
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'date_key')
-        transformation: 'datetrunc month'
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc week'
         format {
           type: 'date'
-          pattern: 'LLL yyyy'
+          pattern: 'wwww'
         }
       }
       y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
         series {
           field: VizFieldFull {
             ref: 'nmv'
@@ -321,7 +324,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: ColumnChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
-        ref: ref('dim_dates', 'date_key')
+        ref: r(dim_dates.date_key)
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -329,7 +332,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
       }
       legend: VizFieldFull {
-        ref: ref('ecommerce_operating_expenses', 'category')
+        ref: r(ecommerce_operating_expenses.category)
         format {
           type: 'text'
         }
@@ -692,9 +695,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       hide_label: true
     }
   }
-  block t6: TextBlock {
-    content: @md To-add: Revenue/Expense Forecast;;
-  }
   block v20: VizBlock {
     label: 'Account Payable Aging'
     viz: ColumnChart {
@@ -839,11 +839,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       layer: 2
     }
     block v4 {
-      position: pos(360, 280, 280, 100)
+      position: pos(360, 400, 280, 100)
       layer: 1
     }
     block v6 {
-      position: pos(20, 1020, 580, 380)
+      position: pos(20, 1020, 1160, 380)
       layer: 3
     }
     block v7 {
@@ -894,10 +894,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       position: pos(900, 400, 240, 100)
       layer: 1
     }
-    block t6 {
-      position: pos(620, 1020, 440, 60)
-      layer: 11
-    }
     block v20 {
       position: pos(620, 1820, 560, 240)
       layer: 1
@@ -907,7 +903,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       layer: 1
     }
     block v22 {
-      position: pos(360, 400, 280, 100)
+      position: pos(360, 280, 280, 100)
       layer: 1
     }
     mobile {
