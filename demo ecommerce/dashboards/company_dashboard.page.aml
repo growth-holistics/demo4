@@ -405,7 +405,7 @@ It brings together a consolidated view of:
       }
       settings {
         row_limit: 5000
-        legend_label: 'hidden'
+        legend_label: 'right'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
@@ -419,36 +419,7 @@ It brings together a consolidated view of:
 **Analysis Last Updated on 20 May 2025 by Peter Parker** </br>
 
 Our sales performance is anchored in developed Western markets, with the United States, Australia, and Germany emerging as our top revenue contributors — while order activity remains strongest in Asia.
-
----
-
-### 🌐 Regional Performance Takeaways
-- **North America** and **Europe** offer the highest-value customers.
-- **Asia-Pacific** shows strong engagement and scale, ideal for volume-based growth.
-- These patterns validate our positioning in established ecommerce markets, while highlighting opportunities to increase monetization in high-volume regions like Asia.;;
-  }
-  block t10: TextBlock {
-    content: @md ## 👥 User Demographic Insight
-**Analysis Last Updated on 20 May 2025 by Uncle Ben** </br>
-<br>
-This section profiles our customer base by gender and age group, highlighting how different segments contribute to total revenue, order volume, and repeat purchase behavior.
-
-Young adult female customers (under 30) are currently our most valuable and loyal segment — contributing the majority of revenue, orders, and repeat activity across the board.
-
-
----
-
-### 🧑‍🤝‍🧑 Gender Summary
-- **Female users** generated over **$6.8M** in total revenue — more than **2×** male users.
-- They account for **68% of repeat buyers** (3,834 out of 5,682) and **67% of total orders**.
-- Female customers are dominant across all age brackets, with particularly high engagement under 30.
-
----
-
-### 🎯 Age Group Performance
-- The **20–29** age segment is our largest by both revenue ($4.9M) and orders (16K), across both genders.
-- The **under-20** group is also very active, contributing $4.7M in revenue — mainly driven by females.
-- Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
+;;
   }
   block v34: VizBlock {
     label: 'Top 10 Users by Orders'
@@ -588,72 +559,6 @@ Young adult female customers (under 30) are currently our most valuable and loya
       }
     }
   }
-  block v36: VizBlock {
-    label: 'User Demographics'
-    viz: PivotTable {
-      dataset: demo_ecommerce_version_2
-      calculation untitled_metric_316015f {
-        label: 'Untitled Metric'
-        formula: @aql total_repeated_buyers/total_buyers;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      theme {
-
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'age_group')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'gender')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: 'revenue'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_orders'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_repeated_buyers'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_total: true
-        show_column_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        value_labels_position {
-          placement: 'rows'
-        }
-      }
-    }
-  }
   block t11: TextBlock {
     content: @md ## 📊 Metrics Snapshot
 
@@ -682,21 +587,9 @@ This format is especially useful for:
 
 > For executives who are accustomed to working in spreadsheets, this table provides an accessible way to track performance trends and validate key figures in a structured format — from top-line metrics down to operational breakdowns.;;
   }
-  block t13: TextBlock {
-    content: @md ### 💵 Top Revenue Regions
-- **United States** leads in total GMV at **$1.34M**, followed closely by:
-  - **Australia**: $1.24M
-  - **Germany**: $1.24M
-- These three countries alone contribute over **36%** of total GMV across the top 10 markets.;;
-  }
-  block t14: TextBlock {
-    content: @md ### 📦 Order Volume vs. Value
-- While **Asia** contributes the most orders by volume, Western markets like the US, Australia, and Germany outperform in **order value per customer**.
-- This indicates that while demand is global, **spending power is concentrated in a few strategic markets**.;;
-  }
   block v37: VizBlock {
     label: 'Users Sign Up Over Time'
-    viz: ColumnChart {
+    viz: LineChart {
       dataset: demo_ecommerce_version_2
       theme {
 
@@ -1494,12 +1387,28 @@ Uncover trends by comparing current performance against a previous period.
       }
     }
   }
+  block t35: TextBlock {
+    content: @md ### 📦 Order Volume vs. Value
+- While **Asia** contributes the most orders by volume, Western markets like the US, Australia, and Germany outperform in **order value per customer**.
+- This indicates that while demand is global, **spending power is concentrated in a few strategic markets**.
+
+### 💵 Top Revenue Regions
+- **United States** leads in total GMV at **$1.34M**, followed closely by:
+  - **Australia**: $1.24M
+  - **Germany**: $1.24M
+- These three countries alone contribute over **36%** of total GMV across the top 10 markets.
+
+### 🌐 Regional Performance Takeaways
+- **North America** and **Europe** offer the highest-value customers.
+- **Asia-Pacific** shows strong engagement and scale, ideal for volume-based growth.
+- These patterns validate our positioning in established ecommerce markets, while highlighting opportunities to increase monetization in high-volume regions like Asia.;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: 'Overview'
       width: 1280
-      height: 3240
+      height: 3160
       grid_size: 20
       block t5 {
         position: pos(20, 20, 280, 140)
@@ -1514,12 +1423,8 @@ Uncover trends by comparing current performance against a previous period.
         layer: 10
       }
       block t9 {
-        position: pos(20, 1580, 580, 360)
+        position: pos(20, 1580, 740, 160)
         layer: 15
-      }
-      block t10 {
-        position: pos(20, 2660, 560, 580)
-        layer: 16
       }
       block t11 {
         position: pos(20, 360, 1220, 260)
@@ -1528,14 +1433,6 @@ Uncover trends by comparing current performance against a previous period.
       block t12 {
         position: pos(20, 780, 1240, 320)
         layer: 19
-      }
-      block t13 {
-        position: pos(20, 1960, 580, 180)
-        layer: 20
-      }
-      block t14 {
-        position: pos(620, 1960, 620, 180)
-        layer: 21
       }
       block v20 {
         position: pos(1020, 640, 220, 120)
@@ -1554,7 +1451,7 @@ Uncover trends by comparing current performance against a previous period.
         layer: 1
       }
       block v27 {
-        position: pos(620, 2160, 620, 480)
+        position: pos(20, 2660, 1220, 480)
         layer: 6
       }
       block v28 {
@@ -1566,16 +1463,16 @@ Uncover trends by comparing current performance against a previous period.
         layer: 8
       }
       block v30 {
-        position: pos(620, 1580, 620, 360)
+        position: pos(800, 1760, 460, 480)
         layer: 12
       }
       block v31 {
-        position: pos(20, 2160, 580, 480)
+        position: pos(20, 1760, 760, 480)
         layer: 13
       }
-      block v36 {
-        position: pos(600, 2660, 640, 580)
-        layer: 17
+      block t35 {
+        position: pos(20, 2260, 1220, 380)
+        layer: 22
       }
       mobile {
         mode: 'auto'
@@ -1937,26 +1834,6 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v36',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v59'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v36'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
             'v44',
             'v52',
             'v53',
@@ -1982,7 +1859,6 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v36',
             'v44',
             'v52',
             'v53',
@@ -2047,7 +1923,6 @@ Uncover trends by comparing current performance against a previous period.
             'v29',
             'v30',
             'v31',
-            'v36',
             'v44',
             'v52',
             'v53',
@@ -2074,7 +1949,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v52',
@@ -2114,7 +1988,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v52',
@@ -2167,7 +2040,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v57',
@@ -2204,7 +2076,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v44',
@@ -2233,7 +2104,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v44',
@@ -2262,7 +2132,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v44',
@@ -2306,7 +2175,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v44',
@@ -2350,7 +2218,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v44',
@@ -2394,7 +2261,6 @@ Uncover trends by comparing current performance against a previous period.
             'v30',
             'v31',
             'v34',
-            'v36',
             'v37',
             'v43',
             'v52a',
