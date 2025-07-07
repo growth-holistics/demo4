@@ -1,0 +1,55 @@
+// This is a library dashboard block. For more details, visit https://docs.holistics.io/docs/canvas-dashboard/guides/build-library-blocks
+@template(
+  title='GMV Bar Chart',
+  description='Bar Chart of Sales by Geography',
+  thumbnail='',
+  metadata={
+    block_width: 760
+    block_height: 480
+  }
+)
+Func block_gmv_bar_chart() {
+  VizBlock {
+    label: 'GMV (Sales) by Country Name'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'right'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
