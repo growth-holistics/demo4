@@ -13,7 +13,7 @@ Dataset demo_ecommerce_version_2 {
     map_categories,
     param_model_demo,
     dim_dates,
-    // ecommerce_product_images
+  // ecommerce_product_images
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -26,6 +26,8 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_products_map_categories, true),
     relationship(ecommerce_orders_dim_dates, true),
     relationship(ecommerce_users.sign_up_date > dim_dates.date_key, false)
+    ,
+    relationship(ecommerce_merchants.city_id > ecommerce_cities.id, false)
   ]
 
   permission vendor_access {
@@ -161,7 +163,7 @@ Dataset demo_ecommerce_version_2 {
     definition: @aql gmv - revenue;;
     format: "[\$\$]#,###0"
   }
-  
+
   metric nmv {
     label: "NMV - Net Merchandise Value (Post-Discount & Fulfillment)"
     type: "number"
@@ -357,7 +359,7 @@ Dataset demo_ecommerce_version_2 {
 
       )
      ;;
-     format: "[\$\$]#,###0"
+    format: "[\$\$]#,###0"
   }
 
   metric revenue_commission {
