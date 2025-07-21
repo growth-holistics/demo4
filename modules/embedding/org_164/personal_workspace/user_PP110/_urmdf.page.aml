@@ -3,13 +3,87 @@ Dashboard _urmdf {
   block title: TextBlock {
     content: @md # Your title goes here ;;
   }
-  interactions: []
+  block v1: VizBlock {
+    label: 'Total Users, Total Users (Prev. 1y), Running Total, and Running Total (Prev. 1y) by Quarter Sign Up Date'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql          running_total!(
+ecommerce_users.id | count() ,
+ecommerce_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_users', 'sign_up_date')
+        operator: 'matches'
+        value: 'last 2 years to today'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'sign_up_date')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_users', 'total_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#005A32FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#41ab5d'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        pop {
+          field: ref('ecommerce_users', 'sign_up_date')
+          duration: 1
+          granularity: 'year'
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     height: 840
     grid_size: 20
     block title {
       position: pos(20, 20, 1160, 60)
+    }
+    block v1 {
+      position: pos(20, 100, 400, 300)
+      layer: 1
     }
     mobile {
       mode: 'auto'
