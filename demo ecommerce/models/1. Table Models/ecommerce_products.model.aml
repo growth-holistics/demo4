@@ -1,3 +1,4 @@
+@tag('1️⃣ Trust/Endorsed')
 Model ecommerce_products {
   type: 'table'
   label: 'Products'
@@ -43,6 +44,8 @@ Model ecommerce_products {
   dimension product_google_link {
     label: "Product (image)"
     type: "text"
+    description: ""
+    hidden: false
     definition: @sql CONCAT('<a href="','https://www.google.com/search?tbm=isch&q=',{{ name }},'" target="_blank">',{{ name }},'</a>');;
   }
 
@@ -52,12 +55,48 @@ Model ecommerce_products {
     definition: @sql ROUND({{price}}*0.3) ;;
   }
 
-  dimension product_merchant {
-    label: 'Product Name (from Merchant)'
+  // dimension product_merchant {
+  //   label: 'Product Name (from Merchant)'
+  //   type: 'text'
+  //   description: "different merchants can list same product name => this fields show the Product name listed by which specific merchant"
+  //   hidden: false
+  //   definition: @sql {{ #SOURCE.product_merchant }} ;;
+  // }
+
+  dimension product_image {
+    label: 'Product Image (50px)'
     type: 'text'
-    description: "different merchants can list same product name => this fields show the Product name listed by which specific merchant"
+    description: "Product Image in html"
     hidden: false
-    definition: @sql {{ #SOURCE.product_merchant }} ;;
+    definition: @aql concat('<img src="', ecommerce_products.product_image_url, '" style="text-align:center;height:50px;width:50px;object-fit:cover" />') ;;
+  }
+
+  dimension product_image_100px {
+    label: 'Product Image (100 px)'
+    type: 'text'
+    description: "Product Image in html"
+    hidden: false
+    definition: @aql concat('<img src="', ecommerce_products.product_image_url, '" style="text-align:center;height:100px;width:100px;object-fit:cover" />') ;;
+  }
+  dimension video {
+    label: "Video"
+    type: "text"
+    description: ""
+    definition: @sql concat('
+<video controls width="600">
+        <source
+            src="
+           https://media.geeksforgeeks.org/wp-content/uploads/20231020155223/Full-Stack-Development-_-LIVE-Classes-_-GeeksforGeeks.mp4"
+            type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+');;
+  }
+  dimension product_image_url {
+    label: "Product Image Url"
+    type: "text"
+    hidden: false
+    definition: @sql {{ #SOURCE.product_image_url }};;
   }
 
   measure total_products {

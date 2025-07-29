@@ -1,0 +1,633 @@
+
+
+
+Dashboard demo_dashboard {
+  title: 'Revenue'
+  block v1: VizBlock {
+    label: 'Revenue Over Time'
+    viz: ColumnChart {
+      dataset: demo_ecommerce
+      calculation percentage_delivered_revenue {
+        label: 'Percentage Delivered Revenue'
+        formula: @aql order_master.revenue_delivered/order_master.revenue;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+
+
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'last'
+      value: '8'
+      modifier: 'quarter'
+    }
+  }
+  block p1: PopBlock {
+    label: 'Compare with Period'
+  }
+  block t3: TextBlock {
+    content: @md <hr>;;
+  }
+  block t4: TextBlock {
+    content: @md <h1 style="text-align: center;"> Revenue Dashboard </h1>;;
+  }
+  block v5: VizBlock {
+    label: 'Revenue Over Time'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      calculation percentage_delivered_revenue {
+        label: 'Percentage Delivered Revenue'
+        formula: @aql order_master.revenue_delivered/order_master.revenue;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          label: 'Timeframe'
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 1
+        column_styles: [
+          ColumnStyle {
+            key: 'map_categories_parent_category'
+            width: 139
+          }
+        ]
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Revenue by Category'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'map_categories_parent_category'
+            width: 171
+          }
+        ]
+      }
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v7: VizBlock {
+    label: 'Top Products within Category'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          },
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Revenue (Quarter to Date)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last quarter begin to last quarter end'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Last Quarter'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'quarter'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v9: VizBlock {
+    label: 'Revenue (Week to Date)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last week begin till this week begin'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Last Week'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'week'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v10: VizBlock {
+    label: 'Revenue (Month to Date)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last month begin till this month begin'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Last Month'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v11: VizBlock {
+    label: 'Revenue (Year to Date)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: 'last year begin to last year end'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Last Year'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Revenue (Yesterday)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('order_master', 'order_created_at')
+        operator: 'matches'
+        value: '2 days ago to yesterday'
+      }
+      value: VizFieldFull {
+        label: 'Revenue Yesterday'
+        ref: ref('order_master', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 1
+        granularity: 'day'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Child Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t5: TextBlock {
+    content: @md <hr>;;
+  }
+  block t6: TextBlock {
+    content: @md <div style="border: 1px solid #ddd; padding: 1rem; border-radius: 8px; font-family: sans-serif; background-color: #f9f9f9;">
+  <h2>📘 Dashboard Guide: Revenue Performance Overview</h2>
+  <p>This dashboard helps you analyze revenue trends over time and by product category. Each section is interactive and built to support performance diagnostics, product strategy, and sales planning.</p>
+  <p><strong>What You Can Do:</strong></p>
+  <ul>
+    <li>Track performance across year, quarter, month, week, and day</li>
+    <li>Compare revenue by category and top products</li>
+    <li>Understand drivers behind revenue changes with metric-level detail</li>
+    <li>Filter the view to focus on a specific business area</li>
+  </ul>;;
+  }
+  block v14: VizBlock {
+    label: ' KPI Overview'
+    viz: MetricSheet {
+      dataset: demo_ecommerce
+      date_field: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: '🎯Orders'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'cancelled_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'refunded_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'delivered_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricHeading {
+          label: '💰 Revenue'
+          settings {
+            background_color: '#255DD4'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'nmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'aov')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Revenue'
+      width: 2220
+      grid_size: 20
+      block v1 {
+        position: pos(620, 1000, 1560, 360)
+        layer: 1
+      }
+      block v3 {
+        position: pos(380, 140, 320, 140)
+        layer: 6
+      }
+      block f1 {
+        position: pos(1200, 740, 300, 100)
+        layer: 7
+      }
+      block p1 {
+        position: pos(940, 740, 240, 80)
+        layer: 9
+      }
+      block v5 {
+        position: pos(620, 1200, 1520, 340)
+        layer: 1
+      }
+      block v6 {
+        position: pos(40, 920, 500, 260)
+        layer: 12
+      }
+      block f2 {
+        position: pos(60, 740, 300, 100)
+        layer: 14
+      }
+      block v7 {
+        position: pos(620, 1560, 660, 480)
+        layer: 15
+      }
+      block v8 {
+        position: pos(940, 20, 300, 140)
+        layer: 6
+      }
+      block v9 {
+        position: pos(1580, 20, 300, 140)
+        layer: 6
+      }
+      block v10 {
+        position: pos(1260, 20, 300, 140)
+        layer: 6
+      }
+      block v11 {
+        position: pos(620, 20, 300, 140)
+        layer: 6
+      }
+      block v12 {
+        position: pos(1900, 20, 300, 140)
+        layer: 6
+      }
+      block f3 {
+        position: pos(400, 740, 300, 100)
+        layer: 17
+      }
+      block t5 {
+        position: pos(40, 640, 2140, 60)
+        layer: 18
+      }
+      block t6 {
+        position: pos(20, 20, 580, 420)
+        layer: 19
+      }
+      block v14 {
+        position: pos(620, 180, 1580, 440)
+        layer: 20
+      }
+      height: 1940
+    }
+    tab tab2: CanvasLayout {
+      label: 'Customer'
+      height: 1180
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
+      width: 1600
+    }
+    tab tab3: CanvasLayout {
+      label: 'Merchant'
+      height: 800
+      grid_size: 20
+      mobile {
+        mode: 'auto'
+      }
+    }
+  }
+  theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          field: ref('order_master', 'order_created_at')
+        }
+      ]
+    }
+  ]
+}

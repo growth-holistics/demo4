@@ -1,0 +1,106 @@
+Model saas_transactions {
+  type: 'query'
+  label: 'Saas Transactions'
+  description: ''
+  data_source_name: 'demodb'
+  dimension transaction_id {
+    label: 'Transaction Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transaction_id }};;
+  }
+  dimension customer_id {
+    label: 'Customer Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension transaction_type {
+    label: 'Transaction Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.transaction_type }};;
+  }
+  dimension amount {
+    label: 'Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.amount }};;
+  }
+  dimension transaction_date {
+    label: 'Transaction Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.transaction_date }};;
+  }
+
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+WITH fake_transactions AS (
+    SELECT * FROM (
+        VALUES
+            (1, 1, 'sale', 250.00::DECIMAL(10,2), DATE '2024-03-01'),
+            (2, 2, 'sale', 200.00::DECIMAL(10,2), DATE '2024-03-15'),
+            (3, 5, 'churn', -250.00::DECIMAL(10,2), DATE '2024-03-31'),
+            
+            (4, 4, 'sale', 220.00::DECIMAL(10,2), DATE '2024-04-10'),
+            (5, 12, 'churn', -220.00::DECIMAL(10,2), DATE '2024-04-25'),
+            
+            (6, 6, 'sale', 230.00::DECIMAL(10,2), DATE '2024-05-05'),
+            (7, 7, 'sale', 210.00::DECIMAL(10,2), DATE '2024-05-20'),
+            (8, 10, 'churn', -230.00::DECIMAL(10,2), DATE '2024-05-31'),
+            
+            (9, 9, 'sale', 240.00::DECIMAL(10,2), DATE '2024-06-15'),
+            (10, 14, 'churn', -240.00::DECIMAL(10,2), DATE '2024-06-30'),
+            
+            (11, 11, 'sale', 250.00::DECIMAL(10,2), DATE '2024-07-10'),
+            (12, 12, 'refund', -60.00::DECIMAL(10,2), DATE '2024-07-20'),
+            (13, 15, 'churn', -250.00::DECIMAL(10,2), DATE '2024-07-31'),
+            
+            (14, 13, 'sale', 230.00::DECIMAL(10,2), DATE '2024-08-05'),
+            (15, 2, 'churn', -200.00::DECIMAL(10,2), DATE '2024-08-25'),
+            
+            (16, 1, 'sale', 260.00::DECIMAL(10,2), DATE '2024-09-01'),
+            (17, 5, 'refund', -55.00::DECIMAL(10,2), DATE '2024-09-15'),
+            (18, 7, 'churn', -210.00::DECIMAL(10,2), DATE '2024-09-30'),
+            
+            (19, 3, 'sale', 240.00::DECIMAL(10,2), DATE '2024-10-10'),
+            (20, 10, 'churn', -240.00::DECIMAL(10,2), DATE '2024-10-25'),
+            
+            (21, 6, 'sale', 250.00::DECIMAL(10,2), DATE '2024-11-05'),
+            (22, 8, 'sale', 200.00::DECIMAL(10,2), DATE '2024-11-20'),
+            (23, 14, 'churn', -250.00::DECIMAL(10,2), DATE '2024-11-30'),
+            
+            (24, 9, 'sale', 220.00::DECIMAL(10,2), DATE '2024-12-15'),
+            (25, 2, 'churn', -200.00::DECIMAL(10,2), DATE '2024-12-31'),
+            
+            (26, 11, 'sale', 240.00::DECIMAL(10,2), DATE '2025-01-10'),
+            (27, 12, 'refund', -40.00::DECIMAL(10,2), DATE '2025-01-25'),
+            (28, 10, 'churn', -240.00::DECIMAL(10,2), DATE '2025-01-31'),
+            
+            (29, 13, 'sale', 250.00::DECIMAL(10,2), DATE '2025-02-05'),
+            (30, 7, 'churn', -220.00::DECIMAL(10,2), DATE '2025-02-20'),
+            
+            (31, 1, 'sale', 250.00::DECIMAL(10,2), DATE '2025-02-25'),
+            (32, 3, 'sale', 220.00::DECIMAL(10,2), DATE '2025-02-25'),
+            (33, 2, 'churn', -200.00::DECIMAL(10,2), DATE '2025-02-26'),
+            (34, 7, 'churn', -220.00::DECIMAL(10,2), DATE '2025-02-27'),
+            (35, 14, 'sale', 230.00::DECIMAL(10,2), DATE '2025-02-28'),
+            (36, 5, 'refund', -45.00::DECIMAL(10,2), DATE '2025-03-02')
+    ) AS t (transaction_id, customer_id, transaction_type, amount, transaction_date)
+)
+SELECT 
+    transaction_id,
+    customer_id,
+    transaction_type,
+    amount,
+    generate_series(
+        transaction_date,
+        transaction_date,
+        '1 day'::interval
+    ) AS transaction_date
+FROM fake_transactions
+WHERE transaction_date BETWEEN DATE '2024-03-01' AND DATE '2025-03-03';;;
+  models: [
+  ]
+}

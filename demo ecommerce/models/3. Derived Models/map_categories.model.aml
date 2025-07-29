@@ -1,6 +1,6 @@
 Model map_categories {
   type: 'query'
-  label: 'Map Categories'
+  label: 'Product Categories'
   description: ''
   data_source_name: 'demodb'
   owner: 'ha.pham+demo4@holistics.io'
@@ -9,14 +9,13 @@ Model map_categories {
     ecommerce_categories
   ]
 
-  query: @sql
-    select
-      cat.id as category_id
-      , cat.name as category
-      , pcat.name as parent_category
-    from {{#ecommerce_categories cat}} 
-    left join {{#ecommerce_categories pcat}} on cat.parent_id = pcat.id
-    where cat.parent_id is not null;;
+  query: @sql select
+  {{ #cat.id }} as category_id
+  , {{ #cat.name }} as category
+  , {{ #pcat.name }} as parent_category
+  , {{ #cat.category_image_url}} 
+from {{ #ecommerce_categories cat }} 
+left join {{ #ecommerce_categories pcat }} on {{ #cat.parent_id }} = {{ #pcat.id }};;
 
   dimension category_id {
     label: 'Category Id'
@@ -36,6 +35,25 @@ Model map_categories {
     hidden: false
     definition: @sql {{ #SOURCE.parent_category }};;
   }
+  dimension category_image_url {
+    label: "Category Image Url"
+    type: "text"
+    hidden: false
+    definition: @sql {{ #SOURCE.category_image_url }};;
+  }
+  dimension category_image {
+    label: 'Category Image (50px)'
+    type: 'text'
+    description: "Category Image in html"
+    hidden: false
+    definition: @aql concat('<img src="', map_categories.category_image_url, '" style="text-align:center;height:50px;width:50px;object-fit:cover" />') ;;
+  }
 
-
+  dimension category_image_100px {
+    label: 'Category Image (100 px)'
+    type: 'text'
+    description: "Category Image in html"
+    hidden: false
+    definition: @aql concat('<img src="', map_categories.category_image_url, '" style="text-align:center;height:100px;width:100px;object-fit:cover" />') ;;
+  }
 }

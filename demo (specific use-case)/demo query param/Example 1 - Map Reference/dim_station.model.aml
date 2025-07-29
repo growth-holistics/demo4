@@ -1,0 +1,79 @@
+Model dim_station {
+  type: 'query'
+  label: 'Dim Station'
+  description: ''
+  data_source_name: 'demo_bigquery'
+  dimension station_code {
+    label: 'Station Code'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_code }};;
+  }
+  dimension station_name {
+    label: 'Station Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.station_name }};;
+  }
+  dimension capacity {
+    label: 'Capacity'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.capacity }};;
+  }
+  dimension lon {
+    label: 'Lon'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.lon }};;
+  }
+  dimension lat {
+    label: 'Lat'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.lat }};;
+  }
+  dimension city {
+    label: 'City'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.city }};;
+  }
+  dimension is_renting {
+    label: 'Is Renting'
+    type: 'truefalse'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_renting }};;
+  }
+  dimension is_returning {
+    label: 'Is Returning'
+    type: 'truefalse'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_returning }};;
+  }
+  dimension station_plus {
+    label: 'Station Plus'
+    type: 'truefalse'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_renting }};;
+  }
+  dimension test_coal {
+    label: "Test Coal"
+    type: "text"
+    definition: @sql coalesce({{ city }},'nothing');;
+  }
+
+  measure active_stations {
+    label: 'Active stations'
+    type: 'number'
+    definition: //@sql count(case when {{is_renting}} and {{is_returning}} then  {{#SOURCE.station_code }} end)  ;;
+    //@aql dim_station | filter (dim_station.is_renting == 'True') | count(dim_station.station_code);;
+    @aql count(dim_station.station_code) | where(dim_station.is_renting is true) ;;
+  //where(and(dim_station.is_renting is true, dim_station.is_returning is true)) ;;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql select * from bigq_demo.dim_station;;
+  models: [
+  ]
+}

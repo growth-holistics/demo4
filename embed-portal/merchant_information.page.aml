@@ -1,0 +1,147 @@
+Dashboard merchant_information_dashboard {
+  title: 'Merchant Information'
+  owner: 'tai.nguyen@holistics.io'
+  description: ''''''
+  block v1: VizBlock {
+    label: 'Merchant'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t5: TextBlock {
+    content: @md <img src=""/>
+
+![Holistics Logo](https://cdn.holistics.io/landing/logo-color.svg);;
+  }
+  block divider: TextBlock {
+    content: @md <div class="h-full border-l"/>;;
+  }
+  block hr: TextBlock {
+    content: @md <div class="w-full border-b-2"/>;;
+  }
+  block v2: VizBlock {
+    label: 'Employees'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_employees', 'id')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_employees_id'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_employees', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_employees_name'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_employees', 'role')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_employees_role'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_employees', 'email')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_employees_id'
+            width: 73
+          },
+          ColumnStyle {
+            key: 'ecommerce_employees_name'
+            width: 133
+          },
+          ColumnStyle {
+            key: 'ecommerce_employees_role'
+            width: 128
+          }
+        ]
+      }
+    }
+  }
+  block t6: TextBlock {
+    content: @md # Detail about;;
+  }
+  block t7: TextBlock {
+    content: @md <h2>Detail about this merchant</h2>
+<p><em>Will add more information to this dashboard later</em></p>
+;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1170
+    height: 1530
+    block hr {
+      position: pos(-20, 100, 1480, 20)
+    }
+    block t5 {
+      position: pos(30, 10, 170, 90)
+    }
+    block v1 {
+      position: pos(430, 20, 300, 60)
+    }
+    block divider {
+      position: pos(230, 30, 10, 40)
+    }
+    block v2 {
+      position: pos(10, 130, 790, 350)
+      layer: 1
+    }
+    block t6 {
+      position: pos(300, 30, 290, 50)
+      layer: 2
+    }
+    block t7 {
+      position: pos(810, 150, 610, 240)
+      layer: 1
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v2'
+      to: [
+        CustomMapping {
+          block: 'v1'
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

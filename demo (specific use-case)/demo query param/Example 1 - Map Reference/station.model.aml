@@ -2,7 +2,7 @@ Model station {
   type: 'query'
   label: 'Station'
   description: ''
-  data_source_name: 'demo_bike_valentin'
+  data_source_name: 'demo_bigquery'
   dimension station {
     label: 'Station'
     type: 'text'
@@ -27,12 +27,12 @@ Model station {
   }
 
   owner: 'chukwudi@holistics.io'
-  query: @sql select {{ #station_density.station_name }} as station
-      , {{ #station_density.lat }} as station_lat
-      , {{ #station_density.lon }} as station_lon
-      , ST_GEOGPOINT({{ #station_density.lon }}, {{ #station_density.lat }}) as station_pt
-        from  {{ #station_density }};;
+  query: @sql select {{ #dim_station.station_name }} as station
+      , {{ #dim_station.lat }} as station_lat
+      , {{ #dim_station.lon }} as station_lon
+      , ST_GEOGPOINT({{ #dim_station.lon }}, {{ #dim_station.lat }}) as station_pt
+        from  {{ #dim_station }};;
   models: [
-    station_density
+    dim_station
   ]
 }

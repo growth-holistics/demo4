@@ -1,0 +1,68 @@
+Model saas_customer {
+  type: 'query'
+  label: 'Saas Customer'
+  description: ''
+  data_source_name: 'demodb'
+  dimension customer_id {
+    label: 'Customer Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+  dimension customer_name {
+    label: 'Customer Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.customer_name }};;
+  }
+  dimension signup_date {
+    label: 'Signup Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.signup_date }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+  dimension last_updated {
+    label: 'Last Updated'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.last_updated }};;
+  }
+
+  owner: 'thanh.tm@holistics.io'
+  query: @sql
+WITH fake_customers AS (
+    SELECT * FROM (
+        VALUES
+            (1, 'Acme Corp', DATE '2024-03-15', 'active', TIMESTAMP '2025-03-03 10:00:00'),
+            (2, 'Beta LLC', DATE '2024-04-10', 'inactive', TIMESTAMP '2025-02-28 14:00:00'), -- Churned in last 7 days
+            (3, 'Gamma Inc', DATE '2024-05-01', 'active', TIMESTAMP '2025-03-03 09:00:00'),
+            (4, 'Delta Co', DATE '2024-06-20', 'active', TIMESTAMP '2025-03-03 11:00:00'),
+            (5, 'Epsilon Ltd', DATE '2024-07-15', 'inactive', TIMESTAMP '2024-11-01 16:00:00'), -- Churned earlier
+            (6, 'Zeta Solutions', DATE '2024-08-10', 'active', TIMESTAMP '2025-03-03 08:00:00'),
+            (7, 'Eta Ventures', DATE '2024-09-01', 'inactive', TIMESTAMP '2025-02-27 12:00:00'), -- Churned in last 7 days
+            (8, 'Theta Group', DATE '2024-10-15', 'active', TIMESTAMP '2025-03-03 13:00:00'),
+            (9, 'Iota Analytics', DATE '2024-11-01', 'active', TIMESTAMP '2025-03-03 15:00:00'),
+            (10, 'Kappa Tech', DATE '2024-12-10', 'inactive', TIMESTAMP '2025-01-15 17:00:00'), -- Churned earlier
+            (11, 'Lambda Systems', DATE '2024-03-01', 'active', TIMESTAMP '2025-03-03 09:00:00'),
+            (12, 'Mu Enterprises', DATE '2024-04-01', 'inactive', TIMESTAMP '2024-08-15 18:00:00'), -- Churned earlier
+            (13, 'Nu Innovations', DATE '2024-05-15', 'active', TIMESTAMP '2025-03-03 10:00:00'),
+            (14, 'Xi Technologies', DATE '2024-06-01', 'inactive', TIMESTAMP '2025-02-26 14:00:00'), -- Churned in last 7 days
+            (15, 'Omicron Solutions', DATE '2024-07-01', 'active', TIMESTAMP '2025-03-03 12:00:00')
+    ) AS t (customer_id, customer_name, signup_date, status, last_updated)
+)
+SELECT 
+    customer_id,
+    customer_name,
+    signup_date,
+    status,
+    last_updated
+FROM fake_customers;;;
+  models: [
+  ]
+}

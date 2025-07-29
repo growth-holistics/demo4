@@ -6,14 +6,18 @@ Model ecommerce_merchants {
   dimension id {
     label: 'Id'
     type: 'number'
-    hidden: true
+    hidden: false
     definition: @sql {{ #SOURCE.id }};;
   }
   dimension name {
     label: 'Name'
     type: 'text'
     hidden: false
-    definition: @sql {{ #SOURCE.name }};;
+    definition: @sql case
+      when {{#SOURCE.id}} = 164 then 'Pied Piper'
+      when {{#SOURCE.id}} = 44 then 'Incite'
+      else {{#SOURCE.name}}
+    end;;
   }
   dimension city_id {
     label: 'City Id'

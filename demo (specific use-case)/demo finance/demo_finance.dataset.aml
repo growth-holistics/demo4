@@ -1,0 +1,369 @@
+Dataset demo_finance {
+  label: '[Demo] Finance'
+  data_source_name: 'demodb'
+  models: [
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_countries,
+    ecommerce_orders,
+    ecommerce_users,
+    ecommerce_order_items,
+    ecommerce_cities,
+    map_categories,
+    param_model_demo,
+    dim_dates,
+    ecommerce_product_images,
+    ecommerce_budget_targets,
+    ecommerce_operating_expenses,
+    ecommerce_bills,
+    ecommerce_invoices,
+    ecommerce_cash_movements
+  ]
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_budget_targets.date > dim_dates.date_key, true),
+    relationship(ecommerce_operating_expenses.date > dim_dates.date_key, true),
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(ecommerce_bills.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_invoices.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_cash_movements.date > dim_dates.date_key, true)
+  ]
+
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: ecommerce_orders
+    definition: @aql case(
+        when: 'Country Names' in param_model_demo.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_demo.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_demo.dim_selections
+        , then: ecommerce_orders.status
+
+        , else: ecommerce_countries.name
+      ) ;;
+  }
+
+  metric total_users {
+    label: 'Total Users'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
+  }
+  
+  metric nmv {
+    label: "NMV - Net Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue {
+    label: "Total Revenue (Platform)"
+    type: "number"
+    hidden: false
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cancelled_order_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: "#,###0.00%"
+  }
+
+  metric cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Cancelled Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric dynamic_metric {
+    label: 'Dynamic Metric (no format)'
+    type: 'number'
+    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
+    definition: @aql
+      case(
+        
+        when: 'total users' in param_model_demo.metric_selections
+        , then: ecommerce_users.total_users
+
+        , when: 'total orders' in param_model_demo.metric_selections
+        , then: total_orders
+
+        , when: 'platform revenue' in param_model_demo.metric_selections
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections
+        , then: aov
+
+      )
+     ;;
+  }
+
+  metric dynamic_metric_currency {
+    label: 'Dynamic Metric (Currency)'
+    type: 'number'
+    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
+    definition: @aql
+      case(
+        when: 'platform revenue' in param_model_demo.metric_selections_currency
+        , then: revenue
+
+        , when: 'GMV' in param_model_demo.metric_selections_currency
+        , then: gmv
+
+        , when: 'NMV' in param_model_demo.metric_selections_currency
+        , then: nmv
+
+        , when: 'AOV' in param_model_demo.metric_selections_currency
+        , then: aov
+
+      )
+     ;;
+     format: "[\$\$]#,###0"
+  }
+
+  metric revenue_commission {
+    label: "Revenue Commission Rate (Demo from May 2025)"
+    type: "number"
+    hidden: false
+    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    definition: @aql 0.5;;
+    format: "#,###%"
+  }
+
+  metric cost_of_goods_sold {
+    label: "Cost Of Goods Sold"
+    type: "number"
+    hidden: false
+    description: "Cost of goods sold for all orders."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.cost);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_operations {
+    label: "Cost Of Operations"
+    type: "number"
+    hidden: false
+    description: "Total operating expenses incurred."
+    definition: @aql sum(ecommerce_operating_expenses.amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cost {
+    label: "Total Expenses"
+    type: "number"
+    hidden: false
+    description: "Total cost incurred including cost of goods sold and cost of operations."
+    definition: @aql cost_of_goods_sold + cost_of_operations;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric expense_budgets {
+    label: "Expense Budgets"
+    type: "number"
+    hidden: false
+    description: "Total budgeted expenses for the period."
+    definition: @aql sum(ecommerce_budget_targets.budget_target);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit {
+    label: "Net Profit"
+    type: "number"
+    hidden: false
+    description: "Net profit calculated as net merchandise value minus total cost."
+    definition: @aql nmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric operating_profit {
+    label: "Operating Profit"
+    type: "number"
+    hidden: false
+    description: "Operating profit calculated as revenue minus total cost."
+    definition: @aql gmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric gross_profit {
+    label: "Gross Profit"
+    type: "number"
+    hidden: false
+    description: "Gross profit calculated as revenue minus total cost of goods sold."
+    definition: @aql gmv - cost_of_goods_sold;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit_margin {
+    label: "Net Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Net profit margin calculated as net profit divided by NMV."
+    definition: @aql net_profit / nmv;;
+    format: "#,###0.00%"
+  }
+
+  metric operating_profit_margin {
+    label: "Operating Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Operating profit margin calculated as operating profit divided by revenue."
+    definition: @aql operating_profit / revenue;;
+    format: "#,###0.00%"
+  }
+
+  metric gross_profit_margin {
+    label: "Gross Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Gross profit margin calculated as gross profit divided by GMV."
+    definition: @aql gross_profit / gmv;;
+    format: "#,###0.00%"
+  }
+
+  metric budget_ratio {
+    label: "Budget Ratio"
+    type: "number"
+    hidden: false
+    description: "Budget ratio calculated as total cost divided by expense budgets."
+    definition: @aql total_cost / expense_budgets;;
+    format: "#,###0.00%"
+  }
+
+  metric total_inflows {
+    label: "Total Inflows"
+    type: "number"
+    hidden: false
+    description: "Total cash inflows, including all inflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Inflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_outflows {
+    label: "Total Outflows"
+    type: "number"
+    hidden: false
+    description: "Total cash outflows, including all outflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Outflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cash_balance {
+    label: "Total Cash Balance"
+    type: "number"
+    hidden: false
+    description: "Net cash balance calculated as total inflows minus total outflows."
+    definition: @aql total_inflows - total_outflows;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_payable {
+    label: "Total Accounts Payable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts payable, calculated as the sum of unpaid amounts for pending bills."
+    definition: @aql sum(ecommerce_bills.bill_amount) - sum(ecommerce_bills.paid_amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_receivable {
+    label: "Total Accounts Receivable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts receivable, calculated as the sum of unpaid amounts for pending invoices."
+    definition: @aql sum(ecommerce_invoices.invoice_amount) - sum(ecommerce_invoices.paid_amount);;
+    format: "[\$\$]#,###0"
+    }
+
+  metric one_hundred_percent {
+    label: "100% (Reference)"
+    type: "number"
+    hidden: false
+    description: "Reference metric representing 100% for ratio calculations."
+    definition: @aql 1;;
+    format: "#,###0.00%"
+    }
+
+  owner: 'dong.ln@holistics.io'
+}
