@@ -1,0 +1,45 @@
+Model ecommerce_cash_movements {
+  type: 'table'
+  label: 'Cash Movements'
+  description: ''
+  data_source_name: 'demodb'
+  dimension seed {
+    label: 'Seed'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.seed }};;
+  }
+  dimension type {
+    label: 'Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.type }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension amount {
+    label: 'Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.amount }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension signed_amount {
+    label: "Signed Amount"
+    type: "text"
+    hidden: false
+    definition: @aql case(when: ecommerce_cash_movements.type == 'Inflow', then: ecommerce_cash_movements.amount, else: -ecommerce_cash_movements.amount);;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  table_name: '"ecommerce"."cash_movements"'
+}

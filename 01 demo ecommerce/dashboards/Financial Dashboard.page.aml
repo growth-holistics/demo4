@@ -1,0 +1,908 @@
+@tag('2️⃣ Status/Active', '1️⃣ Trust/Endorsed')
+Dashboard finance_dashboard {
+  title: 'Finance Dashboard'
+  description: ''
+  block t1: TextBlock {
+    content: @md <p></p>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md <div style="color:#fff; font-size: 16px">
+<p>
+This dashboard tracks the KPIs of CTOs and financial managers. This will also be presented in our monthly presentation to our board and investors.</a>
+</p>
+
+</div>;;
+  }
+  block t3: TextBlock {
+    content: @md <img style="margin-bottom:0 !important;overflow:hidden;" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" alt="demo" width="255">;;
+  }
+  block t4: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #022658;padding-bottom:24px;border-bottom: 1px solid #022658" id="executive_summary">Executive Summary</h1>;;
+  }
+  block t5: TextBlock {
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
+  }
+  block v1: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'nmv'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'net_profit'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v6: VizBlock {
+    label: 'Incomes vs Expenses'
+    viz: CombinationChart {
+      dataset: demo_finance
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+          pattern: 'wwww'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'nmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_cost'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'net_profit'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D70909'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Total Expenses'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        label: ' '
+        ref: 'total_cost'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'expense_budgets'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 0
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+        progress {
+
+          text {
+            font_size: 11
+          }
+        }
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Income Statement'
+    viz: MetricSheet {
+      dataset: demo_finance
+      theme {
+        table {
+          general {
+            borders {
+              horizontal: true
+              header: true
+            }
+          }
+        }
+      }
+      date_field: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'total_discount'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'nmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'cost_of_goods_sold'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'cost_of_operations'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'net_profit'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance
+      field: ref('dim_dates', 'date_key')
+    }
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+  }
+  block v9: VizBlock {
+    label: 'Operation Expenses by Category'
+    viz: ColumnChart {
+      dataset: demo_finance
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ecommerce_operating_expenses.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: 'cost_of_operations'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v10: VizBlock {
+    label: 'COGS, Costs of Operations, and Total Budget'
+    viz: CombinationChart {
+      dataset: demo_finance
+      x_axis: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'cost_of_goods_sold'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'cost_of_operations'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'expense_budgets'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D70909'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v11: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'gmv'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Inflows vs Outflows'
+    viz: CombinationChart {
+      dataset: demo_finance
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('dim_dates', 'date_key')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_inflows'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_outflows'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'total_cash_balance'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#D70909'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v14: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        label: 'Total Cash Inflows'
+        ref: 'total_inflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(dim_dates.date_key)
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v15: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        label: 'Total Cash Outflows'
+        ref: 'total_outflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(dim_dates.date_key)
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v16: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_cash_balance'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v17: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_accounts_payable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v18: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'total_accounts_receivable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v20: VizBlock {
+    label: 'Account Payable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_bills', 'aging_bucket')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_accounts_payable'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v21: VizBlock {
+    label: 'Account Receivable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: ref('dim_dates', 'date_key')
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_invoices', 'aging_bucket')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_accounts_receivable'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v22: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: 'operating_profit'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 2340
+    grid_size: 20
+    block t1 {
+      position: pos(0, 0, 1200, 180)
+      layer: 1
+    }
+    block t2 {
+      position: pos(20, 80, 660, 60)
+      layer: 1
+    }
+    block t3 {
+      position: pos(1000, 20, 180, 60)
+      layer: 1
+    }
+    block t4 {
+      position: pos(20, 200, 1180, 60)
+      layer: 1
+    }
+    block t5 {
+      position: pos(20, 260, 1160, 400)
+      layer: 1
+    }
+    block v1 {
+      position: pos(40, 400, 300, 100)
+      layer: 2
+    }
+    block v4 {
+      position: pos(360, 400, 280, 100)
+      layer: 1
+    }
+    block v6 {
+      position: pos(20, 1020, 1160, 380)
+      layer: 3
+    }
+    block v7 {
+      position: pos(40, 520, 300, 120)
+      layer: 4
+    }
+    block v8 {
+      position: pos(20, 680, 1160, 320)
+      layer: 5
+    }
+    block f1 {
+      position: pos(880, 200, 280, 60)
+      layer: 6
+    }
+    block v9 {
+      position: pos(620, 1420, 560, 380)
+      layer: 8
+    }
+    block v10 {
+      position: pos(20, 1420, 580, 380)
+      layer: 9
+    }
+    block v11 {
+      position: pos(40, 280, 300, 100)
+      layer: 1
+    }
+    block v12 {
+      position: pos(20, 1820, 580, 500)
+      layer: 1
+    }
+    block v14 {
+      position: pos(660, 280, 220, 100)
+      layer: 1
+    }
+    block v15 {
+      position: pos(660, 400, 220, 100)
+      layer: 1
+    }
+    block v16 {
+      position: pos(660, 520, 220, 100)
+      layer: 1
+    }
+    block v17 {
+      position: pos(900, 280, 240, 100)
+      layer: 1
+    }
+    block v18 {
+      position: pos(900, 400, 240, 100)
+      layer: 1
+    }
+    block v20 {
+      position: pos(620, 1820, 560, 240)
+      layer: 1
+    }
+    block v21 {
+      position: pos(620, 2080, 560, 240)
+      layer: 1
+    }
+    block v22 {
+      position: pos(360, 280, 280, 100)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}

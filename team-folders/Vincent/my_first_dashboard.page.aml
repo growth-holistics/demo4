@@ -240,6 +240,136 @@ Dashboard my_first_dashboard {
       }
     }
   }
+  block v7: VizBlock {
+    label: 'Repeat Customer Gmv Last Quarter by Quarter Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      calculation repeat_customer_gmv {
+        label: 'Repeat Customer Gmv'
+        formula: @aql gmv
+  | where(ecommerce_users.total_orders_all_time > 1);;
+        calc_type: 'measure'
+        data_type: 'unknown'
+      }
+      calculation total_gmv_last_quarter {
+        label: 'Total Gmv Last Quarter'
+        formula: @aql gmv
+  | where(ecommerce_orders.created_at is @(last quarter));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation repeat_customer_gmv_1 {
+        label: 'Repeat Customer Gmv 1'
+        formula: @aql gmv
+  | where(
+      ecommerce_users.total_orders_all_time > 1
+    );;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation repeat_customer_gmv_pct {
+        label: 'Repeat Customer Gmv Pct'
+        formula: @aql safe_divide(repeat_customer_gmv_last_quarter, total_gmv_last_quarter) * 100.0;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Repeat Customer Gmv Last Quarter'
+            ref: 'repeat_customer_gmv_1'
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Repeat Customer Gmv Last Quarter by Quarter Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      calculation repeat_customer_gmv {
+        label: 'Repeat Customer Gmv'
+        formula: @aql gmv
+  | where(ecommerce_users.total_orders_all_time > 1);;
+        calc_type: 'measure'
+        data_type: 'unknown'
+      }
+      calculation total_gmv_last_quarter {
+        label: 'Total Gmv Last Quarter'
+        formula: @aql gmv
+  | where(ecommerce_orders.created_at is @(last quarter));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation repeat_customer_gmv_1 {
+        label: 'Repeat Customer Gmv 1'
+        formula: @aql gmv
+  | where(
+      ecommerce_users.total_orders_all_time > 1
+    );;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation repeat_customer_gmv_pct {
+        label: 'Repeat Customer Gmv Pct'
+        formula: @aql safe_divide(repeat_customer_gmv_last_quarter, total_gmv_last_quarter) * 100.0;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Repeat Customer Gmv Last Quarter'
+            ref: 'repeat_customer_gmv_1'
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     PopInteraction {
       from: 'p1'
@@ -267,7 +397,7 @@ Dashboard my_first_dashboard {
     label: 'View 1'
     tab tab1: CanvasLayout {
       label: 'Revenue and Orders'
-      height: 1100
+      height: 1800
       grid_size: 20
       block f1 {
         position: pos(20, 20, 300, 100)
@@ -294,8 +424,16 @@ Dashboard my_first_dashboard {
         layer: 7
       }
       block v6 {
-        position: pos(20, 780, 780, 400)
+        position: pos(300, 520, 780, 400)
         layer: 6
+      }
+      block v7 {
+        position: pos(20, 1480, 400, 300)
+        layer: 8
+      }
+      block v8 {
+        position: pos(440, 1480, 400, 300)
+        layer: 9
       }
       width: 1240
     }

@@ -342,7 +342,7 @@ Dashboard sale_overview {
     label: 'Product Category'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('map_categories', 'category')
     }
     default {
@@ -354,7 +354,7 @@ Dashboard sale_overview {
     label: 'Product Name'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_products', 'name')
     }
     default {
@@ -366,7 +366,7 @@ Dashboard sale_overview {
     label: 'Customer Age Demographic'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       field: ref('ecommerce_users', 'age_group')
     }
     default {
@@ -536,9 +536,9 @@ Dashboard sale_overview {
   block v129: VizBlock {
     label: 'Dynamic Dim & Metric'
     viz: BarChart {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
-        ref: ref('order_master', 'breakdown_dim')
+        ref: ref('ecommerce_orders', 'breakdown_dim')
         format {
           type: 'text'
         }
@@ -585,7 +585,7 @@ Dashboard sale_overview {
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('param_model_nam', 'metric_selections')
+      field: ref('param_model_demo', 'metric_selections')
     }
     default {
       operator: 'is'
@@ -600,7 +600,7 @@ Dashboard sale_overview {
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('param_model_nam', 'dim_selections')
+      field: ref('param_model_demo', 'dim_selections')
     }
     default {
       operator: 'is'
@@ -668,7 +668,7 @@ Dashboard sale_overview {
   block v132: VizBlock {
     label: 'Sales Funnel'
     viz: ConversionFunnel {
-      dataset: demo_ecommerce_users
+      dataset: demo_ecommerce_version_2
       breakdown_by: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
         format {
@@ -684,14 +684,14 @@ Dashboard sale_overview {
           }
         },
         VizFieldFull {
-          ref: ref('user_facts_aggr', 'buyers_count')
+          ref: 'total_buyers'
           format {
             type: 'number'
             pattern: '#,###'
           }
         },
         VizFieldFull {
-          ref: ref('user_facts_aggr', 'repeated_buyers_count')
+          ref: 'total_repeated_buyers'
           format {
             type: 'number'
             pattern: '#,###'
@@ -799,23 +799,23 @@ Dashboard sale_overview {
   block v134: VizBlock {
     label: 'Ecom User Retention'
     viz: PivotTable {
-      dataset: demo_ecommerce
+      dataset: demo_ecommerce_version_2
       filter {
-        field: ref('user_cohort_retention', 'cohort_month')
+        field: ref('ecommerce_users', 'cohort_month')
         operator: 'matches'
         value: 'last 12 months - today'
       }
       rows: [
         VizFieldFull {
           label: 'Cohort Month'
-          ref: ref('user_cohort_retention', 'cohort_month')
+          ref: ref('ecommerce_users', 'cohort_month')
           transformation: 'datetrunc month'
           format {
             type: 'date'
           }
         },
         VizFieldFull {
-          ref: ref('user_cohort_retention', 'cohort_size')
+          ref: ref('ecommerce_orders', 'cohort_size')
           format {
             type: 'number'
             pattern: '#,###'
@@ -825,7 +825,7 @@ Dashboard sale_overview {
       columns: [
         VizFieldFull {
           label: 'Relative Month'
-          ref: ref('user_cohort_retention', 'relative_month_disp')
+          ref: ref('ecommerce_orders', 'month_number')
           format {
             type: 'text'
           }
@@ -833,8 +833,7 @@ Dashboard sale_overview {
       ]
       values: [
         VizFieldFull {
-          ref: ref('user_cohort_retention', 'active_users_count')
-          aggregation: 'sum'
+          ref: 'total_users'
           format {
             type: 'number'
             pattern: '#,###0.00'
@@ -888,10 +887,6 @@ Dashboard sale_overview {
         CustomMapping {
           block: 'v131'
           disabled: true
-        },
-        CustomMapping {
-          block: 'v6'
-          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     },
@@ -1276,4 +1271,5 @@ Dashboard sale_overview {
     timezone: 'Etc/GMT+12'
     cache_duration: 1440
   }
+  theme: travel_theme
 }
