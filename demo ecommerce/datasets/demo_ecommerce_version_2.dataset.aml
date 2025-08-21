@@ -34,7 +34,6 @@ Dataset demo_ecommerce_version_2 {
     description: ""
     definition: @aql ecommerce_orders.created_at | month_num();;
   }
-
   dimension product_performance_analysis {
     model: ecommerce_products
     label: 'Product Performance Analysis'
@@ -197,6 +196,7 @@ Dataset demo_ecommerce_version_2 {
   metric dynamic_metric {
     label: 'Dynamic Metric'
     type: 'number'
+    description: 'This is an dynamic metric that returns the value of the selected metric based on param_model_nam.metric_selections. For example: if value `total users` then returns ecommerce_users.total_users, if value `total orders` then returns total_orders, etc.'
     definition: @aql
       case(
         when: 'total users' in param_model_nam.metric_selections
@@ -210,6 +210,5 @@ Dataset demo_ecommerce_version_2 {
       )
      ;;
   }
-
   owner: 'vincent@holistics.io'
 }
