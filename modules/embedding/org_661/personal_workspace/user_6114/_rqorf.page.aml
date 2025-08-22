@@ -1,0 +1,66 @@
+Dashboard _rqorf {
+  title: 'Dashboard User Sign Ups by Sign Up Year'
+  block v_p10w: VizBlock {
+    label: 'User Sign Ups by Sign Up Year'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      calculation user_sign_ups {
+        label: 'User Sign Ups'
+        formula: @aql ecommerce_users | count(ecommerce_users.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(ecommerce_users.sign_up_at)
+        operator: 'greater_than'
+        value: '12 months ago'
+      }
+      x_axis: VizFieldFull {
+        label: 'Sign Up Year'
+        ref: r(ecommerce_users.sign_up_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'User Sign Ups'
+            ref: 'user_sign_ups'
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_p10w {
+      position: pos(20, 20, 620, 420)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
