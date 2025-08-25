@@ -6,13 +6,14 @@ Model ecommerce_categories {
   dimension id {
     label: "Id"
     type: "number"
-    definition: @sql {{ #SOURCE.id }};;
+    description: "Stores a **unique identifier** for each category.\nExample values: 1, 5, 13, 17, 19."
     hidden: false
-
+    definition: @sql {{ #SOURCE.id }};;
   }
   dimension name {
     label: 'Name'
     type: 'text'
+    description: "The name of the category.\nExample values include:\n- Bathroom\n- Skin Care\n- Tablets\n- Gaming\n- Baking and Cooking"
     hidden: false
     definition: @sql {{ #SOURCE.name }};;
   }
@@ -20,14 +21,15 @@ Model ecommerce_categories {
   dimension name_modified {
     label: 'New Name'
     type: 'text'
+    description: 'This adds an **\"Hi\"** at the end of the original category name.\nExample values include:\n- Skin CareHi\n- FaceHi\n- SmartwatchesHi'
     hidden: false
-    description: 'This adds an Hi in the end of the original Name'
     definition: @sql concat({{ name }},'','Hi') ;;
   }
 
   dimension parent_id {
     label: 'Parent Id'
     type: 'number'
+    description: "Stores the **identifier** of the parent category.\nExample values: 1, 5, 13, 19."
     hidden: false
     definition: @sql {{ #SOURCE.parent_id }};;
   }
@@ -42,6 +44,8 @@ Model ecommerce_categories {
   dimension category_cost {
     label: "Category Cost"
     type: "number"
+    description: "Represents the **cost** associated with the category.\nExample values include:\n- 0.50\n- 0.25\n- 0.40"
+    hidden: false
     definition: @sql case
 when {{ name }} in ('Mobiles & Tablets'
       ,'Mobiles'

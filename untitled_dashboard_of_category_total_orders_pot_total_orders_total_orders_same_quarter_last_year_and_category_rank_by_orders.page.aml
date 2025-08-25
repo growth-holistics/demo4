@@ -1,0 +1,97 @@
+Dashboard untitled_dashboard_of_category_total_orders_pot_total_orders_total_orders_same_quarter_last_year_and_category_rank_by_orders {
+  title: 'Untitled Dashboard of Category, Total Orders, PoT Total Orders, Total Orders Same Quarter Last Year, and Category Rank By Orders'
+  block v_7zzt: VizBlock {
+    label: 'Category, Total Orders, PoT Total Orders, Total Orders Same Quarter Last Year, and Category Rank By Orders'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation category_rank_by_orders {
+        label: 'Category Rank By Orders'
+        formula: @aql rank(order: total_orders | desc());;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_orders_same_quarter_last_year {
+        label: 'Total Orders Same Quarter Last Year'
+        formula: @aql total_orders | relative_period(ecommerce_orders.created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'this quarter'
+      }
+      filter {
+        field: 'category_rank_by_orders'
+        operator: 'less_than'
+        value: '6'
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Category'
+          ref: r(map_categories.category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'PoT Total Orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PercentOfTotalField {
+            of_all: 'grand_total'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders Same Quarter Last Year'
+          ref: 'total_orders_same_quarter_last_year'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Category Rank By Orders'
+          ref: 'category_rank_by_orders'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 100
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 840
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_7zzt {
+      position: pos(20, 20, 400, 300)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
