@@ -135,13 +135,14 @@ end;;
   dimension age_group {
     label: "Age Demographic"
     type: "text"
-    description: "Grouping of the age demographics by age group\nUnder 20\n21-29\n30 and Above"
+    description: "The **age_group** field categorizes users into age demographics based on their calculated age.  \nIt segments users into three groups: `1. Under 20`, `2. From 20 to 29`, and `3. 30 and above`.  \nThis classification helps analyze user behavior and trends by age range.  \nExamples include `1. Under 20` for users younger than 20 years, `2. From 20 to 29` for users aged between 20 and 29, and `3. 30 and above` for users aged 30 or older."
     hidden: false
     definition: @sql case
   when {{ age }} < 20 then '1. Under 20'
   when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
   when {{ age }} >= 30 then '3. 30 and above'
 end;;
+    primary_key: false
   }
 
 
@@ -165,8 +166,10 @@ end;;
   measure total_users {
     label: "Total Users"
     type: "number"
-    definition: @sql count({{ id }});;
+    description: "The **total_users** field represents the total count of users registered in the ecommerce platform.  \nIt aggregates the number of unique user IDs to provide an overall user base size."
     hidden: false
+    definition: @sql count({{ id }});;
+    aggregation_type: "custom"
   }
 
   measure total_users_aql {
