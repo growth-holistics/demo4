@@ -1,0 +1,59 @@
+Dashboard test_1 {
+  title: 'test'
+  block title: TextBlock {
+    content: @md # Your title goes here ;;
+  }
+  block v_0dpg: VizBlock {
+    label: 'Age Demographic and Total Users'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.age_group)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_0dpg {
+      position: pos(20, 100, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
