@@ -32,7 +32,74 @@ Dashboard _zyyrp {
       }
     }
   }
-  interactions: []
+  block v_sdej: VizBlock {
+    label: 'Product Id, Product Name, Revenue, and Product Rank By Revenue'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation product_rank_by_revenue {
+        label: 'Product Rank By Revenue'
+        formula: @aql rank(order: revenue | desc());;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: 'product_rank_by_revenue'
+        operator: 'less_than'
+        value: '6'
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Product Id'
+          ref: r(ecommerce_products.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Product Name'
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Revenue'
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Product Rank By Revenue'
+          ref: 'product_rank_by_revenue'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          },
+          SortSetting {
+            field_index: 0
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -45,6 +112,10 @@ Dashboard _zyyrp {
     block v_p0b3 {
       position: pos(20, 100, 620, 420)
       layer: 1
+    }
+    block v_sdej {
+      position: pos(660, 100, 620, 420)
+      layer: 2
     }
     mobile {
       mode: 'auto'
