@@ -1,0 +1,27 @@
+Model ref_station {
+  type: 'query'
+  label: 'Ref Station'
+  description: ''
+  data_source_name: 'demo_bigquery'
+  dimension ref_station {
+    label: 'Ref Station'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_station }};;
+  }
+  dimension ref_station_pt {
+    label: 'Ref Station Pt'
+    type: 'unknown'
+    hidden: false
+    definition: @sql {{ #SOURCE.ref_station_pt }};;
+  }
+
+  owner: 'chukwudi@holistics.io'
+  query: @sql
+    select {{ #dim_station.station_name }} as ref_station
+      , ST_GEOGPOINT({{ #dim_station.lon }}, {{ #dim_station.lat }}) as ref_station_pt
+        from  {{ #dim_station }};;
+  models: [
+    dim_station
+  ]
+}

@@ -1,0 +1,35 @@
+Model ecommerce_cities {
+  type: 'table'
+  label: 'Cities'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'City Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension country_code {
+    label: 'Country Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_code }};;
+  }
+
+  dimension map_search {
+    label: 'Map Search'
+    type: 'text'
+    definition: @aql concat(
+      'https://www.google.com/maps/search/',ecommerce_cities.name
+    );;
+  }
+
+  owner: 'ha.pham+demo4@holistics.io and vincent'
+  table_name: '"ecommerce"."cities"'
+}

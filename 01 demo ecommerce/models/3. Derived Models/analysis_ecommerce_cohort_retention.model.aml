@@ -1,0 +1,113 @@
+Model user_cohort_retention {
+  type: 'query'
+  label: "User Cohort Retention"
+  description: ''
+  data_source_name: 'demodb'
+  owner: 'ha.pham+demo4@holistics.io'
+  models: [
+    ecommerce_users,
+    ecommerce_orders
+  ]
+
+  query: @sql 
+    with cohort_items as (
+      select
+        date_trunc('month', {{ #u.sign_up_at }}::date) as cohort_month,
+        {{ #u.id }} as user_id
+      from {{#ecommerce_users u}} 
+      order by 1, 2
+    )
+
+    , user_activities as (
+      select 
+        {{ #o.user_id }},
+        date_part('month', age(date_trunc('month', {{ #o.created_at}} ::date), c.cohort_month)) as relative_month
+      from {{#ecommerce_orders o}} 
+      left join cohort_items c on o.user_id = c.user_id
+      group by 1, 2
+    )
+
+    , cohort_size as (
+      select
+        cohort_month
+        , count(user_id) as cohort_size
+      from cohort_items
+      group by 1
+    )
+
+    , retentions_count as (
+      select
+        c.cohort_month, 
+        ua.relative_month, 
+        count(ua.user_id) as active_users_count
+      from user_activities ua
+      left join cohort_items c on ua.user_id = c.user_id
+      group by 1, 2
+    )
+
+    select
+      s.cohort_month
+      , s.cohort_size
+      , r.relative_month
+      , 'Month ' || lpad(r.relative_month::text, 2, '0') as relative_month_disp
+      , coalesce(r.active_users_count, 0) as active_users_count
+      , coalesce(r.active_users_count, 0)::float / s.cohort_size::float as retention_rate
+    from retentions_count r
+    left join cohort_size s on r.cohort_month = s.cohort_month
+    order by 1, 3;;
+
+  dimension cohort_month {
+    label: 'Cohort Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.cohort_month }};;
+  }
+  dimension cohort_size {
+    label: 'Cohort Size'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cohort_size }};;
+  }
+  dimension relative_month {
+    label: 'Relative Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month }};;
+  }
+  dimension relative_month_disp {
+    label: 'Relative Month Disp'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.relative_month_disp }};;
+  }
+  dimension active_users_count {
+    label: 'Active Users Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.active_users_count }};;
+  }
+  dimension retention_rate {
+    label: 'Retention Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.retention_rate }};;
+  }
+  dimension test_dim {
+    label: "Test Dim"
+    type: "text"
+    description: ""
+    definition: @sql CASE
+   WHEN {{ cohort_month }} >= '2024-01-01' and {{ cohort_month }} <= '2024-01-31' THEN '<h3 font-size="23px" font-family="Pangea sans-serif" text-align="left" color="blue">Online Usage Trends in January 2024<br></h3>
+    	<div align="left"><ul font-size="14px"><li>Stable high usage</li>
+    	<li>High usage via <b>YouTube</b>—especially for Russian, Spanish and DW News</li>
+    	<li><b>Facebook</b> continues to decline</li>
+    	<li>Another usage record for <b>Tamil</b> and <b>Brazilian</b>—growth mainly via distribution partners (Josh and Glance) and own social media accounts</li></ul></div>'
+   WHEN {{ cohort_month }} >= '2024-02-01' and {{ cohort_month }} <= '2024-02-29' THEN '<p align="left"><font size="4">Online Usage Trends in February 2024<br></font 	size></p>
+    	<div align="left"><font size="3"><li>Continued stable high usage</li>
+    	<li>DW content was used more frequently again on <b>Josh</b>—the platform is currently DW´s most used platform (campaign for <i>Sehat Talk</i>)</li>
+    	<li><b>DW Russian</b> achieved a usage record on <b>YouTube</b>—every fourth view landed on a Russian video, mostly on current topics</li> 
+    	<li>The use of DW content on <b>Facebook</b> is now <b>declining</b> for the fourth month in a row</li></font size></div>'
+   ELSE null
+END ;;
+  }
+}

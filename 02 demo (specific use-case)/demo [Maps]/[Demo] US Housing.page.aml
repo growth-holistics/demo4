@@ -1,0 +1,348 @@
+@tag('1️⃣ Trust/Endorsed', '2️⃣ Status/Active')
+Dashboard demo_us_housing {
+  title: 'Demo US Housing'
+  block title: TextBlock {
+    content: @md # A Housing, Income & Safety Overview in the United States
+<font color="#D2D5DF">(Double click to edit)</font>;;
+  }
+  block v1: VizBlock {
+    label: 'Real Estate Listings by Location'
+    viz: PointMap {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      lng: VizFieldFull {
+        ref: ref('zipcode_data_american_housing_data', 'longitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('zipcode_data_american_housing_data', 'latitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('zipcode_data_american_housing_data', 'beds')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('zipcode_data_american_housing_data', 'bath')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('zipcode_data_american_housing_data', 'living_space')
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v2: VizBlock {
+    label: 'Crime Rates by States'
+    viz: FilledMap {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      location {
+        field: VizFieldFull {
+          ref: ref('zipcode_data_zipcode', 'state')
+          format {
+            type: 'text'
+          }
+        }
+        location_type: 'state'
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: ref('zipcode_data_usa_housing_kaggle', 'crime_rate')
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('zipcode_data_usa_housing_kaggle', 'price')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v3: VizBlock {
+    label: 'House Price Distribution'
+    viz: Heatmap {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      lng: VizFieldFull {
+        ref: ref('zipcode_data_american_housing_data', 'longitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: ref('zipcode_data_american_housing_data', 'latitude')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: 'median_house_price'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v4: VizBlock {
+    label: 'State-Level Tax Participation by VITA (Volunteer Income Tax Assistance)'
+    viz: FilledMap {
+      dataset: demo_zipcode_data
+      filter {
+        field: ref('zipcode_data_zipcode', 'state')
+        operator: 'not_null'
+        value: []
+      }
+      theme {
+
+      }
+      location {
+        field: VizFieldFull {
+          ref: ref('zipcode_data_zipcode', 'state')
+          format {
+            type: 'text'
+          }
+        }
+        location_type: 'state'
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: ref('zipcode_data_usa_income_tax_data', 'total_vita')
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('zipcode_data_usa_income_tax_data', 'numdep')
+            aggregation: 'avg'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Total Real Estate Listings'
+    viz: MetricKpi {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: 'total_real_estate_listings'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 28
+        }
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Median House Income'
+    viz: MetricKpi {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: 'median_house_income'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 28
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Average House Price'
+    viz: MetricKpi {
+      dataset: demo_zipcode_data
+      theme {
+
+      }
+      value: VizFieldFull {
+        label: ' '
+        ref: 'median_house_price'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 28
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'State'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_zipcode_data
+      field: ref('zipcode_data_zipcode', 'state')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 940
+    grid_size: 20
+    block title {
+      position: pos(20, 20, 1160, 60)
+    }
+    block v1 {
+      position: pos(20, 200, 540, 360)
+      layer: 1
+    }
+    block v2 {
+      position: pos(580, 580, 580, 340)
+      layer: 2
+    }
+    block v3 {
+      position: pos(580, 200, 580, 360)
+      layer: 3
+    }
+    block v4 {
+      position: pos(20, 580, 540, 340)
+      layer: 4
+    }
+    block v5 {
+      position: pos(20, 80, 260, 100)
+      layer: 5
+    }
+    block v6 {
+      position: pos(300, 80, 260, 100)
+      layer: 1
+    }
+    block v7 {
+      position: pos(580, 80, 260, 100)
+      layer: 1
+    }
+    block f1 {
+      position: pos(860, 80, 300, 100)
+      layer: 6
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}

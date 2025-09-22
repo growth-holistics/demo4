@@ -1,0 +1,571 @@
+Dashboard dashboard_themes_qa {
+  title: 'Dashboard Themes QA'
+  description: ''''''
+
+  view: CanvasLayout {
+    label: 'View 1'
+    height: 1640
+    grid_size: 20
+    mobile {
+      mode: 'auto'
+    }
+    block t1 {
+      position: pos(20, 20, 200, 220)
+      layer: 1
+    }
+    block f1 {
+      position: pos(240, 20, 300, 100)
+      layer: 2
+    }
+    block v1 {
+      position: pos(20, 420, 300, 140)
+      layer: 5
+    }
+    block v2 {
+      position: pos(20, 260, 300, 140)
+      layer: 6
+    }
+    block v3 {
+      position: pos(340, 260, 800, 300)
+      layer: 7
+    }
+    block f2 {
+      position: pos(240, 140, 300, 100)
+      layer: 8
+    }
+    block f3 {
+      position: pos(560, 140, 300, 100)
+      layer: 1
+    }
+    block f4 {
+      position: pos(560, 20, 300, 100)
+      layer: 1
+    }
+    block f5 {
+      position: pos(880, 140, 300, 100)
+      layer: 1
+    }
+    block d1 {
+      position: pos(880, 20, 300, 100)
+      layer: 9
+    }
+    block v4 {
+      position: pos(20, 580, 1520, 280)
+      layer: 10
+    }
+    block v5 {
+      position: pos(20, 880, 1520, 280)
+      layer: 11
+    }
+    block v6 {
+      position: pos(1160, 260, 380, 300)
+      layer: 7
+    }
+    block v7 {
+      position: pos(20, 1180, 660, 440)
+      layer: 12
+    }
+    block v8 {
+      position: pos(700, 1180, 840, 440)
+      layer: 13
+    }
+    width: 1560
+  }
+  theme: H.themes.classic
+  block t1: TextBlock {
+    content: @md # Heading 1
+## Heading 2
+Normal text;;
+  }
+  block f1: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'last'
+      value: '36'
+      modifier: 'month'
+    }
+  }
+  block v1: VizBlock {
+    label: 'Gross Merchandise Value'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        label: 'Gross Merchandise Value'
+        ref: ref('order_master', 'gmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 3
+        granularity: 'month'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v2: VizBlock {
+    label: 'Net Merchandise Value'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      value: VizFieldFull {
+        label: 'Net Merchandise Value'
+        ref: ref('order_master', 'nmv')
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('order_master', 'order_created_at')
+        duration: 3
+        granularity: 'month'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v3: VizBlock {
+    label: 'Line Chart family'
+    viz: CombinationChart {
+      dataset: demo_ecommerce
+      x_axis: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Net Merchandise Value'
+            ref: ref('order_master', 'nmv')
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#255DD4'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          axis_min: 0
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Growth Rate'
+            ref: ref('order_master', 'cancelled_order_ratio')
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#F2B602'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Text'
+    type: 'text'
+    default {
+      operator: 'is'
+      value: 'value'
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Text'
+    type: 'text'
+    default {
+      operator: 'is_null'
+      value: []
+    }
+  }
+  block f4: FilterBlock {
+    label: 'Number'
+    type: 'number'
+    default {
+      operator: 'between'
+      value: [
+        '0',
+        '10000'
+      ]
+    }
+  }
+  block f5: FilterBlock {
+    label: 'Text'
+    type: 'text'
+    default {
+      operator: 'starts_with'
+      value: 'value'
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block v4: VizBlock {
+    label: 'Table'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      fields: [
+        VizFieldFull {
+          ref: ref('order_master', 'order_id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'status')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'delivery_attempts')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancel_value_ratio')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v5: VizBlock {
+    label: 'Pivot'
+    viz: PivotTable {
+      dataset: demo_ecommerce
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'continent_name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_continent_name'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'name')
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_name'
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'order_created_at')
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_order_created_at'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_aov'
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_gmv'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'ecommerce_countries_continent_name'
+              width: 112
+            },
+            ColumnWidth {
+              key: 'ecommerce_countries_name'
+              width: 83
+            },
+            ColumnWidth {
+              key: 'datetrunc_month_order_created_at'
+              width: 88
+            },
+            ColumnWidth {
+              key: 'custom_aov'
+              width: 86
+            },
+            ColumnWidth {
+              key: 'custom_gmv'
+              width: 85
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 1
+      }
+    }
+  }
+  block v6: VizBlock {
+    label: 'Pie Chart family'
+    viz: PieChart {
+      dataset: demo_ecommerce
+      legend: VizFieldFull {
+        ref: ref('map_categories', 'parent_category')
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'Net Merchandise Value'
+          ref: ref('order_master', 'nmv')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+        settings {
+          color_palette: 0
+        }
+      }
+      settings {
+        row_limit: 5000
+        data_label_position: 'none'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v7: VizBlock {
+    label: 'Conversion Funnel'
+    viz: ConversionFunnel {
+      dataset: demo_ecommerce
+      breakdown_by: VizFieldFull {
+        ref: ref('order_master', 'status')
+        format {
+          type: 'text'
+        }
+      }
+      values: [
+        VizFieldFull {
+          ref: ref('order_master', 'gmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'nmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('order_master', 'cancelled_value')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v8: VizBlock {
+    label: 'Metric Sheets'
+    viz: MetricSheet {
+      dataset: demo_ecommerce
+      date_field: VizFieldFull {
+        ref: ref('order_master', 'order_created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: 'Heading 1'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'cancel_value_ratio')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'cancelled_value')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricHeading {
+          label: 'Heading 2'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'count_distinct_users')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'cancelled_order_ratio')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'delivered_orders_count')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'gmv')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: ref('order_master', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}

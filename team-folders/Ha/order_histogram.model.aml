@@ -1,0 +1,79 @@
+Model order_histogram {
+  type: 'query'
+  label: 'Order Histogram'
+  description: ''
+  data_source_name: 'demodb'
+  
+  // dimension user_id {
+  //   label: 'User ID'
+  //   type: 'number'
+  //   hidden: false
+  //   definition: @sql {{ #SOURCE.user_id }};;
+  // }
+  // dimension orders_count {
+  //   label: 'Orders Count'
+  //   type: 'number'
+  //   hidden: false
+  //   definition: @sql {{ #SOURCE.orders_count }};;
+  // }
+  // dimension total_order_value {
+  //   label: 'Order Value'
+  //   type: 'number'
+  //   hidden: false
+  //   definition: @sql {{ #SOURCE.total_order_value }};;
+  // }
+  // dimension average_order_value {
+  //   label: 'Average Order Value'
+  //   type: 'number'
+  //   hidden: false
+  //   definition: @sql {{ #SOURCE.average_order_value }};;
+  // }
+  dimension bins {
+    label: 'Bins'
+    type: 'text'
+    definition: @sql {{ #SOURCE.bins }} ;;
+  }
+  dimension users_count {
+    label: 'Users Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.users_count }};;
+  }
+
+  param user_gender_param {
+    label: 'User Gender Param'
+    type: 'text'
+  }
+
+  owner: 'ha.pham@holistics.io'
+  query: @sql
+      with aggr as (
+        SELECT
+          u.id as user_id 
+          , count(distinct o.id) as orders_count
+          , sum(oi.quantity * p.price) as total_order_value
+          , sum(oi.quantity * p.price) / count(distinct o.id) as average_order_value
+        from ecommerce.order_items oi
+        left join ecommerce.products p on oi.product_id = p.id
+        left join ecommerce.orders o on oi.order_id = o.id
+        left join ecommerce.users u on o.user_id = u.id 
+        where {% filter(user_gender_param) %}  u.gender {%%%}
+        group by 1
+      )
+
+      select 
+        CASE
+          when average_order_value < 200 then '0 - 200'
+          when average_order_value < 400 then '200 - 400'
+          when average_order_value < 600 then '400 - 600'
+          when average_order_value < 800 then '600 - 800'
+          else '800 and above'
+        end as bins
+      , count(*) as users_count
+      from aggr
+      group by 1
+
+    ;;
+  models: [
+  ]
+}

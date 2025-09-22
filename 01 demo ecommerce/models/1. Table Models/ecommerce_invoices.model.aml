@@ -1,0 +1,47 @@
+Model ecommerce_invoices {
+  type: 'table'
+  label: 'Invoices'
+  description: ''
+  data_source_name: 'demodb'
+  dimension days_outstanding {
+    label: 'Days Outstanding'
+    type: 'number'
+    description: "**Days Outstanding** represents the number of days an invoice has been unpaid past its issue date.  \nThis field helps track how long payments have been delayed to manage receivables effectively.  \nExamples include values such as `15`, `22`, and `24` days."
+    hidden: false
+    definition: @sql {{ #SOURCE.seed }};;
+    primary_key: false
+  }
+  dimension invoice_id {
+    label: 'Invoice Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.invoice_id }};;
+  }
+  dimension invoice_amount {
+    label: 'Invoice Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.invoice_amount }};;
+  }
+  dimension paid_amount {
+    label: 'Paid Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.paid_amount }};;
+  }
+  dimension due_date {
+    label: 'Due Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.due_date }};;
+  }
+  dimension aging_bucket {
+    label: 'Aging Bucket'
+    type: 'text'
+    hidden: false
+    definition: @aql case(when: ecommerce_invoices.days_outstanding <= 30, then: '0-30 Days', when: ecommerce_invoices.days_outstanding <= 60, then: '31-60 Days', when: ecommerce_invoices.days_outstanding <= 90, then: '61-90 Days', else: '90+ Days');;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  table_name: '"ecommerce"."invoices"'
+}

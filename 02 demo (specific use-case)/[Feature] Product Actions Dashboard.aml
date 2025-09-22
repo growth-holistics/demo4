@@ -1,0 +1,304 @@
+Dashboard Travel_Agent {
+  title: '[Feature] Product Actions'
+  description: ''''''
+
+  theme: PageTheme {
+    background {
+      bg_color: "#FFFFFF"
+      bg_repeat: true
+      bg_size: "cover"
+      bg_image: "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/7d6ad841245889.579ecfb6c15ba.gif"
+    }
+    canvas {
+      border {
+        border_radius: 30
+        border_width: 1
+        border_color: 'white'
+        border_style: "solid"
+      }
+      background {
+        bg_color: 'rgba(255, 255, 255, 0.6)'
+        bg_repeat: false
+        bg_size: "cover"
+  // bg_image:
+      }
+      shadow: "none"
+      opacity: 1
+    }
+    block {
+      label {
+        font_family: "Inter"
+        font_size: 15
+        font_color: "#0B325B"
+        font_weight: "bold"
+        font_style: "normal"
+      }
+      text {
+        font_family: "Inter"
+        font_size: 12
+        font_color: "#53586A"
+        font_weight: "normal"
+        font_style: "normal"
+      }
+      border {
+        border_width: 1
+        border_radius: 8
+        border_color: '#E8E8E8'
+        border_style: "none"
+      }
+      background {
+        bg_color: "#FFFFFF"
+        bg_repeat: false
+        bg_size: "cover"
+  // bg_image:
+      }
+      padding: 8
+      shadow: "none"
+      opacity: 1
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1220
+    height: 560
+    grid_size: 20
+    block v4 {
+      position: pos(40, 220, 1140, 300)
+    }
+    block f1 {
+      position: pos(100, 120, 300, 80)
+    }
+    block f2 {
+      position: pos(440, 120, 300, 80)
+    }
+    block t1 {
+      position: pos(360, 20, 460, 80)
+      layer: 1
+    }
+    block f4 {
+      position: pos(780, 120, 300, 80)
+    }
+  }
+  block v4: VizBlock {
+    label: 'Customers'
+    viz: DataTable {
+      dataset: demo_ecommerce
+      filter {
+        field: ref('ecommerce_users', 'age_group')
+        operator: 'is_not'
+        value: [
+          '1. Under 20',
+          '3. From 40 to 49'
+        ]
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'full_name')
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Linkedin Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'linkedin_search')
+              aggregation: 'min'
+            }
+          }
+          action a_7: VizAction {
+            type: 'GoToUrl'
+            label: 'IG Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'ig')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Facebook Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'fb')
+              aggregation: 'min'
+            }
+          }
+          action a_8: VizAction {
+            type: 'GoToUrl'
+            label: 'X search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'x')
+              aggregation: 'min'
+            }
+          }
+          action a_4: VizAction {
+            type: 'GoToUrl'
+            label: 'Write Recommendation'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'write_recommendation')
+              aggregation: 'min'
+            }
+          }
+          action a_5: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'email_user')
+              aggregation: 'min'
+            }
+          }
+          action a_6: VizAction {
+            type: 'GoToUrl'
+            label: 'Call Customer'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_users', 'phone')
+              aggregation: 'min'
+            }
+          }
+          uname: 'ecommerce_users_full_name'
+        },
+        VizFieldFull {
+          label: 'City Destination'
+          ref: ref('ecommerce_cities', 'name')
+          format {
+            type: 'text'
+          }
+          action a_2: VizAction {
+            type: 'GoToUrl'
+            label: 'Google Map Search'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'map_search')
+              aggregation: 'min'
+            }
+          }
+          action a_3: VizAction {
+            type: 'GoToUrl'
+            label: 'Experience Recommendation'
+            url: ActionFieldInput {
+              ref: ref('ecommerce_cities', 'experience')
+              aggregation: 'min'
+            }
+          }
+        },
+        VizFieldFull {
+          label: 'Country of Origin'
+          ref: ref('ecommerce_countries', 'origin')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'age_group')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'visit_time')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            field_index: 4
+            direction: 'desc'
+          }
+        ]
+        row_limit: 200
+        column_width {
+          manual_widths: [
+            ColumnWidth {
+              key: 'ecommerce_users_full_name'
+              width: 133
+            }
+          ]
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Visit Time'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_users
+      field: ref('ecommerce_users', 'visit_time')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f2: FilterBlock {
+    label: 'City Destination'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_cities', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t1: TextBlock {
+    content: @md <p> </p>
+ <p> </p> 
+<p style="color: #0B325B; letter-spacing: 0rem;font-weight: bold; font-size:30px; text-align: center";>
+Action Dashboard</p>
+</p>;;
+  }
+  block f4: FilterBlock {
+    label: 'Customer Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce
+      field: ref('ecommerce_users', 'full_name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'f4'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: 'f2'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'v4'
+          field: ref('ecommerce_users', 'visit_time')
+        }
+      ]
+    }
+  ]
+}

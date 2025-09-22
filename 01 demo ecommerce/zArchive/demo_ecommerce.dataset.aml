@@ -1,0 +1,201 @@
+PreAggregate agg_daily {
+  dimension timestamp {
+    for: ref('order_master', 'order_created_at')
+    time_granularity: 'day'
+  }
+
+  measure order_count {
+    for: ref('order_master', 'order_id')
+    aggregation_type: 'count'
+  }
+
+  persistence: IncrementalPersistence {
+    schema: 'persisted'
+    incremental_column: 'timestamp'
+  }
+}
+
+@tag('1️⃣ Trust/Deprecated')
+Dataset demo_ecommerce {
+  __engine__: 'aql' //turn this Dataset to using AQL Engine
+  label: '[Demo] Ecommerce Official (2024)'
+  description: "Official dataset for demoing E-commerce use cases test"
+  owner: 'ha.pham+demo4@holistics.io'
+  data_source_name: 'demodb'
+
+  pre_aggregates: {
+    daily: agg_daily
+  }
+
+
+  models: [
+    order_master,
+    ecommerce_users,
+    ecommerce_products,
+    ecommerce_merchants,
+    ecommerce_cities,
+    ecommerce_countries,
+    map_categories,
+    user_cohort_retention,
+    dim_dates,
+    transform_order_items,
+    ecommerce_product_images,
+    ecommerce_orders,
+    param_model_nam
+  ]
+
+  dimension cohort_month {
+    model: order_master
+    label: 'Cohort Month'
+    type: 'date'
+    definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
+    ;;
+  }
+
+  dimension month_no {
+    model: order_master
+    label: 'Month No'
+    type: 'number'
+    definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
+  }
+
+  dimension cohort_size {
+    model: order_master
+    label: 'Cohort Size'
+    type: 'number'
+    definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
+  }
+
+  dimension aov_by_product {
+    model: order_master
+    label: 'AOV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
+  }
+
+  dimension gmv_by_product {
+    model: order_master
+    label: 'GMV by Product'
+    type: 'text'
+    definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
+  }
+
+  dimension product_performance_analysis {
+    model: order_master
+    label: 'Product Performance Analysis'
+    type: 'text'
+    definition: @aql concat(
+      'https://claude.ai/new?q=write+an_analysis+for+',
+      ecommerce_products.name,
+      '.+The+GMV+for+this+product+is+',
+      order_master.gmv_by_product, 
+      '+and+the+AOV+for+this+product+is+',
+      order_master.aov_by_product,
+      )
+     ;;
+  }
+  dimension month_number {
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+    model: ecommerce_orders
+  }
+
+  dimension breakdown_dim {
+    label: 'Dynamic Breakdown Dimension'
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
+    type: 'text'
+    model: order_master
+    definition: @aql case(
+        when: 'Country Names' in param_model_nam.dim_selections
+        , then: ecommerce_countries.name
+
+        , when: 'Age Demographic' in param_model_nam.dim_selections
+        , then: ecommerce_users.age_group
+
+        , when: 'Order Status' in param_model_nam.dim_selections
+        , then: order_master.status
+
+        , when: 'Product Categories' in param_model_nam.dim_selections
+        , then: map_categories.category
+
+        , else: ecommerce_countries.name
+      ) ;;
+  }
+
+  relationships: [
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(ecommerce_orders_ecommerce_users, true),
+    relationship(ecommerce_products_map_categories, true),
+    relationship(ecommerce_users_ecommerce_cities, true),
+    relationship(order_master_ecommerce_merchants, true),
+    relationship(order_master_ecommerce_products, true)
+    ,
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true)
+    ,
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
+    ,
+    relationship(order_master.user_id > ecommerce_users.id, true)
+  ]
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+  metric total_orders_across_all {
+    label: "Total Orders Across All"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id) | of_all(ecommerce_orders);;
+  }
+  metric percent_of_total {
+    label: "Percent Of Total"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders * 1.0 / total_orders_across_all;;
+  }
+  // metric abc {
+  //   label: "Abc"
+  //   type: "number"
+  //   hidden: false
+  //   description: ""
+  //   definition: @aql count(ecommerce_orders.id) | where(ecommerce_users.gender == 'm', ecommerce_cities.name == 'New York');;
+  // }
+  metric month_number {
+    label: "Month Number"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_orders.created_at | month_num();;
+  }
+  metric running_total {
+    label: "Running Total"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
+  }
+
+  metric dynamic_metric {
+    label: 'Dynamic Metric'
+    type: 'number'
+    definition: @aql
+      case(
+        when: 'total users' in param_model_nam.metric_selections
+        , then: ecommerce_users.total_users
+
+        , when: 'total orders' in param_model_nam.metric_selections
+        , then: total_orders
+
+        , when: 'total products' in param_model_nam.metric_selections
+        , then: ecommerce_products.total_products
+      )
+     ;;
+  }
+}
