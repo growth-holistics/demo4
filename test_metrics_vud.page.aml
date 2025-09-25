@@ -499,78 +499,952 @@ Dashboard test_metrics_vud {
   block t_9fqu: TextBlock {
     content: @md Rank;;
   }
-  view: CanvasLayout {
+  block v_yfhx: VizBlock {
+    label: 'Trend line'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Trend line of Count of Id'
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: RegressionLine {
+              type: 'linear'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_zbhh: VizBlock {
+    label: 'Ref line'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Reference line of Count of Id'
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: ReferenceLine {
+              type: 'avg'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_bq8x: VizBlock {
+    label: 'Moving Sum'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Mov Sum'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: MovingCalculationField {
+            type: 'sum'
+            order: 'row'
+            range {
+              next: 0
+            }
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_0bh9: VizBlock {
+    label: 'PoT'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'PoT Count of Id'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PercentOfTotalField {
+            of_all: 'row'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_p21u: VizBlock {
+    label: 'PoP'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: '∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_1'
+        },
+        VizFieldFull {
+          label: '%∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'percent_change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_2'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_1n0b: VizBlock {
+    label: 'PoP'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: '∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_1'
+        },
+        VizFieldFull {
+          label: '%∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'percent_change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_2'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_kzax: VizBlock {
+    label: 'Metric defined in dataset'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  view: TabLayout {
     label: 'View 1'
-    width: 1300
-    grid_size: 20
-    auto_expand_vertically: true
-    block title {
-      position: pos(20, 20, 1260, 60)
+    tab tab1: CanvasLayout {
+      label: 'Simple calculation'
+      width: 1300
+      height: 2360
+      grid_size: 20
+      auto_expand_vertically: true
+      block title {
+        position: pos(20, 20, 1260, 60)
+      }
+      block t_6sik {
+        position: pos(20, 520, 1260, 60)
+        layer: 1
+      }
+      block t_9fqu {
+        position: pos(20, 1840, 1260, 60)
+        layer: 1
+      }
+      block t_crhp {
+        position: pos(20, 840, 1260, 60)
+        layer: 1
+      }
+      block t_jvhl {
+        position: pos(24, 1500, 1260, 60)
+        layer: 1
+      }
+      block t_xc7s {
+        position: pos(20, 1180, 1260, 60)
+        layer: 1
+      }
+      block v_09wu {
+        position: pos(20, 1920, 620, 420)
+        layer: 11
+      }
+      block v_107n {
+        position: pos(420, 80, 340, 220)
+        layer: 3
+      }
+      block v_273a {
+        position: pos(20, 600, 380, 220)
+        layer: 7
+      }
+      block v_3ipc {
+        position: pos(20, 1260, 500, 220)
+        layer: 9
+      }
+      block v_4hvg {
+        position: pos(420, 320, 340, 180)
+        layer: 6
+      }
+      block v_agne {
+        position: pos(20, 80, 380, 220)
+        layer: 2
+      }
+      block v_iy04 {
+        position: pos(780, 80, 340, 220)
+        layer: 4
+      }
+      block v_r3nj {
+        position: pos(20, 920, 760, 240)
+        layer: 8
+      }
+      block v_rd7q {
+        position: pos(20, 320, 380, 180)
+        layer: 5
+      }
+      block v_tibu {
+        position: pos(20, 1560, 500, 260)
+        layer: 10
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 'fit_to_page'
     }
-    block v_agne {
-      position: pos(20, 80, 380, 220)
-      layer: 2
+    tab tab2: CanvasLayout {
+      label: 'AAF'
+      width: 1300
+      height: 1460
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_yfhx {
+        position: pos(20, 20, 480, 340)
+        layer: 1
+      }
+      block v_zbhh {
+        position: pos(520, 20, 480, 340)
+        layer: 1
+      }
+      block v_bq8x {
+        position: pos(20, 380, 480, 340)
+        layer: 1
+      }
+      block v_0bh9 {
+        position: pos(520, 380, 760, 340)
+        layer: 1
+      }
+      block v_p21u {
+        position: pos(20, 740, 480, 340)
+        layer: 1
+      }
+      block v_kzax {
+        position: pos(520, 740, 480, 340)
+        layer: 1
+      }
+      default_zoom: 'fit_to_page'
     }
-    block v_107n {
-      position: pos(420, 80, 340, 220)
-      layer: 3
-    }
-    block v_iy04 {
-      position: pos(780, 80, 340, 220)
-      layer: 4
-    }
-    block v_rd7q {
-      position: pos(20, 320, 380, 180)
-      layer: 5
-    }
-    block v_4hvg {
-      position: pos(420, 320, 340, 180)
-      layer: 6
-    }
-    block v_273a {
-      position: pos(20, 600, 380, 220)
-      layer: 7
-    }
-    block t_6sik {
-      position: pos(20, 520, 1260, 60)
-      layer: 1
-    }
-    block t_crhp {
-      position: pos(20, 840, 1260, 60)
-      layer: 1
-    }
-    block t_xc7s {
-      position: pos(20, 1180, 1260, 60)
-      layer: 1
-    }
-    block t_jvhl {
-      position: pos(24, 1500, 1260, 60)
-      layer: 1
-    }
-    block v_r3nj {
-      position: pos(20, 920, 760, 240)
-      layer: 8
-    }
-    block v_3ipc {
-      position: pos(20, 1260, 500, 220)
-      layer: 9
-    }
-    block v_tibu {
-      position: pos(20, 1560, 500, 260)
-      layer: 10
-    }
-    block v_09wu {
-      position: pos(20, 1920, 620, 420)
-      layer: 11
-    }
-    block t_9fqu {
-      position: pos(20, 1840, 1260, 60)
-      layer: 1
-    }
-    mobile {
-      mode: 'auto'
-    }
-    height: 2360
   }
   theme: H.themes.vanilla
+  interactions: [
+    FilterInteraction {
+      from: 'v_agne'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_107n'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_iy04'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rd7q'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_4hvg'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_273a'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_r3nj'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3ipc'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_tibu'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_09wu'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_yfhx'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_zbhh'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_bq8x'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0bh9'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_p21u'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_1n0b'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_kzax'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu',
+            'v_1n0b'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
 }
