@@ -329,6 +329,66 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_3ipc: VizBlock {
+    label: 'Countif'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_65f5773 {
+        label: 'Count of Orders Id'
+        formula: @aql count(ecommerce_orders.id)
+| where(ecommerce_users.gender == "Female");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_65f5773'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -380,6 +440,10 @@ Dashboard test_metrics_vud {
     block v_r3nj {
       position: pos(20, 1656, 620, 420)
       layer: 8
+    }
+    block v_3ipc {
+      position: pos(660, 1656, 620, 420)
+      layer: 9
     }
     mobile {
       mode: 'auto'
