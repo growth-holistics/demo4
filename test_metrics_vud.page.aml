@@ -203,10 +203,71 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_273a: VizBlock {
+    label: 'Running total'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+          uname: 'datetrunc_year_created_at_1'
+        },
+        VizFieldFull {
+          ref: 'metric_633232e'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_year_created_at_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 980
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -231,6 +292,10 @@ Dashboard test_metrics_vud {
     block v_4hvg {
       position: pos(660, 320, 620, 420)
       layer: 6
+    }
+    block v_273a {
+      position: pos(20, 760, 620, 420)
+      layer: 7
     }
     mobile {
       mode: 'auto'
