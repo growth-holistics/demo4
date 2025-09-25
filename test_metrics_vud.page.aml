@@ -277,6 +277,58 @@ Dashboard test_metrics_vud {
   block t_jvhl: TextBlock {
     content: @md Misc functions;;
   }
+  block v_r3nj: VizBlock {
+    label: 'List'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_0b1668e'
+          format {
+            type: 'json'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -325,10 +377,14 @@ Dashboard test_metrics_vud {
       position: pos(24, 1576, 1260, 60)
       layer: 1
     }
+    block v_r3nj {
+      position: pos(20, 1656, 620, 420)
+      layer: 8
+    }
     mobile {
       mode: 'auto'
     }
-    height: 2020
+    height: 2096
   }
   theme: H.themes.vanilla
 }
