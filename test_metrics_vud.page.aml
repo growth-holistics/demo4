@@ -389,6 +389,71 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_tibu: VizBlock {
+    label: 'Concat'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_65f5773 {
+        label: 'Count of Orders Id'
+        formula: @aql count(ecommerce_orders.id)
+| where(ecommerce_users.gender == "Female");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_7a6b37b {
+        label: 'Concat field  '
+        formula: @aql concat(cast(total_users, 'text'), " ", "people");;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_7a6b37b'
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -445,10 +510,14 @@ Dashboard test_metrics_vud {
       position: pos(660, 1656, 620, 420)
       layer: 9
     }
+    block v_tibu {
+      position: pos(20, 2096, 620, 420)
+      layer: 10
+    }
     mobile {
       mode: 'auto'
     }
-    height: 2096
+    height: 2536
   }
   theme: H.themes.vanilla
 }
