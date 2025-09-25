@@ -33,6 +33,41 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_107n: VizBlock {
+    label: 'Sum'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_86b8650 {
+        label: 'Sum of Orders Discount'
+        formula: @aql sum(ecommerce_orders.discount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_86b8650'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -45,6 +80,10 @@ Dashboard test_metrics_vud {
     block v_agne {
       position: pos(20, 80, 380, 220)
       layer: 2
+    }
+    block v_107n {
+      position: pos(420, 100, 620, 420)
+      layer: 3
     }
     mobile {
       mode: 'auto'
