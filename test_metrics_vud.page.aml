@@ -27,7 +27,36 @@ Dashboard test_metrics_vud {
       }
     }
   }
-  interactions: []
+  block v_agne: VizBlock {
+    label: 'Count'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -40,6 +69,10 @@ Dashboard test_metrics_vud {
     block v_yf8s {
       position: pos(20, 100, 220, 100)
       layer: 1
+    }
+    block v_agne {
+      position: pos(260, 100, 620, 420)
+      layer: 2
     }
     mobile {
       mode: 'auto'
