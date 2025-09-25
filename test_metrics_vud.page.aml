@@ -68,10 +68,45 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_iy04: VizBlock {
+    label: 'Avg'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_49cb05a {
+        label: 'Average of Products Price'
+        formula: @aql avg(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_49cb05a'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 800
+    height: 980
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -84,6 +119,10 @@ Dashboard test_metrics_vud {
     block v_107n {
       position: pos(420, 100, 620, 420)
       layer: 3
+    }
+    block v_iy04 {
+      position: pos(20, 540, 620, 420)
+      layer: 4
     }
     mobile {
       mode: 'auto'
