@@ -1,12 +1,10 @@
-@tag('1️⃣ Trust/Endorsed', '2️⃣ Status/Active')
+@tag('2️⃣ Status/Active', 'Status/WIP')
 Dashboard thong_company_dashboard_v {
   title: '[Thong Demo] Ecommerce Dashboard (2025-09)'
   owner: 'vincent@holistics.io'
   description: ''''''
   block t5: TextBlock {
-    content: @md <img src=""/>
-
-![Holistics Logo](https://cdn.holistics.io/landing/logo-color.svg);;
+    content: @md ![Holistics Logo](https://cdn.holistics.io/logos/holistics-logo-white.png);;
   }
   block v20: VizBlock {
     label: 'Products Listed'
@@ -143,37 +141,6 @@ Dashboard thong_company_dashboard_v {
       hide_label: true
     }
   }
-  block v27: VizBlock {
-    label: 'GMV (Sales) by Country'
-    viz: FilledMap {
-      dataset: demo_ecommerce_version_2
-      theme {
-
-      }
-      location {
-        field: VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
-          format {
-            type: 'text'
-          }
-        }
-        primary_field: true
-      }
-      value: VizFieldFull {
-        ref: 'gmv'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block v28: VizBlock {
     label: 'AOV'
     viz: MetricKpi {
@@ -206,11 +173,8 @@ Dashboard thong_company_dashboard_v {
     label: ' KPI Overview'
     viz: MetricSheet {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       date_field: VizFieldFull {
-        ref: ref('dim_dates', 'date_key')
+        ref: r(dim_dates.date_key)
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -227,7 +191,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'total_orders'
+            ref: r(demo_ecommerce_version_2.total_orders)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -236,7 +200,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'total_cancelled_orders'
+            ref: r(demo_ecommerce_version_2.total_cancelled_orders)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -245,7 +209,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'total_refunded_orders'
+            ref: r(demo_ecommerce_version_2.total_refunded_orders)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -254,7 +218,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'total_delivered_orders'
+            ref: r(demo_ecommerce_version_2.total_delivered_orders)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -270,7 +234,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'nmv'
+            ref: r(demo_ecommerce_version_2.nmv)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -279,7 +243,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'gmv'
+            ref: r(demo_ecommerce_version_2.gmv)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -288,7 +252,7 @@ Dashboard thong_company_dashboard_v {
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: 'aov'
+            ref: r(demo_ecommerce_version_2.aov)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -297,6 +261,7 @@ Dashboard thong_company_dashboard_v {
         }
       ]
       settings {
+        max_column: 7
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -307,40 +272,13 @@ Dashboard thong_company_dashboard_v {
       hide_label: true
     }
   }
-  block t6: TextBlock {
-    content: @md <div style="position: relative; width: 100%; height: 80px; text-align:center;">
-  <iframe 
-    src="https://www.zeitverschiebung.net/clock-widget-iframe-v2?language=en&size=medium&timezone=America%2FLos_Angeles" 
-    width="100%" 
-    height="120" 
-    frameborder="0" 
-    seamless>
-  </iframe>
-  <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;"></div>
-</div>;;
-  }
-  block t7: TextBlock {
-    content: @md ## 🧭 Business Profile Snapshot
-
-This dashboard provides you a quick understanding of the current shape and scope of the business, before you dive into deeper analysis in domain-specific tabs like revenue, users, merchants, and products. It serves as the **homepage** of our analytics workspace — offering a clear, high-level snapshot of our ecommerce business across key dimensions.
-
-It brings together a consolidated view of:
-- **Customer composition** (total users, demographics, repeat buyers)
-- **Order activity and fulfillment** (all-time volume, delivery, cancellations)
-- **Transaction footprint** (GMV, AOV, top-performing regions)
-- **Marketplace scale** (products listed, merchants onboarded)
-- **Geographic distribution** of business activity;;
-  }
   block v30: VizBlock {
     label: 'Total Orders by Continents'
     viz: PieChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       legend: VizFieldFull {
         label: 'Continent'
-        ref: ref('ecommerce_countries', 'continent_name')
+        ref: r(ecommerce_countries.continent_name)
         format {
           type: 'text'
         }
@@ -348,14 +286,30 @@ It brings together a consolidated view of:
       }
       series {
         field: VizFieldFull {
-          ref: 'total_orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         }
         settings {
-          color_palette: 0
+          color_palette: 'seq-viridis'
+          point {
+            value: 'Asia'
+            color: '#FDE725'
+          }
+          point {
+            value: 'Europe'
+            color: '#5CC863'
+          }
+          point {
+            value: 'North America'
+            color: '#21908D'
+          }
+          point {
+            value: 'Oceania'
+            color: '#3B518B'
+          }
         }
       }
       settings {
@@ -376,11 +330,8 @@ It brings together a consolidated view of:
     label: 'GMV (Sales) by Country Name'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       legend: VizFieldFull {
-        ref: ref('ecommerce_countries', 'name')
+        ref: r(ecommerce_countries.name)
         format {
           type: 'text'
         }
@@ -393,14 +344,54 @@ It brings together a consolidated view of:
         }
         series {
           field: VizFieldFull {
-            ref: 'gmv'
+            ref: r(demo_ecommerce_version_2.gmv)
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color_palette: 0
+            color_palette: 'seq-viridis'
+            point {
+              value: 'Australia'
+              color: '#FDE725'
+            }
+            point {
+              value: 'France'
+              color: '#5CC863'
+            }
+            point {
+              value: 'Germany'
+              color: '#21908D'
+            }
+            point {
+              value: 'India'
+              color: '#3B518B'
+            }
+            point {
+              value: 'Indonesia'
+              color: '#440154'
+            }
+            point {
+              value: 'Korea'
+              color: '#FDE725'
+            }
+            point {
+              value: 'Singapore'
+              color: '#5CC863'
+            }
+            point {
+              value: 'United Kingdom'
+              color: '#21908D'
+            }
+            point {
+              value: 'United States'
+              color: '#3B518B'
+            }
+            point {
+              value: 'Vietnam'
+              color: '#440154'
+            }
           }
         }
       }
@@ -414,13 +405,6 @@ It brings together a consolidated view of:
         }
       }
     }
-  }
-  block t9: TextBlock {
-    content: @md ## 🌍 Regional Sales Distribution Insight
-**Analysis Last Updated on 20 May 2025 by Peter Parker** </br>
-
-Our sales performance is anchored in developed Western markets, with the United States, Australia, and Germany emerging as our top revenue contributors — while order activity remains strongest in Asia.
-;;
   }
   block v34: VizBlock {
     label: 'Top 10 Users by Orders'
@@ -560,34 +544,6 @@ Our sales performance is anchored in developed Western markets, with the United 
       }
     }
   }
-  block t11: TextBlock {
-    content: @md ## 📊 Metrics Snapshot
-
-This section provides a **concise overview of where the company stands today**, summarizing key metrics that define the current size, structure, and activity of our platform.
-
-These headline numbers offer a reference point for platform scale — across customers, merchants, products, and transactions.
-
-- **Total Users** reflects the size of our customer base to date.
-- **Merchants Onboarded** and **Products Listed** represent supply-side participation and catalog scale.
-- **All-Time Orders**, **GMV**, and **Average Order Value (AOV)** show transaction activity and monetization efficiency.
-- **Customer Demographics** highlight how different user segments — by gender and age — contribute to revenue, order volume, and repeat purchases.;;
-  }
-  block t12: TextBlock {
-    content: @md ## 📑 Executive KPI Metrics Sheet
-
-This table provides a **flexible, high-level view of our key business metrics** across time — allowing senior leaders to analyze performance in a familiar tabular format.
-
-You can adjust:
-- **Date aggregation** (e.g., daily, weekly, monthly, quarterly, yearly)
-- **Number of columns** shown at once to control the review window
-
-This format is especially useful for:
-- Board meetings or investor updates
-- Period-over-period tracking of orders, revenue, and fulfillment performance
-- Deep-diving into patterns that require more granularity than charts alone can offer
-
-> For executives who are accustomed to working in spreadsheets, this table provides an accessible way to track performance trends and validate key figures in a structured format — from top-line metrics down to operational breakdowns.;;
-  }
   block v37: VizBlock {
     label: 'Users Sign Up Over Time'
     viz: LineChart {
@@ -722,6 +678,22 @@ This format is especially useful for:
         }
       }
     }
+    description: @md ## 👥 User Demographic Insight
+**Analysis Last Updated on 20 May 2025 by Uncle Ben** </br>
+<br>
+Young adult females (under 30) are our most valuable and loyal customer segment — contributing the majority of revenue, orders, and repeat purchases across the board.
+
+### 🧑‍🤝‍🧑 Performance by Gender
+- **Female users** generated over **$6.8M** in total revenue — more than **2×** male users.
+- They account for **68% of repeat buyers** (3,834 out of 5,682) and **67% of total orders**.
+- Female customers are dominant across all age brackets, with particularly high engagement under 30.
+
+---
+
+### 🎯 Performance by Age Group
+- The **20–29** age segment is our largest by both revenue ($4.9M) and orders (16K), across both genders.
+- The **under-20** group is also very active, contributing $4.7M in revenue — mainly driven by females.
+- Customers **30 and above** are a smaller group (~5% of revenue), but still generate over **1.6K repeat orders**.;;
   }
   block f3: FilterBlock {
     label: 'Date'
@@ -1355,22 +1327,6 @@ Uncover trends by comparing current performance against a previous period.
       value: []
     }
   }
-  block t35: TextBlock {
-    content: @md ### 📦 Order Volume vs. Value
-- While **Asia** contributes the most orders by volume, Western markets like the US, Australia, and Germany outperform in **order value per customer**.
-- This indicates that while demand is global, **spending power is concentrated in a few strategic markets**.
-
-### 💵 Top Revenue Regions
-- **United States** leads in total GMV at **$1.34M**, followed closely by:
-  - **Australia**: $1.24M
-  - **Germany**: $1.24M
-- These three countries alone contribute over **36%** of total GMV across the top 10 markets.
-
-### 🌐 Regional Performance Takeaways
-- **North America** and **Europe** offer the highest-value customers.
-- **Asia-Pacific** shows strong engagement and scale, ideal for volume-based growth.
-- These patterns validate our positioning in established ecommerce markets, while highlighting opportunities to increase monetization in high-volume regions like Asia.;;
-  }
   block t_3qfv: TextBlock {
     content: @md
   <style>
@@ -1552,138 +1508,178 @@ Uncover trends by comparing current performance against a previous period.
       value: []
     }
   }
+  block t_mb10: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%"></div>;;
+  }
+  block t_n4jy: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%; color: white; font-weight: medium; text-align: center; padding-top: 20px">
+Merchant ->
+</div>;;
+  }
+  block t_llzw: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%; color: white; font-weight: medium; text-align: center; padding-top: 20px">
+Merchant ->
+</div>;;
+  }
+  block t_2eiu: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%; color: white; font-weight: medium; text-align: center; padding-top: 20px">
+Merchant ->
+</div>;;
+  }
+  block t_c3zg: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%; color: white; font-weight: medium; text-align: center; padding-top: 20px">
+Merchant ->
+</div>;;
+  }
+  block t_44sd: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%; color: white; font-weight: medium; text-align: center; padding-top: 20px">
+Merchant ->
+</div>;;
+  }
+  block t_4yiq: TextBlock {
+    content: @md ## Company Key Metrics;;
+  }
+  block t_xcly: TextBlock {
+    content: @md <div style="background: linear-gradient(to right, #041C30 0%, #104C8D 100%); height: 100%; width: 100%"></div>;;
+  }
+  block t_hfn9: TextBlock {
+    content: @md ![Holistics Logo](https://cdn.holistics.io/logos/holistics-logo-white.png);;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: 'Overview'
-      width: 1280
-      height: 3160
+      width: 1220
       grid_size: 20
       block t5 {
-        position: pos(20, 20, 280, 140)
+        position: pos(20, 40, 200, 80)
         layer: 1
       }
-      block t6 {
-        position: pos(20, 180, 280, 160)
-        layer: 9
-      }
-      block t7 {
-        position: pos(320, 20, 920, 320)
-        layer: 10
-      }
-      block t9 {
-        position: pos(20, 1580, 740, 160)
-        layer: 15
-      }
-      block t11 {
-        position: pos(20, 360, 1220, 260)
-        layer: 18
-      }
-      block t12 {
-        position: pos(20, 780, 1240, 320)
-        layer: 19
-      }
       block v20 {
-        position: pos(1020, 640, 220, 120)
+        position: pos(980, 160, 220, 160)
         layer: 1
       }
       block v21 {
-        position: pos(500, 640, 220, 120)
+        position: pos(500, 160, 220, 160)
         layer: 1
       }
       block v22 {
-        position: pos(20, 640, 200, 120)
+        position: pos(20, 160, 220, 160)
         layer: 2
       }
       block v25 {
-        position: pos(740, 640, 260, 120)
+        position: pos(740, 160, 220, 160)
         layer: 1
       }
-      block v27 {
-        position: pos(20, 2660, 1220, 480)
-        layer: 6
-      }
       block v28 {
-        position: pos(240, 640, 240, 120)
+        position: pos(260, 160, 220, 160)
         layer: 7
       }
       block v29 {
-        position: pos(20, 1120, 1220, 440)
+        position: pos(20, 440, 1220, 440)
         layer: 8
       }
       block v30 {
-        position: pos(800, 1760, 460, 480)
+        position: pos(800, 900, 460, 480)
         layer: 12
       }
       block v31 {
-        position: pos(20, 1760, 760, 480)
+        position: pos(20, 900, 740, 480)
         layer: 13
       }
-      block t35 {
-        position: pos(20, 2260, 1220, 380)
-        layer: 22
+      block v27 {
+        position: pos(20, 1640, 1220, 480)
+        layer: 6
+      }
+      block t_mb10 {
+        position: pos(0, 0, 1220, 140)
+      }
+      block t_n4jy {
+        position: pos(260, 280, 220, 60)
+        layer: 14
+      }
+      block t_llzw {
+        position: pos(500, 280, 220, 60)
+        layer: 1
+      }
+      block t_2eiu {
+        position: pos(740, 280, 220, 60)
+        layer: 1
+      }
+      block t_c3zg {
+        position: pos(980, 280, 220, 60)
+        layer: 1
+      }
+      block t_44sd {
+        position: pos(20, 280, 220, 60)
+        layer: 3
+      }
+      block t_4yiq {
+        position: pos(20, 380, 300, 60)
+        layer: 15
       }
       mobile {
         mode: 'auto'
       }
+      height: 1400
     }
     tab tab1: CanvasLayout {
       label: 'Users'
-      width: 1480
-      height: 1900
+      width: 1220
+      height: 1780
       grid_size: 20
       block f1 {
-        position: pos(620, 880, 300, 80)
+        position: pos(620, 860, 300, 80)
         layer: 4
       }
       block f2 {
-        position: pos(940, 880, 300, 80)
+        position: pos(940, 860, 300, 80)
         layer: 9
       }
-      block t5 {
-        position: pos(40, 20, 280, 140)
-        layer: 1
-      }
-      block t6 {
-        position: pos(340, 20, 280, 140)
-        layer: 2
-      }
       block t15 {
-        position: pos(0, 800, 1420, 60)
+        position: pos(0, 680, 1420, 60)
         layer: 8
       }
       block t23 {
-        position: pos(40, 180, 580, 580)
+        position: pos(880, 80, 300, 580)
         layer: 1
       }
       block t24 {
-        position: pos(860, 1300, 560, 580)
+        position: pos(860, 1440, 560, 580)
         layer: 10
       }
       block t26 {
-        position: pos(20, 880, 580, 400)
+        position: pos(20, 860, 580, 400)
         layer: 11
       }
       block v34 {
-        position: pos(20, 1300, 820, 580)
+        position: pos(20, 1440, 820, 580)
         layer: 1
       }
       block v37 {
-        position: pos(620, 980, 800, 300)
+        position: pos(620, 960, 800, 300)
         layer: 3
       }
       block v43 {
-        position: pos(640, 180, 840, 580)
+        position: pos(20, 80, 840, 580)
         layer: 1
       }
       block f_gsfn {
-        position: pos(640, 20, 300, 80)
+        position: pos(920, 760, 300, 80)
         layer: 12
+      }
+      block t_xcly {
+        position: pos(0, 0, 1220, 60)
+        layer: 1
+      }
+      block t_hfn9 {
+        position: pos(20, 20, 100, 40)
+        layer: 2
       }
     }
     tab tab4: CanvasLayout {
       label: 'Products'
-      width: 1180
+      width: 1220
       height: 2240
       grid_size: 20
       block f9 {
@@ -1732,7 +1728,7 @@ Uncover trends by comparing current performance against a previous period.
     }
     tab tab6: CanvasLayout {
       label: 'Finance'
-      width: 1320
+      width: 1220
       height: 1880
       grid_size: 20
       block f3 {
@@ -1888,24 +1884,6 @@ Uncover trends by comparing current performance against a previous period.
       ]
     },
     FilterInteraction {
-      from: 'v27'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v28'
       to: [
         CustomMapping {
@@ -1978,163 +1956,6 @@ Uncover trends by comparing current performance against a previous period.
       ]
     },
     FilterInteraction {
-      from: 'v34'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v37'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f2'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'f10',
-            'f11',
-            'f12',
-            'f_gsfn'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v43'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f4'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'f10',
-            'f11',
-            'f12',
-            'f_gsfn'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v44'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v52',
-            'v53',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v52a'
       to: [
         CustomMapping {
@@ -2159,220 +1980,12 @@ Uncover trends by comparing current performance against a previous period.
       ]
     },
     FilterInteraction {
-      from: 'v52'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v57',
-            'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v53'
       to: [
         CustomMapping {
           block: [
             'v57',
             'v58'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v57'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v58'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f10'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v58',
-            'f2',
-            'f4',
-            'f11',
-            'f12',
-            'f_gsfn'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f11'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'f2',
-            'f4',
-            'f10',
-            'f12',
-            'f_gsfn'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f12'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'f2',
-            'f4',
-            'f10',
-            'f11',
-            'f_gsfn'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f_gsfn'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v27',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'f2',
-            'f4',
-            'f10',
-            'f11',
-            'f12'
           ]
           disabled: true
         }
@@ -2414,4 +2027,5 @@ Uncover trends by comparing current performance against a previous period.
       ]
     }
   ]
+  theme: H.themes.vanilla
 }
