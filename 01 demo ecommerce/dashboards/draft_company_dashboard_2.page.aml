@@ -36,7 +36,7 @@ Dashboard draft_company_dashboard2 {
         data_type: 'number'
       }
       filter {
-        field: ref('ecommerce_users', 'email_pii')
+        field: r(ecommerce_users.email_pii)
         operator: 'top'
         value: 10
         options {
@@ -56,7 +56,7 @@ Dashboard draft_company_dashboard2 {
       }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'full_name')
+          ref: r(ecommerce_users.full_name)
           format {
             type: 'text'
           }
@@ -64,14 +64,14 @@ Dashboard draft_company_dashboard2 {
             type: 'GoToUrl'
             label: 'Email Customer'
             url: ActionFieldInput {
-              ref: ref('ecommerce_users', 'email_user')
+              ref: r(ecommerce_users.email_user)
               aggregation: 'min'
             }
           }
           uname: 'ecommerce_users_full_name'
         },
         VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
+          ref: r(ecommerce_countries.name)
           format {
             type: 'text'
           }
@@ -79,15 +79,16 @@ Dashboard draft_company_dashboard2 {
         },
         VizFieldFull {
           label: 'NMV'
-          ref: 'nmv'
+          ref: r(demo_ecommerce_version_2.nmv)
           format {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_nmv'
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: 'total_delivered_orders'
+          ref: r(demo_ecommerce_version_2.total_delivered_orders)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -95,7 +96,7 @@ Dashboard draft_company_dashboard2 {
           uname: 'custom_total_delivered_orders'
         },
         VizFieldFull {
-          ref: ref('ecommerce_orders', 'days_since_last_order')
+          ref: r(ecommerce_orders.days_since_last_order)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -112,7 +113,8 @@ Dashboard draft_company_dashboard2 {
         }
       ]
       settings {
-        row_height: 'multiple_lines'
+        wrap_header_text: true
+        wrap_cell_text: true
         show_row_number: true
         sorts: [
           SortSetting {
@@ -158,6 +160,10 @@ Dashboard draft_company_dashboard2 {
           ColumnStyle {
             key: 'custom_average_nmv'
             width: 102
+          },
+          ColumnStyle {
+            key: 'custom_nmv'
+            width: 160
           }
         ]
       }
@@ -165,8 +171,14 @@ Dashboard draft_company_dashboard2 {
   }
   block v37: VizBlock {
     label: 'Users Sign Up Over Time'
-    viz: LineChart {
+    viz: CombinationChart {
       dataset: demo_ecommerce_version_2
+      calculation cumulative_total_users {
+        label: 'Cumulative of total users'
+        formula: @aql total_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       x_axis: VizFieldFull {
         ref: r(ecommerce_users.sign_up_at)
         transformation: 'datetrunc month'
@@ -177,10 +189,12 @@ Dashboard draft_company_dashboard2 {
       }
       y_axis {
         settings {
+          axis_min: 0
           show_data_label_by: 'value'
           hidden: true
         }
         series {
+          mark_type: 'column'
           field: VizFieldFull {
             ref: r(demo_ecommerce_version_2.total_users)
             format {
@@ -214,9 +228,6 @@ Dashboard draft_company_dashboard2 {
       operator: 'matches'
       value: '18 months ago till now'
     }
-  }
-  block t15: TextBlock {
-    content: @md <hr>;;
   }
   block f2: FilterBlock {
     label: 'Country Name'
@@ -735,17 +746,14 @@ Use the **[Drill Down]** or **[View Underlying Data]** features to explore break
     label: 'Any Metrics by Product Category'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       x_axis: VizFieldFull {
-        ref: ref('map_categories', 'parent_category')
+        ref: r(map_categories.parent_category)
         format {
           type: 'text'
         }
       }
       legend: VizFieldFull {
-        ref: ref('map_categories', 'category')
+        ref: r(map_categories.category)
         format {
           type: 'text'
         }
@@ -757,10 +765,90 @@ Use the **[Drill Down]** or **[View Underlying Data]** features to explore break
         }
         series {
           field: VizFieldFull {
-            ref: 'dynamic_metric_currency'
+            ref: r(demo_ecommerce_version_2.dynamic_metric_currency)
             format {
               type: 'number'
               pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+            color_palette: 36356
+            point {
+              value: 'Audio Gadgets'
+              color: '#05264C'
+            }
+            point {
+              value: 'Baking and Cooking'
+              color: '#003A61'
+            }
+            point {
+              value: 'Bathroom'
+              color: '#004E71'
+            }
+            point {
+              value: 'Bedroom'
+              color: '#00627A'
+            }
+            point {
+              value: 'Body'
+              color: '#00767B'
+            }
+            point {
+              value: 'Candy'
+              color: '#008976'
+            }
+            point {
+              value: 'Face'
+              color: '#259B6C'
+            }
+            point {
+              value: 'Gaming'
+              color: '#05264C'
+            }
+            point {
+              value: 'Jeans'
+              color: '#003A61'
+            }
+            point {
+              value: 'Kitchen and Dininng'
+              color: '#004E71'
+            }
+            point {
+              value: 'Living Room'
+              color: '#00627A'
+            }
+            point {
+              value: 'Mobiles'
+              color: '#00767B'
+            }
+            point {
+              value: 'Outdoor'
+              color: '#008976'
+            }
+            point {
+              value: 'Shoes'
+              color: '#259B6C'
+            }
+            point {
+              value: 'Smartwatches'
+              color: '#05264C'
+            }
+            point {
+              value: 'Snacks'
+              color: '#003A61'
+            }
+            point {
+              value: 'T-shirts'
+              color: '#004E71'
+            }
+            point {
+              value: 'Tablets'
+              color: '#00627A'
+            }
+            point {
+              value: 'Televisions'
+              color: '#00767B'
             }
           }
         }
@@ -868,13 +956,6 @@ Whether you're in the main chart or within a drilled-down view:
       operator: 'is'
       value: []
     }
-  }
-  block t27: TextBlock {
-    content: @md # 📦 Product Overview
-
-This dashboard provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.
-
-Every widget here is **fully dynamic and filter-aware**, powered by Holistics’s semantic layer and Analytics-as-Code engine—allowing the BI team to define once and reuse everywhere.;;
   }
   block t28: TextBlock {
     content: @md ## 🔁 Unified Metric Selector: Focused Exploration, One Metric at a Time
@@ -1583,11 +1664,6 @@ Uncover trends by comparing current performance against a previous period.
       padding: 12
     }
   }
-  block t_e8c4: TextBlock {
-    content: @md <h1 style="font-size:32px; color:#FFF; margin: 0;">
-Business Profile Snapshot
-</h1>;;
-  }
   block t_f4ns: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #05264C, #0B4963, #1663B6); border-radius: 8px"></div>;;
   }
@@ -1630,15 +1706,6 @@ Business Profile Snapshot
       }
     }
   }
-  block t_gemp: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_e6xg: TextBlock {
-    content: @md <div style="font-size:16px; color:#fff; line-height:1.4;">
-This page provides you a quick understanding of the current shape and scope of the business.
-<br />
-If you have any questions, please don't hesitate to <a href="mailto:hi@holistics.io" style="text-decoration: underline; color: white ">contact us here</a>.</div>;;
-  }
   block t_b54j: TextBlock {
     content: @md Color codes
 https://www.learnui.design/tools/data-color-picker.html#palette
@@ -1656,62 +1723,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     content: @md Contact: thong.do;;
   }
   block t_jgba: separator()
-  block t_5eun: TextBlock {
-    content: @md <style>
-    .annotation-minimal {
-        position: relative;
-        padding-left: 20px;
-height: 100%
-    }
-
-    .annotation-minimal::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: linear-gradient(180deg, #05264c, #00627a);
-        border-radius: 2px;
-    }
-
-    .annotation-minimal .annotation-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #259b6c;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .annotation-minimal .content {
-        font-size: 15px;
-        line-height: 1.6;
-        color: #374151;
-    }
-
-    .annotation-minimal .highlight {
-        font-weight: 600;
-        color: #05264c;
-    }
-
-    .annotation-minimal .meta {
-        margin-top: 10px;
-        font-size: 12px;
-        color: #9ca3af;
-    }
-</style>
-
-<div class="annotation-minimal">
-    <div class="annotation-label">Key Insight</div>
-    <div class="content">
-        Our sales performance is anchored in developed Western markets, with the 
-        <span class="highlight">United States, Australia, and Germany</span> 
-        emerging as our top revenue contributors.
-    </div>
-    <div class="meta">Last updated: 20 May 2025 • Peter Parker</div>
-</div>;;
-  }
   block t_4kdz: TextBlock {
     content: @md <!-- Timeline Style -->
 <style>
@@ -1994,37 +2005,6 @@ height: 100%;
   block t_v88y: TextBlock {
     content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#05264c" d="M5.574 4.691c-.833.692-1.052 1.862-1.491 4.203l-.75 4c-.617 3.292-.926 4.938-.026 6.022S5.88 20 9.23 20h5.54c3.35 0 5.025 0 5.924-1.084c.9-1.084.591-2.73-.026-6.022l-.75-4c-.439-2.34-.658-3.511-1.491-4.203C17.593 4 16.403 4 14.02 4H9.98c-2.382 0-3.572 0-4.406.691" opacity="0.25"/><path fill="#05264c" d="M12 9.25a2.25 2.25 0 0 1-2.122-1.5a.75.75 0 1 0-1.414.5a3.751 3.751 0 0 0 7.073 0a.75.75 0 1 0-1.414-.5A2.25 2.25 0 0 1 12 9.25"/></svg>;;
   }
-  block t_u3s0: TextBlock {
-    content: @md <!-- Modern Minimal Header Style -->
-<style>
-    .header-minimal {
-        font-size: 28px;
-        color: #1f2937;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .header-minimal::before {
-        content: '';
-        width: 6px;
-        height: 28px;
-        background: linear-gradient(180deg, #05264c, #00627a);
-        border-radius: 2px;
-    }
-
-    .header-minimal .main-text {
-        font-weight: 600;
-        color: #05264c;
-    }
-
-</style>
-
-<!-- HTML Structure -->
-<div class="header-minimal">
-    <span class="main-text">All Metrics To Date</span>
-</div>;;
-  }
   block t_kiii: TextBlock {
     content: @md <!-- Gradient Underline Header Style -->
 <style>
@@ -2130,19 +2110,8 @@ height: 100%;
     All Metrics To Date
 </div>;;
   }
-  block t_i7t2: TextBlock {
-    content: @md <div class="header-minimal">
-    <span class="main-text">Regional Sales Distribution Insight
-</span>
-</div>;;
-  }
   block t_bzn7: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #05264C, #0B4963, #1663B6); border-radius: 8px"></div>;;
-  }
-  block t_kiea: TextBlock {
-    content: @md <h1 style="font-size:32px; color:#FFF; margin: 0;">
-Users
-</h1>;;
   }
   block t_wpcr: TextBlock {
     content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
@@ -2153,19 +2122,7 @@ Users
   block t_9x1p: TextBlock {
     content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
   }
-  block t_11ul: TextBlock {
-    content: @md <h1 style="font-size:32px; color:#FFF; margin: 0;">
-Products
-</h1>
-
-<div style="color: white">
-This dashboard provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.
-</div>;;
-  }
   block t_43ze: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_gg0m: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
   }
   block v_mb64: VizBlock {
@@ -2214,23 +2171,437 @@ This dashboard provides a unified view of key product metrics and customer behav
   block t_ib83: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
   }
+  block t_f8rx: block_ha_heading(
+    'All Metrics To Date'
+  )
+  block t_vuka: block_ha_heading(
+    'Regional Sales Distribution Insight'
+  )
+  block t_718y: block_ha_page_header(
+    'Product',
+    'This dashboard provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.'
+  )
+  block t_kde2: block_ha_page_header(
+    'Users',
+    ' '
+  )
+  block t_dv39: block_ha_page_header(
+    'Business Profile Snapshot',
+    '''This page provides you a quick understanding of the current shape and scope of the business. <br /> If you have any questions, please don't hesitate to <a href="mailto:hi@holistics.io" style="text-decoration: underline; color: white ">contact us here</a>.'''
+  )
+  block t_elu8: block_ha_card()
+  block t_o55c: block_ha_card()
+  block t_m86d: block_annotation_key_insight(
+    'Key Insight',
+    'Our sales performance is anchored in developed Western markets, with the <span class="highlight">United States, Australia, and Germany</span> emerging as our top revenue contributors.',
+    'Last updated: 20 May 2025 • Peter Parker'
+  )
+  block t_dxad: separator()
+  block t_q2u8: TextBlock {
+    content: @md <!-- Floating Pulse Info Button -->
+<style>
+    .info-btn-pulse {
+        position: relative;
+        display: inline-block;
+    }
+
+    .info-btn-pulse .pulse-button {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #05264c, #00627a);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .info-btn-pulse .pulse-button::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 98, 122, 0.3);
+        animation: pulseRing 2s infinite;
+    }
+
+    @keyframes pulseRing {
+        0%, 100% { 
+            transform: scale(1); 
+            opacity: 1; 
+        }
+        50% { 
+            transform: scale(1.1); 
+            opacity: 0.5; 
+        }
+    }
+
+    .info-btn-pulse .pulse-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(5, 38, 76, 0.3);
+    }
+
+    .info-btn-pulse .pulse-tooltip {
+        position: absolute;
+        bottom: calc(100% + 15px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 12px 48px rgba(5, 38, 76, 0.18);
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .info-btn-pulse .pulse-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid white;
+    }
+
+    .info-btn-pulse:hover .pulse-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 20px);
+    }
+
+    .info-btn-pulse .pulse-tooltip-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #05264c;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-btn-pulse .pulse-tooltip-content {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #374151;
+    }
+
+    .info-btn-pulse .pulse-tooltip-highlight {
+        color: #00627a;
+        font-weight: 600;
+        background: rgba(0, 98, 122, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .info-btn-pulse .pulse-tooltip-footer {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-pulse">
+    <button class="pulse-button">i</button>
+    <div class="pulse-tooltip">
+        <div class="pulse-tooltip-title">
+            💡 Quick Insight
+        </div>
+        <div class="pulse-tooltip-content">
+            Click on any metric to see detailed breakdown. 
+            Use <span class="pulse-tooltip-highlight">Cmd+Click</span> to compare multiple metrics.
+        </div>
+        <div class="pulse-tooltip-footer">
+            Pro tip • Last updated: Oct 2025
+        </div>
+    </div>
+</div>;;
+  }
+  block t_ya85: TextBlock {
+    content: @md <!-- Minimal Text Info Button -->
+<style>
+    .info-btn-text {
+        position: relative;
+        display: inline-block;
+    }
+
+    .info-btn-text .text-button {
+        background: none;
+        border: none;
+        color: #00627a;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: rgba(0, 98, 122, 0.4);
+        text-underline-offset: 3px;
+    }
+
+    .info-btn-text .text-button:hover {
+        background: rgba(0, 98, 122, 0.08);
+        text-decoration-style: solid;
+        text-decoration-color: #00627a;
+        transform: translateY(-1px);
+    }
+
+    .info-btn-text .text-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 240px;
+        max-width: 320px;
+        background: #05264c;
+        color: white;
+        border-radius: 8px;
+        padding: 14px 16px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        font-size: 13px;
+        line-height: 1.6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        box-shadow: 0 8px 24px rgba(5, 38, 76, 0.25);
+        z-index: 1000;
+    }
+
+    .info-btn-text .text-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #05264c;
+    }
+
+    .info-btn-text:hover .text-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 12px);
+    }
+
+    .info-btn-text .text-tooltip-highlight {
+        color: #4ade80;
+        font-weight: 600;
+    }
+
+    /* Alternative positioning for text button */
+    .info-btn-text.right-position .text-tooltip {
+        bottom: auto;
+        top: 50%;
+        left: calc(100% + 10px);
+        transform: translateY(-50%);
+    }
+
+    .info-btn-text.right-position .text-tooltip::after {
+        top: 50%;
+        left: -6px;
+        transform: translateY(-50%);
+        border: none;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-right: 6px solid #05264c;
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-text">
+    <button class="text-button">What's this?</button>
+    <div class="text-tooltip">
+        This metric represents the <span class="text-tooltip-highlight">lifetime value</span> 
+        of all transactions processed through our platform since inception.
+    </div>
+</div>;;
+  }
+  block t_s4g2: TextBlock {
+    content: @md <!-- Classic Circle Info Button -->
+<style>
+    .info-btn-circle {
+        position: relative;
+        display: inline-block;
+    }
+
+    .info-btn-circle .circle-button {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #05264c, #00627a);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .info-btn-circle .circle-button:hover {
+        transform: scale(1.15);
+        box-shadow: 0 3px 12px rgba(5, 38, 76, 0.3);
+    }
+
+    .info-btn-circle .circle-button:active {
+        transform: scale(1.05);
+    }
+
+    .info-btn-circle .circle-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 280px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 40px rgba(5, 38, 76, 0.15);
+        padding: 16px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .info-btn-circle .circle-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid white;
+    }
+
+    .info-btn-circle:hover .circle-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 15px);
+    }
+
+    .info-btn-circle .circle-tooltip-header {
+        font-size: 14px;
+        font-weight: 600;
+        color: #05264c;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .info-btn-circle .circle-tooltip-content {
+        font-size: 13px;
+        line-height: 1.6;
+        color: #374151;
+    }
+
+    .info-btn-circle .circle-tooltip-highlight {
+        color: #00627a;
+        font-weight: 600;
+    }
+
+    .info-btn-circle .circle-tooltip-meta {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-btn-circle .circle-tooltip-badge {
+        background: linear-gradient(135deg, #05264c, #00627a);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* Alternative positions */
+    .info-btn-circle.top-right .circle-tooltip {
+        left: auto;
+        right: -10px;
+        transform: translateX(0);
+    }
+
+    .info-btn-circle.top-left .circle-tooltip {
+        left: -10px;
+        transform: translateX(0);
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-circle">
+    <button class="circle-button">i</button>
+    <div class="circle-tooltip">
+        <div class="circle-tooltip-header">
+            📊 Metrics Overview
+        </div>
+        <div class="circle-tooltip-content">
+            Our sales performance is anchored in developed Western markets, with 
+            <span class="circle-tooltip-highlight">United States, Australia, and Germany</span> 
+            emerging as our top revenue contributors.
+        </div>
+        <div class="circle-tooltip-meta">
+            <span>Last updated: Oct 2025</span>
+            <span class="circle-tooltip-badge">Live</span>
+        </div>
+    </div>
+</div>;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
       label: 'Overview'
       width: 1260
-      height: 1920
+      height: 2270
       auto_expand_vertically: true
       block t_ra2i {
         position: pos(40, 30, 140, 40)
         layer: 1
       }
       block v_5ty3 {
-        position: pos(60, 380, 200, 120)
+        position: pos(60, 380, 190, 120)
         layer: 2
       }
       block v_hkuz {
-        position: pos(290, 380, 210, 120)
+        position: pos(290, 380, 190, 120)
         layer: 3
       }
       block v_co2u {
@@ -2257,10 +2628,6 @@ This dashboard provides a unified view of key product metrics and customer behav
         position: pos(460, 1110, 410, 330)
         layer: 10
       }
-      block t_e8c4 {
-        position: pos(40, 80, 440, 40)
-        layer: 12
-      }
       block t_f4ns {
         position: pos(-20, 0, 1300, 220)
       }
@@ -2268,21 +2635,9 @@ This dashboard provides a unified view of key product metrics and customer behav
         position: pos(40, 1460, 1180, 420)
         layer: 20
       }
-      block t_gemp {
-        position: pos(40, 320, 1180, 690)
-        layer: 1
-      }
-      block t_e6xg {
-        position: pos(40, 130, 1200, 100)
-        layer: 1
-      }
       block t_jgba {
         position: pos(40, 490, 1180, 20)
         layer: 21
-      }
-      block t_5eun {
-        position: pos(890, 1140, 330, 170)
-        layer: 23
       }
       block t_n5sp {
         position: pos(260, 320, 20, 180)
@@ -2320,13 +2675,24 @@ This dashboard provides a unified view of key product metrics and customer behav
         position: pos(520, 350, 40, 40)
         layer: 5
       }
-      block t_u3s0 {
-        position: pos(40, 270, 390, 50)
-        layer: 25
+      block t_f8rx {
+        position: pos(40, 270, 350, 50)
+        layer: 27
       }
-      block t_i7t2 {
-        position: pos(40, 1060, 760, 40)
-        layer: 1
+      block t_vuka {
+        position: pos(40, 1060, 890, 50)
+        layer: 27
+      }
+      block t_dv39 {
+        position: pos(40, 80, 750, 100)
+        layer: 28
+      }
+      block t_o55c {
+        position: pos(40, 320, 1180, 690)
+      }
+      block t_m86d {
+        position: pos(890, 1140, 330, 170)
+        layer: 29
       }
       mobile {
         mode: 'auto'
@@ -2338,23 +2704,19 @@ This dashboard provides a unified view of key product metrics and customer behav
       width: 1260
       height: 1900
       block f1 {
-        position: pos(60, 680, 300, 80)
+        position: pos(40, 660, 470, 80)
         layer: 4
       }
       block f2 {
-        position: pos(380, 680, 300, 80)
+        position: pos(40, 740, 470, 80)
         layer: 9
-      }
-      block t15 {
-        position: pos(0, 1200, 1260, 60)
-        layer: 8
       }
       block t23 {
         position: pos(1310, 370, 580, 580)
         layer: 1
       }
       block t24 {
-        position: pos(1340, 1330, 420, 580)
+        position: pos(1340, 1290, 420, 580)
         layer: 10
       }
       block t26 {
@@ -2362,23 +2724,19 @@ This dashboard provides a unified view of key product metrics and customer behav
         layer: 11
       }
       block v34 {
-        position: pos(40, 1380, 1190, 580)
+        position: pos(50, 1070, 840, 580)
         layer: 1
       }
       block v37 {
-        position: pos(70, 290, 490, 310)
+        position: pos(70, 290, 420, 310)
         layer: 2
       }
       block v43 {
-        position: pos(60, 760, 1130, 580)
+        position: pos(550, 290, 660, 650)
         layer: 1
       }
       block t_bzn7 {
         position: pos(-20, 0, 1300, 220)
-        layer: 1
-      }
-      block t_kiea {
-        position: pos(40, 80, 440, 40)
         layer: 1
       }
       block t_wpcr {
@@ -2386,11 +2744,7 @@ This dashboard provides a unified view of key product metrics and customer behav
         layer: 2
       }
       block t_43ze {
-        position: pos(40, 660, 1180, 690)
-      }
-      block t_gg0m {
-        position: pos(40, 260, 550, 370)
-        layer: 1
+        position: pos(530, 270, 700, 690)
       }
       block v_mb64 {
         position: pos(70, 330, 210, 120)
@@ -2399,6 +2753,14 @@ This dashboard provides a unified view of key product metrics and customer behav
       block t_l38m {
         position: pos(70, 290, 40, 40)
         layer: 2
+      }
+      block t_kde2 {
+        position: pos(40, 80, 1160, 100)
+        layer: 12
+      }
+      block t_elu8 {
+        position: pos(40, 270, 470, 370)
+        layer: 1
       }
       default_zoom: 0.9
     }
@@ -2418,12 +2780,8 @@ This dashboard provides a unified view of key product metrics and customer behav
         position: pos(1630, 1170, 300, 100)
         layer: 9
       }
-      block t27 {
-        position: pos(1320, 60, 620, 220)
-        layer: 10
-      }
       block t28 {
-        position: pos(1290, 290, 580, 200)
+        position: pos(1290, 290, 580, 300)
         layer: 11
       }
       block t29 {
@@ -2435,7 +2793,7 @@ This dashboard provides a unified view of key product metrics and customer behav
         layer: 13
       }
       block v57 {
-        position: pos(70, 390, 630, 360)
+        position: pos(70, 450, 1120, 360)
         layer: 3
       }
       block v58 {
@@ -2454,13 +2812,17 @@ This dashboard provides a unified view of key product metrics and customer behav
         position: pos(40, 30, 140, 40)
         layer: 1
       }
-      block t_11ul {
-        position: pos(40, 80, 750, 100)
-        layer: 2
-      }
       block t_ib83 {
         position: pos(40, 260, 1180, 690)
         layer: 1
+      }
+      block t_718y {
+        position: pos(40, 80, 610, 100)
+        layer: 16
+      }
+      block t_dxad {
+        position: pos(40, 380, 1180, 30)
+        layer: 17
       }
       mobile {
         mode: 'auto'
@@ -2549,7 +2911,6 @@ This dashboard provides a unified view of key product metrics and customer behav
     tab tab_y7ej: CanvasLayout {
       label: 'Readme'
       width: 1300
-      height: 1160
       grid_size: 20
       auto_expand_vertically: true
       mobile {
@@ -2568,7 +2929,7 @@ This dashboard provides a unified view of key product metrics and customer behav
         layer: 1
       }
       block t_s27m {
-        position: pos(800, 220, 360, 300)
+        position: pos(800, 0, 360, 300)
         layer: 1
       }
       block t_p8y5 {
@@ -2620,12 +2981,24 @@ This dashboard provides a unified view of key product metrics and customer behav
         layer: 2
       }
       block t_kiii {
-        position: pos(820, 660, 220, 80)
+        position: pos(880, 480, 220, 80)
         layer: 7
       }
       block t_md9k {
-        position: pos(820, 720, 340, 200)
+        position: pos(880, 520, 340, 200)
         layer: 8
+      }
+      block t_q2u8 {
+        position: pos(180, 700, 60, 120)
+        layer: 9
+      }
+      block t_ya85 {
+        position: pos(360, 820, 160, 120)
+        layer: 1
+      }
+      block t_s4g2 {
+        position: pos(660, 760, 60, 120)
+        layer: 1
       }
     }
   }
