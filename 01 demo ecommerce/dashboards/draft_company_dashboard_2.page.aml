@@ -25,480 +25,6 @@ Dashboard draft_company_dashboard2 {
   title: '[Draft] Ecommerce Dashboard (2025-09) - Thong'
   owner: 'thong.do@holistics.io'
   description: ''''''
-
-  block t5: TextBlock {
-    content: @md <picture>
-    <source media="(min-width:650px)" srcset="https://cdn.holistics.io/logos/holistics-logo-white.svg">
-    <img src="holisticswhitelabeldemo.jpg" alt="demo" width="355"
-    " height="35">
-  </picture>;;
-  }
-  block v20: VizBlock {
-    label: 'Products Listed'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'Products Listed'
-        ref: r(ecommerce_products.total_products)
-        format {
-          type: 'number'
-          pattern: '#,###'
-          group_separator: ','
-          decimal_separator: '.'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_users.sign_up_date)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'quarter'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        label {
-          font_size: 18
-          font_color: '#05264c'
-        }
-        alignment: 'center'
-        metric_value {
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_kpi_blue_dark_2
-  }
-  block v21: VizBlock {
-    label: 'Total Users'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'Total Users'
-        ref: r(demo_ecommerce_version_2.total_users)
-        format {
-          type: 'number'
-          pattern: '#,###'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_users.sign_up_date)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'quarter'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        label {
-          font_size: 18
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#05264C'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_kpi_blue_dark_2
-  }
-  block v22: VizBlock {
-    label: 'All-Time Orders'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'All-Time Orders'
-        ref: r(ecommerce_orders.total_orders_count)
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_orders.created_at)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'quarter'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        label {
-          font_size: 18
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#05264C'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_kpi_blue_dark_2
-  }
-  block v25: VizBlock {
-    label: 'Merchants Onboarded'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'Merchants Onboarded'
-        ref: r(ecommerce_merchants.created_at)
-        aggregation: 'count'
-        format {
-          type: 'number'
-          pattern: '#,###'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_users.sign_up_date)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'quarter'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        label {
-          font_size: 18
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#05264C'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_kpi_blue_dark_2
-  }
-  block v28: VizBlock {
-    label: 'AOV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'Average Order Value'
-        ref: r(demo_ecommerce_version_2.aov)
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        display_mode: 'single'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        label {
-          font_size: 18
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#05264C'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_kpi_blue_dark_2
-  }
-  block v29: VizBlock {
-    label: ' KPI Overview'
-    viz: MetricSheet {
-      dataset: demo_ecommerce_version_2
-      theme {
-        table {
-          general {
-            borders {
-              outer: true
-              horizontal: true
-              vertical: true
-              header: true
-            }
-          }
-        }
-      }
-      date_field: VizFieldFull {
-        ref: r(dim_dates.date_key)
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
-      rows: [
-        MetricHeading {
-          label: '🎯 Orders'
-          settings {
-            background_color: '#F5F8FA'
-            text_color: '#05264CFF'
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.total_orders)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.total_cancelled_orders)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.total_refunded_orders)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.total_delivered_orders)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricHeading {
-          label: '💰 Transaction Value'
-          settings {
-            background_color: '#F5F8FA'
-            text_color: '#05264C'
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.nmv)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.gmv)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        },
-        MetricSeries {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.aov)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-      ]
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block t6: TextBlock {
-    content: @md <div style="position: relative; width: 100%; height: 80px; text-align:center;">
-  <iframe 
-    src="https://www.zeitverschiebung.net/clock-widget-iframe-v2?language=en&size=medium&timezone=America%2FLos_Angeles" 
-    width="100%" 
-    height="120" 
-    frameborder="0" 
-    seamless>
-  </iframe>
-  <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;"></div>
-</div>;;
-  }
-  block t7: TextBlock {
-    content: @md <div style="font-size:17px; color:#05264C; line-height:1.4;">
-This dashboard provides you a quick understanding of the current shape and scope of the business, before you dive into deeper analysis in domain-specific tabs like <span style="color:#05264C; font-weight: bold;">revenue, users, merchants, and products</span>. It serves as the <span style="color:#05264C; font-weight: bold;">homepage</span> of our analytics workspace — offering a clear, high-level snapshot of our ecommerce business across key dimensions.
-</div>;;
-  }
-  block v30: VizBlock {
-    label: 'Total Orders by Continents'
-    viz: PieChart {
-      dataset: demo_ecommerce_version_2
-      legend: VizFieldFull {
-        label: 'Continent'
-        ref: r(ecommerce_countries.continent_name)
-        format {
-          type: 'text'
-        }
-        uname: 'ecommerce_countries_continent_name'
-      }
-      series {
-        field: VizFieldFull {
-          ref: r(demo_ecommerce_version_2.total_orders)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-        settings {
-          point {
-            value: 'Asia'
-            color: '#05264C'
-          }
-          point {
-            value: 'Europe'
-            color: '#1B7CE4'
-          }
-          point {
-            value: 'North America'
-            color: '#8DBEF2'
-          }
-          point {
-            value: 'Oceania'
-            color: '#D1E5FA'
-          }
-        }
-      }
-      settings {
-        display_as_donut: true
-        show_total: true
-        row_limit: 5000
-        legend_label: 'hidden'
-        show_percentage: true
-        data_label_position: 'inside'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    theme: holistics_block_theme
-  }
-  block v31: VizBlock {
-    theme: holistics_block_theme
-    label: 'GMV (Sales) by Country Name'
-    viz: BarChart {
-      dataset: demo_ecommerce_version_2
-      legend: VizFieldFull {
-        ref: r(ecommerce_countries.name)
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_total_in_tooltip: true
-          show_data_label_by: 'value'
-          hidden: true
-        }
-        series {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.gmv)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color_palette: 36189
-            point {
-              value: 'Australia'
-              color: '#196848FF'
-            }
-            point {
-              value: 'France'
-              color: '#259B6C'
-            }
-            point {
-              value: 'Germany'
-              color: '#7AD1AE'
-            }
-            point {
-              value: 'India'
-              color: '#CCEDE0'
-            }
-            point {
-              value: 'Indonesia'
-              color: '#104A89FF'
-            }
-            point {
-              value: 'Korea'
-              color: '#1B7CE4'
-            }
-            point {
-              value: 'Singapore'
-              color: '#8DBEF2'
-            }
-            point {
-              value: 'United Kingdom'
-              color: '#D1E5FA'
-            }
-            point {
-              value: 'United States'
-              color: '#5F1BB4'
-            }
-            point {
-              value: 'Vietnam'
-              color: '#9250E5'
-            }
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block t9: TextBlock {
-    content: @md <div style="font-size:16px; color:#05264C; line-height:1.6; text-align:left;">
-Analysis Last Updated on: <b>20 May 2025 by Peter Parker</b>
-</br>
-</br>
-
-<div style="font-size:18px; color:#05264C; line-height:1.6; text-align:left; border-left: 8px solid #EDF1F5; padding: 4px 4px 4px 12px;">
-Our sales performance is anchored in developed Western markets, with the <b>United States, Australia, and Germany</b> emerging as our top revenue contributors.
-</div>;;
-  }
   block v34: VizBlock {
     label: 'Top 10 Users by Orders'
     viz: DataTable {
@@ -641,39 +167,44 @@ Our sales performance is anchored in developed Western markets, with the <b>Unit
     label: 'Users Sign Up Over Time'
     viz: LineChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_users', 'sign_up_at')
-        transformation: 'datetrunc quarter'
+        ref: r(ecommerce_users.sign_up_at)
+        transformation: 'datetrunc month'
         format {
           type: 'date'
-          pattern: 'yyyy Qq'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
         settings {
           show_data_label_by: 'value'
+          hidden: true
         }
         series {
           field: VizFieldFull {
-            ref: 'total_users'
+            ref: r(demo_ecommerce_version_2.total_users)
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
+          settings {
+            color: '#05264C'
+          }
         }
       }
       settings {
         row_limit: 5000
+        legend_label: 'hidden'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
           debug_comments: true
         }
       }
+    }
+    settings {
+      hide_label: true
     }
   }
   block f1: FilterBlock {
@@ -710,11 +241,21 @@ Our sales performance is anchored in developed Western markets, with the <b>Unit
         data_type: 'number'
       }
       theme {
-
+        table {
+          general {
+            borders {
+              outer: true
+              horizontal: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
       }
       rows: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'age_group')
+          ref: r(ecommerce_users.age_group)
           format {
             type: 'text'
           }
@@ -722,7 +263,7 @@ Our sales performance is anchored in developed Western markets, with the <b>Unit
       ]
       columns: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'gender')
+          ref: r(ecommerce_users.gender)
           format {
             type: 'text'
           }
@@ -730,28 +271,28 @@ Our sales performance is anchored in developed Western markets, with the <b>Unit
       ]
       values: [
         VizFieldFull {
-          ref: 'total_orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'revenue'
+          ref: r(demo_ecommerce_version_2.revenue)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'total_users'
+          ref: r(demo_ecommerce_version_2.total_users)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'total_repeated_buyers'
+          ref: r(demo_ecommerce_version_2.total_repeated_buyers)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -1572,80 +1113,6 @@ Uncover trends by comparing current performance against a previous period.
       </tr>
     </tbody>
   </table> ;;
-  }
-  block t_6cj1: TextBlock {
-    content: @md <div id="heading" style="position: relative; background: linear-gradient(to right, #EDF1F5, transparent); border-left: 14px solid #05264C; padding: 4px 4px 4px 12px; ">
-<h1 style="font-size:32px; color:#05264C; margin: 0;">
-🧭  Business Profile Snapshot</h1>;;
-  }
-  block t_hs5h: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #05264C, #0B4963, #1663B6); border-radius: 8px"></div>;;
-  }
-  block t_chas: TextBlock {
-    content: @md <div id="heading" style="position: relative; background: linear-gradient(to right, #EDF1F5, transparent); border-left: 14px solid #05264C; padding: 4px 4px 4px 12px; ">
-<h1 style="font-size:32px; color:#05264C; margin: 0;">📊 All-Time Metrics To Date </h1>
-</div>;;
-  }
-  block t_onn0: TextBlock {
-    content: @md <div id="heading" style="position: relative; background: linear-gradient(to right, #EDF1F5, transparent); border-left: 14px solid #05264C; padding: 4px 4px 4px 12px; ">
-<h1 style="font-size:32px; color:#05264C; margin: 0;">📑 Executive KPI Metrics Sheet</h1>
-</div>;;
-  }
-  block t_uh72: TextBlock {
-    content: @md <br>
-<div id="heading" style="position: relative; background: white; padding: 12px; border: 2px solid #EDF1F5; border-radius: 8px; border-top: 6px solid #EDF1F5;">
-<h1 style="font-size:16px; font-weight: light; line-height: 24px; color:#05264C; margin: 0;">For executives who are accustomed to working in spreadsheets, this table provides an accessible way to track performance trends and validate key figures in a structured format from top-line metrics down to operational breakdowns.</h1>
-
-<p style="color:#05264C; font-size:16px; line-height:24px; margin-top:8px;">
-This format is especially useful for:
-<br>   •  Board meetings or investor updates
-<br>   •  Period-over-period tracking of orders, revenue, and fulfillment performance
-<br>   •  Deep-diving into patterns that require more granularity than charts alone can offer
-<br>
-</p>
-
-</div>;;
-  }
-  block t_lv19: TextBlock {
-    content: @md <div id="heading" style="position: relative; background: linear-gradient(to right, #EDF1F5, transparent); border-left: 14px solid #05264C; padding: 4px 4px 4px 12px; ">
-<h1 style="font-size:32px; color:#05264C; margin: 0;">🌍 Regional Sales Distribution Insight</h1>
-</div>;;
-  }
-  block t_xh41: TextBlock {
-    content: @md <iframe src="https://free.timeanddate.com/clock/ia3cw4ft/n179/fn12/fs16/fcfff/tc05264c/pct/ftb/bls0/brs0/bts2/btc2cb67f/pa2/tt0/tw0/tm1/th1/ta1" frameborder="0" width="274" height="26" allowtransparency="true"></iframe>;;
-  }
-  block t_k5ok: TextBlock {
-    content: @md <div style="font-size:14.5px; color:#05264C; line-height:1.4; text-align:left;">
-This section provides a <b>concise overview of where the company stands today</b>, summarizing key metrics that define the current size, structure, and activity of our platform.
-</div>;;
-  }
-  block v_d1js: VizBlock {
-    label: 'GMV (Sales) by Country'
-    viz: FilledMap {
-      dataset: demo_ecommerce_version_2
-      location {
-        field: VizFieldFull {
-          ref: r(ecommerce_countries.name)
-          format {
-            type: 'text'
-          }
-        }
-        primary_field: true
-      }
-      value: VizFieldFull {
-        ref: r(demo_ecommerce_version_2.gmv)
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
   }
   block t_ra2i: TextBlock {
     content: @md
@@ -2669,10 +2136,81 @@ height: 100%;
 </span>
 </div>;;
   }
+  block t_bzn7: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #05264C, #0B4963, #1663B6); border-radius: 8px"></div>;;
+  }
+  block t_kiea: TextBlock {
+    content: @md <h1 style="font-size:32px; color:#FFF; margin: 0;">
+Users
+</h1>;;
+  }
+  block t_wpcr: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_ke7c: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #05264C, #0B4963, #1663B6); border-radius: 8px"></div>;;
+  }
+  block t_9x1p: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_11ul: TextBlock {
+    content: @md <h1 style="font-size:32px; color:#FFF; margin: 0;">
+Products
+</h1>;;
+  }
+  block t_43ze: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_gg0m: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block v_mb64: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: r(demo_ecommerce_version_2.total_users)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'quarter'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block t_l38m: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="15" cy="6" r="3" fill="#05264c" opacity="0.4"/><ellipse cx="16" cy="17" fill="#05264c" opacity="0.4" rx="5" ry="3"/><circle cx="9.001" cy="6" r="4" fill="#05264c"/><ellipse cx="9.001" cy="17.001" fill="#05264c" rx="7" ry="4"/></svg>;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
-      label: 'Draft'
+      label: 'Overview'
       width: 1260
       height: 1920
       auto_expand_vertically: true
@@ -2786,151 +2324,81 @@ height: 100%;
       mobile {
         mode: 'auto'
       }
-    }
-    tab tab2: CanvasLayout {
-      label: 'Overview'
-      width: 1280
-      height: 2880
-      auto_expand_vertically: true
-      block t5 {
-        position: pos(60, 50, 200, 60)
-        layer: 1
-      }
-      block t7 {
-        position: pos(40, 210, 1200, 90)
-        layer: 2
-      }
-      block t9 {
-        position: pos(800, 1420, 440, 200)
-        layer: 15
-      }
-      block v20 {
-        position: pos(40, 420, 230, 110)
-        layer: 1
-      }
-      block v21 {
-        position: pos(290, 420, 230, 110)
-        layer: 1
-      }
-      block v22 {
-        position: pos(540, 420, 210, 110)
-        layer: 2
-      }
-      block v25 {
-        position: pos(770, 420, 230, 110)
-        layer: 1
-      }
-      block v28 {
-        position: pos(1010, 420, 230, 110)
-        layer: 7
-      }
-      block v29 {
-        position: pos(40, 840, 1200, 470)
-        layer: 8
-      }
-      block v30 {
-        position: pos(40, 1420, 710, 440)
-        layer: 12
-      }
-      block v31 {
-        position: pos(40, 1880, 1200, 560)
-        layer: 13
-      }
-      block t_6cj1 {
-        position: pos(40, 150, 500, 50)
-        layer: 1
-      }
-      block t_hs5h {
-        position: pos(40, 40, 1200, 80)
-      }
-      block t_chas {
-        position: pos(40, 330, 1250, 50)
-        layer: 1
-      }
-      block t_onn0 {
-        position: pos(40, 570, 1220, 50)
-        layer: 1
-      }
-      block t_uh72 {
-        position: pos(40, 620, 1200, 220)
-        layer: 1
-      }
-      block t_lv19 {
-        position: pos(40, 1350, 1220, 50)
-        layer: 1
-      }
-      block t_xh41 {
-        position: pos(930, 70, 280, 30)
-        layer: 29
-      }
-      block t_k5ok {
-        position: pos(40, 390, 1200, 30)
-        layer: 30
-      }
-      block v_d1js {
-        position: pos(40, 2450, 1200, 420)
-        layer: 31
-      }
-      mobile {
-        mode: 'auto'
-      }
-      default_zoom: 0.93
+      default_zoom: 0.9
     }
     tab tab1: CanvasLayout {
       label: 'Users'
-      width: 1480
+      width: 1260
       height: 1900
-      grid_size: 20
       block f1 {
-        position: pos(620, 880, 300, 80)
+        position: pos(60, 680, 300, 80)
         layer: 4
       }
       block f2 {
-        position: pos(940, 880, 300, 80)
+        position: pos(380, 680, 300, 80)
         layer: 9
       }
-      block t5 {
-        position: pos(40, 20, 280, 140)
-        layer: 1
-      }
-      block t6 {
-        position: pos(340, 20, 280, 140)
-        layer: 2
-      }
       block t15 {
-        position: pos(0, 800, 1420, 60)
+        position: pos(0, 1200, 1260, 60)
         layer: 8
       }
       block t23 {
-        position: pos(40, 180, 580, 580)
+        position: pos(1310, 370, 580, 580)
         layer: 1
       }
       block t24 {
-        position: pos(860, 1300, 560, 580)
+        position: pos(1340, 1330, 420, 580)
         layer: 10
       }
       block t26 {
-        position: pos(20, 880, 580, 400)
+        position: pos(-620, 880, 580, 400)
         layer: 11
       }
       block v34 {
-        position: pos(20, 1300, 820, 580)
+        position: pos(40, 1380, 1190, 580)
         layer: 1
       }
       block v37 {
-        position: pos(620, 980, 800, 300)
-        layer: 3
+        position: pos(70, 290, 1120, 310)
+        layer: 2
       }
       block v43 {
-        position: pos(640, 180, 840, 580)
+        position: pos(60, 760, 1130, 580)
         layer: 1
       }
+      block t_bzn7 {
+        position: pos(-20, 0, 1300, 220)
+        layer: 1
+      }
+      block t_kiea {
+        position: pos(40, 80, 440, 40)
+        layer: 1
+      }
+      block t_wpcr {
+        position: pos(40, 30, 140, 40)
+        layer: 2
+      }
+      block t_43ze {
+        position: pos(40, 660, 1180, 690)
+      }
+      block t_gg0m {
+        position: pos(40, 260, 1180, 370)
+        layer: 1
+      }
+      block v_mb64 {
+        position: pos(70, 331, 210, 120)
+        layer: 3
+      }
+      block t_l38m {
+        position: pos(70, 290, 40, 40)
+        layer: 2
+      }
+      default_zoom: 0.9
     }
     tab tab4: CanvasLayout {
       label: 'Products'
-      width: 1180
+      width: 1260
       height: 2240
-      grid_size: 20
       block f9 {
         position: pos(40, 720, 300, 100)
         layer: 7
@@ -2944,7 +2412,7 @@ height: 100%;
         layer: 9
       }
       block t27 {
-        position: pos(20, 20, 620, 220)
+        position: pos(340, 340, 620, 220)
         layer: 10
       }
       block t28 {
@@ -2971,9 +2439,22 @@ height: 100%;
         position: pos(40, 1160, 300, 100)
         layer: 14
       }
+      block t_ke7c {
+        position: pos(-20, 0, 1300, 220)
+        layer: 1
+      }
+      block t_9x1p {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_11ul {
+        position: pos(40, 80, 440, 40)
+        layer: 2
+      }
       mobile {
         mode: 'auto'
       }
+      default_zoom: 0.9
     }
     tab tab6: CanvasLayout {
       label: 'Finance'
@@ -3139,240 +2620,15 @@ height: 100%;
   }
   interactions: [
     FilterInteraction {
-      from: 'v20'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v21'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v22'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v25'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v28'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v29'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v30'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v31'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_0wfh',
-            'v_mz6i',
-            'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v34'
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v44',
             'v52',
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3392,20 +2648,11 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v44',
             'v52',
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3425,21 +2672,12 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v44',
             'v52',
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3462,20 +2700,11 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v44',
             'v52',
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3495,14 +2724,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3510,7 +2731,6 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3520,6 +2740,7 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_mb64',
             'f10',
             'f11',
             'f12'
@@ -3533,14 +2754,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3548,7 +2761,6 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3557,7 +2769,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3570,7 +2783,6 @@ height: 100%;
           block: [
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3579,7 +2791,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3592,7 +2805,6 @@ height: 100%;
           block: [
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3601,7 +2813,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3612,20 +2825,11 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3634,7 +2838,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3647,7 +2852,6 @@ height: 100%;
           block: [
             'v57',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3656,7 +2860,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3667,14 +2872,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3683,7 +2880,6 @@ height: 100%;
             'v53a',
             'v52',
             'v53',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3692,7 +2888,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3703,14 +2900,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3719,7 +2908,6 @@ height: 100%;
             'v53a',
             'v52',
             'v53',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3728,7 +2916,8 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_mb64'
           ]
           disabled: true
         }
@@ -3739,14 +2928,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3756,7 +2937,6 @@ height: 100%;
             'v52',
             'v53',
             'v58',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3766,6 +2946,7 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_mb64',
             'f2',
             'f4',
             'f11',
@@ -3780,14 +2961,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3797,7 +2970,6 @@ height: 100%;
             'v52',
             'v53',
             'v57',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3807,6 +2979,7 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_mb64',
             'f2',
             'f4',
             'f10',
@@ -3821,14 +2994,6 @@ height: 100%;
       to: [
         CustomMapping {
           block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
             'v34',
             'v37',
             'v43',
@@ -3838,7 +3003,6 @@ height: 100%;
             'v52',
             'v53',
             'v57',
-            'v_d1js',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3848,6 +3012,7 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_mb64',
             'f2',
             'f4',
             'f10',
@@ -3858,13 +3023,199 @@ height: 100%;
       ]
     },
     FilterInteraction {
-      from: 'v_d1js'
+      from: 'v_5ty3'
       to: [
         CustomMapping {
           block: [
             'v34',
             'v37',
             'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hkuz'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_co2u'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mwo5'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_7wqj'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80yo'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0wfh'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mz6i'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vs7p'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mb64'
+      to: [
+        CustomMapping {
+          block: [
             'v44',
             'v52a',
             'v53a',
@@ -3881,267 +3232,6 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_5ty3'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_hkuz'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_co2u'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mwo5'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_7wqj'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_80yo'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_0wfh'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mz6i'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vs7p'
-      to: [
-        CustomMapping {
-          block: [
-            'v20',
-            'v21',
-            'v22',
-            'v25',
-            'v28',
-            'v29',
-            'v30',
-            'v31',
-            'v34',
-            'v37',
-            'v43',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v57',
-            'v58',
-            'v_d1js'
           ]
           disabled: true
         }
