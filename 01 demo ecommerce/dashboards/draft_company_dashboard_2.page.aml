@@ -2195,6 +2195,184 @@ height: 100%;
     'Click on any metric to see detailed breakdown. Use <span class="pulse-tooltip-highlight">Cmd+Click</span> to compare multiple metrics.',
     'Pro tip • Last updated: Oct 2025'
   )
+  block v_f0lm: VizBlock {
+    label: 'Cohort Report by Product'
+    viz: RetentionHeatmap {
+      dataset: demo_ecommerce_version_2
+      cohort: VizFieldFull {
+        ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      cohort_duration: VizFieldFull {
+        ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.retention)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_nw10: FilterBlock {
+    label: 'Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_countries.name)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t_xbqb: TextBlock {
+    content: @md ## 📊 Dynamic Cohort Analysis: Cohort Slicing by Any Filter
+
+This cohort report is tightly integrated with the filters above (date, metric, geography). Any change in those filters will immediately update this cohort breakdown.
+
+It allows business users to answer advanced questions like:
+- How does user behavior change by country or product?
+- What is the monthly retention pattern by product launch cohorts?
+
+> 🎯 **Why it matters**: With dynamic cohort logic, users can **slice cohorts by any permutation**—without BI creating custom cohort reports for every dimension or segment.;;
+  }
+  block t_wkps: TextBlock {
+    content: @md ![BI Workflow Diagram](https://www.holistics.io/blog/content/images/2018/02/final-diagram.png);;
+  }
+  block f_gfen: FilterBlock {
+    label: 'Product Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(map_categories.category)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v_9oza: VizBlock {
+    label: 'Total Users Retention by Month Cohort Month, Users Cohort Size, and Month Number'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation users_cohort_size {
+        label: 'Users Cohort Size'
+        formula: @aql dimensionalize(
+  total_users,
+  ecommerce_users.cohort_month
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: ecommerce_users
+      }
+      calculation total_users_retention {
+        label: 'Total Users Retention'
+        formula: @aql (total_users * 1.0)
+/
+(total_users | of_all(ecommerce_orders.month_number));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'users_cohort_size')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'total_users_retention'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'custom_total_users_retention'
+        }
+      ]
+      settings {
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_total_users_retention'
+            format: ScaleFormat {
+              min {
+                value: 0.2
+                color: '#FFFFFF'
+              }
+              mid {
+                value: 0.5
+                color: '#B5E3CD'
+              }
+              max {
+                value: 1
+                color: '#47B881'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'custom_total_users_retention'
+            width: 198
+          }
+        ]
+      }
+    }
+  }
+  block f_ues0: FilterBlock {
+    label: 'Users Cohort Month'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+    }
+    default {
+      operator: 'matches'
+      value: 'last 2 years'
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
@@ -2602,6 +2780,44 @@ height: 100%;
         layer: 8
       }
     }
+    tab tab_q8mh: CanvasLayout {
+      label: 'Cohort Retention'
+      width: 3980
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_f0lm {
+        position: pos(2380, 60, 1100, 480)
+        layer: 1
+      }
+      block f_nw10 {
+        position: pos(20, 20, 300, 100)
+        layer: 2
+      }
+      block t_xbqb {
+        position: pos(20, 140, 1140, 240)
+        layer: 3
+      }
+      block t_wkps {
+        position: pos(2380, 580, 1100, 580)
+        layer: 4
+      }
+      block f_gfen {
+        position: pos(340, 20, 300, 100)
+        layer: 5
+      }
+      block v_9oza {
+        position: pos(20, 400, 2180, 640)
+        layer: 6
+      }
+      block f_ues0 {
+        position: pos(660, 20, 300, 80)
+        layer: 7
+      }
+      height: 1280
+    }
   }
   interactions: [
     FilterInteraction {
@@ -2622,7 +2838,9 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2646,7 +2864,9 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2672,9 +2892,14 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_f0lm',
+            'v_9oza',
             'f10',
             'f11',
-            'f12'
+            'f12',
+            'f_nw10',
+            'f_gfen',
+            'f_ues0'
           ]
           disabled: true
         }
@@ -2698,7 +2923,9 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2726,9 +2953,14 @@ height: 100%;
             'v_mz6i',
             'v_vs7p',
             'v_mb64',
+            'v_f0lm',
+            'v_9oza',
             'f10',
             'f11',
-            'f12'
+            'f12',
+            'f_nw10',
+            'f_gfen',
+            'f_ues0'
           ]
           disabled: true
         }
@@ -2755,7 +2987,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2777,7 +3011,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2799,7 +3035,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2824,7 +3062,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2846,7 +3086,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2874,7 +3116,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2902,7 +3146,9 @@ height: 100%;
             'v_0wfh',
             'v_mz6i',
             'v_vs7p',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -2932,10 +3178,15 @@ height: 100%;
             'v_mz6i',
             'v_vs7p',
             'v_mb64',
+            'v_f0lm',
+            'v_9oza',
             'f2',
             'f4',
             'f11',
-            'f12'
+            'f12',
+            'f_nw10',
+            'f_gfen',
+            'f_ues0'
           ]
           disabled: true
         }
@@ -2965,10 +3216,15 @@ height: 100%;
             'v_mz6i',
             'v_vs7p',
             'v_mb64',
+            'v_f0lm',
+            'v_9oza',
             'f2',
             'f4',
             'f10',
-            'f12'
+            'f12',
+            'f_nw10',
+            'f_gfen',
+            'f_ues0'
           ]
           disabled: true
         }
@@ -2998,10 +3254,15 @@ height: 100%;
             'v_mz6i',
             'v_vs7p',
             'v_mb64',
+            'v_f0lm',
+            'v_9oza',
             'f2',
             'f4',
             'f10',
-            'f11'
+            'f11',
+            'f_nw10',
+            'f_gfen',
+            'f_ues0'
           ]
           disabled: true
         }
@@ -3022,7 +3283,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3043,7 +3306,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3064,7 +3329,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3085,7 +3352,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3106,7 +3375,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3127,7 +3398,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3148,7 +3421,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3169,7 +3444,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3190,7 +3467,9 @@ height: 100%;
             'v53',
             'v57',
             'v58',
-            'v_mb64'
+            'v_mb64',
+            'v_f0lm',
+            'v_9oza'
           ]
           disabled: true
         }
@@ -3216,7 +3495,179 @@ height: 100%;
             'v_80yo',
             'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_f0lm',
+            'v_9oza'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_f0lm'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_nw10'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'f2',
+            'f4',
+            'f10',
+            'f11',
+            'f12',
+            'f_gfen',
+            'f_ues0'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_gfen'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'f2',
+            'f4',
+            'f10',
+            'f11',
+            'f12',
+            'f_ues0'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9oza'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_ues0'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v58',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'f2',
+            'f4',
+            'f10',
+            'f11',
+            'f12',
+            'f_nw10',
+            'f_gfen'
           ]
           disabled: true
         }
