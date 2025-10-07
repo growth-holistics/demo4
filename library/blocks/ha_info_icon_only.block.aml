@@ -12,7 +12,9 @@
 Func block_ha_info_icon_only(
     title: String = "Tips",
     content: String = 'Click on any metric to see detailed breakdown. Use <span class="pulse-tooltip-highlight">Cmd+Click</span> to compare multiple metrics.',
-    footer: String = "Pro tip • Last updated: Oct 2025"
+    footer: String = "Pro tip • Last updated: Oct 2025",
+    tooltip_position: String = 'top'   // 'top' | 'right' | 'left' | 'bottom'
+
 
 ) {
   TextBlock {
@@ -54,14 +56,8 @@ Func block_ha_info_icon_only(
     }
 
     @keyframes pulseRing {
-        0%, 100% { 
-            transform: scale(1); 
-            opacity: 1; 
-        }
-        50% { 
-            transform: scale(1.1); 
-            opacity: 0.5; 
-        }
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.1); opacity: 0.5; }
     }
 
     .info-btn-pulse .pulse-button:hover {
@@ -69,12 +65,13 @@ Func block_ha_info_icon_only(
         box-shadow: 0 4px 16px rgba(5, 38, 76, 0.3);
     }
 
+    /* Base (TOP) position */
     .info-btn-pulse .pulse-tooltip {
         position: absolute;
-        bottom: calc(100% + 15px);
+        bottom: calc(100% + 15px);          /* sits above by default */
         left: 50%;
         transform: translateX(-50%);
-        width: 300px;
+        width: 640px;
         background: white;
         border-radius: 16px;
         box-shadow: 0 12px 48px rgba(5, 38, 76, 0.18);
@@ -89,20 +86,86 @@ Func block_ha_info_icon_only(
     .info-btn-pulse .pulse-tooltip::after {
         content: '';
         position: absolute;
-        top: 100%;
+        top: calc(100% - 1px);
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
-        border-top: 10px solid white;
+        border-top: 10px solid white;       /* arrow points upward towards button */
+        
     }
 
     .info-btn-pulse:hover .pulse-tooltip {
         opacity: 1;
         visibility: visible;
         bottom: calc(100% + 20px);
+    }
+
+    /* RIGHT */
+    .info-btn-pulse.right-position .pulse-tooltip {
+        bottom: auto;
+        top: 50%;
+        left: calc(100% + 15px);
+        transform: translateY(-50%);
+    }
+    .info-btn-pulse.right-position .pulse-tooltip::after {
+        top: 50%;
+        left: -9px;
+        transform: translateY(-50%);
+        border: none;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid white;     /* arrow points leftwards from tooltip */
+    }
+    .info-btn-pulse.right-position:hover .pulse-tooltip {
+        left: calc(100% + 20px);
+        opacity: 1; visibility: visible;
+    }
+
+    /* LEFT */
+    .info-btn-pulse.left-position .pulse-tooltip {
+        bottom: auto;
+        top: 50%;
+        right: calc(100% + 15px);
+        left: auto;
+        transform: translateY(-50%);
+    }
+    .info-btn-pulse.left-position .pulse-tooltip::after {
+        top: 50%;
+        right: -9px;
+        left: auto;
+        transform: translateY(-50%);
+        border: none;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid white;      /* arrow points rightwards from tooltip */
+    }
+    .info-btn-pulse.left-position:hover .pulse-tooltip {
+        right: calc(100% + 20px);
+        opacity: 1; visibility: visible;
+    }
+
+    /* BOTTOM */
+    .info-btn-pulse.bottom-position .pulse-tooltip {
+        bottom: auto;
+        top: calc(100% + 15px);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .info-btn-pulse.bottom-position .pulse-tooltip::after {
+        top: -9px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: none;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid white;    /* arrow points up toward button */
+    }
+    .info-btn-pulse.bottom-position:hover .pulse-tooltip {
+        top: calc(100% + 20px);
+        opacity: 1; visibility: visible;
     }
 
     .info-btn-pulse .pulse-tooltip-title {
@@ -139,7 +202,7 @@ Func block_ha_info_icon_only(
 </style>
 
 <!-- HTML Structure -->
-<div class="info-btn-pulse">
+<div class="info-btn-pulse ${tooltip_position}-position">
     <button class="pulse-button">i</button>
     <div class="pulse-tooltip">
         <div class="pulse-tooltip-title">
