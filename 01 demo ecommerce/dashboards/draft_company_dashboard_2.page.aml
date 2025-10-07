@@ -179,6 +179,12 @@ Dashboard draft_company_dashboard2 {
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation total_cumulative_users {
+        label: 'Total Cumulative Users'
+        formula: @aql running_total(total_users, keep_filters: false);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       x_axis: VizFieldFull {
         ref: r(ecommerce_users.sign_up_at)
         transformation: 'datetrunc month'
@@ -190,6 +196,7 @@ Dashboard draft_company_dashboard2 {
       y_axis {
         settings {
           axis_min: 0
+          axis_max: 1200
           show_data_label_by: 'value'
           hidden: true
         }
@@ -204,6 +211,26 @@ Dashboard draft_company_dashboard2 {
           }
           settings {
             color: '#05264C'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          hidden: true
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'total_cumulative_users'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#00767B'
+            line_interpolation: 'smooth'
           }
         }
       }
@@ -222,7 +249,7 @@ Dashboard draft_company_dashboard2 {
     }
   }
   block f1: FilterBlock {
-    label: 'Date'
+    label: 'Signup date'
     type: 'date'
     default {
       operator: 'matches'
@@ -230,11 +257,11 @@ Dashboard draft_company_dashboard2 {
     }
   }
   block f2: FilterBlock {
-    label: 'Country Name'
+    label: 'From countries'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('ecommerce_countries', 'name')
+      field: r(ecommerce_countries.name)
     }
     default {
       operator: 'is'
@@ -2048,12 +2075,118 @@ https://www.learnui.design/tools/data-color-picker.html#palette
   block t_2ne6: block_ha_page_header_bg()
   block t_o5qy: block_ha_page_header_bg()
   block t_bet4: block_ha_page_header_bg()
+  block t_4e2c: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_gldd: block_ha_heading(
+    'Users vs Orders'
+  )
+  block v_xvgb: VizBlock {
+    label: 'Repeated buyers'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      calculation cumulative_total_users {
+        label: 'Cumulative of total users'
+        formula: @aql total_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_cumulative_users {
+        label: 'Total Cumulative Users'
+        formula: @aql running_total(total_users, keep_filters: false);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          axis_min: 0
+          axis_max: 1200
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_3dy9: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'quarter'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block t_sxoz: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="11" cy="6" r="4" fill="#05264c"/><path fill="#05264c" fill-rule="evenodd" d="M14.513 21.487C15.025 22 15.85 22 17.5 22s2.475 0 2.987-.513C21 20.975 21 20.15 21 18.5s0-2.475-.513-2.987C19.975 15 19.15 15 17.5 15s-2.475 0-2.987.513C14 16.025 14 16.85 14 18.5s0 2.475.513 2.987m2.014-1.51C15.824 19.474 15 18.883 15 17.86c0-1.13 1.375-1.931 2.5-.845c1.125-1.087 2.5-.285 2.5.845c0 1.023-.825 1.614-1.527 2.117l-.213.154c-.26.19-.51.369-.76.369s-.5-.18-.76-.37z" clip-rule="evenodd"/><path fill="#05264c" d="M14.594 21.563a1 1 0 0 1-.081-.076C14 20.975 14 20.15 14 18.5s0-2.475.513-2.987C15.025 15 15.85 15 17.5 15h.43c-1.383-1.345-3.969-2.25-6.93-2.25c-4.418 0-8 2.015-8 4.5s0 4.5 8 4.5c1.443 0 2.625-.066 3.594-.187" opacity="0.25"/></svg>;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
       label: 'Overview'
       width: 1260
-      height: 2270
+      height: 1920
       auto_expand_vertically: true
       block t_ra2i {
         position: pos(40, 30, 140, 40)
@@ -2167,11 +2300,11 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       width: 1260
       height: 1900
       block f1 {
-        position: pos(40, 240, 310, 80)
+        position: pos(40, 230, 310, 80)
         layer: 4
       }
       block f2 {
-        position: pos(380, 240, 310, 80)
+        position: pos(360, 230, 310, 80)
         layer: 9
       }
       block t23 {
@@ -2187,7 +2320,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 11
       }
       block v34 {
-        position: pos(50, 1070, 840, 580)
+        position: pos(40, 1260, 840, 580)
         layer: 1
       }
       block v37 {
@@ -2195,7 +2328,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 2
       }
       block v43 {
-        position: pos(550, 350, 660, 650)
+        position: pos(550, 350, 660, 720)
         layer: 1
       }
       block t_wpcr {
@@ -2203,14 +2336,14 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 2
       }
       block t_43ze {
-        position: pos(530, 330, 700, 690)
+        position: pos(530, 330, 700, 760)
       }
       block v_mb64 {
         position: pos(70, 390, 210, 120)
         layer: 3
       }
       block t_l38m {
-        position: pos(70, 350, 40, 40)
+        position: pos(70, 360, 40, 40)
         layer: 2
       }
       block t_kde2 {
@@ -2228,6 +2361,26 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       block t_bet4 {
         position: pos(0, 0, 1260, 220)
         layer: -2
+      }
+      block t_4e2c {
+        position: pos(40, 720, 470, 370)
+        layer: 1
+      }
+      block t_gldd {
+        position: pos(40, 1130, 350, 50)
+        layer: 14
+      }
+      block v_xvgb {
+        position: pos(70, 750, 420, 320)
+        layer: 1
+      }
+      block v_3dy9 {
+        position: pos(70, 780, 210, 120)
+        layer: 1
+      }
+      block t_sxoz {
+        position: pos(70, 750, 40, 40)
+        layer: 2
       }
       default_zoom: 0.9
     }
@@ -2422,7 +2575,64 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'f4'
       to: [
         CustomMapping {
-          block: 'v_x5zr'
+          block: [
+            'v_x5zr',
+            'v_3dy9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v44'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52a'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53a'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v57'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
           disabled: true
         }
       ]
@@ -2431,17 +2641,145 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'f10'
       to: [
         CustomMapping {
-          block: 'v_x5zr'
+          block: [
+            'v_x5zr',
+            'v_3dy9'
+          ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'f1'
+      from: 'f11'
       to: [
         CustomMapping {
-          block: 'v37'
-          field: r(ecommerce_users.sign_up_at)
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f12'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_5ty3'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hkuz'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_co2u'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mwo5'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_7wqj'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80yo'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0wfh'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mz6i'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vs7p'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_x5zr'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3dy9'
+      to: [
+        CustomMapping {
+          block: [
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_x5zr'
+          ]
+          disabled: true
         }
       ]
     },
@@ -2464,6 +2802,18 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: 'v57'
           field: r(ecommerce_orders.created_at)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v_xvgb'
+          ]
+          field: r(ecommerce_users.sign_up_at)
         }
       ]
     }
