@@ -1,0 +1,28 @@
+Dataset base_ecommerce_dataset_khai {
+  __engine__: 'aql'
+  label: 'Khai Ecommerce'
+  description: "This is Dataset for AQL testing"
+  data_source_name: "demodb"
+  models: [
+    orders,
+    users,
+    sales_model,
+    order_items,
+    countries,
+    merchants,
+    products,
+    cities,
+    param_model
+  ]
+
+  relationships: [
+    relationship(orders.user_id > users.id, true),
+    relationship(order_items.order_id > orders.id, true),
+    relationship(cities.country_code > countries.code, true),
+    relationship(users.city_id > cities.id, true),
+    relationship(order_items.product_id > products.id, true),
+    relationship(products.merchant_id > merchants.id, true),
+    relationship(merchants.city_id > cities.id, false),
+    relationship(order_items.order_id - sales_model.order_id, true)
+  ]
+}

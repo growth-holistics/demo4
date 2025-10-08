@@ -1,0 +1,48 @@
+PartialDataset revenue_metrics_khai {
+  
+  metric gmv {
+    label: "GMV (Gross Merchandise Value)"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql order_items | sum(order_items.quantity * products.price);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric nmv {
+    label: "NMV (Net Merchandise Value)"
+    type: "number"
+    hidden: false
+    description: "* Fulfilled order value after discount. Excludes cancelled/refunded orders. <br>* Represents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied. <br>* This reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    definition: @aql (order_items | sum(order_items.quantity * products.price * (1 - orders.discount))) |  where(orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue {
+    label: "Total Revenue"
+    type: "number"
+    hidden: false
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate. <br> As of May 2025, this demo assumes a 50% commission margin. Formula: `revenue = NMV × revenue_commission`"
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric aov {
+    label: "AOV (Average Order Value)"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
+  }
+
+}
