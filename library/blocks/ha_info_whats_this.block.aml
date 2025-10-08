@@ -1,0 +1,161 @@
+// This is a library dashboard block. For more details, visit https://docs.holistics.io/docs/canvas-dashboard/guides/build-library-blocks
+@template(
+  title="H.A. - Info - What's this",
+  description='',
+  thumbnail='',
+  metadata={
+    group: 'Holistics Ant'
+    block_width: 100
+    block_height: 30
+  }
+)
+Func block_ha_info_whats_this(
+  btn_text: String = "What's this",
+  content: String = 'This metric represents the <span class="text-tooltip-highlight">lifetime value</span> of all transactions processed through our platform since inception.',
+  tooltip_position: String = 'top',
+
+) {
+  TextBlock {
+    content: @md <!-- Minimal Text Info Button -->
+<style>
+    .info-btn-text {
+        position: absolute;
+        display: inline-block;
+    }
+
+    .info-btn-text .text-button {
+        background: none;
+        border: none;
+        color: #00627a;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: rgba(0, 98, 122, 0.4);
+        text-underline-offset: 3px;
+    }
+
+    .info-btn-text .text-button:hover {
+        background: rgba(0, 98, 122, 0.08);
+        text-decoration-style: solid;
+        text-decoration-color: #00627a;
+        transform: translateY(-1px);
+    }
+
+    .info-btn-text .text-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 480px;
+        max-width: 640px;
+        background: white;
+        color: #333333;
+        border-radius: 12px;
+        padding: 20px 24px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        font-size: 13px;
+        line-height: 1.6;
+        box-shadow: 0 8px 36px rgba(5, 38, 76, 0.25);
+        z-index: 1000;
+    }
+
+    .info-btn-text .text-tooltip::after {
+        content: '';
+        position: absolute;
+        top: calc(100% - 1px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #ffffff;
+    }
+
+    .info-btn-text:hover .text-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 12px);
+    }
+
+    .info-btn-text .text-tooltip-highlight {
+        color: #4ade80;
+        font-weight: 600;
+    }
+
+    /* RIGHT */
+    .info-btn-text.right-position .text-tooltip {
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + 10px);
+    transform: translateY(-50%);
+    }
+
+    .info-btn-text.right-position .text-tooltip::after {
+    top: 50%;
+    left: -5px;
+    transform: translateY(-50%);
+    border: none;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid #ffffff;
+    }
+
+    /* LEFT */
+    .info-btn-text.left-position .text-tooltip {
+    bottom: auto;
+    top: 50%;
+    right: calc(100% + 10px);
+    left: auto;
+    transform: translateY(-50%);
+    }
+
+    .info-btn-text.left-position .text-tooltip::after {
+    top: 50%;
+    right: -5px;
+    left: auto;                         /* NEW: reset base left:50% */
+    bottom: auto;                       /* (defensive reset) */
+    transform: translateY(-50%);
+    border: none;                       /* clear all first */
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid white;       /* KEY CHANGE: triangle points right */
+    }
+
+
+    /* BOTTOM */
+    .info-btn-text.bottom-position .text-tooltip {
+    top: calc(100% + 10px);
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    }
+
+    .info-btn-text.bottom-position .text-tooltip::after {
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: none;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #ffffff;
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-text ${tooltip_position}-position">
+    <button class="text-button">${btn_text}</button>
+    <div class="text-tooltip">
+        ${content}
+    </div>
+</div>;;
+  }
+}

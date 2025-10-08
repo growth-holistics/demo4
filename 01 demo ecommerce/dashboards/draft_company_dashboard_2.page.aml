@@ -1,0 +1,2697 @@
+BlockTheme holistics_kpi_blue_dark_2 {
+  background {
+    bg_color: "transparent"
+  }
+  label {
+    font_weight: "bold"
+  }
+  padding {
+    top: 10,
+    left: 0,
+    bottom: 10,
+    right: 0
+  }
+  text {
+    font_size: 12
+  }
+  border {
+    border_color: "#EDF1F5" //"#F9FBFC" //"#05264C"
+    border_width: 0
+    border_radius: 0
+  }
+}
+
+@tag('1️⃣ Trust/Endorsed', 'Status/WIP')
+Dashboard draft_company_dashboard2 {
+  title: '[Draft] Ecommerce Dashboard (2025-09) - Thong'
+  owner: 'thong.do@holistics.io'
+  description: ''''''
+  block v34: VizBlock {
+    label: 'Top 10 users by orders'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation average_nmv {
+        label: 'Average NMV '
+        formula: @aql nmv/total_delivered_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(ecommerce_users.id)
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: 'total_orders'
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            borders {
+              outer: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_users.full_name)
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Email Customer'
+            url: ActionFieldInput {
+              ref: r(ecommerce_users.email_user)
+              aggregation: 'min'
+            }
+          }
+          uname: 'ecommerce_users_full_name'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_countries_name'
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(demo_ecommerce_version_2.total_delivered_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_total_delivered_orders'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.days_since_last_order)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_days_since_last_order'
+        },
+        VizFieldFull {
+          label: 'NMV'
+          ref: r(demo_ecommerce_version_2.nmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_nmv'
+        },
+        VizFieldFull {
+          label: 'Avg NMV '
+          ref: 'average_nmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+          uname: 'custom_average_nmv'
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        wrap_cell_text: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_total_delivered_orders'
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_days_since_last_order'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 90
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 2
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 154
+          },
+          ColumnStyle {
+            key: 'ecommerce_users_full_name'
+            width: 175
+          },
+          ColumnStyle {
+            key: 'custom_days_since_last_order'
+            width: 110
+          },
+          ColumnStyle {
+            key: 'custom_total_delivered_orders'
+            width: 101
+          },
+          ColumnStyle {
+            key: 'custom_average_nmv'
+            width: 87
+          },
+          ColumnStyle {
+            key: 'custom_nmv'
+            width: 110
+          }
+        ]
+      }
+    }
+  }
+  block v37: VizBlock {
+    label: 'Users Sign Up Over Time'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation cumulative_total_users {
+        label: 'Cumulative of total users'
+        formula: @aql total_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_cumulative_users {
+        label: 'Total Cumulative Users'
+        formula: @aql running_total(total_users, keep_filters: false);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          axis_min: 0
+          axis_max: 1200
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          hidden: true
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'total_cumulative_users'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#00767B'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f1: FilterBlock {
+    label: 'Signup date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '18 months ago till now'
+    }
+  }
+  block f2: FilterBlock {
+    label: 'From countries'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_countries.name)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block v43: VizBlock {
+    label: 'User Demographics'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_316015f {
+        label: 'Untitled Metric'
+        formula: @aql total_repeated_buyers/total_buyers;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+        table {
+          general {
+            borders {
+              outer: true
+              horizontal: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_users.age_group)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        value_labels_position {
+          placement: 'rows'
+        }
+      }
+    }
+  }
+  block f3: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'last'
+      value: '12'
+      modifier: 'month'
+      options {
+        include_current_period: true
+      }
+    }
+  }
+  block t17: TextBlock {
+    content: @md # 💰 Finance Overview
+
+This dashboard provides a comprehensive view of key financial metrics for the business.  
+Track the flow of marketplace value from **gross merchandise volume (GMV)** to **net merchandise value (NMV)**, and eventually to **platform revenue**.
+
+Use this to:
+- Monitor **sales performance** over time
+- Understand the impact of **refunds, cancellations**, and **discounts**
+- Quantify the **true revenue contribution** to the platform
+- Enable finance and ops teams to **forecast, benchmark, and optimize earnings**;;
+  }
+  block f4: FilterBlock {
+    label: 'Product Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t21: TextBlock {
+    content: @md ### 🧠 Defining GMV, NMV, Discounts, and Revenue
+
+To ensure consistent interpretation of financial metrics, here’s how value flows through the order lifecycle and how each metric is defined:
+
+1. **GMV (Gross Merchandise Value)**  
+   The total value of all orders before any discounts or fulfillment status is applied.  
+   _Formula: Quantity × Price (all orders)_
+
+2. **Total Discount**  
+   The monetary value of all discounts offered. It reflects the difference between what customers could have paid (GMV) and what they actually paid for fulfilled orders.  
+   _Formula: GMV – NMV_
+
+3. **NMV (Net Merchandise Value – Post-Discount & Fulfillment)**  
+   The actual amount paid by customers for orders that were **fulfilled** and **not cancelled or refunded**, adjusted for any applied discounts.  
+   This is the true revenue base — the value realized by the platform before commission.  
+   _Formula: Quantity × Price × (1 – Discount), only for fulfilled orders_
+
+4. **Revenue (Platform)**  
+   The amount our platform earns by applying a commission rate to NMV.  
+   In this demo, a **50% commission margin** is assumed.  
+   _Formula: NMV × revenue_commission_;;
+  }
+  block v44: VizBlock {
+    label: 'GMV Over Time'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'gmv'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t22: TextBlock {
+    content: @md <hr>;;
+  }
+  block t25: TextBlock {
+    content: @md ### 🧠 Order Fulfillment & Value Realization
+
+This section highlights how efficiently the platform is turning customer orders into actual fulfilled value.
+
+- **Total Orders** are grouped into two simplified delivery outcomes:
+  - ✅ **Success** = Delivered orders  
+  - ❌ **Failed** = Cancelled or Refunded orders  
+
+> 📌 **Want to go deeper?**  
+Use the **[Drill Down]** or **[View Underlying Data]** features to explore breakdowns by:
+- Refund vs cancellation volumes  
+- Order categories, vendors, or regions driving leakage;;
+  }
+  block v52a: VizBlock {
+    label: 'NMV Realized from GMV'
+    viz: GaugeChart {
+      dataset: demo_ecommerce_version_2
+      calculation net_orders {
+        label: 'Net Orders'
+        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_order_ratio {
+        label: 'Net Order Ratio'
+        formula: @aql net_orders*1.0/total_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation undelivered_orders {
+        label: 'Undelivered Orders'
+        formula: @aql total_orders-net_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation target_net_order_ratio {
+        label: 'Target Net Order Ratio'
+        formula: @aql 0.85;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      value: VizFieldFull {
+        ref: 'net_order_ratio'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      max_value: VizFieldFull {
+        ref: 'target_net_order_ratio'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        label: 'Realized NMV from GMV'
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v53a: VizBlock {
+    label: 'Total Orders Count by Delivery Status'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation order_status_success_fail {
+        label: 'Order Status Success Fail'
+        formula: @aql case(
+  when: ecommerce_orders.status is 'delivered'
+  , then: 'success'
+  , else: 'failed'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'order_status_success_fail')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('ecommerce_orders', 'total_order')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v52: VizBlock {
+    label: 'Last Quarter Success Order Rate'
+    viz: GaugeChart {
+      dataset: demo_ecommerce_version_2
+      calculation net_orders {
+        label: 'Net Orders'
+        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_order_ratio {
+        label: 'Net Order Ratio'
+        formula: @aql net_orders*1.0/total_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation undelivered_orders {
+        label: 'Undelivered Orders'
+        formula: @aql total_orders-net_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation realized_gmv_target {
+        label: 'Realized GMV Target'
+        formula: @aql 0.85;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: ref('ecommerce_orders', 'created_at')
+        operator: 'last'
+        value: '1'
+        modifier: 'quarter'
+      }
+      theme {
+
+      }
+      value: VizFieldFull {
+        ref: 'net_order_ratio'
+        format {
+          type: 'number'
+          pattern: '#,###0.00%'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      max_value: VizFieldFull {
+        ref: 'realized_gmv_target'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        label: 'Success Order Rate'
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v53: VizBlock {
+    label: 'Total Orders by Delivery Status'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      calculation order_success_status {
+        label: 'Order Success Status'
+        formula: @aql case(
+  when: ecommerce_orders.status is 'delivered'
+  , then: 'success_order'
+  , else: 'failed_order'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: ecommerce_orders
+      }
+      calculation net_orders {
+        label: 'Net Orders'
+        formula: @aql total_orders - total_cancelled_orders - total_refunded_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation net_order_ratio {
+        label: 'Net Order Ratio'
+        formula: @aql net_orders*1.0/total_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation undelivered_orders {
+        label: 'Undelivered Orders'
+        formula: @aql total_orders-net_orders;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'order_success_status')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v57: VizBlock {
+    label: 'Any Metrics by Product Category'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(map_categories.parent_category)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(map_categories.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.dynamic_metric_currency)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+            // Skin Care
+            point {
+              value: 'Body'
+              color: '#05264c'
+            }
+            point {
+              value: 'Face'
+              color: '#003a61'
+            }
+
+            // Mobiles & Tablets
+            point {
+              value: 'Tablets'
+              color: '#05264c'
+            }
+            point {
+              value: 'Smartwatches'
+              color: '#003a61'
+            }
+            point {
+              value: 'Mobiles'
+              color: '#004e71'
+            }
+
+            // Home Furniture
+            point {
+              value: 'Bathroom'
+              color: '#05264c'
+            }
+            point {
+              value: 'Outdoor'
+              color: '#003a61'
+            }
+            point {
+              value: 'Kitchen and Dinning'
+              color: '#05264c'
+            }
+            point {
+              value: 'Living Room'
+              color: '#00627a'
+            }
+            point {
+              value: 'Bedroom'
+              color: '#00767b'
+            }
+
+            // Home Entertainment
+            point {
+              value: 'Televisions'
+              color: '#05264c'
+            }
+            point {
+              value: 'Gaming'
+              color: '#003a61'
+            }
+            point {
+              value: 'Audio Gadgets'
+              color: '#004e71'
+            }
+
+            // Groceries
+            point {
+              value: 'Snacks'
+              color: '#05264c'
+            }
+            point {
+              value: 'Baking and Cooking'
+              color: '#003a61'
+            }
+            point {
+              value: 'Candy'
+              color: '#004e71'
+            }
+
+            // Clothes
+            point {
+              value: 'T-shirts'
+              color: '#05264c'
+            }
+            point {
+              value: 'Shoes'
+              color: '#003a61'
+            }
+            point {
+              value: 'Jeans'
+              color: '#004e71'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f9: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+  }
+  block f10: FilterBlock {
+    label: 'Select metric'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(param_model_demo.metric_selections_currency)
+    }
+    default {
+      operator: 'is'
+      value: 'platform revenue'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block f11: FilterBlock {
+    label: 'Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t30: TextBlock {
+    content: @md The **% of GMV Realized** gauge reflects the portion of gross customer value (GMV) that was actually fulfilled and paid — our **NMV realization rate**. A healthy benchmark is **85–95%**. Currently, we’re at **~70%**, highlighting a gap worth investigating.
+;;
+  }
+  block t31: TextBlock {
+    content: @md ### 📚 Data Exploration Mini Tutorial
+
+Explore beyond static charts. Holistics empowers you to ask and answer your own questions with just a few clicks. Use the tutorials below to customize visualizations and unlock deeper insights from the same dataset — no SQL required.
+;;
+  }
+  block t32: TextBlock {
+    content: @md #### 📊 Tutorial 1: Add an Additional Metric (NMV)
+
+Overlay **Net Merchandise Value (NMV)** on top of the GMV chart to compare intended vs realized order value.
+
+1. Click **Explore Data** on the top-right of the GMV chart.
+2. Search and add the `NMV` field alongside `GMV`.
+3. Change the visualization from **Column Chart** to **Combination Chart** (Column + Line).
+4. Click **Save As** and store it to your **Private Workspace** folder for future use.
+5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
+  }
+  block t33: TextBlock {
+    content: @md #### 🔁 Tutorial 2: Add a Period-over-Period Comparison
+
+Uncover trends by comparing current performance against a previous period.
+
+1. Open *Explore Data** and go to **Visual Settings**.
+2. Under **Quick Period Comparison**, choose the time field: `ecommerce_orders.created_at`.
+3. Select a comparison window — e.g., **Previous 1 Year**.
+4. Use **Save As** to create and keep a version in your **Private Workspace** library.
+5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
+  }
+  block t34: TextBlock {
+    content: @md ![BI Workflow Diagram](https://www.holistics.io/blog/content/images/2018/02/final-diagram.png);;
+  }
+  block f12: FilterBlock {
+    label: 'Product Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('map_categories', 'category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t_3qfv: TextBlock {
+    content: @md <style>
+  table.metric-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+  }
+  .metric-table th, .metric-table td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    vertical-align: top;
+    text-align: left;
+  }
+  .metric-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+  }
+  .metric-table tr:nth-child(even) td {
+    background-color: #fdfdfd;
+  }
+  .metric-key {
+    font-family: monospace;
+    color: #2563eb;
+    font-weight: 600;
+  }
+  .metric-name {
+    font-weight: 600;
+    color: #111827;
+  }
+  .metric-description {
+    color: #374151;
+  }
+</style>
+
+<table class="metric-table">
+  <thead>
+    <tr>
+      <th>Metric Key</th>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="metric-key">aov</td>
+      <td class="metric-name">aov</td>
+      <td class="metric-description">AOV - Average Order Value: Average value per order (GMV / number of orders).</td>
+    </tr>
+    <tr>
+      <td class="metric-key">cancelled_order_ratio</td>
+      <td class="metric-name">cancelled_order_ratio</td>
+      <td class="metric-description">Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders</td>
+    </tr>
+    <tr>
+      <td class="metric-key">cancelled_value</td>
+      <td class="metric-name">cancelled_value</td>
+      <td class="metric-description">Total Value of Cancelled Orders</td>
+    </tr>
+    <tr>
+      <td class="metric-key">cancelled_value_ratio</td>
+      <td class="metric-name">cancelled_value_ratio</td>
+      <td class="metric-description">Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue</td>
+    </tr>
+    <tr>
+      <td class="metric-key">delivered_value</td>
+      <td class="metric-name">delivered_value</td>
+      <td class="metric-description">Total Value of Delivered Orders</td>
+    </tr>
+    <tr>
+      <td class="metric-key">dynamic_metric</td>
+      <td class="metric-name">dynamic_metric</td>
+      <td class="metric-description">This dynamic metric doesnt take the format into considering, theyre all in their raw form</td>
+    </tr>
+    <tr>
+      <td class="metric-key">dynamic_metric_currency</td>
+      <td class="metric-name">dynamic_metric_currency</td>
+      <td class="metric-description">Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)</td>
+    </tr>
+    <tr>
+      <td class="metric-key">gmv</td>
+      <td class="metric-name">gmv</td>
+      <td class="metric-description">GMV - Gross Merchandise Value: Total value of all orders before discount.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">nmv</td>
+      <td class="metric-name">nmv</td>
+      <td class="metric-description">* Fulfilled order value after discount. Excludes cancelled/refunded orders. <br>* Represents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied. <br>* This reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">percent_of_total</td>
+      <td class="metric-name">percent_of_total</td>
+      <td class="metric-description">Percentage of orders contributed by the current slice of data compared to the total orders across all segments.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">refunded_value</td>
+      <td class="metric-name">refunded_value</td>
+      <td class="metric-description">Total Value of Refunded Orders</td>
+    </tr>
+    <tr>
+      <td class="metric-key">retention</td>
+      <td class="metric-name">retention</td>
+      <td class="metric-description">Cohort retention rate calculated as the percentage of users in a cohort who placed an order in a given month. *Formula*: current period total_users / cohort's total_users.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">revenue</td>
+      <td class="metric-name">revenue</td>
+      <td class="metric-description">Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate. <br> As of May 2025, this demo assumes a 50% commission margin. Formula: `revenue = NMV × revenue_commission`</td>
+    </tr>
+    <tr>
+      <td class="metric-key">revenue_commission</td>
+      <td class="metric-name">revenue_commission</td>
+      <td class="metric-description">Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">running_total_orders</td>
+      <td class="metric-name">running_total_orders</td>
+      <td class="metric-description">Cumulative total of orders over time, aggregated by year to show growth trends.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_buyers</td>
+      <td class="metric-name">total_buyers</td>
+      <td class="metric-description">Total number of unique users who made at least one purchase.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_cancelled_orders</td>
+      <td class="metric-name">total_cancelled_orders</td>
+      <td class="metric-description">Count of orders that were cancelled before fulfillment.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_delivered_orders</td>
+      <td class="metric-name">total_delivered_orders</td>
+      <td class="metric-description">Count of all orders that were successfully delivered.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_discount</td>
+      <td class="metric-name">total_discount</td>
+      <td class="metric-description">Total Discount: Total discount value of all orders.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_orders</td>
+      <td class="metric-name">total_orders</td>
+      <td class="metric-description">Total number of orders placed across the platform, regardless of status.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_orders_across_all</td>
+      <td class="metric-name">total_orders_across_all</td>
+      <td class="metric-description">Total number of orders across all selected dimensions. Used as the denominator for ratio metrics like percent_of_total.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_refunded_orders</td>
+      <td class="metric-name">total_refunded_orders</td>
+      <td class="metric-description">Count of all orders that were refunded after fulfillment.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_repeated_buyers</td>
+      <td class="metric-name">total_repeated_buyers</td>
+      <td class="metric-description">Total number of users who made more than one purchase.</td>
+    </tr>
+    <tr>
+      <td class="metric-key">total_users</td>
+      <td class="metric-name">total_users</td>
+      <td class="metric-description">Total number of users</td>
+    </tr>
+  </tbody>
+</table> ;;
+  }
+  block t_ra2i: TextBlock {
+    content: @md
+    <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />
+    ;;
+  }
+  block v_5ty3: VizBlock {
+    label: 'Products Listed'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Products Listed'
+        ref: r(ecommerce_products.total_products)
+        format {
+          type: 'number'
+          pattern: '#,###'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block v_hkuz: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: r(demo_ecommerce_version_2.total_users)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block v_co2u: VizBlock {
+    label: 'All-Time Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'All-Time Orders'
+        ref: r(demo_ecommerce_version_2.total_orders)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block v_mwo5: VizBlock {
+    label: 'Merchants Onboarded'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Merchants Onboarded'
+        ref: r(ecommerce_merchants.created_at)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block v_7wqj: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Average Order Value'
+        ref: r(demo_ecommerce_version_2.aov)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block v_80yo: VizBlock {
+    label: ' KPI Overview'
+    viz: MetricSheet {
+      dataset: demo_ecommerce_version_2
+      theme {
+        table {
+          general {
+            borders {
+              outer: true
+              vertical: true
+              horizontal: true
+              header: true
+            }
+          }
+        }
+      }
+      date_field: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: '🎯 Orders'
+          settings {
+            background_color: '#F5F8FA'
+            text_color: '#05264CFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_orders)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_cancelled_orders)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_refunded_orders)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_delivered_orders)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricHeading {
+          label: '💰 Transaction Value'
+          settings {
+            background_color: '#F5F8FA'
+            text_color: '#05264C'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.nmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.aov)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_0wfh: VizBlock {
+    label: 'Total Orders by Continents'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        label: 'Continent'
+        ref: r(ecommerce_countries.continent_name)
+        format {
+          type: 'text'
+        }
+        uname: 'ecommerce_countries_continent_name'
+      }
+      series {
+        field: VizFieldFull {
+          label: ' '
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'Asia'
+            color: '#05264CFF'
+          }
+          point {
+            value: 'Europe'
+            color: '#003A61FF'
+          }
+          point {
+            value: 'North America'
+            color: '#00627AFF'
+          }
+          point {
+            value: 'Oceania'
+            color: '#008079FF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        legend_label: 'hidden'
+        show_percentage: true
+        data_label_position: 'inside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme {
+      border {
+        border_width: 2
+        border_radius: 8
+        border_color: '#EDF1F5'
+      }
+      background {
+        bg_color: 'white'
+      }
+      padding: 12
+    }
+  }
+  block v_mz6i: VizBlock {
+    label: 'GMV (Sales) by Country Name'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264CFF'
+            color_palette: 36189
+            point {
+              value: 'Australia'
+              color: '#196848FF'
+            }
+            point {
+              value: 'France'
+              color: '#259B6C'
+            }
+            point {
+              value: 'Germany'
+              color: '#7AD1AE'
+            }
+            point {
+              value: 'India'
+              color: '#CCEDE0'
+            }
+            point {
+              value: 'Indonesia'
+              color: '#104A89FF'
+            }
+            point {
+              value: 'Korea'
+              color: '#1B7CE4'
+            }
+            point {
+              value: 'Singapore'
+              color: '#8DBEF2'
+            }
+            point {
+              value: 'United Kingdom'
+              color: '#D1E5FA'
+            }
+            point {
+              value: 'United States'
+              color: '#5F1BB4'
+            }
+            point {
+              value: 'Vietnam'
+              color: '#9250E5'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme {
+      border {
+        border_width: 2
+        border_radius: 8
+        border_color: '#EDF1F5'
+      }
+      background {
+        bg_color: 'white'
+      }
+      padding: 12
+    }
+  }
+  block v_vs7p: VizBlock {
+    label: 'GMV (Sales) by Country'
+    viz: FilledMap {
+      dataset: demo_ecommerce_version_2
+      location {
+        field: VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+        }
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.gmv)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        value_colors {
+          style: 'step'
+          min {
+            color: '#259B6C'
+          }
+          max {
+            color: '#05264C'
+          }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme {
+      border {
+        border_width: 2
+        border_radius: 8
+        border_color: '#EDF1F5'
+      }
+      background {
+        bg_color: 'white'
+      }
+      padding: 12
+    }
+  }
+  block t_jgba: separator()
+  block t_n5sp: ver_separator()
+  block t_1q6p: TextBlock {
+    content: @md <style>
+  .ver_separator {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+  }
+  .ver_separator__line {
+    height: 100%;
+    width: 1px;
+    background: #E3E7ED;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+<div class="ver_separator">
+  <div class="ver_separator__line"></div>
+</div>;;
+  }
+  block t_62mj: ver_separator()
+  block t_j7y2: ver_separator()
+  block t_j9zk: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#05264c" d="M8.422 20.618C10.178 21.54 11.056 22 12 22V12L2.638 7.073l-.04.067C2 8.154 2 9.417 2 11.942v.117c0 2.524 0 3.787.597 4.801c.598 1.015 1.674 1.58 3.825 2.709z"/><path fill="#05264c" d="m17.577 4.432l-2-1.05C13.822 2.461 12.944 2 12 2c-.945 0-1.822.46-3.578 1.382l-2 1.05C4.318 5.536 3.242 6.1 2.638 7.072L12 12l9.362-4.927c-.606-.973-1.68-1.537-3.785-2.641" opacity="0.5"/><path fill="#05264c" d="m21.403 7.14l-.041-.067L12 12v10c.944 0 1.822-.46 3.578-1.382l2-1.05c2.151-1.129 3.227-1.693 3.825-2.708c.597-1.014.597-2.277.597-4.8v-.117c0-2.525 0-3.788-.597-4.802" opacity="0.25"/><path fill="#05264c" d="m6.323 4.484l.1-.052l1.493-.784l9.1 5.005l4.025-2.011q.205.232.362.498c.15.254.262.524.346.825L17.75 9.964V13a.75.75 0 0 1-1.5 0v-2.286l-3.5 1.75v9.44A3 3 0 0 1 12 22c-.248 0-.493-.032-.75-.096v-9.44l-8.998-4.5c.084-.3.196-.57.346-.824q.156-.266.362-.498l9.04 4.52l3.387-1.693z"/></svg>;;
+  }
+  block t_uiyv: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#05264c" d="M14.5 21.991V18.5c0-.935 0-1.402-.201-1.75a1.5 1.5 0 0 0-.549-.549C13.402 16 12.935 16 12 16s-1.402 0-1.75.201a1.5 1.5 0 0 0-.549.549c-.201.348-.201.815-.201 1.75v3.491z"/><path fill="#05264c" fill-rule="evenodd" d="M5.732 12c-.89 0-1.679-.376-2.232-.967V14c0 3.771 0 5.657 1.172 6.828c.943.944 2.348 1.127 4.828 1.163h5c2.48-.036 3.885-.22 4.828-1.163C20.5 19.657 20.5 17.771 20.5 14v-2.966a3.06 3.06 0 0 1-5.275-1.789l-.073-.728a3.167 3.167 0 1 1-6.307.038l-.069.69A3.06 3.06 0 0 1 5.732 12m8.768 6.5v3.491h-5V18.5c0-.935 0-1.402.201-1.75a1.5 1.5 0 0 1 .549-.549C10.598 16 11.065 16 12 16s1.402 0 1.75.201a1.5 1.5 0 0 1 .549.549c.201.348.201.815.201 1.75" clip-rule="evenodd" opacity="0.25"/><path fill="#05264c" d="M9.5 2h5l.652 6.517a3.167 3.167 0 1 1-6.304 0z"/><path fill="#05264c" d="M3.33 5.351c.178-.89.267-1.335.448-1.696a3 3 0 0 1 1.889-1.548C6.057 2 6.51 2 7.418 2h2.083l-.725 7.245a3.06 3.06 0 1 1-6.044-.904zm17.34 0c-.178-.89-.267-1.335-.448-1.696a3 3 0 0 0-1.888-1.548C17.944 2 17.49 2 16.582 2H14.5l.725 7.245a3.06 3.06 0 1 0 6.043-.904z" opacity="0.5"/></svg>;;
+  }
+  block t_h68n: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="15" cy="6" r="3" fill="#05264c" opacity="0.4"/><ellipse cx="16" cy="17" fill="#05264c" opacity="0.4" rx="5" ry="3"/><circle cx="9.001" cy="6" r="4" fill="#05264c"/><ellipse cx="9.001" cy="17.001" fill="#05264c" rx="7" ry="4"/></svg>;;
+  }
+  block t_agis: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#05264c" fill-rule="evenodd" d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2s10 4.477 10 10" clip-rule="evenodd" opacity="0.25"/><path fill="#05264c" d="M12.75 6a.75.75 0 0 0-1.5 0v.317c-1.63.292-3 1.517-3 3.183c0 1.917 1.813 3.25 3.75 3.25c1.377 0 2.25.906 2.25 1.75s-.873 1.75-2.25 1.75c-1.376 0-2.25-.906-2.25-1.75a.75.75 0 0 0-1.5 0c0 1.666 1.37 2.891 3 3.183V18a.75.75 0 0 0 1.5 0v-.317c1.63-.292 3-1.517 3-3.183c0-1.917-1.813-3.25-3.75-3.25c-1.376 0-2.25-.906-2.25-1.75s.874-1.75 2.25-1.75c1.377 0 2.25.906 2.25 1.75a.75.75 0 0 0 1.5 0c0-1.666-1.37-2.891-3-3.183z"/></svg>;;
+  }
+  block t_v88y: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#05264c" d="M5.574 4.691c-.833.692-1.052 1.862-1.491 4.203l-.75 4c-.617 3.292-.926 4.938-.026 6.022S5.88 20 9.23 20h5.54c3.35 0 5.025 0 5.924-1.084c.9-1.084.591-2.73-.026-6.022l-.75-4c-.439-2.34-.658-3.511-1.491-4.203C17.593 4 16.403 4 14.02 4H9.98c-2.382 0-3.572 0-4.406.691" opacity="0.25"/><path fill="#05264c" d="M12 9.25a2.25 2.25 0 0 1-2.122-1.5a.75.75 0 1 0-1.414.5a3.751 3.751 0 0 0 7.073 0a.75.75 0 1 0-1.414-.5A2.25 2.25 0 0 1 12 9.25"/></svg>;;
+  }
+  block t_wpcr: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_9x1p: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_43ze: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block v_mb64: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: r(demo_ecommerce_version_2.total_users)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'quarter'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block t_l38m: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="15" cy="6" r="3" fill="#05264c" opacity="0.4"/><ellipse cx="16" cy="17" fill="#05264c" opacity="0.4" rx="5" ry="3"/><circle cx="9.001" cy="6" r="4" fill="#05264c"/><ellipse cx="9.001" cy="17.001" fill="#05264c" rx="7" ry="4"/></svg>;;
+  }
+  block t_ib83: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_f8rx: block_ha_heading(
+    'All Metrics To Date'
+  )
+  block t_vuka: block_ha_heading(
+    'Regional Sales Distribution Insight'
+  )
+  block t_718y: block_ha_page_header(
+    'Product',
+    'This dashboard provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.'
+  )
+  block t_kde2: block_ha_page_header(
+    'Users',
+    ' '
+  )
+  block t_dv39: block_ha_page_header(
+    'Business Profile Snapshot',
+    '''This page provides you a quick understanding of the current shape and scope of the business. <br /> If you have any questions, please don't hesitate to <a href="mailto:hi@holistics.io" style="text-decoration: underline; color: white ">contact us here</a>.'''
+  )
+  block t_elu8: block_ha_card()
+  block t_o55c: block_ha_card()
+  block t_m86d: block_annotation_key_insight(
+    'Key Insight',
+    'Our sales performance is anchored in developed Western markets, with the <span class="highlight">United States, Australia, and Germany</span> emerging as our top revenue contributors.',
+    'Last updated: 20 May 2025 • Peter Parker'
+  )
+  block t_dxad: separator()
+  block t_mbgg: block_ha_info_whats_this(
+    "What's this",
+    '<p style="font-size: 16px; font-weight: 600">Unified Metric Selector: Focused Exploration, One Metric at a Time<p>  <p> This dropdown lets users dynamically switch between key metrics — <code>GMV</code>, <code>NMV</code>, <code>AOV</code>, and more — while preserving the same dimension (e.g., Product Category) so that users can make apples-to-apples comparisons across different KPIs. </p>  <p> ✅ <b>Why it matters</b>: BI teams can reduce the upfront complexity by guiding users to <b>explore one metric at a time</b>, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric. </p>',
+    'left'
+  )
+  block v_x5zr: VizBlock {
+    label: 'Cohort Month, Users Cohort Size, and Month Number'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation users_cohort_size {
+        label: 'Users Cohort Size'
+        formula: @aql dimensionalize(
+  total_users,
+  ecommerce_users.cohort_month
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: ecommerce_users
+      }
+      calculation total_users_retention {
+        label: ' '
+        formula: @aql (total_users * 1.0)
+/
+(total_users | of_all(ecommerce_orders.month_number));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+        table {
+          general {
+            font_size: 11
+            cell_padding {
+              top: 3
+              left: 2
+              bottom: 3
+              right: 2
+            }
+            borders {
+              outer: true
+              header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Cohort Month'
+          ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_cohort_month'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'users_cohort_size')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_users_users_cohort_size'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'total_users_retention'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'custom_total_users_retention'
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_total_users_retention'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#FFFFFF'
+              }
+              mid {
+                value: 0.5
+                color: '#05264C8A'
+              }
+              max {
+                value: 1
+                color: '#05264C'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'custom_total_users_retention'
+            width: 65
+          },
+          ColumnStyle {
+            key: 'datetrunc_month_cohort_month'
+            width: 122
+          },
+          ColumnStyle {
+            key: 'ecommerce_users_users_cohort_size'
+            width: 117
+          }
+        ]
+      }
+    }
+  }
+  block t_s72h: block_ha_card()
+  block t_qaoo: block_ha_info_whats_this(
+    "What's this",
+    '<h2 style="font-weight: 600; font-size: 16px">Dynamic Cohort Analysis: Cohort Slicing by Any Filter</h2> <p>   This cohort report is tightly integrated with the filters above (date, metric, geography).    Any change in those filters will immediately update this cohort breakdown. </p> <p>It allows business users to answer advanced questions like:</p> <ul>   <li>How does user behavior change by country or product?</li>   <li>What is the monthly retention pattern by product launch cohorts?</li> </ul> <p>  <strong>Why it matters</strong>: With dynamic cohort logic, users can    <strong>slice cohorts by any permutation</strong>—without BI creating custom cohort reports    for every dimension or segment. </p>',
+    'left'
+  )
+  block t_54ju: block_ha_card()
+  block t_2ne6: block_ha_page_header_bg()
+  block t_o5qy: block_ha_page_header_bg()
+  block t_bet4: block_ha_page_header_bg()
+  block t_4e2c: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_gldd: block_ha_heading(
+    'Users vs Orders'
+  )
+  block v_xvgb: VizBlock {
+    label: 'Repeated buyers'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation cumulative_total_users {
+        label: 'Cumulative of total users'
+        formula: @aql total_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_cumulative_users {
+        label: 'Total Cumulative Users'
+        formula: @aql running_total(total_users, keep_filters: false);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation last_period {
+        label: 'Last Period'
+        formula: @aql relative_period(total_repeated_buyers, ecommerce_users.sign_up_date, -1, restrict: true);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          axis_min: 0
+          axis_max: 1200
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: 'last_period'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C5E'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_3dy9: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'quarter'
+        }
+      }
+      settings {
+        display_mode: 'single'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#05264c'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#05264C'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark_2
+  }
+  block t_sxoz: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="11" cy="6" r="4" fill="#05264c"/><path fill="#05264c" fill-rule="evenodd" d="M14.513 21.487C15.025 22 15.85 22 17.5 22s2.475 0 2.987-.513C21 20.975 21 20.15 21 18.5s0-2.475-.513-2.987C19.975 15 19.15 15 17.5 15s-2.475 0-2.987.513C14 16.025 14 16.85 14 18.5s0 2.475.513 2.987m2.014-1.51C15.824 19.474 15 18.883 15 17.86c0-1.13 1.375-1.931 2.5-.845c1.125-1.087 2.5-.285 2.5.845c0 1.023-.825 1.614-1.527 2.117l-.213.154c-.26.19-.51.369-.76.369s-.5-.18-.76-.37z" clip-rule="evenodd"/><path fill="#05264c" d="M14.594 21.563a1 1 0 0 1-.081-.076C14 20.975 14 20.15 14 18.5s0-2.475.513-2.987C15.025 15 15.85 15 17.5 15h.43c-1.383-1.345-3.969-2.25-6.93-2.25c-4.418 0-8 2.015-8 4.5s0 4.5 8 4.5c1.443 0 2.625-.066 3.594-.187" opacity="0.25"/></svg>;;
+  }
+  block t_2xgb: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_b5zn: block_ha_page_header_bg()
+  block t_pkgy: block_ha_page_header(
+    'Metrics catalog',
+    ' '
+  )
+  block t_k657: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_zbx8: block_ha_page_header_bg()
+  block t_f117: block_ha_page_header(
+    'Finance',
+    ' '
+  )
+  block t_afjd: block_ha_info_icon_only(
+    'User Demographic Insight',
+    '<h3>Performance by Gender</h3>     <ul>       <li><strong>Female users</strong> generated over <strong>$6.8M</strong> in total revenue — more than <strong>2×</strong> male users.</li>       <li>They account for <strong>68% of repeat buyers</strong> (3,834 out of 5,682) and <strong>67% of total orders</strong>.</li>       <li>Female customers are dominant across all age brackets, with particularly high engagement under 30.</li>     </ul>      <hr>      <h3>Performance by Age Group</h3>     <ul>       <li>The <strong>20–29</strong> age segment is our largest by both revenue (<strong>$4.9M</strong>) and orders (<strong>16K</strong>), across both genders.</li>       <li>The <strong>under-20</strong> group is also very active, contributing <strong>$4.7M</strong> in revenue — mainly driven by females.</li>       <li>Customers <strong>30 and above</strong> are a smaller group (~5% of revenue), but still generate over <strong>1.6K repeat orders</strong>.</li>     </ul>',
+    'Uncle Ben • Last updated: Oct 2025',
+    'left'
+  )
+  block t_271a: block_ha_info_icon_only(
+    'Explore user signups over time',
+    "<h3>Explore User Sign-ups Over Time</h3><p>      This chart shows how user sign-ups have evolved quarter by quarter.        You can go beyond the surface and dig deeper into the data with a few simple interactions:     </p>      <hr>      <h4>Drill Down for Deeper Insight</h4>     <p>       Right-click on any bar (e.g., Q1 2025) to <strong>drill down</strong> into dimensions like:        <strong>Gender, Age group, Country</strong> etc. This lets you analyze which segments contributed        most to user growth in that specific period.     </p>      <hr>      <h4>View Underlying Data</h4>     <p>       Whether you're in the main chart or within a drilled-down view:     </p>     <ul>       <li>Click <strong>“View Underlying Data”</strong> to explore the exact list of users who signed up.</li>       <li>Filter or export this raw data to investigate anomalies, campaign performance, or to follow up with user cohorts.</li> </ul>",
+    'Pro tip • Last updated: Oct 2025',
+    'right'
+  )
+  block t_mly3: block_ha_card()
+  block t_6mrf: block_ha_info_icon_only(
+    'Identifying and Engaging Top Customers',
+    '''<p>       This widget highlights our <strong>top customers by order volume and value</strong>, showing:     </p>     <ul>       <li>Net Merchandise Value (NMV)</li>       <li>Total Orders</li>       <li>Days Since Last Order</li>       <li>Average Order Value</li>     </ul>      <p>       The goal is to help us <strong>identify high-value customers</strong> for further engagement—       whether through tailored offers, loyalty campaigns, or direct outreach.     </p>      <p>       You can <strong>click on a customer’s name</strong> to send them an email instantly—making it easy        to follow up in one click. This is powered by        <a href="https://docs.holistics.io/docs/actions" target="_blank">Holistics Dashboard Actions</a>,        which enables one-click workflows like sending emails, Slack messages, or triggering external tools.     </p>      <p>       You can also <strong>right-click a customer row</strong> and select <strong>“View Underlying Data”</strong>        to explore which <strong>Product Categories</strong> they’ve purchased from.        This interaction is explained in the        <a href="https://docs.holistics.io/docs/interactions/view-underlying-data" target="_blank">       Holistics View Underlying Data docs</a>, and helps you personalize engagement based on real customer behavior.     </p>      <p>       If you want to analyze more than the top 10, just <strong>click “Explore Data”</strong> to expand the list        to any number of customers based on your campaign needs.     </p>      <p>       Customers who haven’t ordered in over <strong>90 days</strong> are visually flagged.        If you'd like to receive automated alerts for this, you can request the data team to set it up.        Holistics supports alerting via <strong>Slack</strong>, <strong>Email</strong>, or <strong>Webhooks</strong>—       see the <a href="https://docs.holistics.io/docs/delivery/data-alert" target="_blank">       Holistics Data Alert documentation</a> for setup details.     </p>''',
+    ' ',
+    'left'
+  )
+  block t_2q74: TextBlock {
+    content: @md <div style="background: white; padding: 8px; border-radius: 8px">
+
+Color codes
+https://www.learnui.design/tools/data-color-picker.html#palette
+
+
+#05264c
+#003a61
+#004e71
+#00627a
+#00767b
+#008976
+#259b6c
+
+</div>;;
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab_5dpo: CanvasLayout {
+      label: 'Overview'
+      width: 1260
+      height: 1920
+      auto_expand_vertically: true
+      block t_ra2i {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block v_5ty3 {
+        position: pos(60, 380, 190, 120)
+        layer: 2
+      }
+      block v_hkuz {
+        position: pos(290, 380, 190, 120)
+        layer: 3
+      }
+      block v_co2u {
+        position: pos(520, 380, 200, 120)
+        layer: 4
+      }
+      block v_mwo5 {
+        position: pos(760, 380, 200, 120)
+        layer: 5
+      }
+      block v_7wqj {
+        position: pos(1000, 380, 200, 120)
+        layer: 6
+      }
+      block v_80yo {
+        position: pos(60, 520, 1140, 470)
+        layer: 7
+      }
+      block v_0wfh {
+        position: pos(40, 1110, 400, 330)
+        layer: 9
+      }
+      block v_mz6i {
+        position: pos(460, 1110, 410, 330)
+        layer: 10
+      }
+      block v_vs7p {
+        position: pos(40, 1460, 1180, 420)
+        layer: 20
+      }
+      block t_jgba {
+        position: pos(40, 490, 1180, 20)
+        layer: 21
+      }
+      block t_n5sp {
+        position: pos(260, 320, 20, 180)
+        layer: 24
+      }
+      block t_1q6p {
+        position: pos(490, 320, 20, 180)
+        layer: 1
+      }
+      block t_62mj {
+        position: pos(730, 320, 20, 180)
+        layer: 24
+      }
+      block t_j7y2 {
+        position: pos(970, 320, 20, 180)
+        layer: 24
+      }
+      block t_j9zk {
+        position: pos(60, 350, 40, 40)
+        layer: 1
+      }
+      block t_uiyv {
+        position: pos(760, 350, 40, 40)
+        layer: 2
+      }
+      block t_h68n {
+        position: pos(290, 350, 40, 40)
+        layer: 3
+      }
+      block t_agis {
+        position: pos(1000, 350, 40, 40)
+        layer: 4
+      }
+      block t_v88y {
+        position: pos(520, 350, 40, 40)
+        layer: 5
+      }
+      block t_f8rx {
+        position: pos(40, 270, 350, 50)
+        layer: 27
+      }
+      block t_vuka {
+        position: pos(40, 1060, 890, 50)
+        layer: 27
+      }
+      block t_dv39 {
+        position: pos(40, 80, 750, 100)
+        layer: 28
+      }
+      block t_o55c {
+        position: pos(40, 320, 1180, 690)
+      }
+      block t_m86d {
+        position: pos(890, 1140, 330, 170)
+        layer: 29
+      }
+      block t_o5qy {
+        position: pos(0, 0, 1260, 220)
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+    }
+    tab tab1: CanvasLayout {
+      label: 'Users'
+      width: 1260
+      height: 1900
+      block f1 {
+        position: pos(40, 230, 310, 80)
+        layer: 4
+      }
+      block f2 {
+        position: pos(360, 230, 310, 80)
+        layer: 9
+      }
+      block v34 {
+        position: pos(60, 1210, 860, 620)
+        layer: 1
+      }
+      block v37 {
+        position: pos(70, 350, 420, 320)
+        layer: 2
+      }
+      block v43 {
+        position: pos(550, 350, 650, 720)
+        layer: 1
+      }
+      block t_wpcr {
+        position: pos(40, 30, 140, 40)
+        layer: 2
+      }
+      block t_43ze {
+        position: pos(530, 330, 690, 760)
+      }
+      block v_mb64 {
+        position: pos(70, 390, 210, 120)
+        layer: 3
+      }
+      block t_l38m {
+        position: pos(70, 360, 40, 40)
+        layer: 2
+      }
+      block t_kde2 {
+        position: pos(40, 80, 1160, 100)
+        layer: 12
+      }
+      block t_elu8 {
+        position: pos(40, 330, 470, 370)
+        layer: 1
+      }
+      block t_54ju {
+        position: pos(-20, 210, 1300, 100)
+        layer: -1
+      }
+      block t_bet4 {
+        position: pos(0, 0, 1260, 220)
+        layer: -2
+      }
+      block t_4e2c {
+        position: pos(40, 720, 470, 370)
+        layer: 1
+      }
+      block t_gldd {
+        position: pos(40, 1130, 350, 50)
+        layer: 14
+      }
+      block v_xvgb {
+        position: pos(70, 750, 420, 320)
+        layer: 1
+      }
+      block v_3dy9 {
+        position: pos(70, 780, 210, 120)
+        layer: 1
+      }
+      block t_sxoz {
+        position: pos(70, 750, 40, 40)
+        layer: 2
+      }
+      block t_afjd {
+        position: pos(1200, 320, 30, 30)
+        layer: 15
+      }
+      block t_271a {
+        position: pos(490, 320, 30, 30)
+        layer: 16
+      }
+      block t_mly3 {
+        position: pos(40, 1190, 1180, 660)
+      }
+      block t_6mrf {
+        position: pos(1200, 1180, 30, 30)
+        layer: 17
+      }
+      default_zoom: 0.9
+    }
+    tab tab4: CanvasLayout {
+      label: 'Products'
+      width: 1260
+      height: 1630
+      block f9 {
+        position: pos(380, 280, 300, 60)
+        layer: 7
+      }
+      block f10 {
+        position: pos(60, 280, 300, 60)
+        layer: 8
+      }
+      block f11 {
+        position: pos(70, 860, 300, 60)
+        layer: 9
+      }
+      block t34 {
+        position: pos(60, 1690, 1100, 580)
+        layer: 13
+      }
+      block v57 {
+        position: pos(70, 380, 1120, 380)
+        layer: 3
+      }
+      block f12 {
+        position: pos(390, 860, 300, 60)
+        layer: 14
+      }
+      block t_9x1p {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_ib83 {
+        position: pos(40, 260, 1180, 530)
+        layer: 1
+      }
+      block t_718y {
+        position: pos(40, 80, 610, 100)
+        layer: 16
+      }
+      block t_dxad {
+        position: pos(40, 350, 1180, 20)
+        layer: 17
+      }
+      block t_mbgg {
+        position: pos(1110, 280, 90, 30)
+        layer: 101
+      }
+      block v_x5zr {
+        position: pos(70, 940, 1120, 620)
+        layer: 103
+      }
+      block t_s72h {
+        position: pos(40, 820, 1180, 770)
+        layer: 8
+      }
+      block t_qaoo {
+        position: pos(1100, 840, 100, 30)
+        layer: 104
+      }
+      block t_2ne6 {
+        position: pos(0, 0, 1260, 220)
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+    }
+    tab tab6: CanvasLayout {
+      label: 'Sales & Orders'
+      width: 1260
+      height: 1880
+      block f3 {
+        position: pos(1310, 180, 300, 100)
+        layer: 2
+      }
+      block f4 {
+        position: pos(1610, 180, 320, 100)
+        layer: 6
+      }
+      block t17 {
+        position: pos(-640, 10, 620, 280)
+        layer: 3
+      }
+      block t21 {
+        position: pos(-760, 340, 680, 440)
+        layer: 8
+      }
+      block t22 {
+        position: pos(20, 1220, 1280, 20)
+        layer: 1
+      }
+      block t25 {
+        position: pos(1370, 1100, 880, 280)
+        layer: 11
+      }
+      block t30 {
+        position: pos(1390, 1720, 360, 180)
+        layer: 14
+      }
+      block t31 {
+        position: pos(-740, 840, 680, 140)
+        layer: 15
+      }
+      block t32 {
+        position: pos(-740, 1020, 680, 220)
+        layer: 16
+      }
+      block t33 {
+        position: pos(-640, 1280, 580, 220)
+        layer: 17
+      }
+      block v44 {
+        position: pos(1310, 340, 580, 600)
+        layer: 9
+      }
+      block v52 {
+        position: pos(1390, 1400, 360, 280)
+        layer: 13
+      }
+      block v53 {
+        position: pos(1790, 1420, 880, 300)
+        layer: 12
+      }
+      block t_k657 {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_zbx8 {
+        position: pos(0, 0, 1260, 220)
+      }
+      block t_f117 {
+        position: pos(40, 80, 750, 100)
+        layer: 19
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+    }
+    tab tab_5wmu: CanvasLayout {
+      label: 'Dictionary'
+      width: 1260
+      auto_expand_vertically: true
+      block t_3qfv {
+        position: pos(20, 240, 1220, 860)
+        layer: 1
+      }
+      block t_2xgb {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_b5zn {
+        position: pos(0, 0, 1260, 220)
+      }
+      block t_pkgy {
+        position: pos(40, 80, 760, 100)
+        layer: 3
+      }
+      block t_2q74 {
+        position: pos(1290, 280, 250, 180)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+      height: 1110
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'v_x5zr'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v_mb64',
+            'v_x5zr',
+            'v_xvgb',
+            'v_3dy9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v44'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52a'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53a'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v57'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f10'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v43',
+            'v_mb64',
+            'v_x5zr',
+            'v_xvgb',
+            'v_3dy9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f11'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v43',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f12'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v43',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_5ty3'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hkuz'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_co2u'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mwo5'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_7wqj'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80yo'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0wfh'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mz6i'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vs7p'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_x5zr'
+      to: [
+        CustomMapping {
+          block: 'v_3dy9'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3dy9'
+      to: [
+        CustomMapping {
+          block: [
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_x5zr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v53a',
+            'v52a',
+            'v53'
+          ]
+          field: r(ecommerce_orders.created_at)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f9'
+      to: [
+        CustomMapping {
+          block: 'v57'
+          field: r(ecommerce_orders.created_at)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: [
+            'v37',
+            'v_xvgb'
+          ]
+          field: r(ecommerce_users.sign_up_at)
+        }
+      ]
+    }
+  ]
+  theme: holistics_ant
+}

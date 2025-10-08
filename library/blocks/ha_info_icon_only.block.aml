@@ -1,0 +1,219 @@
+// This is a library dashboard block. For more details, visit https://docs.holistics.io/docs/canvas-dashboard/guides/build-library-blocks
+@template(
+  title='H.A. - Info - Icon only',
+  description='',
+  thumbnail='',
+  metadata={
+    group: 'Holistics Ant'
+    block_width: 30
+    block_height: 30
+  }
+)
+Func block_ha_info_icon_only(
+    title: String = "Tips",
+    content: String = 'Click on any metric to see detailed breakdown. Use <span class="pulse-tooltip-highlight">Cmd+Click</span> to compare multiple metrics.',
+    footer: String = "Pro tip • Last updated: Oct 2025",
+    tooltip_position: String = 'top'   // 'top' | 'right' | 'left' | 'bottom'
+
+
+) {
+  TextBlock {
+    content: @md <!-- Floating Pulse Info Button -->
+<style>
+    .info-btn-pulse {
+        position: absolute;
+        display: inline-block;
+    }
+
+    .info-btn-pulse .pulse-button {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #05264c, #00627a);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .info-btn-pulse .pulse-button::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 98, 122, 0.3);
+        animation: pulseRing 2s infinite;
+    }
+
+    @keyframes pulseRing {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50%      { transform: scale(1.1); opacity: 0.5; }
+    }
+
+    .info-btn-pulse .pulse-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(5, 38, 76, 0.3);
+    }
+
+    /* Base (TOP) position */
+    .info-btn-pulse .pulse-tooltip {
+        position: absolute;
+        bottom: calc(100% + 15px);          /* sits above by default */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 640px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 12px 48px rgba(5, 38, 76, 0.18);
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .info-btn-pulse .pulse-tooltip::after {
+        content: '';
+        position: absolute;
+        top: calc(100% - 1px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid white;       /* arrow points upward towards button */
+        
+    }
+
+    .info-btn-pulse:hover .pulse-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 20px);
+    }
+
+    /* RIGHT */
+    .info-btn-pulse.right-position .pulse-tooltip {
+        bottom: auto;
+        top: 50%;
+        left: calc(100% + 15px);
+        transform: translateY(-50%);
+    }
+    .info-btn-pulse.right-position .pulse-tooltip::after {
+        top: 50%;
+        left: -9px;
+        transform: translateY(-50%);
+        border: none;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 10px solid white;     /* arrow points leftwards from tooltip */
+    }
+    .info-btn-pulse.right-position:hover .pulse-tooltip {
+        left: calc(100% + 20px);
+        opacity: 1; visibility: visible;
+    }
+
+    /* LEFT */
+    .info-btn-pulse.left-position .pulse-tooltip {
+        bottom: auto;
+        top: 50%;
+        right: calc(100% + 15px);
+        left: auto;
+        transform: translateY(-50%);
+    }
+    .info-btn-pulse.left-position .pulse-tooltip::after {
+        top: 50%;
+        right: -9px;
+        left: auto;
+        transform: translateY(-50%);
+        border: none;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 10px solid white;      /* arrow points rightwards from tooltip */
+    }
+    .info-btn-pulse.left-position:hover .pulse-tooltip {
+        right: calc(100% + 20px);
+        opacity: 1; visibility: visible;
+    }
+
+    /* BOTTOM */
+    .info-btn-pulse.bottom-position .pulse-tooltip {
+        bottom: auto;
+        top: calc(100% + 15px);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .info-btn-pulse.bottom-position .pulse-tooltip::after {
+        top: -9px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: none;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 10px solid white;    /* arrow points up toward button */
+    }
+    .info-btn-pulse.bottom-position:hover .pulse-tooltip {
+        top: calc(100% + 20px);
+        opacity: 1; visibility: visible;
+    }
+
+    .info-btn-pulse .pulse-tooltip-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #05264c;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-btn-pulse .pulse-tooltip-content {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #374151;
+    }
+
+    .info-btn-pulse .pulse-tooltip-highlight {
+        color: #00627a;
+        font-weight: 600;
+        background: rgba(0, 98, 122, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .info-btn-pulse .pulse-tooltip-footer {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-pulse ${tooltip_position}-position">
+    <button class="pulse-button">i</button>
+    <div class="pulse-tooltip">
+        <div class="pulse-tooltip-title">
+            ${title}
+        </div>
+        <div class="pulse-tooltip-content">
+            ${content}
+        </div>
+        <div class="pulse-tooltip-footer">${footer}</div>
+    </div>
+</div>
+;;
+  }
+}
