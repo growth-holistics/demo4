@@ -545,14 +545,14 @@ Everyday we strive to be the <br><span style="color:#C6CAD9; font-weight:bold;">
 </h1>;;
   }
   block v_jaks: VizBlock {
-    label: 'Product (image), Product Name and 4 more'
+    label: 'Top Selling Product'
     viz: DataTable {
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: r(ecommerce_products.product_google_link)
+          ref: r(ecommerce_products.product_image_100px)
           format {
-            type: 'text'
+            type: 'html'
           }
         },
         VizFieldFull {
@@ -567,29 +567,92 @@ Everyday we strive to be the <br><span style="color:#C6CAD9; font-weight:bold;">
             type: 'number'
             pattern: 'inherited'
           }
-        },
-        VizFieldFull {
-          ref: r(ecommerce_products.product_image_url)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: r(ecommerce_products.product_image_100px)
-          format {
-            type: 'html'
-          }
-        },
-        VizFieldFull {
-          ref: r(ecommerce_products.product_image)
-          format {
-            type: 'text'
-          }
+          uname: 'custom_gmv'
         }
       ]
       settings {
+        pagination_size: 100
+        wrap_header_text: true
+        wrap_cell_text: true
         show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_gmv'
+            direction: 'desc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_gmv'
+            format: ScaleFormat {
+              min {
+                value: 200000
+                color: '#C6CAD9'
+              }
+              max {
+                value: 400000
+                color: '#717482'
+              }
+            }
+          }
+        ]
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_pw4b: VizBlock {
+    label: 'GMV (Gross Merchandise Value) by Parent Category'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        ref: r(map_categories.parent_category)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+        settings {
+          point {
+            value: 'Clothes'
+            color: '#4F5150'
+          }
+          point {
+            value: 'Groceries'
+            color: '#717482'
+          }
+          point {
+            value: 'Home Entertainment'
+            color: '#D3D4D1FF'
+          }
+          point {
+            value: 'Home Furniture'
+            color: '#C6CAD9'
+          }
+          point {
+            value: 'Mobiles & Tablets'
+            color: '#F5F5F5FF'
+          }
+          point {
+            value: 'Skin Care'
+            color: '#000000FF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        data_label_position: 'none'
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -676,8 +739,12 @@ Everyday we strive to be the <br><span style="color:#C6CAD9; font-weight:bold;">
       layer: 1
     }
     block v_jaks {
-      position: pos(20, 1250, 1400, 420)
+      position: pos(20, 1250, 800, 670)
       layer: 2
+    }
+    block v_pw4b {
+      position: pos(830, 1270, 540, 600)
+      layer: 3
     }
   }
   interactions: [
