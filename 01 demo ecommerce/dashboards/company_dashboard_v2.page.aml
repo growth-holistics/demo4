@@ -21,6 +21,18 @@ BlockTheme holistics_kpi_blue_dark_2 {
   }
 }
 
+BlockTheme holistics_ant_card_blocktheme {
+  border {
+    border_width: 2
+    border_radius: 8
+    border_color: '#EDF1F5'
+  }
+  background {
+    bg_color: 'white'
+  }
+  padding: 18
+}
+
 @tag('1️⃣ Trust/Endorsed', 'Status/WIP')
 Dashboard company_dashboard_v2 {
   title: 'Ecommerce Dashboard - v2.202510'
@@ -383,12 +395,8 @@ Dashboard company_dashboard_v2 {
     label: 'Date'
     type: 'date'
     default {
-      operator: 'last'
-      value: '12'
-      modifier: 'month'
-      options {
-        include_current_period: true
-      }
+      operator: 'matches'
+      value: 'last 12 months'
     }
   }
   block t17: TextBlock {
@@ -442,11 +450,8 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
     label: 'GMV Over Time'
     viz: LineChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
+        ref: r(ecommerce_orders.created_at)
         transformation: 'datetrunc quarter'
         format {
           type: 'date'
@@ -460,11 +465,15 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
         }
         series {
           field: VizFieldFull {
-            ref: 'gmv'
+            ref: r(demo_ecommerce_version_2.gmv)
             format {
               type: 'number'
               pattern: 'inherited'
             }
+          }
+          settings {
+            color: '#05264C'
+            line_interpolation: 'smooth'
           }
         }
       }
@@ -477,6 +486,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
         }
       }
     }
+    theme: holistics_ant_card_blocktheme
   }
   block t22: TextBlock {
     content: @md <hr>;;
@@ -1452,17 +1462,7 @@ Uncover trends by comparing current performance against a previous period.
         }
       }
     }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
+    theme: holistics_ant_card_blocktheme
   }
   block v_mz6i: VizBlock {
     label: 'GMV (Sales) by Country Name'
@@ -1543,17 +1543,7 @@ Uncover trends by comparing current performance against a previous period.
         }
       }
     }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
+    theme: holistics_ant_card_blocktheme
   }
   block v_vs7p: VizBlock {
     label: 'GMV (Sales) by Country'
@@ -1591,17 +1581,7 @@ Uncover trends by comparing current performance against a previous period.
         }
       }
     }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
+    theme: holistics_ant_card_blocktheme
   }
   block t_jgba: separator()
   block t_n5sp: ver_separator()
@@ -1884,27 +1864,25 @@ Uncover trends by comparing current performance against a previous period.
   block t_mly3: block_ha_card()
   block t_6mrf: block_ha_info_icon_only(
     'Identifying and Engaging Top Customers',
-    '''     
-      <p>The goal is to help <strong>identify high-value customers</strong> for tailored offers, loyalty campaigns, or direct outreach.</p>
-      <ul>
-    <li>
-      <strong>Click a customer’s name</strong> to email them instantly via 
-      <a href="https://docs.holistics.io/docs/actions" target="_blank">Holistics Dashboard Actions</a>. 
-      <em>More actions (e.g., Slack, webhooks, external tools) can be configured by your team.</em>
-    </li>
-    <li>
-      <strong>Right-click a customer row → “View Underlying Data”</strong> to see purchased <strong>Product Categories</strong> for personalization 
-      (<a href="https://docs.holistics.io/docs/interactions/view-underlying-data" target="_blank">docs</a>).
-    </li>
-    <li><strong>Click “Explore Data”</strong> to analyze beyond the top 10 customers.</li>
-    <li>
-      Customers inactive for <strong>90+ days</strong> are flagged. 
-      Ask the data team to set up automated alerts via <strong>Slack</strong>, <strong>Email</strong>, or <strong>Webhooks</strong> 
-      (<a href="https://docs.holistics.io/docs/delivery/data-alert" target="_blank">Data Alert docs</a>).
-    </li>
-  </ul>'''
-    ,
-    ' ',
+    '''    <p>The goal is to help <strong>identify high-value customers</strong> for tailored offers, loyalty campaigns, or direct outreach.</p>
+    <ul>
+  <li>
+    <strong>Click a customer’s name</strong> to email them instantly via 
+    <a href="https://docs.holistics.io/docs/actions" target="_blank">Holistics Dashboard Actions</a>. 
+    <em>More actions (e.g., Slack, webhooks, external tools) can be configured by your team.</em>
+  </li>
+  <li>
+    <strong>Right-click a customer row → “View Underlying Data”</strong> to see purchased <strong>Product Categories</strong> for personalization 
+    (<a href="https://docs.holistics.io/docs/interactions/view-underlying-data" target="_blank">docs</a>).
+  </li>
+  <li><strong>Click “Explore Data”</strong> to analyze beyond the top 10 customers.</li>
+  <li>
+    Customers inactive for <strong>90+ days</strong> are flagged. 
+    Ask the data team to set up automated alerts via <strong>Slack</strong>, <strong>Email</strong>, or <strong>Webhooks</strong> 
+    (<a href="https://docs.holistics.io/docs/delivery/data-alert" target="_blank">Data Alert docs</a>).
+  </li>
+</ul>''',
+    'Peter Parker',
     'left'
   )
   block t_2q74: TextBlock {
@@ -2250,13 +2228,16 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     </div>
 </div>;;
   }
-  block t_7f62: block_ha_card()
+  block t_zbp0: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border-bottom
+: 2px solid #EDF1F5"></div>;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
       label: 'Overview'
       width: 1260
-      height: 1910
+      height: 1980
       auto_expand_vertically: true
       block t_ra2i {
         position: pos(40, 30, 140, 40)
@@ -2295,7 +2276,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 10
       }
       block v_vs7p {
-        position: pos(40, 1460, 1180, 420)
+        position: pos(-90, 1550, 1180, 420)
         layer: 20
       }
       block t_jgba {
@@ -2548,11 +2529,11 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       width: 1260
       height: 890
       block f3 {
-        position: pos(1310, 180, 300, 100)
+        position: pos(40, 240, 300, 60)
         layer: 2
       }
       block f4 {
-        position: pos(1610, 180, 320, 100)
+        position: pos(360, 240, 320, 60)
         layer: 6
       }
       block t17 {
@@ -2588,7 +2569,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 17
       }
       block v44 {
-        position: pos(60, 290, 1140, 540)
+        position: pos(40, 350, 1170, 470)
         layer: 9
       }
       block v52 {
@@ -2610,9 +2591,9 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(40, 80, 650, 100)
         layer: 19
       }
-      block t_7f62 {
-        position: pos(40, 260, 1180, 590)
-        layer: 8
+      block t_zbp0 {
+        position: pos(-20, 200, 1300, 120)
+        layer: -1
       }
       mobile {
         mode: 'auto'
@@ -2758,6 +2739,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
           block: [
             'v37',
             'v43',
+            'v44',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
@@ -2984,19 +2966,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       ]
     },
     FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: [
-            'v53a',
-            'v52a',
-            'v53'
-          ]
-          field: r(ecommerce_orders.created_at)
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'f9'
       to: [
         CustomMapping {
@@ -3014,6 +2983,19 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_xvgb'
           ]
           field: r(ecommerce_users.sign_up_at)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v53a',
+            'v52a',
+            'v53'
+          ]
+          field: r(ecommerce_orders.created_at)
         }
       ]
     }
