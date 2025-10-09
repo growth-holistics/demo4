@@ -393,10 +393,14 @@ Dashboard company_dashboard_v2 {
   }
   block f3: FilterBlock {
     label: 'Date'
-    type: 'date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_orders.created_at)
+    }
     default {
       operator: 'matches'
-      value: 'last 12 months'
+      value: 'last 18 months'
     }
   }
   block f4: FilterBlock {
@@ -462,6 +466,18 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
           settings {
             color: '#05264C'
             line_interpolation: 'smooth'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.nmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#259B6C'
           }
         }
       }
@@ -2066,151 +2082,9 @@ https://www.learnui.design/tools/data-color-picker.html#palette
   block t_kr0c: separator()
   block t_od8o: block_ha_info_whats_this(
     "What's this",
-    '<img src="https://media.holistics.io/301004ba-cohort-retention-diagram-for-demo-dashboard.png" />',
-    'top'
+    '<h2 style="font-weight: 600; font-size: 16px">Dynamic Cohort Analysis: Cohort Slicing by Any Filter</h2> <p>   This cohort report is tightly integrated with the filters above (date, metric, geography).    Any change in those filters will immediately update this cohort breakdown. </p> <p>It allows business users to answer advanced questions like:</p> <ul>   <li>How does user behavior change by country or product?</li>   <li>What is the monthly retention pattern by product launch cohorts?</li> </ul> <p>  <strong>Why it matters</strong>: With dynamic cohort logic, users can    <strong>slice cohorts by any permutation</strong>—without BI creating custom cohort reports    for every dimension or segment. </p> <img src="https://media.holistics.io/301004ba-cohort-retention-diagram-for-demo-dashboard.png" />',
+    'left'
   )
-  block t_yr6l: TextBlock {
-    content: @md <!-- Minimal Text Info Button -->
-<style>
-    .info-btn-text {
-        position: absolute;
-        display: inline-block;
-    }
-
-    .info-btn-text .text-button {
-        background: none;
-        border: none;
-        color: #00627a;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-decoration-color: rgba(0, 98, 122, 0.4);
-        text-underline-offset: 3px;
-    }
-
-    .info-btn-text .text-button:hover {
-        background: rgba(0, 98, 122, 0.08);
-        text-decoration-style: solid;
-        text-decoration-color: #00627a;
-        transform: translateY(-1px);
-    }
-
-    .info-btn-text .text-tooltip {
-        position: absolute;
-        bottom: calc(100% + 10px);
-        left: 50%;
-        transform: translateX(-50%);
-        min-width: 480px;
-        max-width: 640px;
-        background: white;
-        color: #333333;
-        border-radius: 12px;
-        padding: 20px 24px;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        font-size: 13px;
-        line-height: 1.6;
-        box-shadow: 0 8px 36px rgba(5, 38, 76, 0.25);
-        z-index: 1000;
-    }
-
-    .info-btn-text .text-tooltip::after {
-        content: '';
-        position: absolute;
-        top: calc(100% - 1px);
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 6px solid #ffffff;
-    }
-
-    .info-btn-text:hover .text-tooltip {
-        opacity: 1;
-        visibility: visible;
-        bottom: calc(100% + 12px);
-    }
-
-    .info-btn-text .text-tooltip-highlight {
-        color: #4ade80;
-        font-weight: 600;
-    }
-
-    /* RIGHT */
-    .info-btn-text.right-position .text-tooltip {
-    bottom: auto;
-    top: 50%;
-    left: calc(100% + 10px);
-    transform: translateY(-50%);
-    }
-
-    .info-btn-text.right-position .text-tooltip::after {
-    top: 50%;
-    left: -5px;
-    transform: translateY(-50%);
-    border: none;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-right: 6px solid #ffffff;
-    }
-
-    /* LEFT */
-    .info-btn-text.left-position .text-tooltip {
-    bottom: auto;
-    top: 50%;
-    right: calc(100% + 10px);
-    left: auto;
-    transform: translateY(-50%);
-    }
-
-    .info-btn-text.left-position .text-tooltip::after {
-    top: 50%;
-    right: -5px;
-    left: auto;                         /* NEW: reset base left:50% */
-    bottom: auto;                       /* (defensive reset) */
-    transform: translateY(-50%);
-    border: none;                       /* clear all first */
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 6px solid white;       /* KEY CHANGE: triangle points right */
-    }
-
-
-    /* BOTTOM */
-    .info-btn-text.bottom-position .text-tooltip {
-    top: calc(100% + 10px);
-    bottom: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    }
-
-    .info-btn-text.bottom-position .text-tooltip::after {
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    border: none;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid #ffffff;
-    }
-</style>
-
-<!-- HTML Structure -->
-<div class="info-btn-text left-position">
-    <button class="text-button">What's this</button>
-    <div class="text-tooltip">
-        <h2 style="font-weight: 600; font-size: 16px">Dynamic Cohort Analysis: Cohort Slicing by Any Filter</h2> <p>   This cohort report is tightly integrated with the filters above (date, metric, geography).    Any change in those filters will immediately update this cohort breakdown. </p> <p>It allows business users to answer advanced questions like:</p> <ul>   <li>How does user behavior change by country or product?</li>   <li>What is the monthly retention pattern by product launch cohorts?</li> </ul> <p>  <strong>Why it matters</strong>: With dynamic cohort logic, users can    <strong>slice cohorts by any permutation</strong>—without BI creating custom cohort reports    for every dimension or segment. </p>
-    </div>
-</div>;;
-  }
   block t_zbp0: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: white; border-bottom
 : 2px solid #EDF1F5"></div>;;
@@ -2494,10 +2368,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(1110, 1820, 100, 30)
         layer: 120
       }
-      block t_yr6l {
-        position: pos(1300, 1790, 100, 30)
-        layer: 1
-      }
       default_zoom: 0.9
     }
     tab tab4: CanvasLayout {
@@ -2558,7 +2428,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     tab tab6: CanvasLayout {
       label: 'Sales & Orders'
       width: 1260
-      height: 860
+      height: 740
       block f3 {
         position: pos(40, 240, 300, 60)
         layer: 2
@@ -2685,7 +2555,9 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       to: [
         CustomMapping {
           block: [
+            'v44',
             'v_wtl8',
+            'f3',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2703,6 +2575,40 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       ]
     },
     FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v52a',
+            'v53a',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_0wfh',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'f2',
+            'f4',
+            'f10',
+            'f_xzr7',
+            'f_29w2'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f4'
       to: [
         CustomMapping {
@@ -2712,6 +2618,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
+            'f3',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2807,6 +2714,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
+            'f3',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2997,6 +2905,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_vs7p',
             'v_wtl8',
             'f2',
+            'f3',
             'f4',
             'f10',
             'f_29w2'
@@ -3026,6 +2935,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mz6i',
             'v_vs7p',
             'v_wtl8',
+            'f3',
             'f4',
             'f10'
           ]
@@ -3106,19 +3016,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_xvgb'
           ]
           field: r(ecommerce_users.sign_up_at)
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f3'
-      to: [
-        CustomMapping {
-          block: [
-            'v53a',
-            'v52a',
-            'v53'
-          ]
-          field: r(ecommerce_orders.created_at)
         }
       ]
     }
