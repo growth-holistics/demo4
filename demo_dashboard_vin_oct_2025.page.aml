@@ -1,0 +1,308 @@
+Dashboard demo_dashboard_vin_oct_2025 {
+  title: 'Demo Dashboard Vin (Oct 2025)'
+  block title: TextBlock {
+    content: @md # Successful Orders;;
+  }
+  block v_fh8o: VizBlock {
+    label: 'Total Orders by Continent'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.continent_name)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_t5ka: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '12 months ago till now'
+    }
+  }
+  block v_rz6i: VizBlock {
+    label: 'Order Details'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(map_categories.parent_category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_bgun: VizBlock {
+    label: 'Total Revenue Over Time'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_hp9s: VizBlock {
+    label: 'Total Revenue Over Time'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_created_at'
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_revenue'
+        }
+      ]
+      settings {
+        pagination_size: 1000
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_revenue'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#328159'
+              background_color: '#B5E3CD'
+            }
+          },
+          ConditionalFormat {
+            key: 'custom_revenue'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'datetrunc_month_created_at'
+            width: 250
+          },
+          ColumnStyle {
+            key: 'custom_revenue'
+            width: 290
+          }
+        ]
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v_fh8o'
+      to: [
+        CustomMapping {
+          block: [
+            'v_bgun',
+            'v_hp9s'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rz6i'
+      to: [
+        CustomMapping {
+          block: [
+            'v_bgun',
+            'v_hp9s'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_bgun'
+      to: [
+        CustomMapping {
+          block: [
+            'v_fh8o',
+            'v_rz6i'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hp9s'
+      to: [
+        CustomMapping {
+          block: [
+            'v_fh8o',
+            'v_rz6i'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_t5ka'
+      to: [
+        CustomMapping {
+          block: [
+            'v_fh8o',
+            'v_rz6i'
+          ]
+          field: r(ecommerce_orders.created_at)
+        }
+      ]
+    }
+  ]
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Order Count'
+      width: 1300
+      height: 980
+      grid_size: 20
+      auto_expand_vertically: true
+      block title {
+        position: pos(20, 20, 1260, 60)
+      }
+      block f_t5ka {
+        position: pos(780, 20, 300, 80)
+        layer: 3
+      }
+      block v_fh8o {
+        position: pos(20, 100, 1060, 420)
+        layer: 1
+      }
+      block v_rz6i {
+        position: pos(20, 540, 1060, 420)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab2: CanvasLayout {
+      label: 'Order Revenue'
+      width: 1300
+      height: 940
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_bgun {
+        position: pos(20, 20, 980, 440)
+        layer: 1
+      }
+      block v_hp9s {
+        position: pos(20, 480, 980, 440)
+        layer: 1
+      }
+    }
+  }
+  theme: H.themes.vanilla
+}

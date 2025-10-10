@@ -1,0 +1,1450 @@
+Dashboard test_metrics_vud {
+  title: 'Phuong - Test metrics & VUD'
+  block title: TextBlock {
+    content: @md Basic aggregations;;
+  }
+  block v_agne: VizBlock {
+    label: 'Count'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_107n: VizBlock {
+    label: 'Sum'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_86b8650 {
+        label: 'Sum of Orders Discount'
+        formula: @aql sum(ecommerce_orders.discount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_86b8650'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_iy04: VizBlock {
+    label: 'Avg'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_49cb05a {
+        label: 'Average of Products Price'
+        formula: @aql avg(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_49cb05a'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_rd7q: VizBlock {
+    label: 'Max'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_users.age_group)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_8d2d13d'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_4hvg: VizBlock {
+    label: 'P-stdv'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_a9ea6cc {
+        label: 'Population standard deviation of Products Price'
+        formula: @aql stdev(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(map_categories.category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_a9ea6cc'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_273a: VizBlock {
+    label: 'Running total'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+          uname: 'datetrunc_year_created_at_1'
+        },
+        VizFieldFull {
+          ref: 'metric_633232e'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_year_created_at_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_6sik: TextBlock {
+    content: @md Cumulative calculations;;
+  }
+  block t_crhp: TextBlock {
+    content: @md List;;
+  }
+  block t_xc7s: TextBlock {
+    content: @md Basic conditional aggregations;;
+  }
+  block t_jvhl: TextBlock {
+    content: @md Misc functions;;
+  }
+  block v_r3nj: VizBlock {
+    label: 'List'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_0b1668e'
+          format {
+            type: 'json'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_3ipc: VizBlock {
+    label: 'Countif'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_65f5773 {
+        label: 'Count of Orders Id'
+        formula: @aql count(ecommerce_orders.id)
+| where(ecommerce_users.gender == "Female");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_65f5773'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_tibu: VizBlock {
+    label: 'Concat'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_8fad44c {
+        label: 'Max of Products Price'
+        formula: @aql max(ecommerce_products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_cfef6b5 {
+        label: 'Max of Orders Delivery Attempts'
+        formula: @aql max(ecommerce_orders.delivery_attempts);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8d2d13d {
+        label: 'Max of Orders Cohort Size'
+        formula: @aql max(ecommerce_orders.cohort_size);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_633232e {
+        label: 'Running total of Total Orders'
+        formula: @aql total_orders | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_0b1668e {
+        label: 'List of Products'
+        formula: @aql ecommerce_products;;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_65f5773 {
+        label: 'Count of Orders Id'
+        formula: @aql count(ecommerce_orders.id)
+| where(ecommerce_users.gender == "Female");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_7a6b37b {
+        label: 'Concat field  '
+        formula: @aql concat(cast(total_users, 'text'), " ", "people");;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      fields: [
+        VizFieldFull {
+          ref: 'metric_7a6b37b'
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_09wu: VizBlock {
+    label: 'Rank'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_116f2cd {
+        label: 'Rank by GMV - Gross Merchandise Value'
+        formula: @aql rank(order: gmv | desc());;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(map_categories.category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_116f2cd'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_9fqu: TextBlock {
+    content: @md Rank;;
+  }
+  block v_yfhx: VizBlock {
+    label: 'Trend line'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Trend line of Count of Id'
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: RegressionLine {
+              type: 'linear'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_zbhh: VizBlock {
+    label: 'Ref line'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Reference line of Count of Id'
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: ReferenceLine {
+              type: 'avg'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_bq8x: VizBlock {
+    label: 'Moving Sum'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Mov Sum'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: MovingCalculationField {
+            type: 'sum'
+            order: 'row'
+            range {
+              next: 0
+            }
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_0bh9: VizBlock {
+    label: 'PoT'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'PoT Count of Id'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PercentOfTotalField {
+            of_all: 'row'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_p21u: VizBlock {
+    label: 'PoP'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: '∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_1'
+        },
+        VizFieldFull {
+          label: '%∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'percent_change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_2'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_1n0b: VizBlock {
+    label: 'PoP'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: '∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_1'
+        },
+        VizFieldFull {
+          label: '%∆ Count of Id (prev. 1y)'
+          ref: r(ecommerce_orders.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          analytic: PeriodOverPeriodComparison {
+            time_dimension: r(ecommerce_orders.created_at)
+            display: 'percent_change'
+            comparison_period: 'relative to previous 1 year'
+          }
+          uname: 'count_id_2'
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_1'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than'
+                value: 0
+              }
+              text_color: '#399367'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'count_id_2'
+            aggregation: 'count'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_kzax: VizBlock {
+    label: 'Metric defined in dataset'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc year'
+          format {
+            type: 'date'
+            pattern: 'yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Simple calculation'
+      width: 1300
+      height: 2360
+      grid_size: 20
+      auto_expand_vertically: true
+      block title {
+        position: pos(20, 20, 1260, 60)
+      }
+      block t_6sik {
+        position: pos(20, 520, 1260, 60)
+        layer: 1
+      }
+      block t_9fqu {
+        position: pos(20, 1840, 1260, 60)
+        layer: 1
+      }
+      block t_crhp {
+        position: pos(20, 840, 1260, 60)
+        layer: 1
+      }
+      block t_jvhl {
+        position: pos(24, 1500, 1260, 60)
+        layer: 1
+      }
+      block t_xc7s {
+        position: pos(20, 1180, 1260, 60)
+        layer: 1
+      }
+      block v_09wu {
+        position: pos(20, 1920, 620, 420)
+        layer: 11
+      }
+      block v_107n {
+        position: pos(420, 80, 340, 220)
+        layer: 3
+      }
+      block v_273a {
+        position: pos(20, 600, 380, 220)
+        layer: 7
+      }
+      block v_3ipc {
+        position: pos(20, 1260, 500, 220)
+        layer: 9
+      }
+      block v_4hvg {
+        position: pos(420, 320, 340, 180)
+        layer: 6
+      }
+      block v_agne {
+        position: pos(20, 80, 380, 220)
+        layer: 2
+      }
+      block v_iy04 {
+        position: pos(780, 80, 340, 220)
+        layer: 4
+      }
+      block v_r3nj {
+        position: pos(20, 920, 760, 240)
+        layer: 8
+      }
+      block v_rd7q {
+        position: pos(20, 320, 380, 180)
+        layer: 5
+      }
+      block v_tibu {
+        position: pos(20, 1560, 500, 260)
+        layer: 10
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 'fit_to_page'
+    }
+    tab tab2: CanvasLayout {
+      label: 'AAF'
+      width: 1300
+      height: 1460
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_yfhx {
+        position: pos(20, 20, 480, 340)
+        layer: 1
+      }
+      block v_zbhh {
+        position: pos(520, 20, 480, 340)
+        layer: 1
+      }
+      block v_bq8x {
+        position: pos(20, 380, 480, 340)
+        layer: 1
+      }
+      block v_0bh9 {
+        position: pos(520, 380, 760, 340)
+        layer: 1
+      }
+      block v_p21u {
+        position: pos(20, 740, 480, 340)
+        layer: 1
+      }
+      block v_kzax {
+        position: pos(520, 740, 480, 340)
+        layer: 1
+      }
+      default_zoom: 'fit_to_page'
+    }
+  }
+  theme: H.themes.vanilla
+  interactions: [
+    FilterInteraction {
+      from: 'v_agne'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_107n'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_iy04'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rd7q'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_4hvg'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_273a'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_r3nj'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3ipc'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_tibu'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_09wu'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_yfhx'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_zbhh'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_bq8x'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0bh9'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_p21u'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_1n0b'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu',
+            'v_kzax'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_kzax'
+      to: [
+        CustomMapping {
+          block: [
+            'v_agne',
+            'v_107n',
+            'v_iy04',
+            'v_rd7q',
+            'v_4hvg',
+            'v_273a',
+            'v_r3nj',
+            'v_3ipc',
+            'v_tibu',
+            'v_09wu',
+            'v_1n0b'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+}
