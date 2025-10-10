@@ -2,18 +2,39 @@ Dashboard chinh_sandbox {
   title: 'Chinh Sandbox'
   description: ''
 
-  view: CanvasLayout {
+  view: TabLayout {
     label: 'View 1'
-    width: 1300
-    height: 800
-    grid_size: 20
-    auto_expand_vertically: true
-    mobile {
-      mode: 'auto'
+    tab tab1: CanvasLayout {
+      label: 'Tab 1'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_s2zw {
+        position: pos(300, 60, 700, 660)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
     }
-    block v_s2zw {
-      position: pos(300, 60, 700, 660)
-      layer: 1
+    tab tab2: CanvasLayout {
+      label: 'Tab 2'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_d6dc {
+        position: pos(20, 100, 740, 660)
+        layer: 1
+      }
+      block f_fzhj {
+        position: pos(20, 20, 300, 80)
+        layer: 2
+      }
     }
   }
 
@@ -42,30 +63,6 @@ Dashboard chinh_sandbox {
       ]
       settings {
         show_row_number: true
-        conditional_formats: [
-          ConditionalFormat {
-            key: '14eecb7f-d69d-41e4-bcf0-2e649e565e53'
-            format: SingleFormat {
-              condition {
-                operator: 'greater_than'
-                value: 0
-              }
-              text_color: '#328159'
-              background_color: '#B5E3CD'
-            }
-          },
-          ConditionalFormat {
-            key: '14eecb7f-d69d-41e4-bcf0-2e649e565e53'
-            format: SingleFormat {
-              condition {
-                operator: 'less_than'
-                value: 0
-              }
-              text_color: '#BF0E08'
-              background_color: '#FAD2D1'
-            }
-          }
-        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
@@ -80,4 +77,74 @@ Dashboard chinh_sandbox {
       }
     }
   }
+  block v_d6dc: VizBlock {
+    label: 'Products'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.total_products)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_fzhj: FilterBlock {
+    label: 'Products Product Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_products.name)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v_s2zw'
+      to: [
+        CustomMapping {
+          block: 'v_d6dc'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_d6dc'
+      to: [
+        CustomMapping {
+          block: 'v_s2zw'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_fzhj'
+      to: [
+        CustomMapping {
+          block: 'v_s2zw'
+          disabled: true
+        }
+      ]
+    }
+  ]
 }
