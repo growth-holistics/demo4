@@ -1,10 +1,10 @@
 Dashboard demo_dashboard_vin_oct_2025 {
   title: 'Demo Dashboard Vin (Oct 2025)'
   block title: TextBlock {
-    content: @md # Successful Orders;;
+    content: @md # Revenue by Region;;
   }
   block v_fh8o: VizBlock {
-    label: 'Total Orders by Continent'
+    label: 'Revenue by Region'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
@@ -55,7 +55,7 @@ Dashboard demo_dashboard_vin_oct_2025 {
     }
   }
   block v_rz6i: VizBlock {
-    label: 'Order Details'
+    label: 'Details'
     viz: DataTable {
       dataset: demo_ecommerce_version_2
       fields: [
@@ -64,18 +64,21 @@ Dashboard demo_dashboard_vin_oct_2025 {
           format {
             type: 'text'
           }
+          uname: 'ecommerce_countries_continent_name'
         },
         VizFieldFull {
           ref: r(ecommerce_countries.name)
           format {
             type: 'text'
           }
+          uname: 'ecommerce_countries_name'
         },
         VizFieldFull {
           ref: r(map_categories.parent_category)
           format {
             type: 'text'
           }
+          uname: 'map_categories_parent_category'
         },
         VizFieldFull {
           ref: r(demo_ecommerce_version_2.revenue)
@@ -83,6 +86,7 @@ Dashboard demo_dashboard_vin_oct_2025 {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_revenue'
         }
       ]
       settings {
@@ -92,7 +96,33 @@ Dashboard demo_dashboard_vin_oct_2025 {
           enabled: true
           debug_comments: true
         }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: '_holistics_row_number_'
+            width: 50
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_continent_name'
+            width: 142
+          },
+          ColumnStyle {
+            key: 'ecommerce_countries_name'
+            width: 132
+          },
+          ColumnStyle {
+            key: 'map_categories_parent_category'
+            width: 147
+          },
+          ColumnStyle {
+            key: 'custom_revenue'
+            width: 130
+          }
+        ]
       }
+    }
+    settings {
+      hide_label: true
     }
   }
   block v_bgun: VizBlock {
@@ -101,10 +131,10 @@ Dashboard demo_dashboard_vin_oct_2025 {
       dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
         ref: r(ecommerce_orders.created_at)
-        transformation: 'datetrunc month'
+        transformation: 'datetrunc week'
         format {
           type: 'date'
-          pattern: 'LLL yyyy'
+          pattern: 'wwww'
         }
       }
       y_axis {
@@ -128,7 +158,10 @@ Dashboard demo_dashboard_vin_oct_2025 {
       }
     }
   }
-  block v_hp9s: VizBlock {
+  block t_p1hq: TextBlock {
+    content: @md # Orders Over Time;;
+  }
+  block v_sipo: VizBlock {
     label: 'Total Revenue Over Time'
     viz: DataTable {
       dataset: demo_ecommerce_version_2
@@ -152,29 +185,39 @@ Dashboard demo_dashboard_vin_oct_2025 {
         }
       ]
       settings {
-        pagination_size: 1000
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            key: 'custom_revenue'
+            key: 'datetrunc_month_created_at'
             format: SingleFormat {
               condition {
                 operator: 'greater_than'
                 value: 0
               }
-              text_color: '#328159'
-              background_color: '#B5E3CD'
+              text_color: '#399367'
+              background_color: '#00000000'
             }
           },
           ConditionalFormat {
-            key: 'custom_revenue'
+            key: 'datetrunc_month_created_at'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#B16920'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'datetrunc_month_created_at'
             format: SingleFormat {
               condition {
                 operator: 'less_than'
                 value: 0
               }
               text_color: '#BF0E08'
-              background_color: '#FAD2D1'
+              background_color: '#00000000'
             }
           }
         ]
@@ -185,42 +228,21 @@ Dashboard demo_dashboard_vin_oct_2025 {
         }
         column_styles: [
           ColumnStyle {
-            key: 'datetrunc_month_created_at'
-            width: 250
+            key: '_holistics_row_number_'
+            width: 50
           },
           ColumnStyle {
-            key: 'custom_revenue'
-            width: 290
+            key: 'datetrunc_month_created_at'
+            width: 459
           }
         ]
       }
     }
+    settings {
+      hide_label: true
+    }
   }
   interactions: [
-    FilterInteraction {
-      from: 'v_fh8o'
-      to: [
-        CustomMapping {
-          block: [
-            'v_bgun',
-            'v_hp9s'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_rz6i'
-      to: [
-        CustomMapping {
-          block: [
-            'v_bgun',
-            'v_hp9s'
-          ]
-          disabled: true
-        }
-      ]
-    },
     FilterInteraction {
       from: 'v_bgun'
       to: [
@@ -234,7 +256,7 @@ Dashboard demo_dashboard_vin_oct_2025 {
       ]
     },
     FilterInteraction {
-      from: 'v_hp9s'
+      from: 'v_sipo'
       to: [
         CustomMapping {
           block: [
@@ -261,7 +283,7 @@ Dashboard demo_dashboard_vin_oct_2025 {
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
-      label: 'Order Count'
+      label: 'Revenue Breakdown'
       width: 1300
       height: 980
       grid_size: 20
@@ -286,21 +308,29 @@ Dashboard demo_dashboard_vin_oct_2025 {
       }
     }
     tab tab2: CanvasLayout {
-      label: 'Order Revenue'
+      label: 'Orders Over Time'
       width: 1300
-      height: 940
+      height: 1140
       grid_size: 20
       auto_expand_vertically: true
+      block v_bgun {
+        position: pos(20, 120, 980, 440)
+        layer: 1
+      }
+      block t_p1hq {
+        position: pos(20, 20, 360, 60)
+        layer: 2
+      }
+      block f_t5ka {
+        position: pos(700, 20, 300, 80)
+        layer: 1
+      }
+      block v_sipo {
+        position: pos(20, 580, 980, 440)
+        layer: 1
+      }
       mobile {
         mode: 'auto'
-      }
-      block v_bgun {
-        position: pos(20, 20, 980, 440)
-        layer: 1
-      }
-      block v_hp9s {
-        position: pos(20, 480, 980, 440)
-        layer: 1
       }
     }
   }
