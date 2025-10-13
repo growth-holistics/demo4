@@ -804,17 +804,9 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
   }
   block v_va4q: VizBlock {
     label: 'Total Expenses'
-    viz: ColumnChart {
+    viz: BarChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
-        ref: r(ecommerce_operating_expenses.date)
-        transformation: 'datetrunc month'
-        format {
-          type: 'date'
-          pattern: 'LLL yyyy'
-        }
-      }
-      legend: VizFieldFull {
         ref: r(ecommerce_operating_expenses.category)
         format {
           type: 'text'
@@ -834,6 +826,9 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
               type: 'number'
               pattern: 'inherited'
             }
+          }
+          settings {
+            color_palette: 0
           }
         }
       }
@@ -919,6 +914,14 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           }
         ]
       }
+    }
+  }
+  block f_bds4: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '12 months ago till today'
     }
   }
 
@@ -1027,19 +1030,23 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     tab tab2: CanvasLayout {
       label: 'Draft (Expenses)'
       width: 920
-      height: 1460
+      height: 1140
       grid_size: 20
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
       }
       block v_va4q {
-        position: pos(20, 20, 880, 460)
+        position: pos(20, 120, 880, 460)
         layer: 1
       }
       block v_xchp {
-        position: pos(20, 500, 880, 460)
+        position: pos(20, 600, 880, 520)
         layer: 1
+      }
+      block f_bds4 {
+        position: pos(600, 20, 300, 80)
+        layer: 2
       }
     }
   }
@@ -1313,6 +1320,18 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v22'
           ]
           disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_bds4'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp'
+          ]
+          field: ref('ecommerce_operating_expenses', 'date')
         }
       ]
     }
