@@ -1,21 +1,9 @@
 @tag('2️⃣ Status/Active', '1️⃣ Trust/Endorsed')
-Dashboard finance_dashboard {
+Dashboard ICEYE_finance_dashboard {
   title: 'Finance Dashboard'
   description: ''
   block t1: TextBlock {
-    content: @md <div 
-  style="
-    width: 100%; 
-    height: 100%; 
-    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
-    background-size: cover; 
-    background-position: top-center; 
-    background-repeat: no-repeat; 
-    padding: 12px; 
-    border: 2px solid #EDF1F5; 
-    border-radius: 8px; 
-  ">
-</div>;;
+    content: @md <p></p>;;
     theme {
       background {
         bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
@@ -23,15 +11,26 @@ Dashboard finance_dashboard {
     }
   }
   block t2: TextBlock {
-    content: @md <div style="color:#fff; font-size: 20px; text-align: right; line-height: 1.5;">
+    content: @md <div style="color:#fff; font-size: 16px">
+<p>
 This dashboard tracks the KPIs of CTOs and financial managers. This will also be presented in our monthly presentation to our board and investors.</a>
+</p>
+
 </div>;;
   }
+  block t3: TextBlock {
+    content: @md <img style="margin-bottom:0 !important;overflow:hidden;" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" alt="demo" width="255">;;
+  }
   block t4: TextBlock {
-    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658" id="executive_summary">Executive Summary</h1>;;
+    content: @md <h1 style =" font-size:40px; color: #022658;padding-bottom:24px;border-bottom: 1px solid #022658" id="executive_summary">Executive Summary</h1>;;
   }
   block t5: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+    content: @md <div style="
+        width:100%;
+        height:100%;
+        border-radius: 4px;
+        background: #fafafa;"
+    </div>;;
   }
   block v1: VizBlock {
     label: 'GMV'
@@ -123,42 +122,34 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           show_data_label_by: 'value'
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.nmv)
+            ref: 'nmv'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#2F5E60'
           }
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_cost)
+            ref: 'total_cost'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#B7FFB1'
           }
         }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.net_profit)
+            ref: 'net_profit'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#A74FC0'
+            color: '#D70909'
           }
         }
       }
@@ -239,7 +230,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         MetricHeading {
           label: '📈 Revenue & Discounts'
           settings {
-            background_color: '#2F5E60'
+            background_color: '#18A59E'
             text_color: '#FFFFFF'
           }
         },
@@ -282,7 +273,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         MetricHeading {
           label: '💵 Costs'
           settings {
-            background_color: '#2F5E60'
+            background_color: '#18A59E'
             text_color: '#FFFFFF'
           }
         },
@@ -337,8 +328,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         MetricHeading {
           label: 'Operations Expenses'
           settings {
-            background_color: '#D6ECEC'
-            text_color: '#53586A'
+            background_color: '#C5E8E7'
+            text_color: '#31353f'
           }
         },
         MetricSeries {
@@ -416,7 +407,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         MetricHeading {
           label: '📊 Profitability'
           settings {
-            background_color: '#2F5E60'
+            background_color: '#18A59E'
             text_color: '#FFFFFF'
           }
         },
@@ -488,7 +479,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       operator: 'matches'
       value: 'last 12 months'
     }
-    theme: block_ICEYE
   }
   block v9: VizBlock {
     label: 'Operation Expenses by Category'
@@ -516,36 +506,10 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         series {
           field: VizFieldFull {
             label: ' '
-            ref: r(demo_finance_extended.cost_of_operations)
+            ref: 'cost_of_operations'
             format {
               type: 'number'
               pattern: 'inherited'
-            }
-          }
-          settings {
-            point {
-              value: 'Logistics'
-              color: '#2F5E60'
-            }
-            point {
-              value: 'Marketing'
-              color: '#B7FFB1'
-            }
-            point {
-              value: 'Miscellaneous'
-              color: '#FF8C42'
-            }
-            point {
-              value: 'Office & Admin'
-              color: '#A74FC0'
-            }
-            point {
-              value: 'Salaries'
-              color: '#BEF3E5FF'
-            }
-            point {
-              value: 'Tech Infrastructure'
-              color: '#1CB1DC'
             }
           }
         }
@@ -565,7 +529,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: CombinationChart {
       dataset: demo_finance_extended
       x_axis: VizFieldFull {
-        ref: r(dim_dates.date_key)
+        ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -578,44 +542,40 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           stack_series_by: 'value'
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.cost_of_goods_sold)
+            ref: 'cost_of_goods_sold'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#2F5E60'
             color_palette: 0
           }
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.cost_of_operations)
+            ref: 'cost_of_operations'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#B7FFB1'
             color_palette: 0
           }
         }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.expense_budgets)
+            ref: 'expense_budgets'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#A74FC0'
+            color: '#D70909'
           }
         }
       }
@@ -668,12 +628,12 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: CombinationChart {
       dataset: demo_finance_extended
       filter {
-        field: r(dim_dates.date_key)
+        field: ref('dim_dates', 'date_key')
         operator: 'after'
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: r(dim_dates.date_key)
+        ref: ref('dim_dates', 'date_key')
         transformation: 'datetrunc month'
         format {
           type: 'date'
@@ -685,42 +645,34 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           show_data_label_by: 'value'
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_inflows)
+            ref: 'total_inflows'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#2F5E60'
           }
         }
         series {
-          mark_type: 'column'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_outflows)
+            ref: 'total_outflows'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#B7FFB1'
           }
         }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_cash_balance)
+            ref: 'total_cash_balance'
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
           settings {
-            color: '#A74FC0'
+            color: '#D70909'
           }
         }
       }
@@ -901,12 +853,12 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: ColumnChart {
       dataset: demo_finance_extended
       filter {
-        field: r(dim_dates.date_key)
+        field: ref('dim_dates', 'date_key')
         operator: 'after'
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: r(ecommerce_bills.aging_bucket)
+        ref: ref('ecommerce_bills', 'aging_bucket')
         format {
           type: 'text'
         }
@@ -917,14 +869,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
         series {
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_accounts_payable)
+            ref: 'total_accounts_payable'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#2F5E60'
           }
         }
       }
@@ -944,12 +893,12 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     viz: ColumnChart {
       dataset: demo_finance_extended
       filter {
-        field: r(dim_dates.date_key)
+        field: ref('dim_dates', 'date_key')
         operator: 'after'
         value: '2024-01-01'
       }
       x_axis: VizFieldFull {
-        ref: r(ecommerce_invoices.aging_bucket)
+        ref: ref('ecommerce_invoices', 'aging_bucket')
         format {
           type: 'text'
         }
@@ -960,14 +909,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
         series {
           field: VizFieldFull {
-            ref: r(demo_finance_extended.total_accounts_receivable)
+            ref: 'total_accounts_receivable'
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#2F5E60'
           }
         }
       }
@@ -1042,7 +988,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             }
           }
           settings {
-            color: '#2F5E60'
             color_palette: 0
           }
         }
@@ -1055,7 +1000,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
       }
     }
-    theme: block_white
   }
   block v_xchp: VizBlock {
     label: 'Total Expenses'
@@ -1131,7 +1075,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         ]
       }
     }
-    theme: block_white
   }
   block f_bds4: FilterBlock {
     label: 'Date'
@@ -1140,11 +1083,10 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       operator: 'matches'
       value: '12 months ago till today'
     }
-    theme: block_ICEYE
   }
   block v_xx9h: VizBlock {
     label: 'Sum of Amount by Month Date'
-    viz: AreaChart {
+    viz: LineChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
         ref: r(ecommerce_operating_expenses.date)
@@ -1164,9 +1106,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
               pattern: 'inherited'
             }
           }
-          settings {
-            color: '#2F5E60'
-          }
         }
       }
       settings {
@@ -1178,7 +1117,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
       }
     }
-    theme: block_white
   }
   block v_2a0i: VizBlock {
     label: 'Date, Category and 2 more'
@@ -1242,47 +1180,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     settings {
       hide_label: true
     }
-    theme: block_white
-  }
-  block t_51rw: TextBlock {
-    content: @md <div 
-  style="
-    width: 100%; 
-    height: 100%; 
-    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
-    background-size: cover; 
-    background-position: top-center; 
-    background-repeat: no-repeat; 
-    padding: 12px; 
-    border: 2px solid #EDF1F5; 
-    border-radius: 8px; 
-  ">
-</div>;;
-    theme {
-      background {
-        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
-      }
-    }
-  }
-  block t_ia1r: TextBlock {
-    content: @md <div 
-  style="
-    width: 100%; 
-    height: 100%; 
-    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
-    background-size: cover; 
-    background-position: top-center; 
-    background-repeat: no-repeat; 
-    padding: 12px; 
-    border: 2px solid #EDF1F5; 
-    border-radius: 8px; 
-  ">
-</div>;;
-    theme {
-      background {
-        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
-      }
-    }
   }
 
   view: TabLayout {
@@ -1292,91 +1189,95 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       height: 2580
       grid_size: 20
       block t1 {
-        position: pos(20, 20, 1160, 160)
+        position: pos(0, 0, 1200, 180)
         layer: 1
       }
       block t2 {
-        position: pos(480, 60, 680, 80)
+        position: pos(20, 80, 660, 60)
+        layer: 1
+      }
+      block t3 {
+        position: pos(1000, 20, 180, 60)
         layer: 1
       }
       block t4 {
-        position: pos(20, 200, 480, 60)
+        position: pos(20, 200, 1180, 60)
         layer: 1
       }
       block t5 {
-        position: pos(20, 300, 1160, 400)
+        position: pos(20, 260, 1160, 400)
         layer: 1
       }
       block v1 {
-        position: pos(40, 440, 300, 100)
+        position: pos(40, 400, 300, 100)
         layer: 2
       }
       block v4 {
-        position: pos(360, 440, 280, 100)
+        position: pos(360, 400, 280, 100)
         layer: 1
       }
       block v6 {
-        position: pos(20, 1300, 1160, 380)
+        position: pos(20, 1260, 1160, 380)
         layer: 3
       }
       block v7 {
-        position: pos(40, 560, 300, 120)
+        position: pos(40, 520, 300, 120)
         layer: 4
       }
       block v8 {
-        position: pos(20, 720, 1160, 560)
+        position: pos(20, 680, 1160, 560)
         layer: 5
       }
       block f1 {
-        position: pos(820, 200, 360, 80)
+        position: pos(880, 200, 280, 60)
         layer: 6
       }
       block v9 {
-        position: pos(620, 1700, 560, 380)
+        position: pos(620, 1660, 560, 380)
         layer: 8
       }
       block v10 {
-        position: pos(20, 1700, 580, 380)
+        position: pos(20, 1660, 580, 380)
         layer: 9
       }
       block v11 {
-        position: pos(40, 320, 300, 100)
+        position: pos(40, 280, 300, 100)
         layer: 1
       }
       block v12 {
-        position: pos(20, 2100, 580, 500)
+        position: pos(20, 2060, 580, 500)
         layer: 1
       }
       block v14 {
-        position: pos(660, 320, 220, 100)
+        position: pos(660, 280, 220, 100)
         layer: 1
       }
       block v15 {
-        position: pos(660, 440, 220, 100)
+        position: pos(660, 400, 220, 100)
         layer: 1
       }
       block v16 {
-        position: pos(660, 560, 220, 100)
+        position: pos(660, 520, 220, 100)
         layer: 1
       }
       block v17 {
-        position: pos(900, 320, 240, 100)
+        position: pos(900, 280, 240, 100)
         layer: 1
       }
       block v18 {
-        position: pos(900, 440, 240, 100)
+        position: pos(900, 400, 240, 100)
         layer: 1
       }
       block v20 {
-        position: pos(620, 2100, 560, 240)
+        position: pos(620, 2060, 560, 240)
         layer: 1
       }
       block v21 {
-        position: pos(620, 2360, 560, 240)
+        position: pos(620, 2320, 560, 240)
         layer: 1
       }
       block v22 {
-        position: pos(360, 320, 280, 100)
+        position: pos(360, 280, 280, 100)
         layer: 1
       }
       mobile {
@@ -1386,52 +1287,46 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     tab tab2: CanvasLayout {
       label: 'Expenses'
       width: 920
+      height: 1140
       grid_size: 20
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
       }
       block v_va4q {
-        position: pos(20, 180, 880, 460)
+        position: pos(20, 120, 880, 460)
         layer: 1
       }
       block v_xchp {
-        position: pos(20, 660, 880, 520)
+        position: pos(20, 600, 880, 520)
         layer: 1
       }
       block f_bds4 {
-        position: pos(580, 40, 300, 80)
+        position: pos(600, 20, 300, 80)
         layer: 2
-      }
-      block t_51rw {
-        position: pos(20, 20, 880, 140)
-        layer: 1
       }
     }
     tab tab_84k6: CanvasLayout {
       label: 'Budget vs Target'
-      width: 1240
-      height: 1380
+      width: 1300
+      height: 1220
       grid_size: 20
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
       }
       block v_xx9h {
-        position: pos(20, 180, 1200, 580)
+        position: pos(20, 20, 1200, 580)
         layer: 1
       }
       block v_2a0i {
-        position: pos(20, 780, 1200, 580)
-        layer: 1
-      }
-      block t_ia1r {
-        position: pos(20, 20, 1200, 140)
+        position: pos(20, 620, 1200, 580)
         layer: 1
       }
     }
   }
-  theme: ICEYE
+
+  theme: H.themes.vanilla
   interactions: [
     FilterInteraction {
       from: 'v_va4q'
