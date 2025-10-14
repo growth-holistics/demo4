@@ -1087,9 +1087,14 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     }
   }
   block v_xx9h: VizBlock {
-    label: 'Sum of Amount by Month Date'
+    label: 'Cumulative Expenses and reference value by Month Date'
     viz: LineChart {
       dataset: demo_finance
+      filter {
+        field: r(ecommerce_operating_expenses.reference)
+        operator: 'is'
+        value: '1500000'
+      }
       x_axis: VizFieldFull {
         ref: r(ecommerce_operating_expenses.date)
         transformation: 'datetrunc month'
@@ -1101,12 +1106,36 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       y_axis {
         series {
           field: VizFieldFull {
+            label: 'Cumulative Expenses'
             ref: r(ecommerce_operating_expenses.amount)
             aggregation: 'sum'
             format {
               type: 'number'
               pattern: 'inherited'
             }
+            analytic: MovingCalculationField {
+              type: 'sum'
+              order: 'row'
+              range {
+                next: 0
+              }
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_operating_expenses.reference1)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+            color_palette: 0
           }
         }
       }
@@ -1301,6 +1330,18 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       }
     }
   }
+  block f_qudd: FilterBlock {
+    label: 'Annual Budget'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance_extended
+      field: r(ecommerce_operating_expenses.reference)
+    }
+    default {
+      operator: 'is'
+      value: '1500000'
+    }
+  }
 
   view: TabLayout {
     label: 'View 1'
@@ -1429,7 +1470,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     tab tab_84k6: CanvasLayout {
       label: 'Budget vs Target'
       width: 1300
-      height: 1220
+      height: 1320
       grid_size: 20
       auto_expand_vertically: true
       mobile {
@@ -1442,6 +1483,10 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       block v_2a0i {
         position: pos(20, 620, 1200, 580)
         layer: 1
+      }
+      block f_qudd {
+        position: pos(640, 40, 300, 80)
+        layer: 2
       }
     }
     tab tab_3rcu: CanvasLayout {
@@ -1466,6 +1511,15 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
 
   theme: H.themes.vanilla
   interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f_qudd'
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'v_va4q'
       to: [
@@ -1533,6 +1587,38 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       ]
     },
     FilterInteraction {
+      from: 'f_qudd'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v4',
+            'v6',
+            'v7',
+            'v8',
+            'v9',
+            'v10',
+            'v11',
+            'v12',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18',
+            'v20',
+            'v21',
+            'v22',
+            'f1'
+          ]
+          disabled: true
+        },
+        CustomMapping {
+          block: 'v_xx9h'
+          field: ref('ecommerce_operating_expenses', 'reference')
+        }
+      ]
+    },
+    FilterInteraction {
       from: 'f_bds4'
       to: [
         CustomMapping {
@@ -1540,7 +1626,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_va4q',
             'v_xchp'
           ]
-          field: ref('ecommerce_operating_expenses', 'date')
+          field: r(ecommerce_operating_expenses.date)
         }
       ]
     }
