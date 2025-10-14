@@ -1187,6 +1187,13 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       dataset: demo_finance
       fields: [
         VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_date)
+          format {
+            type: 'date'
+          }
+          uname: 'ecommerce_invoices_invoice_date_1'
+        },
+        VizFieldFull {
           ref: r(ecommerce_invoices.invoice_id)
           format {
             type: 'text'
@@ -1205,6 +1212,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'ecommerce_invoices_days_outstanding'
         },
         VizFieldFull {
           ref: r(ecommerce_invoices.aging_bucket)
@@ -1215,6 +1223,27 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       ]
       settings {
         show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_invoices_invoice_date_1'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'ecommerce_invoices_days_outstanding'
+            format: ScaleFormat {
+              min {
+                value: 30
+                color: '#FEDBDB'
+              }
+              max {
+                value: 120
+                color: '#E71F18'
+              }
+            }
+          }
+        ]
         row_limit: 5000
         aggregate_awareness {
           enabled: true
