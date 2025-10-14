@@ -1644,12 +1644,74 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       }
     }
   }
+  block v_di0f: VizBlock {
+    label: 'List Of Merchants by Week Period Date and Subscription Type'
+    viz: PivotTable {
+      dataset: saas_mrr
+      calculation metric_cfbbc48 {
+        label: 'List of Mrr Transactions'
+        formula: @aql mrr_transactions
+| select(mrr_transactions.subscription_type);;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_96c1288 {
+        label: 'List of Merchants'
+        formula: @aql ecommerce_merchants
+| select(ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation list_of_merchants {
+        label: 'List Of Merchants'
+        formula: @aql ecommerce_merchants | string_agg(concat(
+  '<span class="hui-popover mb-1 mr-1 inline-flex cursor-pointer items-center rounded-full bg-blue-50 px-2 py-1 text-xs" data-hui-comp="popper" data-hui-section="popper-anchor" data-hui-state="closed">',ecommerce_merchants.name,'</span>'), sep: '');;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(time_periods.period_date)
+          transformation: 'datetrunc week'
+          format {
+            type: 'date'
+            pattern: 'wwww'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(mrr_transactions.subscription_type)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'list_of_merchants'
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
       label: 'Overview'
-      height: 3000
+      height: 3420
       grid_size: 20
       block t1 {
         position: pos(20, 20, 1160, 160)
@@ -1738,6 +1800,10 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       block v_03kh {
         position: pos(20, 2580, 580, 400)
         layer: 10
+      }
+      block v_di0f {
+        position: pos(20, 3000, 580, 400)
+        layer: 11
       }
       mobile {
         mode: 'auto'
@@ -1958,7 +2024,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_xx9h',
             'v_2a0i'
           ]
-          field: r(ecommerce_operating_expenses.annual_budget_param)
+          field: ref('ecommerce_operating_expenses', 'annual_budget_param')
         }
       ]
     },
@@ -1966,13 +2032,25 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       from: 'v_9rgd'
       to: [
         CustomMapping {
-          block: 'v_03kh'
+          block: [
+            'v_03kh',
+            'v_di0f'
+          ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
       from: 'v_03kh'
+      to: [
+        CustomMapping {
+          block: 'v_9rgd'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_di0f'
       to: [
         CustomMapping {
           block: 'v_9rgd'
@@ -1988,7 +2066,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_va4q',
             'v_xchp'
           ]
-          field: r(ecommerce_operating_expenses.date)
+          field: ref('ecommerce_operating_expenses', 'date')
         }
       ]
     }
