@@ -9,10 +9,21 @@ Dataset saas_mrr {
     time_periods,
     mrr_transactions,
     customers,
+    ecommerce_merchants
+    ,
+    ecommerce_cities
+    ,
+    ecommerce_countries
   ]
   relationships: [
     relationship(mrr_transactions.customer_id > customers.customer_id, true),
     relationship(mrr_transactions.period_date > time_periods.period_date, true)
+    ,
+    relationship(customers.customer_id - ecommerce_merchants.id, true)
+    ,
+    relationship(ecommerce_merchants.city_id > ecommerce_cities.id, true)
+    ,
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
   ]
   owner: 'thanh.tm@holistics.io'
   metric total_users {
