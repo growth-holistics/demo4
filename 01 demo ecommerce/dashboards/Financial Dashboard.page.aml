@@ -959,25 +959,36 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     }
   }
   block v_2a0i: VizBlock {
-    label: 'Month Date and Sum of Amount'
+    label: 'Date, Category and 2 more'
     viz: DataTable {
       dataset: demo_finance
       fields: [
         VizFieldFull {
           ref: r(ecommerce_operating_expenses.date)
-          transformation: 'datetrunc month'
           format {
             type: 'date'
-            pattern: 'LLL yyyy'
+            pattern: 'yyyy-LL-dd'
           }
-          uname: 'datetrunc_month_date_1'
+          uname: 'ecommerce_operating_expenses_date'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.category)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_operating_expenses_category'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.name)
+          format {
+            type: 'text'
+          }
         },
         VizFieldFull {
           ref: r(ecommerce_operating_expenses.amount)
-          aggregation: 'sum'
           format {
             type: 'number'
-            pattern: '[$$]#,###'
+            pattern: 'inherited'
           }
         }
       ]
@@ -985,7 +996,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         show_row_number: true
         sorts: [
           SortSetting {
-            key: 'datetrunc_month_date_1'
+            key: 'ecommerce_operating_expenses_date'
             direction: 'desc'
           }
         ]
@@ -994,6 +1005,16 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           enabled: true
           debug_comments: true
         }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_date'
+            width: 209
+          },
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_category'
+            width: 263
+          }
+        ]
       }
     }
   }
@@ -1101,7 +1122,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       }
     }
     tab tab2: CanvasLayout {
-      label: 'Draft (Expenses)'
+      label: 'Expenses'
       width: 920
       height: 1140
       grid_size: 20
