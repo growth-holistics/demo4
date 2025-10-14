@@ -1021,6 +1021,42 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       hide_label: true
     }
   }
+  block v_h8wr: VizBlock {
+    label: 'Invoice Id, Invoice Amount, and Days Outstanding'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_id)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.days_outstanding)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
   view: TabLayout {
     label: 'View 1'
@@ -1164,6 +1200,24 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         layer: 1
       }
     }
+    tab tab_3rcu: CanvasLayout {
+      label: 'Aging'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_h8wr {
+        position: pos(40, 320, 1080, 420)
+        layer: 1
+      }
+      block v21 {
+        position: pos(40, 20, 1060, 280)
+        layer: 1
+      }
+    }
   }
 
   theme: H.themes.vanilla
@@ -1174,7 +1228,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_xx9h',
-            'v_2a0i'
+            'v_2a0i',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1186,7 +1241,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_xx9h',
-            'v_2a0i'
+            'v_2a0i',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1198,7 +1254,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_va4q',
-            'v_xchp'
+            'v_xchp',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1210,7 +1267,22 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_va4q',
-            'v_xchp'
+            'v_xchp',
+            'v_h8wr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_h8wr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp',
+            'v_xx9h',
+            'v_2a0i'
           ]
           disabled: true
         }
