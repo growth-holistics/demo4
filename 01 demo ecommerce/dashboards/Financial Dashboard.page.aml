@@ -1018,12 +1018,14 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
   }
   block v_va4q: VizBlock {
     label: 'Total Expenses'
-    viz: BarChart {
+    viz: ColumnChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
-        ref: r(ecommerce_operating_expenses.category)
+        ref: r(ecommerce_operating_expenses.date)
+        transformation: 'datetrunc month'
         format {
-          type: 'text'
+          type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -1034,8 +1036,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         }
         series {
           field: VizFieldFull {
-            label: ' '
-            ref: r(demo_finance.total_cost)
+            ref: r(ecommerce_operating_expenses.amount)
+            aggregation: 'sum'
             format {
               type: 'number'
               pattern: 'inherited'
@@ -1063,16 +1065,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       dataset: demo_finance
       fields: [
         VizFieldFull {
-          ref: r(ecommerce_operating_expenses.id)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
           ref: r(ecommerce_operating_expenses.date)
+          transformation: 'datetrunc month'
           format {
             type: 'date'
+            pattern: 'LLL yyyy'
           }
           uname: 'ecommerce_operating_expenses_date'
         },
@@ -1084,17 +1081,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           uname: 'ecommerce_operating_expenses_category'
         },
         VizFieldFull {
-          ref: r(ecommerce_operating_expenses.name)
-          format {
-            type: 'text'
-          }
-          uname: 'ecommerce_operating_expenses_name'
-        },
-        VizFieldFull {
           ref: r(ecommerce_operating_expenses.amount)
+          aggregation: 'sum'
           format {
             type: 'number'
-            pattern: 'inherited'
+            pattern: '[$$]#,###'
           }
           uname: 'ecommerce_operating_expenses_amount'
         }
@@ -1118,15 +1109,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           },
           ColumnStyle {
             key: 'ecommerce_operating_expenses_amount'
-            width: 94
+            width: 178
           },
           ColumnStyle {
             key: 'ecommerce_operating_expenses_category'
-            width: 235
-          },
-          ColumnStyle {
-            key: 'ecommerce_operating_expenses_name'
-            width: 212
+            width: 177
           }
         ]
       }
@@ -1143,8 +1130,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     theme: block_ICEYE
   }
   block v_xx9h: VizBlock {
-    label: 'Sum of Amount by Month Date'
-    viz: AreaChart {
+    label: 'Cumulative Expenses and reference value by Month Date'
+    viz: LineChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
         ref: r(ecommerce_operating_expenses.date)
@@ -1157,12 +1144,37 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       y_axis {
         series {
           field: VizFieldFull {
+            label: 'Cumulative Expenses'
             ref: r(ecommerce_operating_expenses.amount)
             aggregation: 'sum'
             format {
               type: 'number'
               pattern: 'inherited'
             }
+            analytic: MovingCalculationField {
+              type: 'sum'
+              order: 'row'
+              range {
+                next: 0
+              }
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Annual Budget'
+            ref: r(ecommerce_operating_expenses.annual_budget_figure)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+            color_palette: 0
           }
           settings {
             color: '#2F5E60'
@@ -1189,7 +1201,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           ref: r(ecommerce_operating_expenses.date)
           format {
             type: 'date'
-            pattern: 'yyyy-LL-dd'
           }
           uname: 'ecommerce_operating_expenses_date'
         },
@@ -1201,13 +1212,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           uname: 'ecommerce_operating_expenses_category'
         },
         VizFieldFull {
-          ref: r(ecommerce_operating_expenses.name)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
           ref: r(ecommerce_operating_expenses.amount)
+          aggregation: 'sum'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -1282,6 +1288,136 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       background {
         bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
       }
+    }
+  }
+  block v_h8wr: VizBlock {
+    label: 'Invoice Id, Invoice Amount, and Days Outstanding'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_date)
+          format {
+            type: 'date'
+          }
+          uname: 'ecommerce_invoices_invoice_date_1'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_id)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.payment_terms_days)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.days_outstanding)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_invoices_days_outstanding'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.aging_bucket)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_invoices_invoice_date_1'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'ecommerce_invoices_days_outstanding'
+            format: ScaleFormat {
+              min {
+                value: 30
+                color: '#FEDBDB'
+              }
+              max {
+                value: 120
+                color: '#E71F18'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_lup8: VizBlock {
+    label: 'Account Receivable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_invoices.aging_bucket)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_finance.total_accounts_receivable)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_qudd: FilterBlock {
+    label: 'Annual Budget'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance_extended
+      field: r(ecommerce_operating_expenses.annual_budget_param)
+    }
+    default {
+      operator: 'is'
+      value: '1500000'
     }
   }
 
@@ -1429,17 +1565,49 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         position: pos(20, 20, 1200, 140)
         layer: 1
       }
+      block f_qudd {
+        position: pos(880, 20, 300, 80)
+        layer: 2
+      }
+    }
+    tab tab_3rcu: CanvasLayout {
+      label: 'AR Aging'
+      width: 1300
+      height: 1060
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_h8wr {
+        position: pos(40, 320, 1080, 420)
+        layer: 1
+      }
+      block v_lup8 {
+        position: pos(60, 20, 1060, 280)
+        layer: 1
+      }
     }
   }
   theme: ICEYE
   interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f_qudd'
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'v_va4q'
       to: [
         CustomMapping {
           block: [
             'v_xx9h',
-            'v_2a0i'
+            'v_2a0i',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1451,7 +1619,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_xx9h',
-            'v_2a0i'
+            'v_2a0i',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1463,7 +1632,8 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_va4q',
-            'v_xchp'
+            'v_xchp',
+            'v_h8wr'
           ]
           disabled: true
         }
@@ -1475,9 +1645,59 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         CustomMapping {
           block: [
             'v_va4q',
-            'v_xchp'
+            'v_xchp',
+            'v_h8wr'
           ]
           disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_h8wr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp',
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_qudd'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v4',
+            'v6',
+            'v7',
+            'v8',
+            'v9',
+            'v10',
+            'v11',
+            'v12',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18',
+            'v20',
+            'v21',
+            'v22',
+            'f1'
+          ]
+          disabled: true
+        },
+        CustomMapping {
+          block: [
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          field: ref('ecommerce_operating_expenses', 'annual_budget_param')
         }
       ]
     },
@@ -1489,7 +1709,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_va4q',
             'v_xchp'
           ]
-          field: r(ecommerce_operating_expenses.date)
+          field: ref('ecommerce_operating_expenses', 'date')
         }
       ]
     }
