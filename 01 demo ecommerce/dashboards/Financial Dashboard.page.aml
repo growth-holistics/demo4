@@ -1144,7 +1144,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     theme: block_ICEYE
   }
   block v_xx9h: VizBlock {
-    label: 'Cumulative Expenses and reference value by Month Date'
+    label: 'Cumulative Expenses relative to budget'
     viz: LineChart {
       dataset: demo_finance
       x_axis: VizFieldFull {
@@ -1379,6 +1379,9 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       }
     }
     theme: block_white
+    settings {
+      hide_label: true
+    }
   }
   block v_lup8: VizBlock {
     label: 'Account Receivable Aging'
@@ -1452,6 +1455,128 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       background {
         bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
       }
+    }
+  }
+  block t_pyw2: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary">Expenses Over Time </h1>;;
+  }
+  block t_ai4a: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary"> Expenses vs Budget </h1>;;
+  }
+  block t_jjxe: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary">Accounts Receivable </h1>;;
+  }
+  block t_q7g3: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t_eu1k: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary"> Customer Segmentation Matrix  </h1>;;
+  }
+  block v_9rgd: VizBlock {
+    label: 'Customer Segmentation Matrix '
+    viz: PivotTable {
+      dataset: saas_mrr
+      calculation bin_definition {
+        label: 'Bin Definition'
+        formula: @aql case(
+  when: sum(mrr_transactions.mrr_amount) < 2318
+  , then: 'Startup'
+  , when: sum(mrr_transactions.mrr_amount) >= 2318 and sum(mrr_transactions.mrr_amount) < 2500
+  , then: 'SME'
+  , when: sum(mrr_transactions.mrr_amount) >= 2500 and sum(mrr_transactions.mrr_amount) < 4001
+  , then: 'Mid Market'
+  , else: 'Enterprise'
+) | dimensionalize(customers.sign_up_date);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: mrr_transactions
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(customers.sign_up_date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_sign_up_date'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('mrr_transactions', 'bin_definition')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'MRR'
+          ref: r(mrr_transactions.mrr_amount)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###0.00,"K"'
+          }
+          uname: 'sum_mrr_amount'
+        }
+      ]
+      settings {
+        empty_cell_as_zero: true
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'sum_mrr_amount'
+            aggregation: 'sum'
+            format: ScaleFormat {
+              min {
+                value: 2318
+                color: '#E9EFFB'
+              }
+              mid {
+                value: 2500
+                color: '#A8BEEE'
+              }
+              max {
+                value: 4001
+                color: '#517DDD'
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'datetrunc_month_sign_up_date'
+            width: 178
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
     }
   }
 
@@ -1558,11 +1683,11 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         mode: 'auto'
       }
       block v_va4q {
-        position: pos(20, 180, 880, 460)
+        position: pos(20, 260, 880, 460)
         layer: 1
       }
       block v_xchp {
-        position: pos(20, 660, 880, 520)
+        position: pos(20, 740, 880, 520)
         layer: 1
       }
       block f_bds4 {
@@ -1573,22 +1698,27 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         position: pos(20, 20, 880, 140)
         layer: 1
       }
+      block t_pyw2 {
+        position: pos(20, 180, 480, 60)
+        layer: 1
+      }
+      height: 1280
     }
     tab tab_84k6: CanvasLayout {
-      label: 'Budget vs Target'
+      label: 'Current vs Budget'
       width: 1240
-      height: 1400
+      height: 1520
       grid_size: 20
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
       }
       block v_xx9h {
-        position: pos(20, 200, 1200, 580)
+        position: pos(20, 280, 1200, 580)
         layer: 1
       }
       block v_2a0i {
-        position: pos(20, 800, 1200, 580)
+        position: pos(20, 880, 1200, 580)
         layer: 1
       }
       block t_ia1r {
@@ -1599,26 +1729,55 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         position: pos(800, 60, 380, 80)
         layer: 2
       }
+      block t_ai4a {
+        position: pos(20, 200, 480, 60)
+        layer: 1
+      }
     }
     tab tab_3rcu: CanvasLayout {
       label: 'AR Aging'
       width: 1280
-      height: 1120
       grid_size: 20
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
       }
       block v_h8wr {
-        position: pos(40, 560, 1200, 540)
+        position: pos(40, 640, 1200, 540)
         layer: 1
       }
       block v_lup8 {
-        position: pos(40, 200, 1200, 340)
+        position: pos(40, 280, 1200, 340)
         layer: 1
       }
       block t_8cev {
         position: pos(40, 20, 1200, 160)
+        layer: 1
+      }
+      block t_jjxe {
+        position: pos(40, 200, 480, 60)
+        layer: 1
+      }
+    }
+    tab tab_x8kl: CanvasLayout {
+      label: 'Revenue'
+      width: 1300
+      height: 1100
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block t_q7g3 {
+        position: pos(20, 20, 1240, 140)
+        layer: 1
+      }
+      block t_eu1k {
+        position: pos(20, 180, 680, 60)
+        layer: 2
+      }
+      block v_9rgd {
+        position: pos(20, 260, 1160, 400)
         layer: 1
       }
     }
