@@ -34,15 +34,21 @@ Model ecommerce_operating_expenses {
     definition: @sql {{ #SOURCE.date }};;
   }
 
-  param reference {
-    label: 'what if reference'
+  param annual_budget_param {
+    label: 'Annual Budget Parameter'
     type: 'number'
   }
 
-  measure reference1 {
-    label: 'reference value'
+  measure annual_budget {
+    label: 'Annual Budget'
     type: 'number'
-    definition: @aql min(ecommerce_operating_expenses.reference | first());;
+    definition: @aql min(ecommerce_operating_expenses.annual_budget_param | first());;
+  }
+
+  measure cumm_expenses {
+    label: 'Cumulative Expenses'
+    type: 'number'
+    definition: @aql running_total(sum(ecommerce_operating_expenses.amount)) ;;
   }
 
   owner: 'dong.ln@holistics.io'

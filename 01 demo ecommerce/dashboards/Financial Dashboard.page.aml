@@ -1087,11 +1087,17 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     }
   }
   block v_xx9h: VizBlock {
-    label: 'Cumulative Expenses and reference value by Month Date'
+    label: 'Cumulative Expenses, Annual Budget, and Diff by Month Date'
     viz: LineChart {
       dataset: demo_finance
+      calculation diff {
+        label: 'Diff'
+        formula: @aql ecommerce_operating_expenses.annual_budget - ecommerce_operating_expenses.cumm_expenses;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       filter {
-        field: r(ecommerce_operating_expenses.reference)
+        field: r(ecommerce_operating_expenses.annual_budget_param)
         operator: 'is'
         value: '1500000'
       }
@@ -1106,28 +1112,16 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       y_axis {
         series {
           field: VizFieldFull {
-            label: 'Cumulative Expenses'
-            ref: r(ecommerce_operating_expenses.amount)
-            aggregation: 'sum'
+            ref: r(ecommerce_operating_expenses.cumm_expenses)
             format {
               type: 'number'
               pattern: 'inherited'
             }
-            analytic: MovingCalculationField {
-              type: 'sum'
-              order: 'row'
-              range {
-                next: 0
-              }
-            }
-          }
-          settings {
-            color_palette: 0
           }
         }
         series {
           field: VizFieldFull {
-            ref: r(ecommerce_operating_expenses.reference1)
+            ref: r(ecommerce_operating_expenses.annual_budget)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -1136,6 +1130,19 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
           settings {
             line_style: 'dashed'
             color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'diff'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E27712'
+            line_style: 'dotted'
           }
         }
       }
@@ -1335,7 +1342,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_finance_extended
-      field: r(ecommerce_operating_expenses.reference)
+      field: r(ecommerce_operating_expenses.annual_budget_param)
     }
     default {
       operator: 'is'
