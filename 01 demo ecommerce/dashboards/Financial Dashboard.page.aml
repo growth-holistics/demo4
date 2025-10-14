@@ -1090,11 +1090,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     label: 'Cumulative Expenses and reference value by Month Date'
     viz: LineChart {
       dataset: demo_finance
-      filter {
-        field: r(ecommerce_operating_expenses.annual_budget_param)
-        operator: 'is'
-        value: '1500000'
-      }
       x_axis: VizFieldFull {
         ref: r(ecommerce_operating_expenses.date)
         transformation: 'datetrunc month'
@@ -1178,6 +1173,13 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         },
         VizFieldFull {
           ref: r(ecommerce_operating_expenses.amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.annual_budget_figure)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -1608,14 +1610,16 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v18',
             'v20',
             'v21',
-            'v22',
-            'f1'
+            'v22'
           ]
           disabled: true
         },
         CustomMapping {
-          block: 'v_xx9h'
-          field: ref('ecommerce_operating_expenses', 'reference')
+          block: [
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          field: ref('ecommerce_operating_expenses', 'annual_budget_param')
         }
       ]
     },
