@@ -924,6 +924,79 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       value: '12 months ago till today'
     }
   }
+  block v_xx9h: VizBlock {
+    label: 'Sum of Amount by Month Date'
+    viz: LineChart {
+      dataset: demo_finance
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_operating_expenses.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_operating_expenses.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_2a0i: VizBlock {
+    label: 'Month Date and Sum of Amount'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_date_1'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.amount)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_month_date_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
   view: TabLayout {
     label: 'View 1'
@@ -1049,248 +1122,35 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
         layer: 2
       }
     }
+    tab tab_84k6: CanvasLayout {
+      label: 'Budget vs Target'
+      width: 1300
+      height: 1220
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_xx9h {
+        position: pos(20, 20, 1200, 580)
+        layer: 1
+      }
+      block v_2a0i {
+        position: pos(20, 620, 1200, 580)
+        layer: 1
+      }
+    }
   }
 
   theme: H.themes.vanilla
   interactions: [
     FilterInteraction {
-      from: 'v1'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v4'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v6'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v7'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v8'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f1'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v9'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v10'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v11'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v12'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v14'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v15'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v16'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v17'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v18'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v20'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v21'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v22'
-      to: [
-        CustomMapping {
-          block: [
-            'v_va4q',
-            'v_xchp'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
       from: 'v_va4q'
       to: [
         CustomMapping {
           block: [
-            'v1',
-            'v4',
-            'v6',
-            'v7',
-            'v8',
-            'v9',
-            'v10',
-            'v11',
-            'v12',
-            'v14',
-            'v15',
-            'v16',
-            'v17',
-            'v18',
-            'v20',
-            'v21',
-            'v22'
+            'v_xx9h',
+            'v_2a0i'
           ]
           disabled: true
         }
@@ -1301,23 +1161,32 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       to: [
         CustomMapping {
           block: [
-            'v1',
-            'v4',
-            'v6',
-            'v7',
-            'v8',
-            'v9',
-            'v10',
-            'v11',
-            'v12',
-            'v14',
-            'v15',
-            'v16',
-            'v17',
-            'v18',
-            'v20',
-            'v21',
-            'v22'
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xx9h'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_2a0i'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp'
           ]
           disabled: true
         }
@@ -1331,7 +1200,7 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_va4q',
             'v_xchp'
           ]
-          field: ref('ecommerce_operating_expenses', 'date')
+          field: r(ecommerce_operating_expenses.date)
         }
       ]
     }
