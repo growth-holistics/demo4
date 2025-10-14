@@ -17,7 +17,8 @@ Dataset demo_finance_extended {
     ecommerce_operating_expenses,
     ecommerce_bills,
     ecommerce_invoices,
-    ecommerce_cash_movements
+    ecommerce_cash_movements,
+    param_model
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -230,6 +231,60 @@ Dataset demo_finance_extended {
     format: "[\$\$]#,###0"
   }
 
+  metric cost_of_salaries {
+    label: "Salaries Expenses"
+    type: "number"
+    hidden: false
+    description: "Total operating expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Salaries');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_marketing {
+    label: "Marketing Expenses"
+    type: "number"
+    hidden: false
+    description: "Total marketing expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Marketing');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_logistics {
+    label: "Logistics Expenses"
+    type: "number"
+    hidden: false
+    description: "Total logistics expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Logistics');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_tech_infrastructure {
+    label: "Tech Infrastructure Expenses"
+    type: "number"
+    hidden: false
+    description: "Total tech infrastructure expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Tech Infrastructure');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_office_admin {
+    label: "Office & Admin Expenses"
+    type: "number"
+    hidden: false
+    description: "Total office & admin expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Office & Admin');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cost_of_miscellaneous {
+    label: "Miscellaneous Expenses"
+    type: "number"
+    hidden: false
+    description: "Total miscellaneous expenses incurred."
+    definition: @aql cost_of_operations | where(ecommerce_operating_expenses.category is 'Miscellaneous');;
+    format: "[\$\$]#,###0"
+  }
+  
   metric total_cost {
     label: "Total Expenses"
     type: "number"
@@ -364,6 +419,13 @@ Dataset demo_finance_extended {
     definition: @aql 1;;
     format: "#,###0.00%"
     }
+
+  metric selected_number {
+    label: "Selected Number"
+    type: "number"
+    hidden: false
+    definition: @aql param_model.number_selection | first();;
+  }
 
   owner: 'dong.ln@holistics.io'
 }
