@@ -1582,12 +1582,74 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       hide_label: true
     }
   }
+  block v_03kh: VizBlock {
+    label: 'Net MRR Retention'
+    viz: RetentionHeatmap {
+      dataset: saas_mrr
+      calculation month_since_first_signup {
+        label: 'Month Since First Signup'
+        formula: @aql case (
+  when: date_diff('month', customers.sign_up_date | month(), time_periods.period_date | month()) >= 0,
+  then: date_diff('month', customers.sign_up_date | month(), time_periods.period_date | month()));;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: mrr_transactions
+      }
+      calculation mrr {
+        label: 'Mrr'
+        formula: @aql sum(mrr_transactions.mrr_amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation initial_mrr {
+        label: 'Initial Mrr'
+        formula: @aql mrr | where(mrr_transactions.month_since_first_signup == 0) | of_all(mrr_transactions.month_since_first_signup);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation mrr_retention {
+        label: 'Mrr Retention'
+        formula: @aql mrr * 1.0 / initial_mrr;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      cohort: VizFieldFull {
+        label: 'Sign Up At'
+        ref: r(customers.sign_up_date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      cohort_duration: VizFieldFull {
+        ref: ref('mrr_transactions', 'month_since_first_signup')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      cohort_value: VizFieldFull {
+        ref: 'mrr_retention'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
       label: 'Overview'
-      height: 2580
+      height: 3000
       grid_size: 20
       block t1 {
         position: pos(20, 20, 1160, 160)
@@ -1672,6 +1734,10 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
       block v22 {
         position: pos(320, 300, 280, 100)
         layer: 1
+      }
+      block v_03kh {
+        position: pos(20, 2580, 580, 400)
+        layer: 10
       }
       mobile {
         mode: 'auto'
@@ -1765,7 +1831,6 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
     tab tab_x8kl: CanvasLayout {
       label: 'Revenue'
       width: 1300
-      height: 1100
       grid_size: 20
       auto_expand_vertically: true
       mobile {
@@ -1894,6 +1959,24 @@ This dashboard tracks the KPIs of CTOs and financial managers. This will also be
             'v_2a0i'
           ]
           field: r(ecommerce_operating_expenses.annual_budget_param)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9rgd'
+      to: [
+        CustomMapping {
+          block: 'v_03kh'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_03kh'
+      to: [
+        CustomMapping {
+          block: 'v_9rgd'
+          disabled: true
         }
       ]
     },
