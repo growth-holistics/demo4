@@ -593,6 +593,55 @@ Dashboard _1_country_breakdown_efoxr {
       }
     }
   }
+  block v_6gx5: VizBlock {
+    label: 'Revenue by Quarter'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      x_axis: VizFieldFull {
+        label: 'Quarter'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 10
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_label: 'Quarter'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'created_at'
@@ -771,6 +820,10 @@ Dashboard _1_country_breakdown_efoxr {
     block customer_gender {
       position: pos(920, 20, 280, 100)
       layer: 1
+    }
+    block v_6gx5 {
+      position: pos(20, 1410, 580, 400)
+      layer: 3
     }
   }
   theme: H.themes.classic
