@@ -46,7 +46,10 @@ Model ecommerce_users {
   dimension visit_time {
     label: 'Visit Time'
     type: 'text'
+    description: "The **visit_time** field represents the month name extracted from the user\'s sign-up date.  \nIt indicates the calendar month when the user registered on the ecommerce platform.  \nExamples include `September`, `August`, `July`, `May`, and `June`."
+    hidden: false
     definition: @sql to_char({{ sign_up_date }}, 'Month') ;;
+    primary_key: false
   }
 
   dimension sign_up_at {
@@ -120,8 +123,10 @@ end;;
   dimension full_name {
     label: 'Full Name'
     type: 'text'
+    description: "The **full_name** field contains the complete name of the user as recorded in the ecommerce platform.  \nIt combines the user\'s first and last names to provide a single identifier for each user.  \nExamples include `Shamel Rey`, `Aalund Dani`, and `Abar Chanthavong`."
     hidden: false
     definition: @sql {{ #SOURCE.full_name }};;
+    primary_key: false
   }
 
 
@@ -129,8 +134,10 @@ end;;
   dimension age {
     label: 'Age'
     type: 'number'
+    description: "The **age** field represents the user\'s age calculated as the difference in years between the current date and the user\'s birth date.  \nIt provides an essential demographic attribute for analyzing user segments and behavior.  \nExamples include ages such as 17, 20, 25, 30, and 41 years."
     hidden: false
     definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
+    primary_key: false
   }
   dimension age_group {
     label: "Age Demographic"
@@ -149,10 +156,13 @@ end;;
   dimension date_datum {
     label: "Date Datum"
     type: "date"
+    description: "The **date_datum** field contains a fixed reference date set to November 25, 2022.  \nThis date is used as a constant value across all records in the dataset.  \nAn example value is `2022-11-25`."
+    hidden: false
     definition: @sql   case
   when {{ id }} is not null then to_date('2022-11-25', 'YYYY-MM-DD')
   else to_date('2022-11-25', 'YYYY-MM-DD')
 end;;
+    primary_key: false
     format: "LLL dd yyyy"
   }
 
@@ -160,6 +170,8 @@ end;;
   measure users_signed_up_count {
     label: 'Users Signed Up'
     type: 'number'
+    description: "The **users_signed_up_count** field represents the count of users who have signed up.  \nIt aggregates the number of unique user IDs to measure the total sign-ups within a given context."
+    hidden: false
     definition: @sql {{ id }};;
     aggregation_type: 'count'
   }
@@ -175,13 +187,17 @@ end;;
   measure total_users_aql {
     label: "Total Users (AQL)"
     type: "number"
-    definition: @aql count(ecommerce_users.id);;
+    description: "The **total_users_aql** field represents the total number of unique users registered on the ecommerce platform.  \nIt counts all distinct user IDs to provide the overall size of the user base."
     hidden: false
+    definition: @aql count(ecommerce_users.id);;
+    aggregation_type: "custom"
   }
 
   measure date_datum_2 {
     label: "Date Datum 2"
     type: "date"
+    description: "The **date_datum_2** field contains a fixed date value set to November 25, 2022.  \nThis field can be used as a reference date for filtering or comparison purposes within the ecommerce user data.  \nAn example value is `2022-11-25`."
+    hidden: false
     definition: @sql cast('2022-11-25' as date);;
     aggregation_type: "custom"
     format: "LLL dd yyyy"
