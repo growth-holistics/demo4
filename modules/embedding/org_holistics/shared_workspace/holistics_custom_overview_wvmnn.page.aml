@@ -206,68 +206,6 @@ Dashboard holistics_custom_overview_wvmnn {
       hide_label: true
     }
   }
-  block v6: VizBlock {
-    label: 'Total GMV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'GMV'
-        ref: r(demo_ecommerce_version_2.gmv)
-        format {
-          type: 'number'
-          pattern: '[$$]#,###0.00,"K"'
-          group_separator: ','
-          decimal_separator: '.'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_orders.created_at)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'month'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v7: VizBlock {
-    label: 'Metric AOV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'AOV'
-        ref: r(demo_ecommerce_version_2.aov)
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: r(ecommerce_orders.created_at)
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'month'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
   block v8: VizBlock {
     label: 'User Growth'
     viz: CombinationChart {
@@ -283,9 +221,10 @@ ecommerce_users.sign_up_date
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_users.sign_up_date)
-        transformation: 'datetrunc quarter'
+        transformation: 'datetrunc year'
         format {
           type: 'date'
+          pattern: 'yyyy'
         }
       }
       y_axis {
@@ -323,12 +262,17 @@ ecommerce_users.sign_up_date
         }
       }
       settings {
+        x_axis_show_null_datetime: true
         pop {
           field: r(ecommerce_users.sign_up_date)
           value: RelativePopValue {
             duration: 3
             granularity: 'month'
           }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -638,11 +582,7 @@ ecommerce_users.sign_up_date
           field: ref('ecommerce_users', 'sign_up_date')
         },
         CustomMapping {
-          block: [
-            'v5',
-            'v6',
-            'v7'
-          ]
+          block: 'v5'
           field: ref('ecommerce_orders', 'created_at')
         },
         CustomMapping {
@@ -693,12 +633,6 @@ ecommerce_users.sign_up_date
       position: pos(40, 140, 240, 140)
     }
     block v5 {
-      position: pos(610, 140, 240, 140)
-    }
-    block v6 {
-      position: pos(880, 140, 240, 140)
-    }
-    block v7 {
       position: pos(1160, 140, 240, 140)
     }
     block v8 {
