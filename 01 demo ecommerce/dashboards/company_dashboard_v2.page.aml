@@ -21,9 +21,21 @@ BlockTheme holistics_kpi_blue_dark_2 {
   }
 }
 
+BlockTheme holistics_ant_card_blocktheme {
+  border {
+    border_width: 2
+    border_radius: 8
+    border_color: '#EDF1F5'
+  }
+  background {
+    bg_color: 'white'
+  }
+  padding: 18
+}
+
 @tag('1️⃣ Trust/Endorsed', 'Status/WIP')
 Dashboard company_dashboard_v2 {
-  title: 'Ecommerce Dashboard - v2.202510'
+  title: '[Demo] Ecommerce Dashboard - v2.202510'
   owner: 'thong.do@holistics.io'
   description: ''''''
   block v34: VizBlock {
@@ -196,6 +208,7 @@ Dashboard company_dashboard_v2 {
         ]
       }
     }
+    theme: holistics_ant_card_blocktheme
   }
   block v37: VizBlock {
     label: 'Users Sign Up Over Time'
@@ -297,7 +310,7 @@ Dashboard company_dashboard_v2 {
     }
   }
   block v43: VizBlock {
-    label: 'User Demographics'
+    label: 'User demographics'
     viz: PivotTable {
       dataset: demo_ecommerce_version_2
       calculation untitled_metric_316015f {
@@ -378,37 +391,26 @@ Dashboard company_dashboard_v2 {
         }
       }
     }
+    theme: holistics_ant_card_blocktheme
   }
   block f3: FilterBlock {
     label: 'Date'
-    type: 'date'
-    default {
-      operator: 'last'
-      value: '12'
-      modifier: 'month'
-      options {
-        include_current_period: true
-      }
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_orders.created_at)
     }
-  }
-  block t17: TextBlock {
-    content: @md # 💰 Finance Overview
-
-This dashboard provides a comprehensive view of key financial metrics for the business.  
-Track the flow of marketplace value from **gross merchandise volume (GMV)** to **net merchandise value (NMV)**, and eventually to **platform revenue**.
-
-Use this to:
-- Monitor **sales performance** over time
-- Understand the impact of **refunds, cancellations**, and **discounts**
-- Quantify the **true revenue contribution** to the platform
-- Enable finance and ops teams to **forecast, benchmark, and optimize earnings**;;
+    default {
+      operator: 'matches'
+      value: 'last 24 months'
+    }
   }
   block f4: FilterBlock {
     label: 'Product Category'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('map_categories', 'parent_category')
+      field: r(map_categories.parent_category)
     }
     default {
       operator: 'is'
@@ -439,14 +441,11 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
    _Formula: NMV × revenue_commission_;;
   }
   block v44: VizBlock {
-    label: 'GMV Over Time'
+    label: 'GMV and NMV over time'
     viz: LineChart {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       x_axis: VizFieldFull {
-        ref: ref('ecommerce_orders', 'created_at')
+        ref: r(ecommerce_orders.created_at)
         transformation: 'datetrunc quarter'
         format {
           type: 'date'
@@ -460,11 +459,27 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
         }
         series {
           field: VizFieldFull {
-            ref: 'gmv'
+            ref: r(demo_ecommerce_version_2.gmv)
             format {
               type: 'number'
               pattern: 'inherited'
             }
+          }
+          settings {
+            color: '#05264C'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.nmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#259B6C'
           }
         }
       }
@@ -477,6 +492,7 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
         }
       }
     }
+    theme: holistics_ant_card_blocktheme
   }
   block t22: TextBlock {
     content: @md <hr>;;
@@ -887,6 +903,7 @@ Use the **[Drill Down]** or **[View Underlying Data]** features to explore break
     settings {
       hide_label: true
     }
+    theme: holistics_ant_card_blocktheme
   }
   block f9: FilterBlock {
     label: 'Date'
@@ -942,9 +959,6 @@ Uncover trends by comparing current performance against a previous period.
 3. Select a comparison window — e.g., **Previous 1 Year**.
 4. Use **Save As** to create and keep a version in your **Private Workspace** library.
 5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
-  }
-  block t34: TextBlock {
-    content: @md ![BI Workflow Diagram](https://www.holistics.io/blog/content/images/2018/02/final-diagram.png);;
   }
   block t_3qfv: TextBlock {
     content: @md <style>
@@ -1400,72 +1414,8 @@ Uncover trends by comparing current performance against a previous period.
       hide_label: true
     }
   }
-  block v_0wfh: VizBlock {
-    label: 'Total Orders by Continents'
-    viz: PieChart {
-      dataset: demo_ecommerce_version_2
-      legend: VizFieldFull {
-        label: 'Continent'
-        ref: r(ecommerce_countries.continent_name)
-        format {
-          type: 'text'
-        }
-        uname: 'ecommerce_countries_continent_name'
-      }
-      series {
-        field: VizFieldFull {
-          label: ' '
-          ref: r(demo_ecommerce_version_2.total_orders)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-        settings {
-          point {
-            value: 'Asia'
-            color: '#05264CFF'
-          }
-          point {
-            value: 'Europe'
-            color: '#003A61FF'
-          }
-          point {
-            value: 'North America'
-            color: '#00627AFF'
-          }
-          point {
-            value: 'Oceania'
-            color: '#008079FF'
-          }
-        }
-      }
-      settings {
-        display_as_donut: true
-        row_limit: 5000
-        legend_label: 'hidden'
-        show_percentage: true
-        data_label_position: 'inside'
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
-  }
   block v_mz6i: VizBlock {
-    label: 'GMV (Sales) by Country Name'
+    label: 'GMV by countries'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
@@ -1543,20 +1493,10 @@ Uncover trends by comparing current performance against a previous period.
         }
       }
     }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
+    theme: holistics_ant_card_blocktheme
   }
   block v_vs7p: VizBlock {
-    label: 'GMV (Sales) by Country'
+    label: 'GMV by countries'
     viz: FilledMap {
       dataset: demo_ecommerce_version_2
       location {
@@ -1591,17 +1531,7 @@ Uncover trends by comparing current performance against a previous period.
         }
       }
     }
-    theme {
-      border {
-        border_width: 2
-        border_radius: 8
-        border_color: '#EDF1F5'
-      }
-      background {
-        bg_color: 'white'
-      }
-      padding: 12
-    }
+    theme: holistics_ant_card_blocktheme
   }
   block t_jgba: separator()
   block t_n5sp: ver_separator()
@@ -1648,9 +1578,6 @@ Uncover trends by comparing current performance against a previous period.
   }
   block t_9x1p: TextBlock {
     content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
-  }
-  block t_43ze: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
   }
   block v_mb64: VizBlock {
     label: 'Total Users'
@@ -1781,7 +1708,7 @@ Uncover trends by comparing current performance against a previous period.
             }
           }
           settings {
-            color: '#05264C5E'
+            color: '#8DA2BBFF'
           }
         }
         series {
@@ -1873,39 +1800,39 @@ Uncover trends by comparing current performance against a previous period.
     'User Demographic Insight',
     '<h4>Performance by Gender</h4>     <ul>       <li><strong>Female users</strong> generated over <strong>$6.8M</strong> in total revenue — more than <strong>2×</strong> male users.</li>       <li>They account for <strong>68% of repeat buyers</strong> (3,834 out of 5,682) and <strong>67% of total orders</strong>.</li>       <li>Female customers are dominant across all age brackets, with particularly high engagement under 30.</li>     </ul>      <hr>      <h4>Performance by Age Group</h4>     <ul>       <li>The <strong>20–29</strong> age segment is our largest by both revenue (<strong>$4.9M</strong>) and orders (<strong>16K</strong>), across both genders.</li>       <li>The <strong>under-20</strong> group is also very active, contributing <strong>$4.7M</strong> in revenue — mainly driven by females.</li>       <li>Customers <strong>30 and above</strong> are a smaller group (~5% of revenue), but still generate over <strong>1.6K repeat orders</strong>.</li>     </ul>',
     'Uncle Ben • Last updated: Oct 2025',
-    'left'
+    'left',
+    'insight'
   )
   block t_271a: block_ha_info_icon_only(
     'Explore user signups over time',
-    "<p>      This chart shows how user sign-ups have evolved quarter by quarter.        You can go beyond the surface and dig deeper into the data with a few simple interactions:     </p>      <hr>      <h4>Drill Down for Deeper Insight</h4>     <p>       Right-click on any bar (e.g., Q1 2025) to <strong>drill down</strong> into dimensions like:        <strong>Gender, Age group, Country</strong> etc. This lets you analyze which segments contributed        most to user growth in that specific period.     </p>      <hr>      <h4>View Underlying Data</h4>     <p>       Whether you're in the main chart or within a drilled-down view:     </p>     <ul>       <li>Click <strong>“View Underlying Data”</strong> to explore the exact list of users who signed up.</li>       <li>Filter or export this raw data to investigate anomalies, campaign performance, or to follow up with user cohorts.</li> </ul>",
+    " <h4>Drill Down for Deeper Insights</h4>   <p>     Right-click any bar to drill into dimensions such as <strong>Gender</strong>, <strong>Age Group</strong>,      <strong>Country</strong>, and more. This helps you identify which segments contributed most to user growth     during a specific period.   </p>    <h4>Cross Filter</h4>   <p>     Click any bar to view the filtered demographic details on the right. This allows you to instantly compare      trends and understand how different segments interact within your data.   </p>    <h4>View Underlying Data</h4>   <p>Whether you're on the main chart or in a drilled-down view:</p>   <ul>     <li>       Click <strong>View Underlying Data</strong> to see the exact list of users who signed up.     </li>     <li>       Filter or export this raw data to investigate anomalies, evaluate campaign performance,        or follow up with specific user cohorts.     </li>   </ul>",
     'Pro tip • Last updated: Oct 2025',
-    'right'
+    'right',
+    'info'
   )
-  block t_mly3: block_ha_card()
   block t_6mrf: block_ha_info_icon_only(
     'Identifying and Engaging Top Customers',
-    '''     
-      <p>The goal is to help <strong>identify high-value customers</strong> for tailored offers, loyalty campaigns, or direct outreach.</p>
-      <ul>
-    <li>
-      <strong>Click a customer’s name</strong> to email them instantly via 
-      <a href="https://docs.holistics.io/docs/actions" target="_blank">Holistics Dashboard Actions</a>. 
-      <em>More actions (e.g., Slack, webhooks, external tools) can be configured by your team.</em>
-    </li>
-    <li>
-      <strong>Right-click a customer row → “View Underlying Data”</strong> to see purchased <strong>Product Categories</strong> for personalization 
-      (<a href="https://docs.holistics.io/docs/interactions/view-underlying-data" target="_blank">docs</a>).
-    </li>
-    <li><strong>Click “Explore Data”</strong> to analyze beyond the top 10 customers.</li>
-    <li>
-      Customers inactive for <strong>90+ days</strong> are flagged. 
-      Ask the data team to set up automated alerts via <strong>Slack</strong>, <strong>Email</strong>, or <strong>Webhooks</strong> 
-      (<a href="https://docs.holistics.io/docs/delivery/data-alert" target="_blank">Data Alert docs</a>).
-    </li>
-  </ul>'''
-    ,
-    ' ',
-    'left'
+    '''    <p>The goal is to help <strong>identify high-value customers</strong> for tailored offers, loyalty campaigns, or direct outreach.</p>
+    <ul>
+  <li>
+    <strong>Click a customer’s name</strong> to email them instantly via 
+    <a href="https://docs.holistics.io/docs/actions" target="_blank">Holistics Dashboard Actions</a>. 
+    <em>More actions (e.g., Slack, webhooks, external tools) can be configured by your team.</em>
+  </li>
+  <li>
+    <strong>Right-click a customer row → “View Underlying Data”</strong> to see purchased <strong>Product Categories</strong> for personalization 
+    (<a href="https://docs.holistics.io/docs/interactions/view-underlying-data" target="_blank">docs</a>).
+  </li>
+  <li><strong>Click “Explore Data”</strong> to analyze beyond the top 10 customers.</li>
+  <li>
+    Customers inactive for <strong>90+ days</strong> are flagged. 
+    Ask the data team to set up automated alerts via <strong>Slack</strong>, <strong>Email</strong>, or <strong>Webhooks</strong> 
+    (<a href="https://docs.holistics.io/docs/delivery/data-alert" target="_blank">Data Alert docs</a>).
+  </li>
+</ul>''',
+    'Peter Parker',
+    'left',
+    'info'
   )
   block t_2q74: TextBlock {
     content: @md <div style="background: white; padding: 8px; border-radius: 8px">
@@ -1926,9 +1853,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
   }
   block t_tf2t: TextBlock {
     content: @md <h4>Metric by product category</h4>;;
-  }
-  block t_8pc5: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
   }
   block t_fpmz: block_ha_card()
   block t_2jh0: separator()
@@ -1986,13 +1910,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       theme {
         table {
           general {
-            font_size: 11
-            cell_padding {
-              top: 3
-              left: 2
-              bottom: 3
-              right: 2
-            }
             borders {
               outer: true
               header: true
@@ -2076,15 +1993,15 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         column_styles: [
           ColumnStyle {
             key: 'custom_total_users_retention'
-            width: 65
+            width: 76
           },
           ColumnStyle {
             key: 'datetrunc_month_cohort_month'
-            width: 122
+            width: 126
           },
           ColumnStyle {
             key: 'ecommerce_users_users_cohort_size'
-            width: 117
+            width: 120
           }
         ]
       }
@@ -2104,159 +2021,69 @@ https://www.learnui.design/tools/data-color-picker.html#palette
   block t_kr0c: separator()
   block t_od8o: block_ha_info_whats_this(
     "What's this",
-    '<img src="https://media.holistics.io/301004ba-cohort-retention-diagram-for-demo-dashboard.png" />',
-    'top'
+    '<h2 style="font-weight: 600; font-size: 16px">Dynamic Cohort Analysis: Cohort Slicing by Any Filter</h2> <p>   This cohort report is tightly integrated with the filters above (date, metric, geography).    Any change in those filters will immediately update this cohort breakdown. </p> <p>It allows business users to answer advanced questions like:</p> <ul>   <li>How does user behavior change by country or product?</li>   <li>What is the monthly retention pattern by product launch cohorts?</li> </ul> <p>  <strong>Why it matters</strong>: With dynamic cohort logic, users can    <strong>slice cohorts by any permutation</strong>—without BI creating custom cohort reports    for every dimension or segment. </p> <img src="https://media.holistics.io/301004ba-cohort-retention-diagram-for-demo-dashboard.png" />',
+    'left',
+    1000,
+    1000
   )
-  block t_yr6l: TextBlock {
-    content: @md <!-- Minimal Text Info Button -->
-<style>
-    .info-btn-text {
-        position: absolute;
-        display: inline-block;
-    }
-
-    .info-btn-text .text-button {
-        background: none;
-        border: none;
-        color: #00627a;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-decoration-color: rgba(0, 98, 122, 0.4);
-        text-underline-offset: 3px;
-    }
-
-    .info-btn-text .text-button:hover {
-        background: rgba(0, 98, 122, 0.08);
-        text-decoration-style: solid;
-        text-decoration-color: #00627a;
-        transform: translateY(-1px);
-    }
-
-    .info-btn-text .text-tooltip {
-        position: absolute;
-        bottom: calc(100% + 10px);
-        left: 50%;
-        transform: translateX(-50%);
-        min-width: 480px;
-        max-width: 640px;
-        background: white;
-        color: #333333;
-        border-radius: 12px;
-        padding: 20px 24px;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        pointer-events: none;
-        font-size: 13px;
-        line-height: 1.6;
-        box-shadow: 0 8px 36px rgba(5, 38, 76, 0.25);
-        z-index: 1000;
-    }
-
-    .info-btn-text .text-tooltip::after {
-        content: '';
-        position: absolute;
-        top: calc(100% - 1px);
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 6px solid #ffffff;
-    }
-
-    .info-btn-text:hover .text-tooltip {
-        opacity: 1;
-        visibility: visible;
-        bottom: calc(100% + 12px);
-    }
-
-    .info-btn-text .text-tooltip-highlight {
-        color: #4ade80;
-        font-weight: 600;
-    }
-
-    /* RIGHT */
-    .info-btn-text.right-position .text-tooltip {
-    bottom: auto;
-    top: 50%;
-    left: calc(100% + 10px);
-    transform: translateY(-50%);
-    }
-
-    .info-btn-text.right-position .text-tooltip::after {
-    top: 50%;
-    left: -5px;
-    transform: translateY(-50%);
-    border: none;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-right: 6px solid #ffffff;
-    }
-
-    /* LEFT */
-    .info-btn-text.left-position .text-tooltip {
-    bottom: auto;
-    top: 50%;
-    right: calc(100% + 10px);
-    left: auto;
-    transform: translateY(-50%);
-    }
-
-    .info-btn-text.left-position .text-tooltip::after {
-    top: 50%;
-    right: -5px;
-    left: auto;                         /* NEW: reset base left:50% */
-    bottom: auto;                       /* (defensive reset) */
-    transform: translateY(-50%);
-    border: none;                       /* clear all first */
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 6px solid white;       /* KEY CHANGE: triangle points right */
-    }
-
-
-    /* BOTTOM */
-    .info-btn-text.bottom-position .text-tooltip {
-    top: calc(100% + 10px);
-    bottom: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    }
-
-    .info-btn-text.bottom-position .text-tooltip::after {
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    border: none;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid #ffffff;
-    }
-</style>
-
-<!-- HTML Structure -->
-<div class="info-btn-text left-position">
-    <button class="text-button">What's this</button>
-    <div class="text-tooltip">
-        <h2 style="font-weight: 600; font-size: 16px">Dynamic Cohort Analysis: Cohort Slicing by Any Filter</h2> <p>   This cohort report is tightly integrated with the filters above (date, metric, geography).    Any change in those filters will immediately update this cohort breakdown. </p> <p>It allows business users to answer advanced questions like:</p> <ul>   <li>How does user behavior change by country or product?</li>   <li>What is the monthly retention pattern by product launch cohorts?</li> </ul> <p>  <strong>Why it matters</strong>: With dynamic cohort logic, users can    <strong>slice cohorts by any permutation</strong>—without BI creating custom cohort reports    for every dimension or segment. </p>
-    </div>
-</div>;;
+  block t_zbp0: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border-bottom
+: 2px solid #EDF1F5"></div>;;
   }
-  block t_7f62: block_ha_card()
+  block v_wtl8: VizBlock {
+    label: 'Orders by status'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        ref: r(ecommerce_orders.status)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: ' '
+          ref: r(ecommerce_orders.total_orders_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          color_palette: 36356
+          point {
+            value: 'cancelled'
+            color: '#05264C'
+          }
+          point {
+            value: 'delivered'
+            color: '#003A61'
+          }
+          point {
+            value: 'refunded'
+            color: '#004E71'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        show_percentage: true
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: holistics_ant_card_blocktheme
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
       label: 'Overview'
       width: 1260
-      height: 1910
+      height: 2100
       auto_expand_vertically: true
       block t_ra2i {
         position: pos(40, 30, 140, 40)
@@ -2286,16 +2113,12 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(60, 520, 1140, 470)
         layer: 7
       }
-      block v_0wfh {
-        position: pos(40, 1110, 400, 330)
-        layer: 9
-      }
       block v_mz6i {
-        position: pos(460, 1110, 410, 330)
+        position: pos(40, 1120, 820, 520)
         layer: 10
       }
       block v_vs7p {
-        position: pos(40, 1460, 1180, 420)
+        position: pos(40, 1660, 1180, 420)
         layer: 20
       }
       block t_jgba {
@@ -2354,7 +2177,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(40, 320, 1180, 690)
       }
       block t_m86d {
-        position: pos(890, 1140, 330, 170)
+        position: pos(880, 1300, 330, 170)
         layer: 29
       }
       block t_o5qy {
@@ -2368,40 +2191,37 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     tab tab1: CanvasLayout {
       label: 'Users'
       width: 1260
-      height: 2320
+      height: 2430
       block f1 {
         position: pos(40, 240, 310, 80)
         layer: 4
       }
       block f2 {
-        position: pos(360, 240, 310, 80)
+        position: pos(370, 240, 310, 80)
         layer: 9
       }
       block v34 {
-        position: pos(60, 1220, 1140, 480)
+        position: pos(40, 1220, 1180, 520)
         layer: 1
       }
       block v37 {
-        position: pos(70, 360, 420, 320)
+        position: pos(70, 380, 420, 320)
         layer: 2
       }
       block v43 {
-        position: pos(550, 360, 650, 720)
+        position: pos(530, 360, 690, 760)
         layer: 1
       }
       block t_wpcr {
         position: pos(40, 30, 140, 40)
         layer: 2
       }
-      block t_43ze {
-        position: pos(530, 340, 690, 760)
-      }
       block v_mb64 {
-        position: pos(70, 400, 210, 120)
+        position: pos(70, 420, 210, 120)
         layer: 3
       }
       block t_l38m {
-        position: pos(70, 370, 40, 40)
+        position: pos(70, 390, 40, 40)
         layer: 2
       }
       block t_kde2 {
@@ -2409,7 +2229,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: 12
       }
       block t_elu8 {
-        position: pos(40, 340, 470, 370)
+        position: pos(40, 360, 470, 370)
         layer: 1
       }
       block t_bet4 {
@@ -2417,74 +2237,67 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         layer: -2
       }
       block t_4e2c {
-        position: pos(40, 730, 470, 370)
+        position: pos(40, 750, 470, 370)
         layer: 1
       }
       block t_gldd {
-        position: pos(40, 1150, 350, 50)
+        position: pos(40, 1170, 350, 50)
         layer: 14
       }
       block v_xvgb {
-        position: pos(70, 760, 420, 320)
+        position: pos(70, 780, 420, 320)
         layer: 1
       }
       block v_3dy9 {
-        position: pos(70, 790, 210, 120)
+        position: pos(70, 810, 210, 120)
         layer: 1
       }
       block t_sxoz {
-        position: pos(70, 760, 40, 40)
+        position: pos(70, 780, 40, 40)
         layer: 2
       }
       block t_afjd {
-        position: pos(1212, 331, 30, 30)
+        position: pos(1210, 350, 30, 30)
         layer: 15
       }
       block t_271a {
-        position: pos(500, 330, 30, 30)
+        position: pos(500, 350, 30, 30)
         layer: 16
       }
-      block t_mly3 {
-        position: pos(40, 1200, 1180, 510)
-      }
       block t_6mrf {
-        position: pos(1210, 1190, 30, 30)
+        position: pos(1210, 1210, 30, 30)
         layer: 17
       }
       block f_xzr7 {
-        position: pos(60, 1820, 300, 60)
+        position: pos(60, 1860, 300, 60)
         layer: 1
       }
       block f_29w2 {
-        position: pos(380, 1820, 300, 60)
+        position: pos(380, 1860, 300, 60)
         layer: 2
       }
       block v_mfrz {
-        position: pos(60, 1910, 1140, 350)
+        position: pos(60, 1950, 1140, 450)
         layer: 3
       }
       block t_izwa {
-        position: pos(40, 1800, 1180, 480)
+        position: pos(40, 1840, 1180, 580)
       }
       block t_wopf {
         position: pos(-20, 200, 1300, 120)
         layer: -3
       }
       block t_q1m5 {
-        position: pos(40, 1750, 810, 50)
+        position: pos(40, 1790, 810, 50)
         layer: 18
       }
       block t_kr0c {
-        position: pos(40, 1880, 1180, 20)
+        position: pos(40, 1920, 1180, 20)
         layer: 19
       }
       block t_od8o {
-        position: pos(1110, 1820, 100, 30)
-        layer: 20
-      }
-      block t_yr6l {
-        position: pos(1000, 1820, 100, 30)
-        layer: 1
+        position: pos(1110, 1860, 100, 30)
+        layer: 120
       }
       default_zoom: 0.9
     }
@@ -2500,12 +2313,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(60, 340, 300, 60)
         layer: 8
       }
-      block t34 {
-        position: pos(1320, 900, 1100, 580)
-        layer: 13
-      }
       block v57 {
-        position: pos(70, 440, 1120, 380)
+        position: pos(60, 420, 1140, 420)
         layer: 3
       }
       block t_9x1p {
@@ -2527,9 +2336,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(60, 280, 350, 30)
         layer: 105
       }
-      block t_8pc5 {
-        position: pos(60, 410, 1140, 430)
-      }
       block t_fpmz {
         position: pos(40, 260, 1180, 600)
         layer: -1
@@ -2546,57 +2352,53 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     tab tab6: CanvasLayout {
       label: 'Sales & Orders'
       width: 1260
-      height: 890
+      height: 780
       block f3 {
-        position: pos(1310, 180, 300, 100)
+        position: pos(40, 240, 300, 60)
         layer: 2
       }
       block f4 {
-        position: pos(1610, 180, 320, 100)
+        position: pos(360, 240, 320, 60)
         layer: 6
       }
-      block t17 {
-        position: pos(-640, 10, 620, 280)
-        layer: 3
-      }
       block t21 {
-        position: pos(-760, 340, 680, 440)
+        position: pos(1400, 320, 680, 440)
         layer: 8
       }
       block t22 {
-        position: pos(20, 1190, 1280, 20)
+        position: pos(20, 1180, 1280, 20)
         layer: 1
       }
       block t25 {
-        position: pos(1370, 1070, 880, 280)
+        position: pos(1390, 1490, 880, 280)
         layer: 11
       }
       block t30 {
-        position: pos(1390, 1690, 360, 180)
+        position: pos(1410, 2110, 360, 180)
         layer: 14
       }
       block t31 {
-        position: pos(-740, 840, 680, 140)
+        position: pos(1420, 820, 680, 140)
         layer: 15
       }
       block t32 {
-        position: pos(-740, 990, 680, 220)
+        position: pos(1420, 970, 680, 220)
         layer: 16
       }
       block t33 {
-        position: pos(-640, 1250, 580, 220)
+        position: pos(1520, 1230, 580, 220)
         layer: 17
       }
       block v44 {
-        position: pos(60, 290, 1140, 540)
+        position: pos(40, 360, 740, 370)
         layer: 9
       }
       block v52 {
-        position: pos(1390, 1370, 360, 280)
+        position: pos(1410, 1790, 360, 280)
         layer: 13
       }
       block v53 {
-        position: pos(1790, 1390, 880, 300)
+        position: pos(1810, 1810, 880, 300)
         layer: 12
       }
       block t_k657 {
@@ -2610,9 +2412,13 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(40, 80, 650, 100)
         layer: 19
       }
-      block t_7f62 {
-        position: pos(40, 260, 1180, 590)
-        layer: 8
+      block t_zbp0 {
+        position: pos(-20, 200, 1300, 120)
+        layer: -1
+      }
+      block v_wtl8 {
+        position: pos(800, 360, 420, 370)
+        layer: 1
       }
       mobile {
         mode: 'auto'
@@ -2624,7 +2430,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       width: 1260
       auto_expand_vertically: true
       block t_3qfv {
-        position: pos(20, 240, 1220, 860)
+        position: pos(40, 260, 1180, 860)
         layer: 1
       }
       block t_2xgb {
@@ -2646,15 +2452,92 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         mode: 'auto'
       }
       default_zoom: 0.9
-      height: 1110
+      height: 1150
     }
   }
   interactions: [
+    FilterInteraction {
+      from: 'v34'
+      to: [
+        CustomMapping {
+          block: 'v_wtl8'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v37'
+      to: [
+        CustomMapping {
+          block: 'v_wtl8'
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'f2'
       to: [
         CustomMapping {
           block: [
+            'v44',
+            'v52',
+            'v53',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mfrz',
+            'v_wtl8',
+            'f3',
+            'f4',
+            'f10',
+            'f_xzr7',
+            'f_29w2'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v43'
+      to: [
+        CustomMapping {
+          block: 'v_wtl8'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v52a',
+            'v53a',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'f2',
+            'f4',
+            'f10',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2668,10 +2551,14 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v37',
+            'v57',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
+            'f2',
+            'f3',
+            'f10',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2697,7 +2584,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2709,7 +2597,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2745,7 +2634,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2758,10 +2648,25 @@ https://www.learnui.design/tools/data-color-picker.html#palette
           block: [
             'v37',
             'v43',
+            'v44',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
+            'v_wtl8',
+            'f2',
+            'f3',
+            'f4',
             'f_xzr7',
             'f_29w2'
           ]
@@ -2775,7 +2680,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2787,7 +2693,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2799,7 +2706,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2811,7 +2719,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2823,7 +2732,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2835,19 +2745,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_0wfh'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2859,7 +2758,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2871,8 +2771,27 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_wtl8'
           ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mb64'
+      to: [
+        CustomMapping {
+          block: 'v_wtl8'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xvgb'
+      to: [
+        CustomMapping {
+          block: 'v_wtl8'
           disabled: true
         }
       ]
@@ -2894,9 +2813,9 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mwo5',
             'v_7wqj',
             'v_80yo',
-            'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_wtl8'
           ]
           disabled: true
         }
@@ -2919,10 +2838,11 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mwo5',
             'v_7wqj',
             'v_80yo',
-            'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_wtl8',
             'f2',
+            'f3',
             'f4',
             'f10',
             'f_29w2'
@@ -2948,11 +2868,14 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mwo5',
             'v_7wqj',
             'v_80yo',
-            'v_0wfh',
             'v_mz6i',
             'v_vs7p',
+            'v_wtl8',
+            'f2',
+            'f3',
             'f4',
-            'f10'
+            'f10',
+            'f_xzr7'
           ]
           disabled: true
         }
@@ -2975,24 +2898,39 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mwo5',
             'v_7wqj',
             'v_80yo',
-            'v_0wfh',
             'v_mz6i',
-            'v_vs7p'
+            'v_vs7p',
+            'v_wtl8'
           ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'f3'
+      from: 'v_wtl8'
       to: [
         CustomMapping {
           block: [
-            'v53a',
+            'v34',
+            'v37',
+            'v43',
             'v52a',
-            'v53'
+            'v53a',
+            'v57',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz'
           ]
-          field: r(ecommerce_orders.created_at)
+          disabled: true
         }
       ]
     },
@@ -3001,7 +2939,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       to: [
         CustomMapping {
           block: 'v57'
-          field: r(ecommerce_orders.created_at)
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     },
@@ -3013,7 +2951,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v37',
             'v_xvgb'
           ]
-          field: r(ecommerce_users.sign_up_at)
+          field: ref('ecommerce_users', 'sign_up_at')
         }
       ]
     }

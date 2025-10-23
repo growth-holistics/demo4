@@ -1,7 +1,30 @@
-Dashboard aarki_embed_demo_landing_page {
-  title: 'Aarki Ecommerce Embedded Analytics'
-  owner: 'thong.do@holistics.io'
-  description: ''''''
+Dashboard holistics_custom_overview_wvmnn {
+  title: 'Holistics Custom Overview '
+  block v1: VizBlock {
+    label: 'Merchant'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_merchants.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   block v2: VizBlock {
     label: 'Product Performance'
     viz: DataTable {
@@ -11,14 +34,14 @@ Dashboard aarki_embed_demo_landing_page {
       }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: r(ecommerce_products.name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: r(ecommerce_orders.total_orders_count)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -26,7 +49,7 @@ Dashboard aarki_embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: 'gmv'
+          ref: r(demo_ecommerce_version_2.gmv)
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -36,7 +59,7 @@ Dashboard aarki_embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: 'aov'
+          ref: r(demo_ecommerce_version_2.aov)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -65,14 +88,14 @@ Dashboard aarki_embed_demo_landing_page {
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'email')
+          ref: r(ecommerce_users.email)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: r(ecommerce_orders.total_orders_count)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -80,7 +103,7 @@ Dashboard aarki_embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: 'gmv'
+          ref: r(demo_ecommerce_version_2.gmv)
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -90,19 +113,18 @@ Dashboard aarki_embed_demo_landing_page {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: 'aov'
+          ref: r(demo_ecommerce_version_2.aov)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         }
-
       ]
       settings {
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            ref: 'aov'
+            ref: r(demo_ecommerce_version_2.aov)
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
@@ -115,6 +137,10 @@ Dashboard aarki_embed_demo_landing_page {
           }
         ]
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
     settings {
@@ -144,19 +170,11 @@ Dashboard aarki_embed_demo_landing_page {
           enabled: true
           debug_comments: true
         }
-        label {
-          font_color: '#004D43'
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#004D43'
-        }
       }
     }
     settings {
       hide_label: true
     }
-    theme: block_white
   }
   block v5: VizBlock {
     label: 'Total Orders'
@@ -164,97 +182,29 @@ Dashboard aarki_embed_demo_landing_page {
       dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'Total Orders'
-        ref: ref('ecommerce_orders', 'total_orders_count')
+        ref: r(ecommerce_orders.total_orders_count)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
-        duration: 1
-        granularity: 'month'
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
       }
       settings {
-        label {
-          font_color: '#004D43'
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#004D43'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
     settings {
       hide_label: true
     }
-    theme: block_white
-  }
-  block v6: VizBlock {
-    label: 'Total GMV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'GMV'
-        ref: 'gmv'
-        format {
-          type: 'number'
-          pattern: '[$$]#,###0.00,"K"'
-          group_separator: ','
-          decimal_separator: '.'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
-        duration: 1
-        granularity: 'month'
-      }
-      settings {
-        label {
-          font_color: '#004D43'
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#004D43'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: block_white
-  }
-  block v7: VizBlock {
-    label: 'Metric AOV'
-    viz: MetricKpi {
-      dataset: demo_ecommerce_version_2
-      value: VizFieldFull {
-        label: 'AOV'
-        ref: 'aov'
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
-        duration: 1
-        granularity: 'month'
-      }
-      settings {
-        label {
-          font_color: '#004D43'
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#004D43'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: block_white
   }
   block v8: VizBlock {
     label: 'User Growth'
@@ -271,9 +221,10 @@ ecommerce_users.sign_up_date
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_users.sign_up_date)
-        transformation: 'datetrunc quarter'
+        transformation: 'datetrunc year'
         format {
           type: 'date'
+          pattern: 'yyyy'
         }
       }
       y_axis {
@@ -287,7 +238,7 @@ ecommerce_users.sign_up_date
             }
           }
           settings {
-            color: '#2DE1AE'
+            color: '#005A32FF'
           }
         }
       }
@@ -305,7 +256,7 @@ ecommerce_users.sign_up_date
             }
           }
           settings {
-            color: '#004D43'
+            color: '#41ab5d'
             line_interpolation: 'smooth'
           }
         }
@@ -340,7 +291,7 @@ ecommerce_users.sign_up_date
   block t5: TextBlock {
     content: @md <img src=""/>
 
-![Holistics Logo](https://www.aarki.com/wp-content/uploads/2024/03/Aarki-logo-home-top.svg);;
+![Holistics Logo](https://cdn.holistics.io/landing/logo-color.svg);;
   }
   block t9: TextBlock {
     content: @md ### User Growth;;
@@ -368,7 +319,7 @@ ecommerce_users.sign_up_date
             }
           }
           settings {
-            color: '#2DE1AE'
+            color: '#005A32FF'
           }
         }
       }
@@ -389,7 +340,7 @@ ecommerce_users.sign_up_date
             }
           }
           settings {
-            color: '#004D43'
+            color: '#D9F0A3FF'
             line_interpolation: 'smooth'
           }
         }
@@ -406,18 +357,13 @@ ecommerce_users.sign_up_date
             }
           }
           settings {
-            color: '#008290FF'
+            color: '#41AB5DFF'
             line_interpolation: 'smooth'
           }
         }
       }
       settings {
         row_limit: 5000
-        x_axis_show_null_datetime: true
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
       }
     }
     settings {
@@ -429,33 +375,29 @@ ecommerce_users.sign_up_date
     viz: MetricKpi {
       dataset: demo_ecommerce_version_2
       value: VizFieldFull {
-        ref: ref('ecommerce_products', 'total_products')
+        ref: r(ecommerce_products.total_products)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       settings {
-        label {
-          font_color: '#004D43'
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#004D43'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
     settings {
       hide_label: true
     }
-    theme: block_white
   }
   block f3: FilterBlock {
     label: 'Product'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
-      field: ref('ecommerce_products', 'name')
+      field: r(ecommerce_products.name)
     }
     default {
       operator: 'is'
@@ -471,32 +413,80 @@ ecommerce_users.sign_up_date
       }
     }
   }
+  block divider: TextBlock {
+    content: @md <div class="h-full border-l"/>;;
+  }
+  block hr: TextBlock {
+    content: @md <div class="w-full border-b-2"/>;;
+  }
+  block box1: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_width: 2
+        border_radius: 10
+        border_color: '#e8e8e8'
+      }
+    }
+  }
+  block t10: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t11: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t12: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t13: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t14: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_width: 2
+        border_radius: 10
+        border_color: '#e8e8e8'
+      }
+    }
+  }
+  block t15: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_width: 2
+        border_radius: 10
+        border_color: '#e8e8e8'
+      }
+    }
+  }
   block v13: VizBlock {
     label: 'Users'
     viz: DataTable {
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'id')
+          ref: r(ecommerce_users.id)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_users', 'first_name')
+          ref: r(ecommerce_users.first_name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_users', 'last_name')
+          ref: r(ecommerce_users.last_name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_users', 'email')
+          ref: r(ecommerce_users.email)
           format {
             type: 'text'
           }
@@ -518,14 +508,14 @@ ecommerce_users.sign_up_date
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_merchants', 'id')
+          ref: r(ecommerce_merchants.id)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_merchants', 'name')
+          ref: r(ecommerce_merchants.name)
           format {
             type: 'text'
           }
@@ -552,136 +542,17 @@ ecommerce_users.sign_up_date
       granularity: 'year'
     }
   }
-  block t_jeqe: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: linear-gradient(to right, #193133, #004D43, #193133, #004D43, #D0FF71); border-radius: 8px"></div>;;
-  }
-  block t_jav7: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_3l9f: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_ql0h: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_ru1q: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_s826: TextBlock {
-    content: @md <h1 style="font-family:'Urbanist', sans-serif; font-size:28px; color:white; margin:0;">
-  <span style="color:#27EAA6; font-weight:bold;">AI-Enabled</span> Mobile Marketing Platform
-</h1>;;
-  }
-  block t_czz9: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: #EBFFF6; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  block t_94u5: TextBlock {
-    content: @md <div style="width: 100%; height: 100%; background: #EBFFF6; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
-  }
-  view: CanvasLayout {
-    label: 'View 1'
-    width: 1440
-    height: 1600
-    block f2 {
-      position: pos(760, 140, 620, 60)
-    }
-    block f3 {
-      position: pos(50, 140, 630, 60)
-    }
-    block t2 {
-      position: pos(750, 410, 650, 40)
-    }
-    block t5 {
-      position: pos(50, 30, 170, 90)
-    }
-    block t9 {
-      position: pos(40, 410, 650, 40)
-      layer: -4
-    }
-    block v2 {
-      position: pos(750, 850, 650, 240)
-    }
-    block v3 {
-      position: pos(40, 850, 650, 240)
-    }
-    block v4 {
-      position: pos(20, 220, 260, 150)
-    }
-    block v5 {
-      position: pos(550, 220, 250, 150)
-    }
-    block v6 {
-      position: pos(810, 220, 340, 150)
-    }
-    block v7 {
-      position: pos(1160, 220, 260, 150)
-    }
-    block v8 {
-      position: pos(50, 460, 660, 370)
-    }
-    block v11 {
-      position: pos(750, 460, 650, 370)
-    }
-    block v12 {
-      position: pos(290, 220, 250, 150)
-    }
-    block v13 {
-      position: pos(750, 1140, 650, 440)
-    }
-    block v14 {
-      position: pos(40, 1140, 650, 440)
-    }
-    block d1 {
-      position: pos(510, 400, 180, 60)
-      layer: -3
-    }
-    block p1 {
-      position: pos(1190, 400, 210, 80)
-    }
-    block t_jeqe {
-      position: pos(20, 30, 1400, 80)
-      layer: -1
-    }
-    block t_jav7 {
-      position: pos(20, 380, 700, 730)
-      layer: -5
-    }
-    block t_3l9f {
-      position: pos(730, 380, 690, 730)
-      layer: -1
-    }
-    block t_ql0h {
-      position: pos(20, 1120, 700, 480)
-      layer: -1
-    }
-    block t_ru1q {
-      position: pos(730, 1120, 690, 480)
-      layer: -1
-    }
-    block t_s826 {
-      position: pos(250, 50, 490, 50)
-      layer: 1
-    }
-    block t_czz9 {
-      position: pos(20, 120, 700, 90)
-      layer: -1
-    }
-    block t_94u5 {
-      position: pos(730, 120, 690, 90)
-      layer: -1
-    }
-  }
   interactions: [
     DateDrillInteraction {
       from: 'd1'
       to: [
         CustomMapping {
           block: 'v8'
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         },
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         }
       ]
     },
@@ -690,11 +561,11 @@ ecommerce_users.sign_up_date
       to: [
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         },
         CustomMapping {
           block: 'v8'
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         }
       ]
     },
@@ -708,22 +579,104 @@ ecommerce_users.sign_up_date
             'v8',
             'v12'
           ]
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         },
         CustomMapping {
-          block: [
-            'v5',
-            'v6',
-            'v7'
-          ]
-          field: r(ecommerce_orders.created_at)
+          block: 'v5'
+          field: ref('ecommerce_orders', 'created_at')
         },
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         }
       ]
     }
   ]
-  theme: aarki
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1440
+    height: 1530
+    block d1 {
+      position: pos(520, 330, 170, 100)
+    }
+    block f2 {
+      position: pos(1110, 10, 310, 80)
+    }
+    block f3 {
+      position: pos(800, 10, 300, 80)
+    }
+    block hr {
+      position: pos(-20, 100, 1480, 20)
+    }
+    block p1 {
+      position: pos(1190, 330, 210, 80)
+    }
+    block t2 {
+      position: pos(750, 340, 650, 40)
+    }
+    block t5 {
+      position: pos(30, 10, 170, 90)
+    }
+    block t9 {
+      position: pos(40, 340, 650, 40)
+    }
+    block v1 {
+      position: pos(360, 20, 360, 60)
+    }
+    block v2 {
+      position: pos(750, 780, 650, 240)
+    }
+    block v3 {
+      position: pos(40, 780, 650, 240)
+    }
+    block v4 {
+      position: pos(40, 140, 240, 140)
+    }
+    block v5 {
+      position: pos(1160, 140, 240, 140)
+    }
+    block v8 {
+      position: pos(40, 390, 650, 370)
+    }
+    block t10 {
+      position: pos(300, 120, 10, 180)
+    }
+    block t11 {
+      position: pos(580, 120, 10, 180)
+      layer: 1
+    }
+    block t12 {
+      position: pos(860, 120, 10, 180)
+    }
+    block t13 {
+      position: pos(1140, 120, 10, 180)
+    }
+    block t14 {
+      position: pos(20, 320, 690, 720)
+      layer: -2
+    }
+    block t15 {
+      position: pos(730, 320, 690, 720)
+      layer: -2
+    }
+    block v11 {
+      position: pos(750, 390, 650, 370)
+    }
+    block v12 {
+      position: pos(320, 140, 240, 140)
+    }
+    block v13 {
+      position: pos(730, 1050, 680, 450)
+    }
+    block v14 {
+      position: pos(10, 1050, 700, 450)
+    }
+    block box1 {
+      position: pos(20, 120, 1400, 180)
+      layer: -1
+    }
+    block divider {
+      position: pos(230, 30, 10, 40)
+    }
+  }
 }
