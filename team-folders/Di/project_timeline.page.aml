@@ -1,0 +1,229 @@
+@tag('Status/WIP')
+Dashboard untitled_2 {
+  title: 'Project Timeline'
+  description: ''
+  block title: TextBlock {
+    content: @md # Project Timeline Dashboard;;
+  }
+  block v_h6oc: VizBlock {
+    label: 'Overall Progress compared with Target'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      value: VizFieldFull {
+        label: 'Overall Progress'
+        ref: r(gantt_demo_new.progress)
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: r(gantt_dataset.progress_target)
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_t4r5: VizBlock {
+    label: 'Tasks Completed'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      calculation target {
+        label: 'Target'
+        formula: @aql gantt_demo_new
+| max(gantt_demo_new.progress);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_f6141d3 {
+        label: 'Untitled Metric'
+        formula: @aql count(gantt_demo_new.task_name);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is_not'
+        value: [
+          'Planning Phase',
+          'Development Phase',
+          'Testing Phase',
+          'Launch',
+          'Marketing & Launch Prep'
+        ]
+      }
+      filter {
+        field: r(gantt_demo_new.status)
+        operator: 'is'
+        value: 'completed'
+      }
+      value: VizFieldFull {
+        label: 'Tasks Completed'
+        ref: r(gantt_demo_new.task_id)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_69i0: VizBlock {
+    label: 'Team Members'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      value: VizFieldFull {
+        label: 'Team Members'
+        ref: r(gantt_demo_new.assignee)
+        aggregation: 'count distinct'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_5o6q: VizBlock {
+    label: 'WBS'
+    viz: CustomChart {
+      dataset: gantt_dataset
+      calculation task_name_new {
+        label: 'Task Name New'
+        formula: @aql concat(gantt_demo_new.task_id, ' ' , gantt_demo_new.task_name);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: gantt_demo_new
+      }
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is_not'
+        value: [
+          'Testing Phase',
+          'Planning Phase',
+          'Development Phase',
+          'Marketing & Launch Prep',
+          'Launch'
+        ]
+      }
+      custom_chart_id: 30024
+      field status: VizFieldFull {
+        ref: r(gantt_demo_new.status)
+        format {
+          type: 'text'
+        }
+      }
+      field assignee: VizFieldFull {
+        ref: r(gantt_demo_new.assignee)
+        format {
+          type: 'text'
+        }
+      }
+      field end_date: VizFieldFull {
+        ref: r(gantt_demo_new.end_date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      field progress: VizFieldFull {
+        ref: r(gantt_demo_new.progress)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field task_name: VizFieldFull {
+        ref: ref('gantt_demo_new', 'task_name_new')
+        format {
+          type: 'text'
+        }
+      }
+      field start_date: VizFieldFull {
+        ref: r(gantt_demo_new.start_date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      field parent_task: VizFieldFull {
+        ref: r(gantt_demo_new.parent_task)
+        format {
+          type: 'text'
+        }
+      }
+      setting bar_height: 20
+      setting completed_color: '#10b981'
+      setting in_progress_color: '#3b82f6'
+      setting not_started_color: '#9ca3af'
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 1060
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_h6oc {
+      position: pos(20, 100, 260, 140)
+      layer: 1
+    }
+    block v_t4r5 {
+      position: pos(300, 100, 260, 140)
+      layer: 1
+    }
+    block v_69i0 {
+      position: pos(580, 100, 260, 140)
+      layer: 1
+    }
+    block v_5o6q {
+      position: pos(20, 260, 1260, 660)
+      layer: 2
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: travel_theme
+}
