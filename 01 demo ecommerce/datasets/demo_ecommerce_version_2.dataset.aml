@@ -388,6 +388,32 @@ Dataset demo_ecommerce_version_2 {
     format: "#,###%"
   }
 
+  dimension product_count_within_1_month {
+    model: map_categories
+    label: 'Product Count (Within 1 Month)'
+    type: 'number'
+    definition: @aql
+      dimensionalize(
+        ecommerce_order_items
+          | filter(ecommerce_orders.created_at matches @(last 1 month))
+          | count(ecommerce_products.id)
+        , map_categories.category_id
+      )
+    ;;
+  }
+
+  dimension active_category {
+    model: map_categories
+    label: 'Active Category'
+    type: 'text'
+    definition: @aql
+      case(
+        when: map_categories.product_count_within_1_month > 150, then: map_categories.category,
+        else: null
+      )
+    ;;
+  }
+
   view {
     // Core Volume Metrics
     group volume_metrics {

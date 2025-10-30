@@ -36,6 +36,24 @@ Dashboard chinh_sandbox {
         layer: 2
       }
     }
+    tab tab_ehgo: CanvasLayout {
+      label: 'Tab 3'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_xfrf {
+        position: pos(20, 180, 1260, 600)
+        layer: 1
+      }
+      block f_zy1p {
+        position: pos(20, 20, 300, 80)
+        layer: 2
+      }
+    }
   }
 
   theme: H.themes.vanilla
@@ -118,12 +136,111 @@ Dashboard chinh_sandbox {
       value: []
     }
   }
+  block v_xfrf: VizBlock {
+    label: 'Date Key, Category and 3 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation count_product_within_1_month {
+        label: 'Count Product Within 1 Month'
+        formula: @aql dimensionalize(
+  ecommerce_order_items
+    | filter(ecommerce_orders.created_at matches @(last 1 month))
+    | count(ecommerce_products.id)
+  , map_categories.category_id
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: map_categories
+      }
+      calculation active_product {
+        label: 'Active Product'
+        formula: @aql case(
+  when: map_categories.count_product_within_1_month > 150
+  , then: map_categories.category
+  , else: ''
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: map_categories
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(dim_dates.date_key)
+          format {
+            type: 'date'
+          }
+          uname: 'dim_dates_date_key_1'
+        },
+        VizFieldFull {
+          ref: r(map_categories.category)
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_category_1'
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, map_categories.active_category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, map_categories.product_count_within_1_month)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'dim_dates_date_key_1'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'map_categories_category_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_zy1p: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(demo_ecommerce_version_2, map_categories.active_category)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'v_s2zw'
       to: [
         CustomMapping {
-          block: 'v_d6dc'
+          block: [
+            'v_d6dc',
+            'v_xfrf'
+          ]
           disabled: true
         }
       ]
@@ -132,7 +249,10 @@ Dashboard chinh_sandbox {
       from: 'v_d6dc'
       to: [
         CustomMapping {
-          block: 'v_s2zw'
+          block: [
+            'v_s2zw',
+            'v_xfrf'
+          ]
           disabled: true
         }
       ]
@@ -141,7 +261,36 @@ Dashboard chinh_sandbox {
       from: 'f_fzhj'
       to: [
         CustomMapping {
-          block: 'v_s2zw'
+          block: [
+            'v_s2zw',
+            'v_xfrf',
+            'f_zy1p'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xfrf'
+      to: [
+        CustomMapping {
+          block: [
+            'v_s2zw',
+            'v_d6dc'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_zy1p'
+      to: [
+        CustomMapping {
+          block: [
+            'v_s2zw',
+            'v_d6dc',
+            'f_fzhj'
+          ]
           disabled: true
         }
       ]
