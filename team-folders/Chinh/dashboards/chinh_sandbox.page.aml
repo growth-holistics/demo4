@@ -50,8 +50,12 @@ Dashboard chinh_sandbox {
         layer: 1
       }
       block f_zy1p {
-        position: pos(20, 20, 300, 80)
+        position: pos(360, 20, 300, 80)
         layer: 2
+      }
+      block f_87ks {
+        position: pos(40, 20, 300, 80)
+        layer: 3
       }
     }
   }
@@ -221,11 +225,23 @@ Dashboard chinh_sandbox {
     }
   }
   block f_zy1p: FilterBlock {
-    label: 'Category'
+    label: 'Active Category'
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
       field: r(demo_ecommerce_version_2, map_categories.active_category)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block f_87ks: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(map_categories.category)
     }
     default {
       operator: 'is'
@@ -264,7 +280,8 @@ Dashboard chinh_sandbox {
           block: [
             'v_s2zw',
             'v_xfrf',
-            'f_zy1p'
+            'f_zy1p',
+            'f_87ks'
           ]
           disabled: true
         }
@@ -289,7 +306,22 @@ Dashboard chinh_sandbox {
           block: [
             'v_s2zw',
             'v_d6dc',
-            'f_fzhj'
+            'f_fzhj',
+            'f_87ks'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_87ks'
+      to: [
+        CustomMapping {
+          block: [
+            'v_s2zw',
+            'v_d6dc',
+            'f_fzhj',
+            'f_zy1p'
           ]
           disabled: true
         }
