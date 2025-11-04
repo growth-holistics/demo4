@@ -1,0 +1,207 @@
+@tag('1️⃣ Trust/Endorsed')
+Model ecommerce_users {
+  type: 'table'
+  label: "Users"
+  description: "Contains information about users in the ecommerce platform "
+  data_source_name: "demodb"
+
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+    description: "this is ID"
+    primary_key: true
+  }
+
+
+  dimension sign_up_date {
+    label: "Sign Up Date"
+    type: "date"
+    definition: @sql {{ #SOURCE.sign_up_date }};;
+    description: "This is signup date"
+  }
+
+  dimension email_user {
+    label: 'Email User'
+    type: 'text'
+    description: "The **email_user** field contains the user\'s email address formatted as a clickable mailto link.  \nThis allows direct email communication with the user from the ecommerce platform.  \nExamples include `mailto:kira@hotmail.com`, `mailto:barney@yahoo.com`, and `mailto:roske.khalid@guju.net`."
+    hidden: false
+    definition: @aql concat(
+      'mailto:', ecommerce_users.email
+    );;
+  }
+
+  dimension phone {
+    label: 'Call User'
+    type: 'text'
+    description: "The **phone** field contains the user\'s phone number formatted as a clickable telephone link.  \nThis allows direct phone calls to the user from the ecommerce platform.  \nAn example value is `tel:5126329032`"
+    hidden: false
+    definition: @aql concat(
+      'tel:', '5126329032'
+    );;
+    primary_key: false
+  }
+
+  dimension visit_time {
+    label: 'Visit Time'
+    type: 'text'
+    description: "The **visit_time** field represents the month name extracted from the user\'s sign-up date.  \nIt indicates the calendar month when the user registered on the ecommerce platform.  \nExamples include `September`, `August`, `July`, `May`, and `June`."
+    hidden: false
+    definition: @sql to_char({{ sign_up_date }}, 'Month') ;;
+    primary_key: false
+  }
+
+  dimension sign_up_at {
+    label: 'Sign Up At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.sign_up_at }};;
+  }
+  dimension first_name {
+    label: "First Name"
+    type: "text"
+    definition: @sql {{ #SOURCE.first_name }};;
+    description: "User First Name"
+  }
+  dimension last_name {
+    label: 'Last Name'
+    type: 'text'
+    definition: @sql {{ #SOURCE.last_name }};;
+    description: "User Last Name"
+  }
+  dimension email {
+    label: "Email"
+    type: "text"
+    hidden: true
+    definition: @sql {{ #SOURCE.email }};;
+    description: "Email address"
+  }
+
+
+  dimension email_pii {
+    label: 'Email'
+    type: 'text'
+    definition: @aml
+      case (
+        when: 
+          in(1, H.current_user.pii_access),
+        then: ecommerce_users.email,
+        else: '(redacted)'
+      );;
+  }
+
+
+
+  dimension birth_date {
+    label: "Birth Date"
+    type: "date"
+    hidden: true
+    definition: @sql {{ #SOURCE.birth_date }};;
+    description: "user birthday"
+  }
+
+  dimension gender {
+    label: 'Gender'
+    type: 'text'
+    description: 'Available values: Female, Male'
+    hidden: false
+    definition: @sql            case
+  when {{#SOURCE.gender}} = 'f' then 'Female'
+  when {{#SOURCE.gender}} = 'm' then 'Male' 
+  else null
+end;;
+
+  }
+  dimension city_id {
+    label: 'City Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.city_id }};;
+  }
+
+  dimension full_name {
+    label: 'Full Name'
+    type: 'text'
+    description: "The **full_name** field contains the complete name of the user as recorded in the ecommerce platform.  \nIt combines the user\'s first and last names to provide a single identifier for each user.  \nExamples include `Shamel Rey`, `Aalund Dani`, and `Abar Chanthavong`."
+    hidden: false
+    definition: @sql {{ #SOURCE.full_name }};;
+    primary_key: false
+  }
+
+
+  // Custom fields
+  dimension age {
+    label: 'Age'
+    type: 'number'
+    description: "The **age** field represents the user\'s age calculated as the difference in years between the current date and the user\'s birth date.  \nIt provides an essential demographic attribute for analyzing user segments and behavior.  \nExamples include ages such as 17, 20, 25, 30, and 41 years."
+    hidden: false
+    definition: @sql date_part('year', current_date) - date_part('year', {{ birth_date }});;
+    primary_key: false
+  }
+  dimension age_group {
+    label: "Age Demographic"
+    type: "text"
+    description: "The **age_group** field categorizes users into age demographics based on their calculated age.  \nIt segments users into three groups: `1. Under 20`, `2. From 20 to 29`, and `3. 30 and above`.  \nThis classification helps analyze user behavior and trends by age range.  \nExamples include `1. Under 20` for users younger than 20 years, `2. From 20 to 29` for users aged between 20 and 29, and `3. 30 and above` for users aged 30 or older."
+    hidden: false
+    definition: @sql case
+  when {{ age }} < 20 then '1. Under 20'
+  when {{ age }} >= 20 and {{ age }} < 30 then '2. From 20 to 29'
+  when {{ age }} >= 30 then '3. 30 and above'
+end;;
+    primary_key: false
+  }
+
+
+  dimension date_datum {
+    label: "Date Datum"
+    type: "date"
+    description: "The **date_datum** field contains a fixed reference date set to November 25, 2022.  \nThis date is used as a constant value across all records in the dataset.  \nAn example value is `2022-11-25`."
+    hidden: false
+    definition: @sql   case
+  when {{ id }} is not null then to_date('2022-11-25', 'YYYY-MM-DD')
+  else to_date('2022-11-25', 'YYYY-MM-DD')
+end;;
+    primary_key: false
+    format: "LLL dd yyyy"
+  }
+
+
+  measure users_signed_up_count {
+    label: 'Users Signed Up'
+    type: 'number'
+    description: "The **users_signed_up_count** field represents the count of users who have signed up.  \nIt aggregates the number of unique user IDs to measure the total sign-ups within a given context."
+    hidden: false
+    definition: @sql {{ id }};;
+    aggregation_type: 'count'
+  }
+  measure total_users {
+    label: "Total Users"
+    type: "number"
+    description: "The **total_users** field represents the total count of users registered in the ecommerce platform.  \nIt aggregates the number of unique user IDs to provide an overall user base size."
+    hidden: false
+    definition: @sql count({{ id }});;
+    aggregation_type: "custom"
+  }
+
+  measure total_users_aql {
+    label: "Total Users (AQL)"
+    type: "number"
+    description: "The **total_users_aql** field represents the total number of unique users registered on the ecommerce platform.  \nIt counts all distinct user IDs to provide the overall size of the user base."
+    hidden: false
+    definition: @aql count(ecommerce_users.id);;
+    aggregation_type: "custom"
+  }
+
+  measure date_datum_2 {
+    label: "Date Datum 2"
+    type: "date"
+    description: "The **date_datum_2** field contains a fixed date value set to November 25, 2022.  \nThis field can be used as a reference date for filtering or comparison purposes within the ecommerce user data.  \nAn example value is `2022-11-25`."
+    hidden: false
+    definition: @sql cast('2022-11-25' as date);;
+    aggregation_type: "custom"
+    format: "LLL dd yyyy"
+  }
+  owner: "vincent+demo4@holistics.io"
+  table_name: '\"ecommerce\".\"users\"'
+}

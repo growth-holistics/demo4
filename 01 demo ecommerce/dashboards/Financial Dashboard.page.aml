@@ -1,0 +1,2034 @@
+@tag('2️⃣ Status/Active', '1️⃣ Trust/Endorsed')
+Dashboard finance_dashboard {
+  title: 'Finance Dashboard'
+  description: ''
+  block t1: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t2: TextBlock {
+    content: @md <div style="color:#fff; font-size: 20px; text-align: right; line-height: 1.5;">
+This dashboard tracks the KPIs of CTOs and financial managers. This will also be presented in our monthly presentation to our board and investors.</a>
+</div>;;
+  }
+  block t4: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary">Executive Summary</h1>;;
+  }
+  block v1: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'nmv'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v4: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'net_profit'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v6: VizBlock {
+    label: 'Incomes vs Expenses'
+    viz: CombinationChart {
+      dataset: demo_finance_extended
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+          pattern: 'wwww'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.nmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_cost)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#B7FFB1'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.net_profit)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A74FC0'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v7: VizBlock {
+    label: 'Total Expenses'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        label: ' '
+        ref: 'total_cost'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'expense_budgets'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 0
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+        progress {
+
+          text {
+            font_size: 11
+          }
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v8: VizBlock {
+    label: 'Financial Statement'
+    viz: MetricSheet {
+      dataset: demo_finance_extended
+      theme {
+        table {
+          general {
+            borders {
+              horizontal: true
+              header: true
+            }
+          }
+        }
+      }
+      date_field: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: '📈 Revenue & Discounts'
+          settings {
+            background_color: '#2F5E60'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_discount)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.nmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricHeading {
+          label: '💵 Costs'
+          settings {
+            background_color: '#2F5E60'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.expense_budgets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_cost)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_goods_sold)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_operations)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricHeading {
+          label: 'Operations Expenses'
+          settings {
+            background_color: '#D6ECEC'
+            text_color: '#53586A'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_salaries)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_marketing)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_logistics)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_tech_infrastructure)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_office_admin)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_miscellaneous)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricHeading {
+          label: '📊 Profitability'
+          settings {
+            background_color: '#2F5E60'
+            text_color: '#FFFFFF'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.gross_profit)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.operating_profit)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.net_profit)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.net_profit_margin)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block f1: FilterBlock {
+    label: 'Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance_extended
+      field: ref('dim_dates', 'date_key')
+    }
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+    theme: block_ICEYE
+  }
+  block v9: VizBlock {
+    label: 'Operation Expenses by Category'
+    viz: ColumnChart {
+      dataset: demo_finance_extended
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ecommerce_operating_expenses.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(demo_finance_extended.cost_of_operations)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            point {
+              value: 'Logistics'
+              color: '#2F5E60'
+            }
+            point {
+              value: 'Marketing'
+              color: '#B7FFB1'
+            }
+            point {
+              value: 'Miscellaneous'
+              color: '#FF8C42'
+            }
+            point {
+              value: 'Office & Admin'
+              color: '#A74FC0'
+            }
+            point {
+              value: 'Salaries'
+              color: '#BEF3E5FF'
+            }
+            point {
+              value: 'Tech Infrastructure'
+              color: '#1CB1DC'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v10: VizBlock {
+    label: 'COGS, Costs of Operations, and Total Budget'
+    viz: CombinationChart {
+      dataset: demo_finance_extended
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_goods_sold)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_operations)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#B7FFB1'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.expense_budgets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A74FC0'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v11: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'gmv'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v12: VizBlock {
+    label: 'Inflows vs Outflows'
+    viz: CombinationChart {
+      dataset: demo_finance_extended
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_inflows)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_outflows)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#B7FFB1'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_cash_balance)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A74FC0'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v14: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        label: 'Total Cash Inflows'
+        ref: 'total_inflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(dim_dates.date_key)
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v15: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        label: 'Total Cash Outflows'
+        ref: 'total_outflows'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(dim_dates.date_key)
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v16: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'total_cash_balance'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v17: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'total_accounts_payable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v18: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'total_accounts_receivable'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v20: VizBlock {
+    label: 'Account Payable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance_extended
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_bills.aging_bucket)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_accounts_payable)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v21: VizBlock {
+    label: 'Account Receivable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance_extended
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_invoices.aging_bucket)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.total_accounts_receivable)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v22: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_finance_extended
+      value: VizFieldFull {
+        ref: 'operating_profit'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('dim_dates', 'date_key')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 14
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 20
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block v_va4q: VizBlock {
+    label: 'Total Expenses'
+    viz: ColumnChart {
+      dataset: demo_finance
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_operating_expenses.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_operating_expenses.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v_xchp: VizBlock {
+    label: 'Total Expenses'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'ecommerce_operating_expenses_date'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.category)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_operating_expenses_category'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.amount)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+          uname: 'ecommerce_operating_expenses_amount'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_operating_expenses_date'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_date'
+            width: 138
+          },
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_amount'
+            width: 178
+          },
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_category'
+            width: 177
+          }
+        ]
+      }
+    }
+    theme: block_white
+  }
+  block f_bds4: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '12 months ago till today'
+    }
+    theme: block_ICEYE
+  }
+  block v_xx9h: VizBlock {
+    label: 'Cumulative Expenses relative to budget'
+    viz: LineChart {
+      dataset: demo_finance
+      calculation metric_72e239f {
+        label: 'Untitled Metric'
+        formula: @aql ecommerce_operating_expenses.annual_budget_figure - (sum(ecommerce_operating_expenses.amount));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_operating_expenses.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Cumulative Expenses'
+            ref: r(ecommerce_operating_expenses.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: MovingCalculationField {
+              type: 'sum'
+              order: 'row'
+              range {
+                next: 0
+              }
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Annual Budget'
+            ref: r(ecommerce_operating_expenses.annual_budget_figure)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_style: 'dashed'
+            color_palette: 0
+          }
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            label: 'Budget Delta'
+            ref: 'metric_72e239f'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v_2a0i: VizBlock {
+    label: 'Date, Category and 2 more'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.date)
+          format {
+            type: 'date'
+          }
+          uname: 'ecommerce_operating_expenses_date'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.category)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_operating_expenses_category'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_operating_expenses.amount)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_operating_expenses_date'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_date'
+            width: 209
+          },
+          ColumnStyle {
+            key: 'ecommerce_operating_expenses_category'
+            width: 263
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: block_white
+  }
+  block t_51rw: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t_ia1r: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block v_h8wr: VizBlock {
+    label: 'Invoice Id, Invoice Amount, and Days Outstanding'
+    viz: DataTable {
+      dataset: demo_finance
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_date)
+          format {
+            type: 'date'
+          }
+          uname: 'ecommerce_invoices_invoice_date_1'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_id)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.invoice_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.payment_terms_days)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.days_outstanding)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_invoices_days_outstanding'
+        },
+        VizFieldFull {
+          ref: r(ecommerce_invoices.aging_bucket)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_invoices_invoice_date_1'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'ecommerce_invoices_days_outstanding'
+            format: ScaleFormat {
+              min {
+                value: 30
+                color: '#FEDBDB'
+              }
+              max {
+                value: 120
+                color: '#E71F18'
+              }
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+    settings {
+      hide_label: true
+    }
+  }
+  block v_lup8: VizBlock {
+    label: 'Account Receivable Aging'
+    viz: ColumnChart {
+      dataset: demo_finance
+      filter {
+        field: r(dim_dates.date_key)
+        operator: 'after'
+        value: '2024-01-01'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_invoices.aging_bucket)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_finance.total_accounts_receivable)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block f_qudd: FilterBlock {
+    label: 'Annual Budget'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance_extended
+      field: r(ecommerce_operating_expenses.annual_budget_param)
+    }
+    default {
+      operator: 'is'
+      value: '1500000'
+    }
+    theme: block_ICEYE
+  }
+  block t_8cev: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t_pyw2: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary">Expenses Over Time </h1>;;
+  }
+  block t_ai4a: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary"> Expenses vs Budget </h1>;;
+  }
+  block t_jjxe: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary">Accounts Receivable </h1>;;
+  }
+  block t_q7g3: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+    theme {
+      background {
+        bg_image: 'linear-gradient(97deg, #051527 20%, #071945 80%)'
+      }
+    }
+  }
+  block t_eu1k: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary"> Customer Segmentation Matrix  </h1>;;
+  }
+  block v_9rgd: VizBlock {
+    label: 'Customer Segmentation Matrix '
+    viz: PivotTable {
+      dataset: saas_mrr
+      calculation bin_definition {
+        label: 'Bin Definition'
+        formula: @aql case(
+  when: sum(mrr_transactions.mrr_amount) < 2318
+  , then: 'Startup'
+  , when: sum(mrr_transactions.mrr_amount) >= 2318 and sum(mrr_transactions.mrr_amount) < 2500
+  , then: 'SME'
+  , when: sum(mrr_transactions.mrr_amount) >= 2500 and sum(mrr_transactions.mrr_amount) < 4001
+  , then: 'Mid Market'
+  , else: 'Enterprise'
+) | dimensionalize(customers.sign_up_date);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: mrr_transactions
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(customers.sign_up_date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_sign_up_date'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: ref('mrr_transactions', 'bin_definition')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'MRR'
+          ref: r(mrr_transactions.mrr_amount)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###0.00,"K"'
+          }
+          uname: 'sum_mrr_amount'
+        }
+      ]
+      settings {
+        empty_cell_as_zero: true
+        show_row_total: true
+        show_column_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'sum_mrr_amount'
+            aggregation: 'sum'
+            format: ScaleFormat {
+              min {
+                value: 2318
+                color: '#E9EFFB'
+              }
+              mid {
+                value: 2500
+                color: '#A8BEEE'
+              }
+              max {
+                value: 4001
+                color: '#517DDD'
+              }
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'datetrunc_month_sign_up_date'
+            width: 178
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_5z3z: VizBlock {
+    label: 'Customer Name by Week Period Date and Subscription Type'
+    viz: PivotTable {
+      dataset: saas_mrr
+      calculation metric_cfbbc48 {
+        label: 'List of Mrr Transactions'
+        formula: @aql mrr_transactions
+| select(mrr_transactions.subscription_type);;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation metric_96c1288 {
+        label: 'List of Merchants'
+        formula: @aql ecommerce_merchants
+| select(ecommerce_merchants.name);;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation list_of_merchants {
+        label: 'List Of Merchants'
+        formula: @aql ecommerce_merchants | string_agg(concat(
+  '<span class="hui-popover mb-1 mr-1 inline-flex cursor-pointer items-center rounded-full bg-blue-50 px-2 py-1 text-xs" data-hui-comp="popper" data-hui-section="popper-anchor" data-hui-state="closed">',ecommerce_merchants.name,'</span>'), sep: '');;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      filter {
+        field: r(mrr_transactions.subscription_type)
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: r(mrr_transactions.subscription_type)
+        operator: 'is_not'
+        value: [
+          'continued',
+          'downgraded'
+        ]
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(time_periods.period_date)
+          transformation: 'datetrunc week'
+          format {
+            type: 'date'
+            pattern: 'wwww'
+          }
+          uname: 'datetrunc_week_period_date'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(mrr_transactions.subscription_type)
+          format {
+            type: 'text'
+          }
+          uname: 'mrr_transactions_subscription_type'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Customer Name'
+          ref: 'list_of_merchants'
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_week_period_date'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'datetrunc_week_period_date'
+            width: 213
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_pqvb: TextBlock {
+    content: @md <h1 style =" font-size:40px; color: #1E4044;padding-bottom:24px;border-bottom: 1px solid #022658; font-weight: bold;" id="executive_summary"> Customer Revenue Movement  </h1>;;
+  }
+
+  view: TabLayout {
+    label: 'View 1'
+    tab tab1: CanvasLayout {
+      label: 'Overview'
+      height: 2580
+      grid_size: 20
+      block t1 {
+        position: pos(20, 20, 1160, 160)
+        layer: 1
+      }
+      block t2 {
+        position: pos(480, 60, 680, 80)
+        layer: 1
+      }
+      block t4 {
+        position: pos(20, 200, 480, 60)
+        layer: 1
+      }
+      block v1 {
+        position: pos(20, 420, 280, 100)
+        layer: 2
+      }
+      block v4 {
+        position: pos(320, 420, 280, 100)
+        layer: 1
+      }
+      block v6 {
+        position: pos(20, 1260, 1160, 380)
+        layer: 3
+      }
+      block v7 {
+        position: pos(20, 540, 580, 120)
+        layer: 4
+      }
+      block v8 {
+        position: pos(20, 680, 1160, 560)
+        layer: 5
+      }
+      block f1 {
+        position: pos(820, 200, 360, 80)
+        layer: 6
+      }
+      block v9 {
+        position: pos(620, 1660, 560, 380)
+        layer: 8
+      }
+      block v10 {
+        position: pos(20, 1660, 580, 380)
+        layer: 9
+      }
+      block v11 {
+        position: pos(20, 300, 280, 100)
+        layer: 1
+      }
+      block v12 {
+        position: pos(20, 2060, 580, 500)
+        layer: 1
+      }
+      block v14 {
+        position: pos(620, 300, 280, 100)
+        layer: 1
+      }
+      block v15 {
+        position: pos(620, 420, 280, 100)
+        layer: 1
+      }
+      block v16 {
+        position: pos(620, 540, 560, 120)
+        layer: 1
+      }
+      block v17 {
+        position: pos(920, 300, 260, 100)
+        layer: 1
+      }
+      block v18 {
+        position: pos(920, 420, 260, 100)
+        layer: 1
+      }
+      block v20 {
+        position: pos(620, 2060, 560, 240)
+        layer: 1
+      }
+      block v21 {
+        position: pos(620, 2320, 560, 240)
+        layer: 1
+      }
+      block v22 {
+        position: pos(320, 300, 280, 100)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab2: CanvasLayout {
+      label: 'Expenses'
+      width: 920
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_va4q {
+        position: pos(20, 260, 880, 460)
+        layer: 1
+      }
+      block v_xchp {
+        position: pos(20, 740, 880, 520)
+        layer: 1
+      }
+      block f_bds4 {
+        position: pos(580, 40, 300, 80)
+        layer: 2
+      }
+      block t_51rw {
+        position: pos(20, 20, 880, 140)
+        layer: 1
+      }
+      block t_pyw2 {
+        position: pos(20, 180, 480, 60)
+        layer: 1
+      }
+      height: 1280
+      default_zoom: 1
+    }
+    tab tab_84k6: CanvasLayout {
+      label: 'Current vs Budget'
+      width: 1240
+      height: 1520
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_xx9h {
+        position: pos(20, 280, 1200, 580)
+        layer: 1
+      }
+      block v_2a0i {
+        position: pos(20, 880, 1200, 580)
+        layer: 1
+      }
+      block t_ia1r {
+        position: pos(20, 20, 1200, 160)
+        layer: 1
+      }
+      block f_qudd {
+        position: pos(800, 60, 380, 80)
+        layer: 2
+      }
+      block t_ai4a {
+        position: pos(20, 200, 480, 60)
+        layer: 1
+      }
+    }
+    tab tab_3rcu: CanvasLayout {
+      label: 'AR Aging'
+      width: 1280
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_h8wr {
+        position: pos(40, 640, 1200, 540)
+        layer: 1
+      }
+      block v_lup8 {
+        position: pos(40, 280, 1200, 340)
+        layer: 1
+      }
+      block t_8cev {
+        position: pos(40, 20, 1200, 160)
+        layer: 1
+      }
+      block t_jjxe {
+        position: pos(40, 200, 480, 60)
+        layer: 1
+      }
+    }
+    tab tab_x8kl: CanvasLayout {
+      label: 'Revenue'
+      width: 1280
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block t_q7g3 {
+        position: pos(20, 20, 1240, 140)
+        layer: 1
+      }
+      block t_eu1k {
+        position: pos(20, 180, 680, 60)
+        layer: 2
+      }
+      block v_9rgd {
+        position: pos(20, 260, 1240, 400)
+        layer: 1
+      }
+      block v_5z3z {
+        position: pos(20, 780, 1240, 420)
+        layer: 1
+      }
+      block t_pqvb {
+        position: pos(20, 700, 680, 60)
+        layer: 1
+      }
+      height: 1220
+    }
+  }
+  theme: ICEYE
+  interactions: [
+    FilterInteraction {
+      from: 'f1'
+      to: [
+        CustomMapping {
+          block: 'f_qudd'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_va4q'
+      to: [
+        CustomMapping {
+          block: [
+            'v_xx9h',
+            'v_2a0i',
+            'v_h8wr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xchp'
+      to: [
+        CustomMapping {
+          block: [
+            'v_xx9h',
+            'v_2a0i',
+            'v_h8wr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xx9h'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp',
+            'v_h8wr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_2a0i'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp',
+            'v_h8wr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_h8wr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp',
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_qudd'
+      to: [
+        CustomMapping {
+          block: [
+            'v1',
+            'v4',
+            'v6',
+            'v7',
+            'v8',
+            'v9',
+            'v10',
+            'v11',
+            'v12',
+            'v14',
+            'v15',
+            'v16',
+            'v17',
+            'v18',
+            'v20',
+            'v21',
+            'v22',
+            'f1'
+          ]
+          disabled: true
+        },
+        CustomMapping {
+          block: [
+            'v_xx9h',
+            'v_2a0i'
+          ]
+          field: ref('ecommerce_operating_expenses', 'annual_budget_param')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_bds4'
+      to: [
+        CustomMapping {
+          block: [
+            'v_va4q',
+            'v_xchp'
+          ]
+          field: ref('ecommerce_operating_expenses', 'date')
+        }
+      ]
+    }
+  ]
+}

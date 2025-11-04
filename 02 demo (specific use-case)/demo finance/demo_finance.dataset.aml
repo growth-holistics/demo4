@@ -1,0 +1,111 @@
+Dataset demo_finance {
+  label: '[Demo] Finance'
+  data_source_name: 'demodb'
+  models: [
+    dim_dates,
+    ecommerce_budget_targets,
+    ecommerce_operating_expenses,
+    ecommerce_bills,
+    ecommerce_invoices,
+    ecommerce_cash_movements,
+  ]
+  relationships: [
+    relationship(ecommerce_budget_targets.date > dim_dates.date_key, true),
+    relationship(ecommerce_operating_expenses.date > dim_dates.date_key, true),
+    relationship(ecommerce_bills.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_invoices.due_date > dim_dates.date_key, true),
+    relationship(ecommerce_cash_movements.date > dim_dates.date_key, true),
+  ]
+
+  metric cost_of_operations {
+    label: "Cost Of Operations"
+    type: "number"
+    hidden: false
+    description: "Total operating expenses incurred."
+    definition: @aql sum(ecommerce_operating_expenses.amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cost {
+    label: "Total Expenses"
+    type: "number"
+    hidden: false
+    description: "Total cost incurred including cost of goods sold and cost of operations."
+    definition: @aql cost_of_operations;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric expense_budgets {
+    label: "Expense Budgets"
+    type: "number"
+    hidden: false
+    description: "Total budgeted expenses for the period."
+    definition: @aql sum(ecommerce_budget_targets.budget_target);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric budget_ratio {
+    label: "Budget Ratio"
+    type: "number"
+    hidden: false
+    description: "Budget ratio calculated as total cost divided by expense budgets."
+    definition: @aql total_cost / expense_budgets;;
+    format: "#,###0.00%"
+  }
+
+  metric total_inflows {
+    label: "Total Inflows"
+    type: "number"
+    hidden: false
+    description: "Total cash inflows, including all inflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Inflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_outflows {
+    label: "Total Outflows"
+    type: "number"
+    hidden: false
+    description: "Total cash outflows, including all outflow transactions."
+    definition: @aql sum(ecommerce_cash_movements.amount) | where(ecommerce_cash_movements.type is 'Outflow');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cash_balance {
+    label: "Total Cash Balance"
+    type: "number"
+    hidden: false
+    description: "Net cash balance calculated as total inflows minus total outflows."
+    definition: @aql total_inflows - total_outflows;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_payable {
+    label: "Total Accounts Payable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts payable, calculated as the sum of unpaid amounts for pending bills."
+    definition: @aql sum(ecommerce_bills.bill_amount) - sum(ecommerce_bills.paid_amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_receivable {
+    label: "Total Accounts Receivable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts receivable, calculated as the sum of unpaid amounts for pending invoices."
+    definition: @aql sum(ecommerce_invoices.invoice_amount) - sum(ecommerce_invoices.paid_amount);;
+    format: "[\$\$]#,###0"
+    }
+
+  metric one_hundred_percent {
+    label: "100% (Reference)"
+    type: "number"
+    hidden: true
+    description: "Reference metric representing 100% for ratio calculations."
+    definition: @aql 1;;
+    format: "#,###0.00%"
+    }
+
+  owner: 'dong.ln@holistics.io'
+}

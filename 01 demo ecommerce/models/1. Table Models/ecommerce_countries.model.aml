@@ -1,0 +1,40 @@
+Model ecommerce_countries {
+  type: 'table'
+  label: 'Countries'
+  description: ''
+  data_source_name: 'demodb'
+  table_name: '"ecommerce"."countries"'
+
+  dimension code {
+    label: 'Country Code'
+    type: 'text'
+  }
+  dimension name {
+    label: 'Country Name'
+    type: 'text'
+  }
+  dimension continent_name {
+    label: 'Continent Name'
+    type: 'text'
+  }
+
+  dimension origin {
+    label: "Origin"
+    type: "text"
+    description: "Maps each country to its associated origin partner to simulate international trade or supply chain flows. This transformation is used in Sankey visualizations to illustrate cross-border relationships such as sourcing, fulfillment, or market routing paths in the ecommerce context."
+    hidden: false
+    definition: @sql  case
+  when {{ name }} = 'India' then 'Singapore'
+  when {{ name }} = 'South Korea' then 'Germany'
+  when {{ name }} = 'United States' then 'Australia'
+  when {{ name }} = 'Australia' then 'Indonesia'
+  when {{ name }} = 'France' then 'Indonesia'
+  when {{ name }} = 'South Korea' then 'Germany'
+  when {{ name }} = 'Indonesia' then 'South Korea'
+  when {{ name }} = 'Singapore' then 'India'
+  when {{ name }} = 'Germany' then 'China'
+  when {{ name }} = 'United Kingdom' then 'Vietnam'
+  when {{ name }} = 'Vietnam' then 'United Sates'
+end;;
+  }
+}

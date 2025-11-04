@@ -1,0 +1,43 @@
+Model ecommerce_merchants {
+  type: 'table'
+  label: 'Merchants'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql case
+      when {{#SOURCE.id}} = 164 then 'Pied Piper'
+      when {{#SOURCE.id}} = 44 then 'Incite'
+      else {{#SOURCE.name}}
+    end;;
+  }
+  dimension city_id {
+    label: 'City Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.city_id }};;
+  }
+  dimension admin_id {
+    label: 'Admin Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.admin_id }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  owner: 'vincent+demo4@holistics.io'
+  table_name: '"ecommerce"."merchants"'
+}

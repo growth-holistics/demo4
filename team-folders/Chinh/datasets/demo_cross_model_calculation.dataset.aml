@@ -1,0 +1,40 @@
+Dataset demo_cross_model_calculation {
+  label: '[Demo] Cross Model Calculation'
+  description: 'Demo for [Cross-Model Calculation](https://docs.holistics.io/as-code/amql/cross-model-reference)'
+  data_source_name: 'demodb'
+  owner: 'chinh.dm+demo4@holistics.io'
+
+  models: [
+    ecommerce_order_items,
+    ecommerce_orders,
+    ecommerce_products,
+    ecommerce_users,
+    ecommerce_merchants,
+  ]
+
+  relationships: [
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
+  ]
+
+  metric total_value {
+    label: 'Total Value'
+    type: 'number'
+    description: "Total order value"
+    definition: @aql sum(ecommerce_order_items.quantity * ecommerce_products.price) ;;
+  }
+
+  metric user_category {
+		label: 'User Category'
+    type: 'number'
+    description: 'User rank based on total value, top 10 are VIP, else, Standard'
+    definition: @aql
+			case(
+				when: rank(order: total_value | desc()) <= 10, then: 'VIP',
+				else: 'Standard'
+			)
+		;;
+  }
+}

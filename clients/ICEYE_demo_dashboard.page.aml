@@ -1,0 +1,642 @@
+Dashboard ICEYE_demo_dashboard {
+  title: 'ICEYE Demo Dashboard'
+  description: ''''''
+  block v2: VizBlock {
+    label: 'Product Performance'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t2: TextBlock {
+    content: @md ### Sales Performance;;
+  }
+  block v3: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'aov'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 700
+              }
+              text_color: '#005A32FF'
+              background_color: '#D0E7DDFF'
+              apply_to_row: true
+            }
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(ecommerce_users.total_users)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: sd_primary_dark_favored
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sd_primary_dark_favored
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark
+  }
+  block v5: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sd_primary_dark_favored
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sd_primary_dark_favored
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark
+  }
+  block v6: VizBlock {
+    label: 'Total GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: 'gmv'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sd_primary_dark_favored
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sd_primary_dark_favored
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark
+  }
+  block v7: VizBlock {
+    label: 'Metric AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'AOV'
+        ref: 'aov'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sd_primary_dark_favored
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sd_primary_dark_favored
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark
+  }
+  block v8: VizBlock {
+    label: 'User Growth'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql          running_total!(
+ecommerce_users.id | count() ,
+ecommerce_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_date)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(ecommerce_users.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#1E4044'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        pop {
+          field: r(ecommerce_users.sign_up_date)
+          value: RelativePopValue {
+            duration: 3
+            granularity: 'month'
+          }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 2 years to today'
+    }
+  }
+  block t9: TextBlock {
+    content: @md ### User Growth;;
+  }
+  block v11: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Total Orders'
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2F5E60'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'GMV'
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#021C22FF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'AOV'
+            ref: r(demo_ecommerce_version_2.aov)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#FF8C42'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Total Products'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('ecommerce_products', 'total_products')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        label {
+          font_color: sd_primary_dark_favored
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sd_primary_dark_favored
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_kpi_blue_dark
+  }
+  block f3: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block p1: PopBlock {
+    label: 'PoP'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
+  block t_jeqe: TextBlock {
+    content: @md <div 
+  style="
+    width: 100%; 
+    height: 100%; 
+    background-image: url('https://media.holistics.io/8afdcf59-ICEYE-GEN4-satellite-Brasil-4K.jpg'); 
+    background-size: cover; 
+    background-position: top-center; 
+    background-repeat: no-repeat; 
+    padding: 12px; 
+    border: 2px solid #EDF1F5; 
+    border-radius: 8px; 
+  ">
+</div>;;
+  }
+  block t_jav7: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_3l9f: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_s826: TextBlock {
+    content: @md <h1 style="font-size:32px; font-weight:100; color:white; margin:0; text-align: right;">
+  Actionable intelligence for resilience, readiness & response
+</h1>;;
+  }
+  block t_czz9: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: #BEF3E5; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_94u5: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: #BEF3E5; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1420
+    height: 1240
+    block f2 {
+      position: pos(750, 250, 620, 60)
+    }
+    block f3 {
+      position: pos(40, 250, 630, 60)
+    }
+    block t2 {
+      position: pos(740, 520, 650, 40)
+    }
+    block t9 {
+      position: pos(30, 520, 650, 40)
+      layer: -4
+    }
+    block v2 {
+      position: pos(740, 960, 650, 240)
+    }
+    block v3 {
+      position: pos(30, 960, 650, 240)
+    }
+    block v4 {
+      position: pos(10, 330, 260, 150)
+    }
+    block v5 {
+      position: pos(540, 330, 250, 150)
+    }
+    block v6 {
+      position: pos(800, 330, 340, 150)
+    }
+    block v7 {
+      position: pos(1150, 330, 260, 150)
+    }
+    block v8 {
+      position: pos(40, 570, 660, 370)
+    }
+    block v11 {
+      position: pos(740, 570, 650, 370)
+    }
+    block v12 {
+      position: pos(280, 330, 250, 150)
+    }
+    block d1 {
+      position: pos(500, 510, 180, 60)
+      layer: -3
+    }
+    block p1 {
+      position: pos(1180, 510, 210, 80)
+    }
+    block t_jeqe {
+      position: pos(10, 10, 1400, 210)
+      layer: -1
+    }
+    block t_jav7 {
+      position: pos(10, 490, 700, 730)
+      layer: -5
+    }
+    block t_3l9f {
+      position: pos(720, 490, 690, 730)
+      layer: -1
+    }
+    block t_s826 {
+      position: pos(870, 40, 490, 80)
+      layer: 1
+    }
+    block t_czz9 {
+      position: pos(10, 230, 700, 90)
+      layer: -1
+    }
+    block t_94u5 {
+      position: pos(720, 230, 690, 90)
+      layer: -1
+    }
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: r(ecommerce_users.sign_up_date)
+        },
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        },
+        CustomMapping {
+          block: 'v8'
+          field: r(ecommerce_users.sign_up_date)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v4',
+            'v8',
+            'v12'
+          ]
+          field: r(ecommerce_users.sign_up_date)
+        },
+        CustomMapping {
+          block: [
+            'v5',
+            'v6',
+            'v7'
+          ]
+          field: r(ecommerce_orders.created_at)
+        },
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        }
+      ]
+    }
+  ]
+  theme: ICEYE
+}
