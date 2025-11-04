@@ -1,0 +1,608 @@
+@tag('1️⃣ Trust/Endorsed')
+Dashboard untitled_2 {
+  title: 'Project Timeline (Gantt Chart)'
+  description: ''
+  block title: TextBlock {
+    content: @md # Project Timeline Dashboard;;
+  }
+  block v_h6oc: VizBlock {
+    label: 'Overall Progress compared with Target'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      value: VizFieldFull {
+        label: 'Overall Progress'
+        ref: r(gantt_demo_new.progress)
+        aggregation: 'avg'
+        format {
+          type: 'number'
+          pattern: '#,###0.00\\%'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_t4r5: VizBlock {
+    label: 'Tasks Completed'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      calculation target {
+        label: 'Target'
+        formula: @aql gantt_demo_new
+| max(gantt_demo_new.progress);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_f6141d3 {
+        label: 'Untitled Metric'
+        formula: @aql count(gantt_demo_new.task_name);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is_not'
+        value: [
+          'Planning Phase',
+          'Development Phase',
+          'Testing Phase',
+          'Launch',
+          'Marketing & Launch Prep'
+        ]
+      }
+      filter {
+        field: r(gantt_demo_new.status)
+        operator: 'is'
+        value: 'completed'
+      }
+      value: VizFieldFull {
+        label: 'Tasks Completed'
+        ref: r(gantt_demo_new.task_id)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_69i0: VizBlock {
+    label: 'Team Members'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      value: VizFieldFull {
+        label: 'Team Members'
+        ref: r(gantt_demo_new.assignee)
+        aggregation: 'count distinct'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_6m8v: VizBlock {
+    label: 'Phase Progress'
+    viz: DataTable {
+      dataset: gantt_dataset
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is'
+        value: [
+          'Testing Phase',
+          'Planning Phase',
+          'Development Phase',
+          'Marketing & Launch Prep',
+          'Launch'
+        ]
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(gantt_demo_new.task_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(gantt_dataset, gantt_demo_new.task_name_new)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_task_name_new_1'
+          hidden: true
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.progress)
+          format {
+            type: 'number'
+            pattern: '#,###\\%'
+          }
+          uname: 'gantt_demo_new_progress'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'gantt_demo_new_task_name_new_1'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'gantt_demo_new_progress'
+            format: SingleFormat {
+              condition {
+                operator: 'less_than'
+                value: 50
+              }
+              text_color: '#E27712'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_progress'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 0
+              }
+              text_color: '#BF0E08'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_progress'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 50
+              }
+              text_color: '#255DD4'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_progress'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 100
+              }
+              text_color: '#259B6C'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
+  block v_70za: VizBlock {
+    label: 'Remaining Days'
+    viz: MetricKpi {
+      dataset: gantt_dataset
+      calculation date_diff_3 {
+        label: 'Date Diff 3'
+        formula: @aql date_diff('day', gantt_demo_new.end_date, @now);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: gantt_demo_new
+      }
+      value: VizFieldFull {
+        label: 'Remaining Days'
+        ref: ref('gantt_demo_new', 'date_diff_3')
+        aggregation: 'max'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_vmdy: VizBlock {
+    label: 'Timeline'
+    viz: CustomChart {
+      dataset: gantt_dataset
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is_not'
+        value: [
+          'Testing Phase',
+          'Planning Phase',
+          'Development Phase',
+          'Marketing & Launch Prep',
+          'Launch'
+        ]
+      }
+      custom_chart_id: 30024
+      field status: VizFieldFull {
+        ref: r(gantt_demo_new.status)
+        format {
+          type: 'text'
+        }
+      }
+      field assignee: VizFieldFull {
+        ref: r(gantt_demo_new.assignee)
+        format {
+          type: 'text'
+        }
+      }
+      field end_date: VizFieldFull {
+        ref: r(gantt_demo_new.end_date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      field progress: VizFieldFull {
+        ref: r(gantt_demo_new.progress)
+        format {
+          type: 'number'
+          pattern: '#,###\\%'
+        }
+      }
+      field task_name: VizFieldFull {
+        ref: r(gantt_dataset, gantt_demo_new.task_name_new)
+        format {
+          type: 'text'
+        }
+      }
+      field start_date: VizFieldFull {
+        ref: r(gantt_demo_new.start_date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      field parent_task: VizFieldFull {
+        ref: r(gantt_demo_new.parent_task)
+        format {
+          type: 'text'
+        }
+      }
+      setting bar_height: 20
+      setting completed_color: '#10b981'
+      setting show_today_line: true
+      setting today_line_color: '#D70909'
+      setting today_line_width: 1
+      setting in_progress_color: '#3b82f6'
+      setting not_started_color: '#9ca3af'
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_9clp: VizBlock {
+    label: 'Task Details'
+    viz: DataTable {
+      dataset: gantt_dataset
+      calculation delta {
+        label: 'Delta'
+        formula: @aql gantt_demo_new.budget - gantt_demo_new.actual_cost;;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: gantt_demo_new
+      }
+      filter {
+        field: r(gantt_demo_new.task_name)
+        operator: 'is_not'
+        value: [
+          'Testing Phase',
+          'Planning Phase',
+          'Development Phase',
+          'Marketing & Launch Prep',
+          'Launch'
+        ]
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(gantt_demo_new.parent_task)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_parent_task'
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.task_name)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_task_name'
+        },
+        VizFieldFull {
+          ref: r(gantt_dataset, gantt_demo_new.task_name_new)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_task_name_new_1'
+          hidden: true
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.priority)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_priority'
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.assignee)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.status)
+          format {
+            type: 'text'
+          }
+          uname: 'gantt_demo_new_status'
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.budget)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: r(gantt_demo_new.actual_cost)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          ref: ref('gantt_demo_new', 'delta')
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        }
+      ]
+      settings {
+        show_sum_row: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'gantt_demo_new_task_name_new_1'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'gantt_demo_new_status'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'completed'
+              }
+              text_color: '#259B6C'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_parent_task'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'Planning Phase'
+              }
+              text_color: '#000000FF'
+              background_color: '#FBFDBF'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_parent_task'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'Launch'
+              }
+              text_color: '#021C22FF'
+              background_color: '#C8D7F4'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_parent_task'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'Development Phase'
+              }
+              text_color: '#021C22FF'
+              background_color: '#F8DDC4'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_parent_task'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'Testing Phase'
+              }
+              text_color: '#021C22FF'
+              background_color: '#FCC870'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_status'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'in-progress'
+              }
+              text_color: '#255DD4'
+              background_color: '#00000000'
+            }
+          },
+          ConditionalFormat {
+            key: 'gantt_demo_new_status'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'not-started'
+              }
+              text_color: '#2F5E60'
+              background_color: '#00000000'
+            }
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: '_holistics_row_number_'
+            width: 71
+          },
+          ColumnStyle {
+            key: 'gantt_demo_new_parent_task'
+            width: 217
+          },
+          ColumnStyle {
+            key: 'gantt_demo_new_task_name'
+            width: 213
+          },
+          ColumnStyle {
+            key: 'gantt_demo_new_priority'
+            width: 104
+          }
+        ]
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1340
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(40, 20, 1260, 60)
+    }
+    block v_h6oc {
+      position: pos(40, 100, 260, 140)
+      layer: 1
+    }
+    block v_t4r5 {
+      position: pos(320, 100, 260, 140)
+      layer: 1
+    }
+    block v_69i0 {
+      position: pos(320, 240, 260, 140)
+      layer: 1
+    }
+    block v_6m8v {
+      position: pos(580, 100, 720, 280)
+      layer: 3
+    }
+    block v_70za {
+      position: pos(40, 240, 260, 140)
+      layer: 4
+    }
+    block v_vmdy {
+      position: pos(40, 380, 1280, 540)
+      layer: 5
+    }
+    block v_9clp {
+      position: pos(40, 940, 1280, 640)
+      layer: 3
+    }
+    mobile {
+      mode: 'auto'
+    }
+    height: 1600
+  }
+  theme: travel_theme.extend(
+    {
+      custom_css: @css
+    .dac-viz-block .dd-select {
+      visibility: hidden}
+  ;;
+    }
+  )
+}
