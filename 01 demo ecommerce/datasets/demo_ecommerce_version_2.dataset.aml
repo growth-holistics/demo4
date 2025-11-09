@@ -22,6 +22,7 @@ const products_detail = [
   r(ecommerce_products.price),
 ]
 
+@tag('1️⃣ Trust/Endorsed')
 Dataset demo_ecommerce_version_2 {
   label: '[Demo] Ecommerce Official (2025)'
   description: 'New dataset starting 2025'
@@ -156,6 +157,32 @@ Dataset demo_ecommerce_version_2 {
 
         , else: ecommerce_countries.name
       ) ;;
+  }
+
+  dimension product_count_within_1_month {
+    model: map_categories
+    label: 'Product Count (Within 1 Month)'
+    type: 'number'
+    definition: @aql
+      dimensionalize(
+        ecommerce_order_items
+          | filter(ecommerce_orders.created_at matches @(last 1 month))
+          | count(ecommerce_products.id)
+        , map_categories.category_id
+      )
+    ;;
+  }
+
+  dimension active_category {
+    model: map_categories
+    label: 'Active Category'
+    type: 'text'
+    definition: @aql
+      case(
+        when: map_categories.product_count_within_1_month > 150, then: map_categories.category,
+        else: null
+      )
+    ;;
   }
 
   metric total_users {
