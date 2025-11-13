@@ -1,0 +1,46 @@
+Dataset gantt_dataset {
+  label: 'gantt_demo'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    gantt_demo_new
+  ]
+  relationships: []
+  metric total_tasks {
+    label: "Total Tasks"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(gantt_demo_new.task_name);;
+  }
+  metric progress_target {
+    label: "Progress Target"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql gantt_demo_new
+| max(gantt_demo_new.progress);;
+  }
+  dimension date_diff {
+    label: "Date Diff"
+    type: "number"
+    description: ""
+    definition: @aql date_diff('day', gantt_demo_new.start_date, gantt_demo_new.end_date);;
+    model: gantt_demo_new
+  }
+  dimension date_diff_2 {
+    label: "Date Diff 2"
+    type: "number"
+    description: ""
+    definition: @aql date_diff('day', min(gantt_demo_new.start_date), max(gantt_demo_new.end_date));;
+    model: gantt_demo_new
+  }
+  dimension task_name_new {
+    label: "Task Name New"
+    type: "text"
+    hidden: false
+    description: ""
+    definition: @aql concat (gantt_demo_new.task_id, ' ', gantt_demo_new.task_name);;
+    model: gantt_demo_new
+  }
+}

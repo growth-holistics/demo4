@@ -1,0 +1,62 @@
+// This is a library dashboard block. For more details, visit https://docs.holistics.io/docs/canvas-dashboard/guides/build-library-blocks
+@template(
+  title='Total Revenue by Category (filter by Country)',
+  description='',
+  thumbnail='https://static-cse.canva.com/blob/1375391/07_BlueGreenBarChartInfographicProgressGraph.jpg',
+  metadata={
+    group: ''
+    block_width: 940
+    block_height: 440
+    func: TemplateFuncMetadata {
+      param country_param: StringParamMetadata {
+        input_type: 'select'
+        options: ["United States", "India", "Australia", "United Kingdom", "Germany", "France", "Singapore", "Indonesia", "Korea", "Vietnam"]
+      }
+    }
+  }
+)
+Func block_total_revenue_by_category_filter_by_country(country_param: String) {
+  VizBlock {
+    label: 'Total Revenue by Category in ${country_param}'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: '${country_param}'
+      }
+      x_axis: VizFieldFull {
+        ref: r(map_categories.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        legend_label: 'hidden'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
