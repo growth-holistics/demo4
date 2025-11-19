@@ -1020,6 +1020,59 @@ Dashboard test_metrics_vud {
       }
     }
   }
+  block v_wbzo: VizBlock {
+    label: 'Month Created At, Price and 3 more'
+    viz: BubbleChart {
+      dataset: demo_ecommerce_version_2
+      x_col: VizFieldFull {
+        ref: r(ecommerce_products.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_col: VizFieldFull {
+        ref: r(ecommerce_products.price)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      z_col: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.total_orders)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      group_col: VizFieldFull {
+        ref: r(ecommerce_countries.continent_name)
+        format {
+          type: 'text'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab1: CanvasLayout {
@@ -1090,6 +1143,10 @@ Dashboard test_metrics_vud {
       block v_tibu {
         position: pos(20, 1560, 500, 260)
         layer: 10
+      }
+      block v_wbzo {
+        position: pos(660, 1920, 620, 420)
+        layer: 12
       }
       mobile {
         mode: 'auto'
@@ -1318,7 +1375,8 @@ Dashboard test_metrics_vud {
             'v_r3nj',
             'v_3ipc',
             'v_tibu',
-            'v_09wu'
+            'v_09wu',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1338,7 +1396,8 @@ Dashboard test_metrics_vud {
             'v_r3nj',
             'v_3ipc',
             'v_tibu',
-            'v_09wu'
+            'v_09wu',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1358,7 +1417,8 @@ Dashboard test_metrics_vud {
             'v_r3nj',
             'v_3ipc',
             'v_tibu',
-            'v_09wu'
+            'v_09wu',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1378,7 +1438,8 @@ Dashboard test_metrics_vud {
             'v_r3nj',
             'v_3ipc',
             'v_tibu',
-            'v_09wu'
+            'v_09wu',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1398,7 +1459,8 @@ Dashboard test_metrics_vud {
             'v_r3nj',
             'v_3ipc',
             'v_tibu',
-            'v_09wu'
+            'v_09wu',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1419,7 +1481,8 @@ Dashboard test_metrics_vud {
             'v_3ipc',
             'v_tibu',
             'v_09wu',
-            'v_kzax'
+            'v_kzax',
+            'v_wbzo'
           ]
           disabled: true
         }
@@ -1440,7 +1503,25 @@ Dashboard test_metrics_vud {
             'v_3ipc',
             'v_tibu',
             'v_09wu',
-            'v_1n0b'
+            'v_1n0b',
+            'v_wbzo'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_wbzo'
+      to: [
+        CustomMapping {
+          block: [
+            'v_yfhx',
+            'v_zbhh',
+            'v_bq8x',
+            'v_0bh9',
+            'v_p21u',
+            'v_1n0b',
+            'v_kzax'
           ]
           disabled: true
         }
