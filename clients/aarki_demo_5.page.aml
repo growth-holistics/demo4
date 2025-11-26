@@ -1,0 +1,616 @@
+Dashboard aarki_demo_5 {
+  title: 'Aarki Ecommerce Embedded Analytics'
+  owner: 'thong.do@holistics.io'
+  description: ''''''
+  block t_35is: TextBlock {
+    content: @md <div class="dac-text-block ikea-dashboard-header"><img src="https://www.ikea.com/global/assets/logos/brand/ikea.svg" alt="IKEA Logo" style="height: 42px; margin-bottom:10px"><h1 style="color: #111111; margin: 10px 0 0 0; font-size: 26px; font-family:'Noto Sans', Arial, sans-serif;">Welcome to the IKEA Data Dashboard</h1><p style="color:#333333; font-size:16px;margin-top:10px;font-family:'Noto Sans', Arial, sans-serif;"><em>"A better everyday life for the many people"</em></p></div>
+;;
+  }
+  block v_39rm: VizBlock {
+    label: 'Companies (For Illustrative Purposes)'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_merchants.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_merchants.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_ne25: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_users.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.first_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.last_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.email)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_kwnr: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(ecommerce_users.total_users)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          // font_color: '#004D43'
+        }
+        alignment: 'center'
+        metric_value {
+          // font_color: '#004D43'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    // theme: block_white
+  }
+  block v_2n10: VizBlock {
+    label: 'Total Products'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(ecommerce_products.total_products)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          // font_color: '#004D43'
+        }
+        alignment: 'center'
+        metric_value {
+          // font_color: '#004D43'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    // theme: block_white
+  }
+  block v_7g9s: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Orders'
+        ref: r(ecommerce_orders.total_orders_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          // font_color: '#004D43'
+        }
+        alignment: 'center'
+        metric_value {
+          // font_color: '#004D43'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    // theme: block_white
+  }
+  block v_zeoa: VizBlock {
+    label: 'Total GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: r(demo_ecommerce_version_2.gmv)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          // font_color: '#004D43'
+        }
+        alignment: 'center'
+        metric_value {
+          // font_color: '#004D43'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    // theme: block_white
+  }
+  block v_tx4q: VizBlock {
+    label: 'Metric AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'AOV'
+        ref: r(demo_ecommerce_version_2.aov)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          // font_color: '#004D43'
+        }
+        alignment: 'center'
+        metric_value {
+          // font_color: '#004D43'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    // theme: block_white
+  }
+  block f_2uyt: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_products.name)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block f_ums5: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 2 years to today'
+    }
+  }
+  block v_mjrg: VizBlock {
+    label: 'User Growth'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql          running_total!(
+ecommerce_users.id | count() ,
+ecommerce_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_date)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(ecommerce_users.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          // settings {
+          //   color: '#2DE1AE'
+          // }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          // settings {
+          //   color: '#004D43'
+          //   line_interpolation: 'smooth'
+          // }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        pop {
+          field: r(ecommerce_users.sign_up_date)
+          value: RelativePopValue {
+            duration: 3
+            granularity: 'month'
+          }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_zefj: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Total Orders'
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          // settings {
+          //   color: '#2DE1AE'
+          // }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'GMV'
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          // settings {
+          //   color: '#004D43'
+          //   line_interpolation: 'smooth'
+          // }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'AOV'
+            ref: r(demo_ecommerce_version_2.aov)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          // settings {
+          //   color: '#008290FF'
+          //   line_interpolation: 'smooth'
+          // }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_2y6r: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_users.email)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(ecommerce_orders.total_orders_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: r(demo_ecommerce_version_2.aov)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: r(demo_ecommerce_version_2.aov)
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 700
+              }
+              text_color: '#005A32FF'
+              background_color: '#D0E7DDFF'
+              apply_to_row: true
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_wtt8: VizBlock {
+    label: 'Product Performance'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(ecommerce_orders.total_orders_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: r(demo_ecommerce_version_2.aov)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_dvqe: TextBlock {
+    content: @md <div class="dac-text-block ikea-dashboard-footer" style="padding-top:16px;border-top:1px solid #E5E5E5;margin-top:24px"><p style="color:#888;font-size:13px;font-family: 'Noto Sans', Arial, sans-serif;">© Inter IKEA Systems B.V. | <a href="https://www.ikea.com/" target="_blank" style="color:#0058A3; text-decoration:underline;">www.ikea.com</a></p></div>
+;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1420
+    height: 1750
+    block t_35is {
+      position: pos(10, 10, 1400, 180)
+      layer: 1
+    }
+    block v_39rm {
+      position: pos(10, 1190, 690, 440)
+    }
+    block v_ne25 {
+      position: pos(710, 1190, 700, 440)
+    }
+    block v_kwnr {
+      position: pos(10, 330, 260, 150)
+    }
+    block v_2n10 {
+      position: pos(280, 330, 250, 150)
+    }
+    block v_7g9s {
+      position: pos(540, 330, 250, 150)
+    }
+    block v_zeoa {
+      position: pos(800, 330, 340, 150)
+    }
+    block v_tx4q {
+      position: pos(1150, 330, 260, 150)
+    }
+    block f_2uyt {
+      position: pos(10, 200, 690, 120)
+    }
+    block f_ums5 {
+      position: pos(710, 200, 700, 120)
+    }
+    block v_mjrg {
+      position: pos(10, 810, 690, 370)
+    }
+    block v_zefj {
+      position: pos(710, 810, 700, 370)
+    }
+    block v_2y6r {
+      position: pos(10, 490, 690, 310)
+    }
+    block v_wtt8 {
+      position: pos(710, 490, 700, 310)
+    }
+    block t_dvqe {
+      position: pos(10, 1640, 1400, 100)
+      layer: 2
+    }
+  }
+  theme: IKEA
+}
