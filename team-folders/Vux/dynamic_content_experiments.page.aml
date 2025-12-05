@@ -1,0 +1,2621 @@
+Dashboard dynamic_content_test {
+  title: 'Dynamic Content Experiments'
+  description: ''
+  owner: 'vu.dq@holistics.io'
+
+  block v4: VizBlock {
+    label: 'Product'
+    viz: DataTable {
+      dataset: product_performance
+      calculation f_72dc36d {
+        label: 'Gap'
+        formula: @aql product_sales_performance_new_csv.added_to_cart - product_sales_performance_new_csv.purchased;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.product_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.added_to_cart)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.purchased)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'f_72dc36d'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_f_72dc36d_1'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_f_72dc36d_1'
+            direction: 'desc'
+          }
+        ]
+      }
+    }
+  }
+
+  block v5: VizBlock {
+    label: 'Sum of Cost and Sum of Sales by Month'
+    viz: LineChart {
+      dataset: ecommerce_vux
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_financial.month)
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_financial.cost)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E27712'
+            color_palette: 'seq-magma'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_financial.sales)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#18A59E'
+            color_palette: 'seq-magma'
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+      }
+    }
+  }
+
+  block v_z3mq: VizBlock {
+    label: 'Add-to-Carts vs. Purchases'
+    viz: MarkdownViz {
+      dataset: product_performance
+      rows: [
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.product_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.added_to_cart)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.purchased)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.cart_abandonment)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.conversion_rate)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.start_percent)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.end_percent)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.bar_width)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .dumbbell-container {
+    padding: 1.5rem;
+    max-width: 800px;
+  }
+
+  .dumbbell-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .dumbbell-row:last-child {
+    border-bottom: none;
+  }
+
+  .dumbbell-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .dumbbell-plot-area {
+    position: relative;
+    height: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .dumbbell-bar-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .dumbbell-line {
+    position: absolute;
+    height: 8px;
+    background: linear-gradient(to right, #0891F2, #F1434B);
+    border-radius: 4px;
+    opacity: 0.6;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .dumbbell-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  .dumbbell-dot.start {
+    background-color: #0891F2;
+  }
+
+  .dumbbell-dot.end {
+    background-color: #F1434B;
+  }
+
+  .dumbbell-value {
+    position: absolute;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .dumbbell-value.start {
+    color: #0891F2;
+    transform: translate(calc(-100% - 12px), -50%);
+  }
+
+  .dumbbell-value.end {
+    color: #F1434B;
+    transform: translate(12px, -50%);
+  }
+
+  .dumbbell-title {
+    padding: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .dumbbell-legend {
+    display: flex;
+    gap: 2rem;
+    padding: 0 0 0.5rem 0;
+    font-size: 0.75rem;
+    color: #6B7280;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .legend-dot.start {
+    background-color: #0891F2;
+  }
+
+  .legend-dot.end {
+    background-color: #F1434B;
+  }
+
+  @media (max-width: 768px) {
+    .dumbbell-row {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .dumbbell-label {
+      font-weight: 600;
+      padding-bottom: 0.5rem;
+    }
+
+    .dumbbell-plot-area {
+      height: 60px;
+    }
+  }
+</style>
+
+<!-- <div class="dumbbell-title">Product Performance: Purchases vs. Cart Additions</div> -->
+
+<div class="dumbbell-legend">
+  <div class="legend-item">
+    <span class="legend-dot start"></span>
+    <span>Purchased</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-dot end"></span>
+    <span>Added to Cart</span>
+  </div>
+</div>
+
+<div class="dumbbell-container">
+{% map(rows) %}
+  <div class="dumbbell-row">
+    <div class="dumbbell-label">{{ `Product name` }}</div>
+    <div class="dumbbell-plot-area">
+      <div class="dumbbell-bar-container">
+        <div class="dumbbell-line" style="left: {{ `Start Percent`.raw }}%; width: {{ `Bar Width`.raw }}%;"></div>
+        <div class="dumbbell-dot start" style="left: {{ `Start Percent`.raw }}%;"></div>
+        <div class="dumbbell-value start" style="left: {{ `Start Percent`.raw }}%;">{{ `Purchased` }}</div>
+        <div class="dumbbell-dot end" style="left: {{ `End Percent`.raw }}%;"></div>
+        <div class="dumbbell-value end" style="left: {{ `End Percent`.raw }}%;">{{ `Added to cart` }}</div>
+      </div>
+    </div>
+  </div>
+{% end %}
+</div>     ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+      }
+    }
+  }
+  block v_p5re: VizBlock {
+    label: 'User Specs'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      filter {
+        field: r(user_lookup_csv.record_sample)
+        operator: 'is'
+        value: true
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(user_lookup_csv.user_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(users.email)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(users.full_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Profile Image URL'
+          ref: r(user_lookup_csv.profile_image_url)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Location'
+          ref: r(cities.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(user_lookup_csv.status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Member Since'
+          ref: r(user_lookup_csv.member_since)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Last Order Date'
+          ref: r(user_lookup_csv.last_order_date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(user_lookup_csv.total_orders)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Lifetime Value'
+          ref: r(user_lookup_csv.lifetime_value)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg Order Value'
+          ref: r(user_lookup_csv.avg_order_value)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  /* Record Lookup Card Styling */
+  .record-card {
+    max-width: 600px;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .record-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .record-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .record-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+
+  .record-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+  }
+
+  .record-email {
+    font-size: 0.875rem;
+    color: #6366F1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .record-email:hover {
+    text-decoration: underline;
+  }
+
+  .record-location {
+    font-size: 0.875rem;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .record-location a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .record-location a:hover {
+    color: #4B5563;
+    text-decoration: underline;
+  }
+
+  /* Metrics Section */
+  .record-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .metric-item {
+    padding: 1.25rem;
+    text-align: center;
+    border-right: 1px solid #E5E7EB;
+  }
+
+  .metric-item:last-child {
+    border-right: none;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Details Section */
+  .record-details {
+    padding: 1.5rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  .detail-value {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 600;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-badge.active,
+  .status-badge.ACTIVE,
+  .status-badge:is([class*="active"], [class*="ACTIVE"]) {
+    background-color: #DEF7EC !important;
+    color: #047857 !important;
+  }
+
+  .status-badge.vip,
+  .status-badge.VIP,
+  .status-badge:is([class*="vip"], [class*="VIP"]) {
+    background-color: #FEF3C7 !important;
+    color: #92400E !important;
+  }
+
+  .status-badge.new,
+  .status-badge.NEW,
+  .status-badge:is([class*="new"], [class*="NEW"]) {
+    background-color: #DBEAFE !important;
+    color: #1E3A8A !important;
+  }
+
+  /* Icon Styling */
+  .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 640px) {
+    .record-header {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .record-image {
+      margin: 0 auto;
+    }
+
+    .record-email,
+    .record-location {
+      justify-content: center;
+    }
+
+    .record-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .metric-item {
+      border-right: none;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .metric-item:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* Empty State */
+  .empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #9CA3AF;
+  }
+
+  .empty-state-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state-text {
+    font-size: 0.875rem;
+  }
+</style>
+
+<div class="record-card">
+
+<!-- Header Section -->
+<div class="record-header">
+<img src="{{ rows.0.`Profile Image URL`.raw }}" alt="{{ rows.0.`Full Name`.formatted }}" class="record-image" />
+
+<div class="record-info">
+<div class="record-name">{{ rows.0.`Full Name` }}</div>
+
+<a href="mailto:{{ rows.0.`Email`.raw }}" class="record-email">
+  <span class="icon">✉️</span>
+  {{ rows.0.`Email` }}
+</a>
+
+<div class="record-location">
+  <span class="icon">📍</span>
+  <a href="https://www.google.com/maps/search/?api=1&query={{ rows.0.`Location`.raw }}" target="_blank" rel="noopener">
+    {{ rows.0.`Location` }}
+  </a>
+</div>
+</div>
+</div>
+
+<!-- Metrics Section -->
+<div class="record-metrics">
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Total Orders` }}</div>
+    <div class="metric-label">Total Orders</div>
+  </div>
+
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Lifetime Value` }}</div>
+    <div class="metric-label">Lifetime Value</div>
+  </div>
+
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Avg Order Value` }}</div>
+    <div class="metric-label">Avg Order</div>
+  </div>
+</div>
+
+<!-- Details Section -->
+<div class="record-details">
+
+  <div class="detail-row">
+    <span class="detail-label">Status</span>
+    <span class="status-badge {{ rows.0.`Status`.raw  }}">{{ rows.0.`Status` }}</span>
+  </div>
+  
+  <div class="detail-row">
+    <span class="detail-label">Member Since</span>
+    <span class="detail-value">{{ rows.0.`Member Since` }}</span>
+  </div>
+
+  <div class="detail-row">
+    <span class="detail-label">Last Order</span>
+    <span class="detail-value">{{ rows.0.`Last Order Date` }}</span>
+  </div>
+
+  <div class="detail-row">
+    <span class="detail-label">User ID</span>
+    <span class="detail-value">{{ rows.0.`User ID` }}</span>
+  </div>
+</div>
+</div>   ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_8699: TextBlock {
+    content: @md **Largest Cart Abandonment**: *See chart* 👉
+
+**High Conversion Rate**: *See chart* 👉
+
+**Opportunity Area**: 
+Exercise Bike and Resistance Bands have significant cart abandonment, suggesting potential for targeted remarketing campaigns or checkout optimization.;;
+  }
+  block t_eap8: TextBlock {
+    content: @md *Sales* and *Costs* have a strictly **inverse-proportional relationship**.
+
+👈 *See chart* ;;
+  }
+  block v_fyrn: VizBlock {
+    label: 'User Table'
+    viz: DataTable {
+      dataset: ecommerce_vux
+      filter {
+        field: r(user_lookup_csv.record_sample)
+        operator: 'is'
+        value: true
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(users.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'users_id'
+        },
+        VizFieldFull {
+          ref: r(users.full_name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        column_styles: [
+          ColumnStyle {
+            key: 'users_id'
+            width: 71
+          }
+        ]
+      }
+    }
+  }
+  block v_93o6: VizBlock {
+    label: 'Product Overview'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      calculation revenue1 {
+        label: 'Revenue'
+        formula: @aql sum(order_items, order_items.quantity * products.price);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(products.name)
+          format {
+            type: 'text'
+          }
+        },
+        // VizFieldFull {
+        //   ref: r(products.product_image_url)
+        //   format {
+        //     type: 'text'
+        //   }
+        // },
+        VizFieldFull {
+          label: 'Category Name'
+          ref: r(categories_1.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Price'
+          ref: r(products.price)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  /* https://play.tailwindcss.com/vHqt0FBGy8 */
+	.deals-container {
+		display: grid;
+		padding: 1.5rem; 
+		grid-template-columns: repeat(1, minmax(0, 1fr)); 
+		column-gap: 1.5rem; 
+		row-gap: 2rem; 
+		list-style: none;
+		grid-template-columns: repeat(1, minmax(0, 1fr)); 
+      @media (min-width: 1024px) { 
+			grid-template-columns: repeat(2, minmax(0, 1fr)); 
+		}
+		@media (min-width: 1280px) { 
+			grid-template-columns: repeat(2, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		@media (min-width: 1536px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		@media (min-width: 1960px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		
+	}
+
+	.deal-container {
+		overflow: hidden; 
+		border-radius: 0.75rem; 
+		border: 1px solid #E5E7EB;
+		list-style: none;
+	}
+
+	.deal-header {
+		display: flex; 
+		padding: 1.5rem; 
+		column-gap: 1rem; 
+		align-items: center; 
+		border-bottom: 1px solid rgb(17 24 39 / 0.05); 
+		background-color: #F9FAFB; 
+	}
+
+	.deal-logo {
+		object-fit: cover; 
+		flex: none; 
+		border-radius: 0.5rem;
+        border: 1px solid rgb(229 231 235);
+		box-shadow: 0 0 0 0 calc(1px) rgb(229 231 235); 
+		width: 4rem; 
+		height: 4rem; 
+		background-color: #ffffff; 
+	}
+
+	.deal-name {
+		font-size: 1rem;
+		line-height: 1.25rem; 
+		font-weight: 500; 
+		line-height: 1.5rem; 
+		color: #111827; 
+	}
+
+	.deal-details {
+      padding-top: 1rem;
+      padding-bottom: 1rem; 
+      padding-left: 1.5rem;
+      padding-right: 1.5rem; 
+      margin-top: -0.75rem;
+      margin-bottom: -0.75rem; 
+      border-top-width: 1px; 
+      border-color: #F3F4F6; 
+      font-size: 0.875rem;
+      line-height: 1.25rem; 
+      line-height: 1.5rem; 
+	}
+
+	.deal-details-inner {
+      display: flex; 
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem; 
+      column-gap: 1rem; 
+      justify-content: space-between; 
+	}
+
+  	/* Tailwind Helpers */
+	  .-my-3 {
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+}
+.flex {
+  display: flex;
+}
+.flex-row {
+  flex-direction: row;
+}
+.flex-col {
+  flex-direction: column;
+}
+.grid {
+  display: grid;
+}
+.h-12 {
+  height: 3rem;
+}
+.w-12 {
+  width: 3rem;
+}
+.flex-none {
+  flex: none;
+}
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-x-2 {
+  column-gap: 0.5rem;
+}
+.gap-x-4 {
+  column-gap: 1rem;
+}
+.gap-x-6 {
+  column-gap: 1.5rem;
+}
+.gap-y-8 {
+  row-gap: 2rem;
+}
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  border:0;
+  border-style: solid;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+.divide-y > div.deal-details-inner:last-of-type {
+  border-bottom-width: 0px;
+}
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(243 244 246);
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+.rounded-md {
+  border-radius: 0.375rem;
+}
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+.border {
+  border-width: 1px;
+}
+.border-b {
+  border-bottom-width: 1px;
+}
+.border-gray-200 {
+  border-color: rgb(229 231 235);
+}
+.border-gray-900\\/5 {
+  border-color: rgb(17 24 39 / 0.05);
+}
+.bg-gray-50 {
+  background-color: rgb(249 250 251);
+}
+.bg-red-50 {
+  background-color: rgb(254 242 242);
+}
+.bg-white {
+  background-color: rgb(255 255 255);
+}
+.object-cover {
+  object-fit: cover;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.font-medium {
+  font-weight: 500;
+}
+.leading-6 {
+  line-height: 1.5rem;
+}
+.text-gray-500 {
+  color: rgb(107 114 128);
+}
+.text-gray-700 {
+  color: rgb(55 65 81);
+}
+.text-gray-900 {
+  color: rgb(17 24 39);
+}
+.text-red-700 {
+  color: rgb(185 28 28);
+}
+  .px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem; 
+  }
+  .pl-1 {
+    padding-left: 0.25rem;
+  }
+  .pr-1 {
+padding-right: 0.25rem; 
+  }
+  .px-2 {
+    padding-left: 0.50rem;
+    padding-right: 0.50rem; 
+  }
+  .pl-2 {
+    padding-left: 0.50rem;
+  }
+  .pr-2 {
+padding-right: 0.50rem; 
+  }
+  
+.text-sky-700 {
+  color: rgb(3 105 161);
+}
+  .ring-sky-600\\/10 {
+  border: 1px solid rgb(2 132 199 / 0.1);
+  }
+  .bg-sky-50 {
+  background-color: rgb(240 249 255);
+}
+  .ml-2 {
+    margin-left: 0.5rem;
+  }
+  .bg-green-50 {
+  background-color: rgb(240 253 244);
+}
+  .text-green-700 {
+  color: rgb(21 128 61);
+}
+  .ring-green-600\\/10 {
+  border: 1px solid rgb(22 163 74 / 0.1)\;\;
+  }
+</style>
+
+<ul class="deals-container">
+  
+{% map(rows) %}
+
+<li class="deal-container">
+<div class="deal-header">
+<img src="{{ `Product Image Url`.raw }}" class="deal-logo" alt="{{ `Name`.raw }}">
+<section class="deal-name flex flex-col" style="justify-content: start;">
+<div class="flex flex-row" style="align-items: center;">{{ `Name` }}
+</div>
+</div>
+</section>
+</div>
+
+<dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
+
+<div class="deal-details-inner" style="border-bottom: none;">
+<dt class="text-gray-500">Revenue</dt>
+<dd class="flex items-start gap-x-2">
+<section class="rounded-md ml-2 font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/10" style="padding: 2px 6px">{{ values.`Revenue` }}</section>
+</dd>
+</div>
+
+<div class="deal-details-inner">
+<dt class="text-gray-500">Category</dt>
+<dd class="flex items-start gap-x-2">
+<div class="font-medium text-gray-900">{{ `Category Name` }}</div>
+</dd>
+</div>
+
+<div class="deal-details-inner">
+<dt class="text-gray-500">Price</dt>
+<dd class="flex items-start gap-x-2">
+<div class="font-medium text-gray-900">{{ values.`Total Price` }}</div>
+</dd>
+</div>
+
+</dd>
+</div>
+</dl>
+</li>
+
+{% end %}
+
+</ul>   ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+      }
+    }
+  }
+
+  block v_x1m6: VizBlock {
+    label: 'Key Insights'
+    viz: MarkdownViz {
+      dataset: product_performance
+      rows: [
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.product_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.added_to_cart)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.purchased)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'product_sales_performance_new_csv_purchased'
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.cart_abandonment)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_sales_performance_new_csv.conversion_rate)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.start_percent)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.end_percent)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_performance, product_sales_performance_new_csv.bar_width)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .insights-badge {
+    display: inline-block;
+    background: #EFF6FF;
+    color: #1E40AF;
+    padding: 0.08rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .insights-badge.red {
+    background: #FEF2F2;
+    color: #DC2626;
+  }
+
+  .insights-badge.green {
+    background: #F0FDF4;
+    color: #16A34A;
+  }
+
+  .insights-container {
+    padding: 1.5rem;
+    max-width: 800px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #374151;
+    background: #FFFFFF;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .insights-container ul {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+    list-style: none;
+  }
+
+  .insights-container li {
+    margin-bottom: 0.75rem;
+  }
+
+  .insights-container li:last-child {
+    margin-bottom: 0;
+  }
+</style>
+
+<div class="insights-container">
+  <!-- <p><strong>Key Insights:</strong></p> -->
+  <ul>
+  <li><p style="margin-bottom: 1rem; line-height: 1.8;">
+    <strong>Top Performers:</strong>
+    <span>{{ rows[0].`Product name` }}</span> (<span class="insights-badge">{{ rows[0].`Purchased` }}</span>),
+    <span>{{ rows[1].`Product name` }}</span> (<span class="insights-badge">{{ rows[1].`Purchased` }}</span>),
+    and <span>{{ rows[2].`Product name` }}</span> (<span class="insights-badge">{{ rows[2].`Purchased` }}</span>) lead in actual sales conversions.
+  </p></li>
+  <li><p style="margin-bottom: 1rem; line-height: 1.8;">
+    <strong>Largest Cart Abandonment:</strong>
+    <span>{{ rows[7].`Product name` }}</span> shows a big gap with <span class="insights-badge red">{{ rows[7].`Cart abandonment` }} </span> abandoned 
+    (<span style="color: #DC2626; font-weight: 600;">{{ rows[7].`Added to cart` }}</span> added vs. <span style="color: #0891F2; font-weight: 600;">{{ rows[7].`Purchased` }}</span> purchased),
+    followed by <span>{{ rows[8].`Product name` }}</span> (<span class="insights-badge red">{{ rows[8].`Cart abandonment` }}</span>) 
+    and <span>{{ rows[9].`Product name` }}</span> (<span class="insights-badge red">{{ rows[9].`Cart abandonment` }} gap</span>).
+  </p></li>
+  <li><p style="margin-bottom: 1rem; line-height: 1.8;">
+    <strong>High Conversion Rate:</strong>
+    <span>{{ rows[0].`Product name` }}</span> demonstrates the strongest purchase intent with only a <span class="insights-badge green">{{ rows[0].`Cart abandonment` }}</span> unit gap,
+    while <span>{{ rows[1].`Product name` }}</span> (<span class="insights-badge green">{{ rows[1].`Cart abandonment` }}</span>) 
+    and <span>{{ rows[2].`Product name` }}</span> (<span class="insights-badge green">{{ rows[2].`Cart abandonment` }} gap</span>) also show relatively strong conversion.
+  </p></li>
+  <li><p style="margin-bottom: 0; line-height: 1.8;">
+    <strong>Opportunity Area:</strong> Products with <span class="insights-badge red">&ge;{{ rows[7].`Cart abandonment` }}</span> gap suggest potential for targeted remarketing campaigns or checkout optimization.
+  </p></li>
+  </ul>
+</div>   ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'product_sales_performance_new_csv_purchased'
+            direction: 'desc'
+          }
+        ]
+      }
+    }
+  }
+  block v_0k2v: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: ecommerce_vux
+      value: r(ecommerce_vux.revenue)
+      settings {
+        alignment: 'center'
+        metric_value {
+          font_color: '#255DD4'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_g7tl: VizBlock {
+    label: 'Period Label and Now Dim'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      calculation period_label {
+        label: 'Period Label'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('orders', 'period_label')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_vux, orders.now_dim)
+          format {
+            type: 'datetime'
+          }
+        }
+      ]
+      content: @md <style>
+  .period-pills {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .period-pill {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .period-pill:hover {
+    border-color: #3B82F6;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  .period-pill:active {
+    background: #DBEAFE;
+    border-color: #2563EB;
+    color: #1D4ED8;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .click-trigger {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 200px;
+    letter-spacing: 1000px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .h-drill-selected {
+    color: #1B7CE4;
+  }
+
+  .period-pill:has(.h-drill-selected) {
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
+  }
+
+</style>
+
+<div class="period-pills">
+{% map(rows) %}
+  <div class="period-pill">
+    <!-- <span class="click-trigger">{{ `Period Label` }}</span> -->
+    <span>{{ `Period Label` }}</span>
+  </div>
+{% end %}
+</div>     ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_mdra: VizBlock {
+    label: 'Information'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      calculation country_icon {
+        label: 'Country Icon'
+        formula: @aql case(
+    when: countries.name is 'Australia', then: '🇦🇺',
+    when: countries.name is 'France', then: '🇫🇷',
+    when: countries.name is 'Germany', then: '🇩🇪',
+    when: countries.name is 'India', then: '🇮🇳',
+    when: countries.name is 'Indonesia', then: '🇮🇩',
+    when: countries.name is 'Korea', then: '🇰🇷',
+    when: countries.name is 'Singapore', then: '🇸🇬',
+    when: countries.name is 'United Kingdom', then: '🇬🇧',
+    when: countries.name is 'United States', then: '🇺🇸',
+    when: countries.name is 'Vietnam', then: '🇻🇳',
+    else: '🌎'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: countries
+      }
+      calculation is_key_city {
+        label: 'Is Key City'
+        formula: @aql case(
+  when: cities.name == "New York",
+  then: true,
+  when: cities.name == "Paris",
+  then: true,
+  when: cities.name == "London",
+  then: true,
+  when: cities.name in ["Ha Noi", "Ho Chi Minh"],
+  then: true,
+  when: cities.name == "Jakarta",
+  then: true,
+  when: cities.name == "Canberra",
+  then: true,
+  when: cities.name == "Berlin",
+  then: true,
+  when: cities.name == "Singapore",
+  then: true,
+  when: cities.name == "Seoul",
+  then: true,
+  when: cities.name == "New Delhi",
+  then: true,
+  else: false
+);;
+        calc_type: 'dimension'
+        data_type: 'truefalse'
+        model: cities
+      }
+      filter {
+        field: ref('cities', 'is_key_city')
+        operator: 'is'
+        value: true
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Country'
+          ref: r(countries.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(countries.code)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('countries', 'country_icon')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Continent'
+          ref: r(countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'City'
+          ref: r(cities.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .country-info-card {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 1000px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 10px
+  }
+
+  .country-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .country-flag {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .country-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .country-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .country-code {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6B7280;
+    background: #F3F4F6;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    width: fit-content;
+  }
+
+  .country-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    font-size: 0.8125rem;
+    color: #6B7280;
+  }
+
+  .detail-value {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #111827;
+  }
+</style>
+
+<div class="country-info-card">
+  <div class="country-header">
+    <span class="country-flag">{{ rows[0].`Country Icon` }}</span>
+    <div class="country-title-group">
+      <span class="country-name">{{ rows[0].`Country` }}</span>
+      <span class="country-code">{{ rows[0].`Code` }}</span>
+    </div>
+  </div>
+
+  <div class="country-details">
+    <div class="detail-row">
+      <span class="detail-label">Continent</span>
+      <span class="detail-value">{{ rows[0].`Continent` }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Key City</span>
+      <span class="detail-value">{{ rows[0].`City` }}</span>
+    </div>
+  </div>
+</div>    ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+      }
+    }
+  }
+  block v_ggbb: VizBlock {
+    label: 'Country and Country Icon copy'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      calculation continent_icon {
+        label: 'Continent Icon'
+        formula: @aql case(
+    when: countries.continent_name is 'Asia', then: '🌏',
+    when: countries.continent_name is 'North America', then: '🌎',
+    when: countries.continent_name is 'Europe', then: '🌍',
+    when: countries.continent_name is 'Oceania', then: '🌏',
+    else: '🌎'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: countries
+      }
+      calculation country_icon {
+        label: 'Country Icon'
+        formula: @aql case(
+    when: countries.name is 'Australia', then: '🇦🇺',
+    when: countries.name is 'France', then: '🇫🇷',
+    when: countries.name is 'Germany', then: '🇩🇪',
+    when: countries.name is 'India', then: '🇮🇳',
+    when: countries.name is 'Indonesia', then: '🇮🇩',
+    when: countries.name is 'Korea', then: '🇰🇷',
+    when: countries.name is 'Singapore', then: '🇸🇬',
+    when: countries.name is 'United Kingdom', then: '🇬🇧',
+    when: countries.name is 'United States', then: '🇺🇸',
+    when: countries.name is 'Vietnam', then: '🇻🇳',
+    else: '🌎'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: countries
+      }
+      filter {
+        field: r(countries.name)
+        operator: 'is'
+        value: [
+          'United States',
+          'Vietnam',
+          'Singapore',
+          'Germany'
+        ]
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Country'
+          ref: r(countries.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('countries', 'country_icon')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .country-selector {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .country-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    background: #FFFFFF;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .country-card:hover {
+    border-color: #3B82F6;
+    background: #F8FAFC;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  }
+
+  .country-card:active {
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
+  }
+
+  .h-drill-selected {
+    color: #1B7CE4;
+  }
+
+  .country-card:has(.h-drill-selected) {
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
+  }
+
+  /* .click-trigger {
+    position: absolute;
+    inset: 0;
+    opacity: 100;
+    cursor: pointer;
+  } */
+
+  .click-trigger {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 200px;
+    letter-spacing: 1000px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .country-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .country-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .country-desc {
+    font-size: 0.75rem;
+    color: #6B7280;
+    line-height: 1.3;
+  }
+</style>
+
+<div class="country-selector">
+{% map(rows) %}
+  <div class="country-card">
+    <span class="click-trigger">{{ `Country` }}</span>
+    <span class="country-icon">{{ `Country Icon` }}</span>
+    <span class="country-label">{{ `Country` }}</span>
+  </div>
+{% end %}
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  //   block v_lhqm: VizBlock {
+  //     label: 'Product Overview'
+  //     viz: MarkdownViz {
+  //       dataset: ecommerce_vux
+  //       calculation revenue_1 {
+  //         label: 'Revenue'
+  //         formula: @aql sum(order_items, order_items.quantity * products.price);;
+  //         calc_type: 'measure'
+  //         data_type: 'number'
+  //       }
+  //       rows: [
+  //         VizFieldFull {
+  //           ref: r(products.name)
+  //           format {
+  //             type: 'text'
+  //           }
+  //         },
+  //         VizFieldFull {
+  //           ref: r(products.product_image_url)
+  //           format {
+  //             type: 'text'
+  //           }
+  //         },
+  //         VizFieldFull {
+  //           label: 'Category Name'
+  //           ref: r(categories.name)
+  //           format {
+  //             type: 'text'
+  //           }
+  //         }
+  //       ]
+  //       values: [
+  //         VizFieldFull {
+  //           label: 'Total Price'
+  //           ref: r(products.price)
+  //           aggregation: 'sum'
+  //           format {
+  //             type: 'number'
+  //             pattern: 'inherited'
+  //           }
+  //         },
+  //         VizFieldFull {
+  //           ref: r(ecommerce_vux.revenue)
+  //           format {
+  //             type: 'number'
+  //             pattern: 'inherited'
+  //           }
+  //         }
+  //       ]
+  //       content: @md <style>
+  //   /* https://play.tailwindcss.com/vHqt0FBGy8 */
+  // 	.deals-container {
+  // 		display: grid;
+  // 		padding: 1.5rem; 
+  // 		grid-template-columns: repeat(1, minmax(0, 1fr)); 
+  // 		column-gap: 1.5rem; 
+  // 		row-gap: 2rem; 
+  // 		list-style: none;
+  // 		grid-template-columns: repeat(1, minmax(0, 1fr)); 
+  //       @media (min-width: 1024px) { 
+  // 			grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  // 		}
+  // 		@media (min-width: 1280px) { 
+  // 			grid-template-columns: repeat(2, minmax(0, 1fr)); 
+  // 			column-gap: 2rem; 
+  // 		}
+  // 		@media (min-width: 1536px) { 
+  // 			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  // 			column-gap: 2rem; 
+  // 		}
+  // 		@media (min-width: 1960px) { 
+  // 			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+  // 			column-gap: 2rem; 
+  // 		}
+
+  // 	}
+
+  // 	.deal-container {
+  // 		overflow: hidden; 
+  // 		border-radius: 0.75rem; 
+  // 		border: 1px solid #E5E7EB;
+  // 		list-style: none;
+  // 	}
+
+  // 	.deal-header {
+  // 		display: flex; 
+  // 		padding: 1.5rem; 
+  // 		column-gap: 1rem; 
+  // 		align-items: center; 
+  // 		border-bottom: 1px solid rgb(17 24 39 / 0.05); 
+  // 		background-color: #F9FAFB; 
+  // 	}
+
+  // 	.deal-logo {
+  // 		object-fit: cover; 
+  // 		flex: none; 
+  // 		border-radius: 0.5rem;
+  //         border: 1px solid rgb(229 231 235);
+  // 		box-shadow: 0 0 0 0 calc(1px) rgb(229 231 235); 
+  // 		width: 4rem; 
+  // 		height: 4rem; 
+  // 		background-color: #ffffff; 
+  // 	}
+
+  // 	.deal-name {
+  // 		font-size: 1rem;
+  // 		line-height: 1.25rem; 
+  // 		font-weight: 500; 
+  // 		line-height: 1.5rem; 
+  // 		color: #111827; 
+  // 	}
+
+  // 	.deal-details {
+  //       padding-top: 1rem;
+  //       padding-bottom: 1rem; 
+  //       padding-left: 1.5rem;
+  //       padding-right: 1.5rem; 
+  //       margin-top: -0.75rem;
+  //       margin-bottom: -0.75rem; 
+  //       border-top-width: 1px; 
+  //       border-color: #F3F4F6; 
+  //       font-size: 0.875rem;
+  //       line-height: 1.25rem; 
+  //       line-height: 1.5rem; 
+  // 	}
+
+  // 	.deal-details-inner {
+  //       display: flex; 
+  //       padding-top: 0.3rem;
+  //       padding-bottom: 0.3rem; 
+  //       column-gap: 1rem; 
+  //       justify-content: space-between; 
+  // 	}
+
+  //   	/* Tailwind Helpers */
+  // 	  .-my-3 {
+  //   margin-top: -0.75rem;
+  //   margin-bottom: -0.75rem;
+  // }
+  // .flex {
+  //   display: flex;
+  // }
+  // .flex-row {
+  //   flex-direction: row;
+  // }
+  // .flex-col {
+  //   flex-direction: column;
+  // }
+  // .grid {
+  //   display: grid;
+  // }
+  // .h-12 {
+  //   height: 3rem;
+  // }
+  // .w-12 {
+  //   width: 3rem;
+  // }
+  // .flex-none {
+  //   flex: none;
+  // }
+  // .grid-cols-1 {
+  //   grid-template-columns: repeat(1, minmax(0, 1fr));
+  // }
+  // .items-start {
+  //   align-items: flex-start;
+  // }
+  // .items-center {
+  //   align-items: center;
+  // }
+  // .justify-between {
+  //   justify-content: space-between;
+  // }
+  // .gap-x-2 {
+  //   column-gap: 0.5rem;
+  // }
+  // .gap-x-4 {
+  //   column-gap: 1rem;
+  // }
+  // .gap-x-6 {
+  //   column-gap: 1.5rem;
+  // }
+  // .gap-y-8 {
+  //   row-gap: 2rem;
+  // }
+  // .divide-y > :not([hidden]) ~ :not([hidden]) {
+  //   border:0;
+  //   border-style: solid;
+  //   border-top-width: 1px;
+  //   border-bottom-width: 1px;
+  // }
+  // .divide-y > div.deal-details-inner:last-of-type {
+  //   border-bottom-width: 0px;
+  // }
+  // .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  //   border-color: rgb(243 244 246);
+  // }
+  // .overflow-hidden {
+  //   overflow: hidden;
+  // }
+  // .rounded-lg {
+  //   border-radius: 0.5rem;
+  // }
+  // .rounded-md {
+  //   border-radius: 0.375rem;
+  // }
+  // .rounded-xl {
+  //   border-radius: 0.75rem;
+  // }
+  // .border {
+  //   border-width: 1px;
+  // }
+  // .border-b {
+  //   border-bottom-width: 1px;
+  // }
+  // .border-gray-200 {
+  //   border-color: rgb(229 231 235);
+  // }
+  // .border-gray-900\\/5 {
+  //   border-color: rgb(17 24 39 / 0.05);
+  // }
+  // .bg-gray-50 {
+  //   background-color: rgb(249 250 251);
+  // }
+  // .bg-red-50 {
+  //   background-color: rgb(254 242 242);
+  // }
+  // .bg-white {
+  //   background-color: rgb(255 255 255);
+  // }
+  // .object-cover {
+  //   object-fit: cover;
+  // }
+  // .p-6 {
+  //   padding: 1.5rem;
+  // }
+  // .px-2 {
+  //   padding-left: 0.5rem;
+  //   padding-right: 0.5rem;
+  // }
+  // .px-6 {
+  //   padding-left: 1.5rem;
+  //   padding-right: 1.5rem;
+  // }
+  // .py-1 {
+  //   padding-top: 0.25rem;
+  //   padding-bottom: 0.25rem;
+  // }
+  // .py-3 {
+  //   padding-top: 0.75rem;
+  //   padding-bottom: 0.75rem;
+  // }
+  // .py-4 {
+  //   padding-top: 1rem;
+  //   padding-bottom: 1rem;
+  // }
+  // .text-sm {
+  //   font-size: 0.875rem;
+  //   line-height: 1.25rem;
+  // }
+  // .text-xs {
+  //   font-size: 0.75rem;
+  //   line-height: 1rem;
+  // }
+  // .font-medium {
+  //   font-weight: 500;
+  // }
+  // .leading-6 {
+  //   line-height: 1.5rem;
+  // }
+  // .text-gray-500 {
+  //   color: rgb(107 114 128);
+  // }
+  // .text-gray-700 {
+  //   color: rgb(55 65 81);
+  // }
+  // .text-gray-900 {
+  //   color: rgb(17 24 39);
+  // }
+  // .text-red-700 {
+  //   color: rgb(185 28 28);
+  // }
+  //   .px-1 {
+  //     padding-left: 0.25rem;
+  //     padding-right: 0.25rem; 
+  //   }
+  //   .pl-1 {
+  //     padding-left: 0.25rem;
+  //   }
+  //   .pr-1 {
+  // padding-right: 0.25rem; 
+  //   }
+  //   .px-2 {
+  //     padding-left: 0.50rem;
+  //     padding-right: 0.50rem; 
+  //   }
+  //   .pl-2 {
+  //     padding-left: 0.50rem;
+  //   }
+  //   .pr-2 {
+  // padding-right: 0.50rem; 
+  //   }
+
+  // .text-sky-700 {
+  //   color: rgb(3 105 161);
+  // }
+  //   .ring-sky-600\\/10 {
+  //   border: 1px solid rgb(2 132 199 / 0.1);
+  //   }
+  //   .bg-sky-50 {
+  //   background-color: rgb(240 249 255);
+  // }
+  //   .ml-2 {
+  //     margin-left: 0.5rem;
+  //   }
+  //   .bg-green-50 {
+  //   background-color: rgb(240 253 244);
+  // }
+  //   .text-green-700 {
+  //   color: rgb(21 128 61);
+  // }
+  //   .ring-green-600\\/10 {
+  //   border: 1px solid rgb(22 163 74 / 0.1)\;\;
+  //   }
+
+  // .h-drill-selected {
+  //   color: green;
+  // }
+
+  // .deal-container:has(.h-drill-selected) {
+  //   border-color: #2563EB;
+  //   background: #EFF6FF;
+  //   transform: translateY(0);
+  // }
+
+  // .deal-name:has(.h-drill-selected) {
+  //   border-color: #2563EB;
+  //   background: #EFF6FF;
+  //   transform: translateY(0);
+  // }
+
+  // </style>
+
+  // <ul class="deals-container">
+
+  // {% map(rows) %}
+
+  // <li class="deal-container">
+  // <div class="deal-header">
+  // <img src="{{ `Product Image Url`.raw }}" class="deal-logo" alt="{{ `Name`.raw }}">
+  // <section class="deal-name flex flex-col" style="justify-content: start;">
+  // <div class="flex flex-row" style="align-items: center;">{{ `Name` }}
+  // </div>
+  // </div>
+  // </section>
+  // </div>
+
+  // <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
+
+  // <div class="deal-details-inner" style="border-bottom: none;">
+  // <dt class="text-gray-500">Revenue</dt>
+  // <dd class="flex items-start gap-x-2">
+  // <section class="rounded-md ml-2 font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/10" style="padding: 2px 6px">{{ values.`Revenue` }}</section>
+  // </dd>
+  // </div>
+
+  // <div class="deal-details-inner">
+  // <dt class="text-gray-500">Category</dt>
+  // <dd class="flex items-start gap-x-2">
+  // <div class="font-medium text-gray-900">{{ `Category Name` }}</div>
+  // </dd>
+  // </div>
+
+  // <div class="deal-details-inner">
+  // <dt class="text-gray-500">Price</dt>
+  // <dd class="flex items-start gap-x-2">
+  // <div class="font-medium text-gray-900">{{ values.`Total Price` }}</div>
+  // </dd>
+  // </div>
+
+  // </dd>
+  // </div>
+  // </dl>
+  // </li>
+
+  // {% end %}
+
+  // </ul>    ;;
+  //       settings {
+  //         show_row_total: true
+  //         show_column_total: true
+  //       }
+  //     }
+  //   }
+
+  block v_l0eq: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: ecommerce_vux
+      value: VizFieldFull {
+        label: 'Total Users'
+        ref: r(users.id)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        label {
+          font_size: 26
+          font_color: '#07326C'
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 45
+          font_color: '#255DD4'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_vq7e: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: ecommerce_vux
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: r(ecommerce_vux.revenue)
+      }
+      settings {
+        label {
+          font_size: 26
+          font_color: '#07326C'
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 45
+          font_color: '#18A59E'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_i51a: VizBlock {
+    label: 'Best Performing Products'
+    viz: BarChart {
+      dataset: ecommerce_vux
+      calculation f_eecb68c {
+        label: 'test'
+        formula: @aql 100*1230;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(products.name)
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: r(order_items.quantity)
+            aggregation: 'sum'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: r(products.name)
+        format {
+          type: 'text'
+        }
+        uname: 'products_name'
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(order_items.quantity)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            uname: 'sum_quantity_1'
+          }
+          settings {
+            color: '#18A59E'
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+      }
+    }
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab2: CanvasLayout {
+      label: '🥱 Boring and Static'
+      width: 1040
+      height: 840
+      grid_size: 20
+      block v4 {
+        position: pos(400, 20, 620, 360)
+        layer: 2
+      }
+      block v5 {
+        position: pos(20, 400, 620, 420)
+        layer: 3
+      }
+      block t_8699 {
+        position: pos(20, 20, 360, 240)
+        layer: 4
+      }
+      block t_eap8 {
+        position: pos(660, 400, 360, 240)
+        layer: 4
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_sf0p: CanvasLayout {
+      label: '🔥 Dynamic Summary'
+      width: 900
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      block v4 {
+        position: pos(20, 20, 860, 360)
+        layer: 2
+      }
+      block v_x1m6 {
+        position: pos(20, 400, 860, 380)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_t2lk: CanvasLayout {
+      label: '🔥 Dumbbell Plot'
+      width: 900
+      height: 700
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_z3mq {
+        position: pos(20, 20, 860, 660)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_88q9: CanvasLayout {
+      label: '🔥 Card Grid'
+      width: 1060
+      height: 1180
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_93o5 {
+        position: pos(20, 20, 1020, 1140)
+        layer: 5
+      }
+      block v_lhqm {
+        position: pos(20, 20, 1020, 1140)
+        layer: 5
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_jdlc: CanvasLayout {
+      label: '🔥 Record Lookup'
+      width: 1080
+      height: 560
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_p5re {
+        position: pos(440, 20, 620, 520)
+        layer: 3
+      }
+      block v_fyrn {
+        position: pos(20, 20, 420, 520)
+        layer: 4
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_mza6: CanvasLayout {
+      label: '🔥 Control Buttons'
+      width: 980
+      height: 770
+      auto_expand_vertically: true
+      block v_mdra {
+        position: pos(650, 10, 320, 280)
+        layer: 4
+      }
+      block v_ggbb {
+        position: pos(10, 10, 630, 150)
+        layer: 2
+      }
+      block v_l0eq {
+        position: pos(330, 170, 310, 120)
+        layer: 1
+      }
+      block v_vq7e {
+        position: pos(10, 170, 310, 120)
+        layer: 1
+      }
+      block v_i51a {
+        position: pos(10, 300, 960, 460)
+        layer: 3
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_i1pc: CanvasLayout {
+      label: 'Test'
+      width: 600
+      height: 260
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_0k2v {
+        position: pos(20, 120, 560, 120)
+        layer: 1
+      }
+      block v_g7tl {
+        position: pos(20, 20, 560, 100)
+        layer: 2
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+  }
+  theme: H.themes.classic
+  interactions: [
+    FilterInteraction {
+      from: 'v_p5re'
+      to: [
+        CustomMapping {
+          block: [
+            'v_mdra',
+            'v_ggbb',
+            'v_lhqm',
+            'v_l0eq',
+            'v_vq7e',
+            'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_fyrn'
+      to: [
+        CustomMapping {
+          block: [
+            'v_mdra',
+            'v_ggbb',
+            'v_lhqm',
+            'v_l0eq',
+            'v_vq7e',
+            'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_93o6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_lhqm',
+            'v_l0eq',
+            'v_vq7e',
+            'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0k2v'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_mdra',
+            'v_ggbb',
+            'v_lhqm',
+            'v_l0eq',
+            'v_vq7e',
+            'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_g7tl'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_mdra',
+            'v_ggbb',
+            'v_lhqm',
+            'v_l0eq',
+            'v_vq7e',
+            'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mdra'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_0k2v',
+            'v_g7tl',
+            'v_lhqm'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ggbb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_0k2v',
+            'v_g7tl',
+            'v_lhqm'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_lhqm'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_93o6',
+            'v_0k2v',
+            'v_g7tl',
+            'v_mdra',
+            'v_ggbb',
+            'v_l0eq',
+            'v_vq7e'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_l0eq'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_93o6',
+            'v_0k2v',
+            'v_g7tl',
+            'v_lhqm'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vq7e'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_93o6',
+            'v_0k2v',
+            'v_g7tl',
+            'v_lhqm'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_i51a'
+      to: [
+        CustomMapping {
+          block: [
+            'v_p5re',
+            'v_fyrn',
+            'v_93o6',
+            'v_0k2v',
+            'v_g7tl',
+            'v_lhqm'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+}
