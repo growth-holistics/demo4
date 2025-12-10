@@ -2058,6 +2058,110 @@ https://www.learnui.design/tools/data-color-picker.html#palette
     theme: holistics_ant_card_blocktheme
   }
   block t_dxs4: ver_separator()
+  block v_68gi: VizBlock {
+    label: 'GMV by Country Name and today'
+    viz: MarkdownViz {
+      dataset: demo_ecommerce_version_2
+      calculation dimension_0fa2700 {
+        label: 'today'
+        formula: @aql @today ;;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: ecommerce_countries
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_countries', 'dimension_0fa2700')
+          format {
+            type: 'date'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'GMV'
+          ref: r(demo_ecommerce_version_2.gmv)
+          uname: 'custom_gmv_1'
+        }
+      ]
+      content: @md <style>
+    .annotation-minimal {
+        position: relative;
+        padding-left: 20px;
+height: 100%
+    }
+
+    .annotation-minimal::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #05264c, #00627a);
+        border-radius: 2px;
+    }
+
+    .annotation-minimal .annotation-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #259b6c;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .annotation-minimal .content {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #374151;
+    }
+
+    .annotation-minimal .highlight {
+        font-weight: 600;
+        color: #05264c;
+    }
+
+    .annotation-minimal .meta {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="annotation-minimal">
+    <div class="annotation-label">Key Insight</div>
+    <div class="content">
+        Our sales performance is anchored in developed Western markets, with the <span class="highlight">{{ rows[0].`Country Name` }}</span> ({{ rows[0].values.`GMV`}}), <span class="highlight">{{ rows[1].`Country Name` }}</span> ({{ rows[1].values.`GMV`}}), and <span  class="highlight">{{ rows[2].`Country Name` }}</span> ({{ rows[02].values.`GMV`}}), emerging as our top revenue contributors.
+    </div>
+    <div class="meta"><span>{{ rows[0].`today` }}</span> - Peter Parker</div>
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'custom_gmv_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
@@ -2153,7 +2257,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         position: pos(40, 320, 1180, 690)
       }
       block t_m86d {
-        position: pos(880, 1300, 330, 170)
+        position: pos(1420, 1330, 330, 170)
         layer: 29
       }
       block t_o5qy {
@@ -2162,6 +2266,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       block t_dxs4 {
         position: pos(490, 320, 20, 180)
         layer: 21
+      }
+      block v_68gi {
+        position: pos(890, 1280, 320, 210)
+        layer: 29
       }
       mobile {
         mode: 'auto'
@@ -2440,7 +2548,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'v34'
       to: [
         CustomMapping {
-          block: 'v_wtl8'
+          block: [
+            'v_wtl8',
+            'v_68gi'
+          ]
           disabled: true
         }
       ]
@@ -2449,7 +2560,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'v37'
       to: [
         CustomMapping {
-          block: 'v_wtl8'
+          block: [
+            'v_wtl8',
+            'v_68gi'
+          ]
           disabled: true
         }
       ]
@@ -2473,6 +2587,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_vs7p',
             'v_mfrz',
             'v_wtl8',
+            'v_68gi',
             'f3',
             'f4',
             'f10',
@@ -2487,7 +2602,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'v43'
       to: [
         CustomMapping {
-          block: 'v_wtl8'
+          block: [
+            'v_wtl8',
+            'v_68gi'
+          ]
           disabled: true
         }
       ]
@@ -2515,6 +2633,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
+            'v_68gi',
             'f2',
             'f4',
             'f10',
@@ -2536,6 +2655,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
+            'v_68gi',
             'f2',
             'f3',
             'f10',
@@ -2552,7 +2672,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2565,7 +2686,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2578,7 +2700,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2590,7 +2713,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2602,7 +2726,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
         CustomMapping {
           block: [
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2615,7 +2740,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2644,6 +2770,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
+            'v_68gi',
             'f2',
             'f3',
             'f4',
@@ -2762,7 +2889,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'v_mb64'
       to: [
         CustomMapping {
-          block: 'v_wtl8'
+          block: [
+            'v_wtl8',
+            'v_68gi'
+          ]
           disabled: true
         }
       ]
@@ -2771,7 +2901,10 @@ https://www.learnui.design/tools/data-color-picker.html#palette
       from: 'v_xvgb'
       to: [
         CustomMapping {
-          block: 'v_wtl8'
+          block: [
+            'v_wtl8',
+            'v_68gi'
+          ]
           disabled: true
         }
       ]
@@ -2795,7 +2928,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_80yo',
             'v_mz6i',
             'v_vs7p',
-            'v_wtl8'
+            'v_wtl8',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2821,6 +2955,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mz6i',
             'v_vs7p',
             'v_wtl8',
+            'v_68gi',
             'f2',
             'f3',
             'f4',
@@ -2851,6 +2986,7 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mz6i',
             'v_vs7p',
             'v_wtl8',
+            'v_68gi',
             'f2',
             'f3',
             'f4',
@@ -2880,7 +3016,8 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_80yo',
             'v_mz6i',
             'v_vs7p',
-            'v_wtl8'
+            'v_wtl8',
+            'v_68gi'
           ]
           disabled: true
         }
@@ -2908,7 +3045,32 @@ https://www.learnui.design/tools/data-color-picker.html#palette
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
-            'v_mfrz'
+            'v_mfrz',
+            'v_68gi'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_68gi'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v43',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v57',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8'
           ]
           disabled: true
         }
