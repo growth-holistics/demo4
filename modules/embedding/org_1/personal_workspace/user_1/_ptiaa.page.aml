@@ -23,7 +23,35 @@ Dashboard _ptiaa {
       }
     }
   }
-  interactions: []
+  block v_i1wh: VizBlock {
+    label: 'Product Name and Total Orders'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
@@ -32,6 +60,10 @@ Dashboard _ptiaa {
     auto_expand_vertically: true
     block v_2z52 {
       position: pos(20, 20, 620, 420)
+    }
+    block v_i1wh {
+      position: pos(660, 20, 620, 420)
+      layer: 1
     }
     mobile {
       mode: 'auto'
