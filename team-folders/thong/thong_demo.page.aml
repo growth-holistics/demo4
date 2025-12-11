@@ -1193,6 +1193,202 @@ Orders ->
         value: 'last 12 months'
       }
       theme {
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Cohort Month'
+          ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_cohort_month'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'users_cohort_size')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_users_users_cohort_size'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Pct'
+          ref: 'total_users_retention'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'custom_total_users_retention'
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+.cohort-container {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+font-size: 12px;
+overflow-x: auto;
+padding: 1rem;
+
+/* Centralized color scale settings */
+--hue: 201;
+--saturation: 96%;
+}
+
+.cohort-table {
+border-collapse: collapse;
+width: 100%;
+min-width: 900px;
+}
+
+.cohort-table th,
+.cohort-table td {
+padding: 8px 12px;
+text-align: center;
+border: 1px solid #E5E7EB;
+white-space: nowrap;
+}
+
+.cohort-table thead th {
+background-color: #F9FAFB;
+font-weight: 600;
+color: #374151;
+}
+
+.cohort-table th.month-header {
+min-width: 55px;
+}
+
+.cohort-table th.cohort-header {
+text-align: left;
+min-width: 120px;
+}
+
+.cohort-table th.size-header {
+text-align: right;
+min-width: 120px;
+}
+
+.cohort-table td.cohort-cell {
+text-align: left;
+font-weight: 500;
+color: #111827;
+background-color: #FFFFFF;
+}
+
+.cohort-table td.size-cell {
+text-align: right;
+color: #6B7280;
+background-color: #FFFFFF;
+}
+
+/* Centralized color scale for percentage cells */
+.cohort-table td.pct-cell {
+--pct: 0;
+--bg-lightness: calc(95 - var(--pct) * 50);
+--text-lightness: calc(25 + (1 - var(--pct)) * 30);
+
+font-weight: 500;
+min-width: 55px;
+background-color: hsl(var(--hue) var(--saturation) calc(var(--bg-lightness) * 1%));
+color: hsl(var(--hue) var(--saturation) calc(var(--text-lightness) * 1%));
+}
+
+
+.month-group-header {
+text-align: center;
+font-weight: 600;
+color: #374151;
+}
+</style>
+
+<div class="cohort-container">
+<table class="cohort-table">
+<thead>
+<tr>
+<th class="cohort-header" rowspan="2">Cohort Month ↑</th>
+<th class="size-header" rowspan="2">Users Cohort Size</th>
+<th class="month-group-header" colspan="13">Month Number</th>
+</tr>
+<tr>
+{% map(columns) %}
+<th class="month-header"><span>{{ `Month Number` }}</span>
+{% end %}
+</tr>
+</thead>
+<tbody>
+{% map(rows) %}
+<tr>
+<td class="cohort-cell">{{ `Cohort Month` }}</td>
+<td class="size-cell">{{ `Users Cohort Size` }}</td>
+{% map(values) %}
+<td class="pct-cell" style="--pct: {{ value.`Pct`.raw }};">{{ value.`Pct` }}</td>
+{% end %}
+</tr>
+{% end %}
+</tbody>
+</table>
+</div>   ;;
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_0mye: VizBlock {
+    label: 'Cohort Month, Users Cohort Size, and Month Number copy copy copy'
+    viz: MarkdownViz {
+      dataset: demo_ecommerce_version_2
+      calculation users_cohort_size {
+        label: 'Users Cohort Size'
+        formula: @aql dimensionalize(
+  total_users,
+  ecommerce_users.cohort_month
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: ecommerce_users
+      }
+      calculation total_users_retention {
+        label: ' Pct'
+        formula: @aql (total_users * 1.0)
+/
+(total_users | of_all(ecommerce_orders.month_number));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+        operator: 'matches'
+        value: 'last 12 months'
+      }
+      theme {
 
       }
       rows: [
@@ -1315,11 +1511,6 @@ background-color: hsl(var(--hue) var(--saturation) calc(var(--bg-lightness) * 1%
 color: hsl(var(--hue) var(--saturation) calc(var(--text-lightness) * 1%));
 }
 
-.sub-header {
-font-size: 11px;
-font-weight: 400;
-color: #6B7280;
-}
 
 .month-group-header {
 text-align: center;
@@ -1337,19 +1528,9 @@ color: #374151;
 <th class="month-group-header" colspan="13">Month Number</th>
 </tr>
 <tr>
-<th class="month-header">1<div class="sub-header">Pct</div></th>
-<th class="month-header">2<div class="sub-header">Pct</div></th>
-<th class="month-header">3<div class="sub-header">Pct</div></th>
-<th class="month-header">4<div class="sub-header">Pct</div></th>
-<th class="month-header">5<div class="sub-header">Pct</div></th>
-<th class="month-header">6<div class="sub-header">Pct</div></th>
-<th class="month-header">7<div class="sub-header">Pct</div></th>
-<th class="month-header">8<div class="sub-header">Pct</div></th>
-<th class="month-header">9<div class="sub-header">Pct</div></th>
-<th class="month-header">10<div class="sub-header">Pct</div></th>
-<th class="month-header">11<div class="sub-header">Pct</div></th>
-<th class="month-header">12<div class="sub-header">Pct</div></th>
-<th class="month-header">13<div class="sub-header">Pct</div></th>
+{% map(columns) %}
+<th class="month-header"><span>{{ `Month Number` }}</span>
+{% end %}
 </tr>
 </thead>
 <tbody>
@@ -1357,247 +1538,14 @@ color: #374151;
 <tr>
 <td class="cohort-cell">{{ `Cohort Month` }}</td>
 <td class="size-cell">{{ `Users Cohort Size` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`1.0`.`Pct`.raw }};">{{ values.`1.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`2.0`.`Pct`.raw }};">{{ values.`2.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`3.0`.`Pct`.raw }};">{{ values.`3.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`4.0`.`Pct`.raw }};">{{ values.`4.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`5.0`.`Pct`.raw }};">{{ values.`5.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`6.0`.`Pct`.raw }};">{{ values.`6.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`7.0`.`Pct`.raw }};">{{ values.`7.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`8.0`.`Pct`.raw }};">{{ values.`8.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`9.0`.`Pct`.raw }};">{{ values.`9.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`10.0`.`Pct`.raw }};">{{ values.`10.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`11.0`.`Pct`.raw }};">{{ values.`11.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`12.0`.`Pct`.raw }};">{{ values.`12.0`.`Pct` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`13.0`.`Pct`.raw }};">{{ values.`13.0`.`Pct` }}</td>
+{% map(values) %}
+<td class="pct-cell" style="--pct: {{ value.`Pct`.raw }};">{{ value.`Total Users` }}</td>
+{% end %}
 </tr>
 {% end %}
 </tbody>
 </table>
-</div>  ;;
-      settings {
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v_0mye: VizBlock {
-    label: 'Cohort Month, Users Cohort Size, and Month Number copy copy copy'
-    viz: MarkdownViz {
-      dataset: demo_ecommerce_version_2
-      calculation users_cohort_size {
-        label: 'Users Cohort Size'
-        formula: @aql dimensionalize(
-  total_users,
-  ecommerce_users.cohort_month
-);;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: ecommerce_users
-      }
-      calculation total_users_retention {
-        label: ' Pct'
-        formula: @aql (total_users * 1.0)
-/
-(total_users | of_all(ecommerce_orders.month_number));;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      filter {
-        field: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
-        operator: 'matches'
-        value: 'last 12 months'
-      }
-      theme {
-        table {
-          general {
-            borders {
-              outer: true
-              header: true
-            }
-          }
-        }
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Cohort Month'
-          ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-            pattern: 'LLL yyyy'
-          }
-          uname: 'datetrunc_month_cohort_month'
-        },
-        VizFieldFull {
-          ref: ref('ecommerce_users', 'users_cohort_size')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-          uname: 'ecommerce_users_users_cohort_size'
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
-          format {
-            type: 'number'
-            pattern: '#,###'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          label: 'Pct'
-          ref: 'total_users_retention'
-          format {
-            type: 'number'
-            pattern: '#,###%'
-            group_separator: ','
-            decimal_separator: '.'
-          }
-          uname: 'custom_total_users_retention'
-        },
-        r(demo_ecommerce_version_2.total_users)
-      ]
-      content: @md <style>
-.cohort-container {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-font-size: 12px;
-overflow-x: auto;
-padding: 1rem;
-
-/* Centralized color scale settings */
---hue: 201;
---saturation: 96%;
-}
-
-.cohort-table {
-border-collapse: collapse;
-width: 100%;
-min-width: 900px;
-}
-
-.cohort-table th,
-.cohort-table td {
-padding: 8px 12px;
-text-align: center;
-border: 1px solid #E5E7EB;
-white-space: nowrap;
-}
-
-.cohort-table thead th {
-background-color: #F9FAFB;
-font-weight: 600;
-color: #374151;
-}
-
-.cohort-table th.month-header {
-min-width: 55px;
-}
-
-.cohort-table th.cohort-header {
-text-align: left;
-min-width: 120px;
-}
-
-.cohort-table th.size-header {
-text-align: right;
-min-width: 120px;
-}
-
-.cohort-table td.cohort-cell {
-text-align: left;
-font-weight: 500;
-color: #111827;
-background-color: #FFFFFF;
-}
-
-.cohort-table td.size-cell {
-text-align: right;
-color: #6B7280;
-background-color: #FFFFFF;
-}
-
-/* Centralized color scale for percentage cells */
-.cohort-table td.pct-cell {
---pct: 0;
---bg-lightness: calc(95 - var(--pct) * 50);
---text-lightness: calc(25 + (1 - var(--pct)) * 30);
-
-font-weight: 500;
-min-width: 55px;
-background-color: hsl(var(--hue) var(--saturation) calc(var(--bg-lightness) * 1%));
-color: hsl(var(--hue) var(--saturation) calc(var(--text-lightness) * 1%));
-}
-
-.sub-header {
-font-size: 11px;
-font-weight: 400;
-color: #6B7280;
-}
-
-.month-group-header {
-text-align: center;
-font-weight: 600;
-color: #374151;
-}
-</style>
-
-<div class="cohort-container">
-<table class="cohort-table">
-<thead>
-<tr>
-<th class="cohort-header" rowspan="2">Cohort Month ↑</th>
-<th class="size-header" rowspan="2">Users Cohort Size</th>
-<th class="month-group-header" colspan="13">Month Number</th>
-</tr>
-<tr>
-<th class="month-header">1<div class="sub-header">Pct</div></th>
-<th class="month-header">2<div class="sub-header">Pct</div></th>
-<th class="month-header">3<div class="sub-header">Pct</div></th>
-<th class="month-header">4<div class="sub-header">Pct</div></th>
-<th class="month-header">5<div class="sub-header">Pct</div></th>
-<th class="month-header">6<div class="sub-header">Pct</div></th>
-<th class="month-header">7<div class="sub-header">Pct</div></th>
-<th class="month-header">8<div class="sub-header">Pct</div></th>
-<th class="month-header">9<div class="sub-header">Pct</div></th>
-<th class="month-header">10<div class="sub-header">Pct</div></th>
-<th class="month-header">11<div class="sub-header">Pct</div></th>
-<th class="month-header">12<div class="sub-header">Pct</div></th>
-<th class="month-header">13<div class="sub-header">Pct</div></th>
-</tr>
-</thead>
-<tbody>
-{% map(rows) %}
-<tr>
-<td class="cohort-cell">{{ `Cohort Month` }}</td>
-<td class="size-cell">{{ `Users Cohort Size` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`1.0`.`Pct`.raw }};">{{ values.`1.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`2.0`.`Pct`.raw }};">{{ values.`2.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`3.0`.`Pct`.raw }};">{{ values.`3.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`4.0`.`Pct`.raw }};">{{ values.`4.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`5.0`.`Pct`.raw }};">{{ values.`5.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`6.0`.`Pct`.raw }};">{{ values.`6.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`7.0`.`Pct`.raw }};">{{ values.`7.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`8.0`.`Pct`.raw }};">{{ values.`8.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`9.0`.`Pct`.raw }};">{{ values.`9.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`10.0`.`Pct`.raw }};">{{ values.`10.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`11.0`.`Pct`.raw }};">{{ values.`11.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`12.0`.`Pct`.raw }};">{{ values.`12.0`.`Total Users` }}</td>
-<td class="pct-cell" style="--pct: {{ values.`13.0`.`Pct`.raw }};">{{ values.`13.0`.`Total Users` }}</td>
-</tr>
-{% end %}
-</tbody>
-</table>
-</div> ;;
+</div>   ;;
       settings {
         row_limit: 5000
         aggregate_awareness {
