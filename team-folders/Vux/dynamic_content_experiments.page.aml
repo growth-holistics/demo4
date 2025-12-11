@@ -1892,12 +1892,100 @@ padding-right: 0.50rem;
       }
     }
   }
+  block v_0tje: VizBlock {
+    label: 'Syntax'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      calculation period_label {
+        label: 'Period Label'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Product Name'
+          ref: r(products.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(orders.status)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(ecommerce_vux.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md # Basics
+
+## Values
+
+{% map(values) %}
+{{ value.`Revenue`}}
+{% end %}
+
+{{ value.`Revenue` }}
+
+## Rows
+<!-- {{ rows }} -->
+
+## Column
+{{ columns }}
+
+{% map(columns) %}
+<span>{{ `Status` }}</span>
+{% end %}
+
+
+# Total
+
+## Column Total
+{{ col_totals }}
+
+## Row Total
+{{ row_totals }}
+
+## Grand Total
+{{ grand_totals }}
+
+# Cell ref
+
+## Bottom
+{{ rows.-2.`Product Name` }}  ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: '🥱 Boring and Static'
       width: 1040
-      height: 840
       grid_size: 20
       block v4 {
         position: pos(400, 20, 620, 360)
@@ -1914,6 +2002,10 @@ padding-right: 0.50rem;
       block t_eap8 {
         position: pos(660, 400, 360, 240)
         layer: 4
+      }
+      block v_0tje {
+        position: pos(20, 840, 500, 340)
+        layer: 5
       }
       mobile {
         mode: 'auto'
@@ -2041,14 +2133,7 @@ padding-right: 0.50rem;
       from: 'v_p5re'
       to: [
         CustomMapping {
-          block: [
-            'v_mdra',
-            'v_ggbb',
-            'v_lhqm',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2057,14 +2142,7 @@ padding-right: 0.50rem;
       from: 'v_fyrn'
       to: [
         CustomMapping {
-          block: [
-            'v_mdra',
-            'v_ggbb',
-            'v_lhqm',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2073,12 +2151,7 @@ padding-right: 0.50rem;
       from: 'v_93o6'
       to: [
         CustomMapping {
-          block: [
-            'v_lhqm',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2087,16 +2160,7 @@ padding-right: 0.50rem;
       from: 'v_0k2v'
       to: [
         CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_mdra',
-            'v_ggbb',
-            'v_lhqm',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2105,16 +2169,7 @@ padding-right: 0.50rem;
       from: 'v_g7tl'
       to: [
         CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_mdra',
-            'v_ggbb',
-            'v_lhqm',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2123,13 +2178,7 @@ padding-right: 0.50rem;
       from: 'v_mdra'
       to: [
         CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_0k2v',
-            'v_g7tl',
-            'v_lhqm'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
@@ -2138,19 +2187,40 @@ padding-right: 0.50rem;
       from: 'v_ggbb'
       to: [
         CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_0k2v',
-            'v_g7tl',
-            'v_lhqm'
-          ]
+          block: 'v_0tje'
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'v_lhqm'
+      from: 'v_l0eq'
+      to: [
+        CustomMapping {
+          block: 'v_0tje'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vq7e'
+      to: [
+        CustomMapping {
+          block: 'v_0tje'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_i51a'
+      to: [
+        CustomMapping {
+          block: 'v_0tje'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0tje'
       to: [
         CustomMapping {
           block: [
@@ -2162,55 +2232,8 @@ padding-right: 0.50rem;
             'v_mdra',
             'v_ggbb',
             'v_l0eq',
-            'v_vq7e'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_l0eq'
-      to: [
-        CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
-            'v_lhqm'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vq7e'
-      to: [
-        CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
-            'v_lhqm'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_i51a'
-      to: [
-        CustomMapping {
-          block: [
-            'v_p5re',
-            'v_fyrn',
-            'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
-            'v_lhqm'
+            'v_vq7e',
+            'v_i51a'
           ]
           disabled: true
         }
