@@ -1,0 +1,63 @@
+Dashboard dashboard_total_revenue_by_product_name_omhvw {
+  title: 'Dashboard Total Revenue by Product Name'
+  owner: 'embed_f90e7149f1e44c59dc@holistics.io'
+  block v_r3ow: VizBlock {
+    label: 'Total Revenue by Product Name'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: '2024'
+      }
+      x_axis: VizFieldFull {
+        label: 'Product Name'
+        ref: r(ecommerce_products.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 10
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Total Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5
+        x_axis_label: 'Product Name'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_r3ow {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
