@@ -411,7 +411,13 @@ color: #374151;
         label: ' Pct'
         formula: @aql (total_users * 1.0)
 /
-(total_users | of_all(ecommerce_orders.month_number));;
+(total_users | of_all(ecommerce_orders.month_number, keep_filters: true));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation test_cohort_total {
+        label: 'Test Cohort Total'
+        formula: @aql total_users | of_all(ecommerce_orders.month_number);;
         calc_type: 'measure'
         data_type: 'number'
       }
@@ -451,7 +457,14 @@ color: #374151;
       ]
       values: [
         VizFieldFull {
-          label: 'Pct'
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Percentage'
           ref: 'total_users_retention'
           format {
             type: 'number'
@@ -462,7 +475,7 @@ color: #374151;
           uname: 'custom_total_users_retention'
         },
         VizFieldFull {
-          ref: r(demo_ecommerce_version_2.total_users)
+          ref: 'test_cohort_total'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -529,10 +542,10 @@ background-color: #FFFFFF;
 }
 
 /* Centralized color scale for percentage cells */
-.cohort-table td.pct-cell {
---pct: 0;
---bg-lightness: calc(95 - var(--pct) * 50);
---text-lightness: calc(25 + (1 - var(--pct)) * 30);
+.cohort-table td.percentage-cell {
+--percentage: 0;
+--bg-lightness: calc(95 - var(--percentage) * 50);
+--text-lightness: calc(25 + (1 - var(--percentage)) * 30);
 
 font-weight: 500;
 min-width: 55px;
@@ -568,13 +581,220 @@ color: #374151;
 <td class="cohort-cell">{{ `Cohort Month` }}</td>
 <td class="size-cell">{{ `Users Cohort Size` }}</td>
 {% map(values) %}
-<td class="pct-cell" style="--pct: {{ value.`Pct`.raw }};">{{ value.`Total Users` }}</td>
+<td class="percentage-cell" style="--percentage: {{ value.`Percentage`.raw }};">{{ value.`Total Users` }}</td>
 {% end %}
 </tr>
 {% end %}
 </tbody>
 </table>
-</div>    ;;
+</div>     ;;
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_fbjn: VizBlock {
+    label: 'Cohort Month, Users Cohort Size, and Month Number absolute vux copy copy'
+    viz: MarkdownViz {
+      dataset: demo_ecommerce_version_2
+      calculation users_cohort_size {
+        label: 'Users Cohort Size'
+        formula: @aql dimensionalize(
+  total_users,
+  ecommerce_users.cohort_month
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: ecommerce_users
+      }
+      calculation total_users_retention {
+        label: ' Pct'
+        formula: @aql (total_users * 1.0)
+/
+(total_users | of_all(ecommerce_orders.month_number, keep_filters: true));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation test_cohort_total {
+        label: 'Test Cohort Total'
+        formula: @aql total_users | of_all(ecommerce_orders.month_number);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+        operator: 'matches'
+        value: 'last 12 months'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Cohort Month'
+          ref: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+          uname: 'datetrunc_month_cohort_month'
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'users_cohort_size')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_users_users_cohort_size'
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2, ecommerce_orders.month_number)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Percentage'
+          ref: 'total_users_retention'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+          uname: 'custom_total_users_retention'
+        },
+        VizFieldFull {
+          ref: 'test_cohort_total'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+.cohort-container {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+font-size: 12px;
+overflow-x: auto;
+padding: 1rem;
+
+/* Centralized color scale settings */
+--hue: 201;
+--saturation: 96%;
+}
+
+.cohort-table {
+border-collapse: collapse;
+width: 100%;
+min-width: 900px;
+}
+
+.cohort-table th,
+.cohort-table td {
+padding: 8px 12px;
+text-align: center;
+border: 1px solid #E5E7EB;
+white-space: nowrap;
+}
+
+.cohort-table thead th {
+background-color: #F9FAFB;
+font-weight: 600;
+color: #374151;
+}
+
+.cohort-table th.month-header {
+min-width: 55px;
+}
+
+.cohort-table th.cohort-header {
+text-align: left;
+min-width: 120px;
+}
+
+.cohort-table th.size-header {
+text-align: right;
+min-width: 120px;
+}
+
+.cohort-table td.cohort-cell {
+text-align: left;
+font-weight: 500;
+color: #111827;
+background-color: #FFFFFF;
+}
+
+.cohort-table td.size-cell {
+text-align: right;
+color: #6B7280;
+background-color: #FFFFFF;
+}
+
+/* Centralized color scale for percentage cells */
+.cohort-table td.percentage-cell {
+--percentage: 0;
+--bg-lightness: calc(95 - var(--percentage) * 50);
+--text-lightness: calc(25 + (1 - var(--percentage)) * 30);
+
+font-weight: 500;
+min-width: 55px;
+background-color: hsl(var(--hue) var(--saturation) calc(var(--bg-lightness) * 1%));
+color: hsl(var(--hue) var(--saturation) calc(var(--text-lightness) * 1%));
+}
+
+
+.month-group-header {
+text-align: center;
+font-weight: 600;
+color: #374151;
+}
+</style>
+
+<div class="cohort-container">
+<table class="cohort-table">
+<thead>
+<tr>
+<th class="cohort-header" rowspan="2">Cohort Month ↑</th>
+<th class="size-header" rowspan="2">Users Cohort Size</th>
+<th class="month-group-header" colspan="13">Month Number</th>
+</tr>
+<tr>
+{% map(columns) %}
+<th class="month-header"><span>{{ `Month Number` }}</span>
+{% end %}
+</tr>
+</thead>
+<tbody>
+{% map(rows) %}
+<tr>
+<td class="cohort-cell">{{ `Cohort Month` }}</td>
+<td class="size-cell">{{ `Users Cohort Size` }}</td>
+{% map(values) %}
+<td class="percentage-cell" style="--percentage: {{ value.`Percentage`.raw }};">{{ value.`Total Users` }}</td>
+{% end %}
+</tr>
+{% end %}
+</tbody>
+</table>
+</div>     ;;
       settings {
         row_limit: 5000
         aggregate_awareness {
@@ -590,7 +810,7 @@ color: #374151;
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 1080
+    width: 2140
     height: 1700
     grid_size: 20
     auto_expand_vertically: true
@@ -604,6 +824,9 @@ color: #374151;
       position: pos(20, 620, 1040, 520)
     }
     block v_30fq {
+      position: pos(1080, 620, 1040, 520)
+    }
+    block v_fbjn {
       position: pos(20, 1160, 1040, 520)
     }
     mobile {
