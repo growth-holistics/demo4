@@ -628,6 +628,22 @@ color: #374151;
         calc_type: 'measure'
         data_type: 'number'
       }
+      calculation grid_max_users {
+        label: 'Grid Max Users'
+        formula: @aql window_max(total_users) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation heat_intensity {
+        label: 'Heat Intensity'
+        formula: @aql case(
+  when: window_max(total_users) == 0,
+  then: null,
+  else: (total_users * 1.0) / window_max(total_users)
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
       filter {
         field: r(demo_ecommerce_version_2, ecommerce_users.cohort_month)
         operator: 'matches'
@@ -683,6 +699,20 @@ color: #374151;
         },
         VizFieldFull {
           ref: 'test_cohort_total'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'grid_max_users'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'heat_intensity'
           format {
             type: 'number'
             pattern: 'inherited'
@@ -788,13 +818,13 @@ color: #374151;
 <td class="cohort-cell">{{ `Cohort Month` }}</td>
 <td class="size-cell">{{ `Users Cohort Size` }}</td>
 {% map(values) %}
-<td class="percentage-cell" style="--percentage: {{ value.`Percentage`.raw }};">{{ value.`Total Users` }}</td>
+<td class="percentage-cell" style="--percentage: {{ value.`Heat Intensity`.raw }};">{{ value.`Total Users` }}</td>
 {% end %}
 </tr>
 {% end %}
 </tbody>
 </table>
-</div>     ;;
+</div>      ;;
       settings {
         row_limit: 5000
         aggregate_awareness {
@@ -811,7 +841,7 @@ color: #374151;
   view: CanvasLayout {
     label: 'View 1'
     width: 2140
-    height: 1720
+    height: 1700
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -827,7 +857,7 @@ color: #374151;
       position: pos(1080, 620, 1040, 520)
     }
     block v_fbjn {
-      position: pos(20, 1180, 1040, 520)
+      position: pos(20, 1160, 1040, 520)
     }
     mobile {
       mode: 'auto'
