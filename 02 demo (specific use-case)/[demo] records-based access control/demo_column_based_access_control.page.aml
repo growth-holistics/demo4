@@ -9,25 +9,31 @@ Dashboard demo_column_based_access_control {
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'full_name')
+          ref: r(dim_dates.date_key)
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.full_name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_users', 'email_pii')
+          ref: r(ecommerce_users.email_pii)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_countries', 'name')
+          ref: r(ecommerce_countries.name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_cities', 'name')
+          ref: r(ecommerce_cities.name)
           format {
             type: 'text'
           }
@@ -36,6 +42,10 @@ Dashboard demo_column_based_access_control {
       settings {
         show_row_number: true
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
