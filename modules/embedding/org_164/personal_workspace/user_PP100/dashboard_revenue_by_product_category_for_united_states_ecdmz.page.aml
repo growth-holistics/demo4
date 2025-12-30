@@ -1,0 +1,63 @@
+Dashboard dashboard_revenue_by_product_category_for_united_states_ecdmz {
+  title: 'Dashboard Revenue by product category for United States'
+  owner: 'embed_f90e7149f1e44c59dc@holistics.io'
+  block v_3zjx: VizBlock {
+    label: 'Revenue by product category for United States'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'United States'
+      }
+      x_axis: VizFieldFull {
+        label: 'Category'
+        ref: r(map_categories.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          group_values_into: 10
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_label: 'Category'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_3zjx {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
