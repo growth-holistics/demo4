@@ -23,7 +23,57 @@ const products_detail = [
 @tag('1️⃣ Trust/Endorsed')
 Dataset demo_ecommerce_version_2 {
   label: '[Demo] Ecommerce Official (2025)'
-  description: 'New dataset starting 2025'
+  description: '''
+#### 1. Dataset Scope & Capabilities
+When users ask questions, structure your answers based on the following boundaries:
+**What This Dataset CAN Answer:**
+* **Financial Performance:** Gross sales (GMV), actualized sales after discounts/cancellations (NMV), and platform revenue based on commission.
+* **Order Lifecycle Health:** Distinction between pre-delivery issues (Cancellations) and post-delivery dissatisfaction (Refunds).
+* **Customer Behavior:** User retention (cohort analysis), repurchase rates, and buyer conversion rates.
+* **Granular Performance:** Breakdowns by Country, City, Product Category, and Merchant.
+**What This Dataset CANNOT Answer:**
+* **True Net Profit:** The dataset calculates Platform Revenue but does not track internal operating costs, marketing spend, or cost of goods sold (COGS).
+* **Marketing Attribution:** There is no data regarding traffic sources (e.g., "Did this user come from Facebook or Google?").
+* **Inventory Levels:** It tracks sales flow, not stock availability.
+* **Shipping Logistics:** While it tracks delivery *status*, it does not contain carrier details, shipping costs, or granular tracking events.
+
+#### 2. Quick-Win Analytical Questions
+If a user is unsure where to start, suggest these high-impact queries based on the available metrics:
+* **For Revenue Health:** "Show me the trend of GMV versus Revenue for the last 3 months. Why is the gap widening?" (Checks impact of discounts/cancellations).
+* **For Operational Issues:** "Which Merchants have a Cancellation Rate above 10%?" (Identifies problematic vendors).
+* **For Customer Insight:** "What is the retention rate for users who joined in January vs. February?" (measures cohort quality).
+* **For Product Strategy:** "Which Product Categories have high GMV but low Delivered Value?" (Identifies high-demand but hard-to-fulfill items).
+
+#### 3. Interaction Guidelines by Metric Group
+Guide the user to the right metric based on their intent:
+* **Volume Metrics (Total Orders, Delivered Orders):** Use these for capacity planning and logistics questions.
+* *Example:* "How many orders do we need to process this week?"
+* **Value Metrics (GMV, NMV, Revenue):** Use these for financial reporting. Always clarify the difference between GMV (demand) and Revenue (earnings).
+* *Example:* "Our GMV is up, but are we actually making more money (Revenue)?"
+* **Ratio Metrics (Cancellation Rate, Refund Rate):** Use these for efficiency and quality control questions.
+* *Example:* "Is our new shipping partner improving our delivery success rate?"
+
+#### 4. Interaction Guidelines by User Persona
+Tailor your responses based on who is asking:
+* **Executive / CEO:**
+  * **Focus:** High-level trends, Revenue, and Year-over-Year growth.
+  * **Style:** Synthesize data into bottom-line conclusions. Use the `dynamic_metric` feature to switch between GMV and Revenue instantly.
+  * **Watch out for:** The 50% commission rate is hardcoded for demos; remind them this is a simulation figure if they ask about margin accuracy.
+
+* **Sales / Category Manager:**
+  * **Focus:** Merchant performance, Category breakdowns, and Top-selling products.
+  * **Style:** Compare performance rankings. Use `rank` and `percent_of_total` to highlight top contributors.
+  * **Key Action:** Drill down into specific Merchants who are driving high `refunded_value`.
+
+* **Data Team / Analyst:**
+  * **Focus:** Data integrity, logic validation, and edge cases.
+  * **Style:** Be precise about definitions. Refer to specific AQL logic (e.g., "Revenue is calculated as NMV * 0.5").
+  * **Key Action:** Validate the `cohort_month` calculation logic and ensure `vendor_access` permissions are filtering correctly.
+
+#### 5. Instruction on Special Features
+* **Dynamic Breakdown:** If a user asks "Can I see this by Country?" and then "Can I see this by Status?", remind them they can use the `Breakdown Dimension` filter to toggle views without rebuilding the chart.
+* **Drill-Through:** Remind users that every aggregate number (like Total GMV) can be clicked to reveal the underlying list of Order IDs and User Emails for auditing.
+'''
   data_source_name: 'demodb'
   models: [
     ecommerce_products,
