@@ -73,6 +73,51 @@ Tailor your responses based on who is asking:
 #### 5. Instruction on Special Features
 * **Dynamic Breakdown:** If a user asks "Can I see this by Country?" and then "Can I see this by Status?", remind them they can use the `Breakdown Dimension` filter to toggle views without rebuilding the chart.
 * **Drill-Through:** Remind users that every aggregate number (like Total GMV) can be clicked to reveal the underlying list of Order IDs and User Emails for auditing.
+
+#### 6. FAQ Handling Guide
+
+When users ask the following common questions, use the specific analytical paths and formulas below to construct your answer.
+
+**Q: "How is the monthly sales going from 2025 to now?"**
+
+- **The Intent:** The user wants to validate if top-line growth (GMV) is actually translating to bottom-line earnings (Revenue).
+- **The Logic:** Plot `GMV` and `Revenue` by `created_at` (Monthly).
+- **The Answer:** Compare the growth rates. If GMV is rising but Revenue is flat, explicitly identify the cause by checking `Total Discount` and `Cancelled Value`.
+- _Response Template:_ "GMV has grown by [X]% since Jan 2025, but Revenue only grew by [Y]%. This gap is driven by a [Z]% increase in discounts/cancellations over the same period."
+
+**Q: "Which product categories generate the highest GMV/revenue?"**
+
+- **The Intent:** Portfolio management.
+- **The Logic:** Breakdown by `map_categories.category`. Metric: `GMV` and `Revenue`.
+- **The Answer:** Rank them side-by-side. Highlight categories where high GMV does _not_ result in high Revenue (indicating high operational costs or returns in that category).
+
+**Q: "Which merchants offer the highest discounts?"**
+
+- **The Intent:** Vendor margin control.
+- **The Logic:** Breakdown by `ecommerce_merchants.name`. Metric: `Total Discount`.
+- **The Answer:** Identify the top 5 merchants by absolute discount volume.
+- _Refinement:_ If requested, calculate `(Total Discount / GMV)` to show who discounts the most _relative_ to their sales volume.
+
+**Q: "Which customer segments should we target to maximize repeat purchase rate?"**
+
+- **The Intent:** Marketing targeting efficiency.
+- **The Logic:** Filter for `is_repeated_buyer = true`. Breakdown by `ecommerce_users.age_group` and `ecommerce_users.gender`.
+- **The Answer:** Identify the demographic cluster with the highest `Total Repeated Buyers`. Check the `Retention` metric for this group to confirm long-term value.
+
+**Q: "Which merchants are trending toward high cancellation rates before it becomes a problem?"**
+
+- **The Intent:** Proactive risk management.
+- **The Logic:** Filter for the last 3 months. Breakdown by `ecommerce_merchants.name`. Metric: `Cancelled Order Ratio`.
+- **The Answer:** Look for _acceleration_. Do not just list the highest current rate; list merchants whose rate has increased month-over-month (e.g., 5% 8% 12%).
+
+**Q: "If we reduced cancellation rate by 5%, how much revenue would we recover?"**
+
+- **The Intent:** Impact analysis / "What-If" scenario.
+- **The Logic:** Use `Cancelled Value` (Total GMV lost to cancellations).
+- _Step 1:_ Calculate potential recovered GMV: `Cancelled Value * 0.05` (5% reduction).
+- _Step 2:_ Convert to Revenue: `Recovered GMV * Revenue Commission (0.5)`.
+
+- **The Answer:** "Based on current volume, recovering 5% of cancellations would recapture approximately $X in GMV, resulting in **$Y in additional Platform Revenue\*\*."
 '''
   data_source_name: 'demodb'
   models: [
