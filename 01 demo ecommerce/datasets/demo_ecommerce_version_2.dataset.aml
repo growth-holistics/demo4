@@ -192,14 +192,34 @@ Dataset demo_ecommerce_version_2 {
   metric total_users {
     label: 'Total Users'
     type: 'number'
-    description: "Total number of users"
+    description: '''Total count of registered users on the platform.
+
+**Example**: If the platform has 10,000 registered accounts, total_users = 10,000.
+
+**Analytical Questions**:
+- How many users signed up this month vs last month?
+- What is the user growth rate by country?
+- Which age demographic has the most users?
+
+**Recommended Dimensions**: sign_up_date, gender, age_group, city, country
+'''
     definition: @aql count(ecommerce_users.id) ;;
   }
   metric total_orders {
     label: "Total Orders"
     type: "number"
     hidden: false
-    description: "Total number of orders placed across the platform, regardless of status."
+    description: '''Total number of orders placed across the platform, regardless of status (delivered, cancelled, or refunded).
+
+**Example**: If 500 orders were placed today (300 delivered, 150 cancelled, 50 refunded), total_orders = 500.
+
+**Analytical Questions**:
+- How many orders are placed per day/week/month?
+- Which countries generate the most orders?
+- What is the order volume trend over time?
+
+**Recommended Dimensions**: created_at, status, country, city, product category, merchant
+'''
     definition: @aql count(ecommerce_orders.id);;
   }
 
@@ -207,7 +227,19 @@ Dataset demo_ecommerce_version_2 {
     label: "GMV (Gross Merchandise Value)"
     type: "number"
     hidden: false
-    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    description: '''Total value of all orders before any discounts are applied. Includes all order statuses.
+
+**Formula**: SUM(quantity × product_price)
+
+**Example**: If a customer orders 2 items at $50 each and 1 item at $100, GMV = (2 × $50) + (1 × $100) = $200.
+
+**Analytical Questions**:
+- What is our total sales volume this quarter?
+- Which product categories generate the highest GMV?
+- How does GMV compare across different countries?
+
+**Recommended Dimensions**: created_at, product name, category, merchant, country, user gender/age_group
+'''
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
     format: "[\$\$]#,###0"
   }
@@ -216,7 +248,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Total Discount"
     type: "number"
     hidden: false
-    description: "Total Discount: Total discount value of all orders."
+    description: '''Total discount amount applied across all orders. Represents the difference between gross and net merchandise value.
+
+**Formula**: GMV - Revenue
+
+**Example**: If GMV is $10,000 and Revenue is $8,000, total_discount = $2,000.
+
+**Analytical Questions**:
+- How much are we discounting by product category?
+- Which merchants offer the highest discounts?
+- What is the discount trend over time?
+
+**Recommended Dimensions**: created_at, product category, merchant, country
+'''
     definition: @aql gmv - revenue;;
     format: "[\$\$]#,###0"
   }
@@ -225,7 +269,19 @@ Dataset demo_ecommerce_version_2 {
     label: "NMV (Net Merchandise Value)"
     type: "number"
     hidden: false
-    description: "* Fulfilled order value after discount. Excludes cancelled/refunded orders. <br>* Represents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied. <br>* This reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    description: '''Fulfilled order value after discounts, excluding cancelled and refunded orders. This is what customers actually paid for completed transactions.
+
+**Formula**: SUM(quantity × price × (1 - discount)) WHERE status NOT IN ('cancelled', 'refunded')
+
+**Example**: Order with 2 items at $100 each, 10% discount, and delivered → NMV = 2 × $100 × 0.9 = $180. If cancelled, NMV = $0.
+
+**Analytical Questions**:
+- What is our actual fulfilled sales value?
+- How does NMV compare to GMV (discount impact)?
+- Which merchants have the highest NMV?
+
+**Recommended Dimensions**: created_at, product category, merchant, country, city
+'''
     definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
     format: "[\$\$]#,###0"
   }
@@ -234,7 +290,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Total Revenue"
     type: "number"
     hidden: false
-    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate. <br> As of May 2025, this demo assumes a 50% commission margin. Formula: `revenue = NMV × revenue_commission`"
+    description: '''Platform revenue earned from fulfilled orders. Calculated as NMV multiplied by the commission rate (50% as of May 2025).
+
+**Formula**: NMV × revenue_commission (currently 50%)
+
+**Example**: If NMV is $10,000, platform revenue = $10,000 × 0.5 = $5,000.
+
+**Analytical Questions**:
+- What is our platform revenue this month?
+- Which product categories drive the most revenue?
+- How does revenue vary by country or merchant?
+
+**Recommended Dimensions**: created_at, product category, merchant, country, city
+'''
     definition: @aql nmv * revenue_commission;;
     format: "[\$\$]#,###0"
   }
@@ -242,7 +310,19 @@ Dataset demo_ecommerce_version_2 {
   metric aov {
     label: "AOV (Average Order Value)"
     type: "number"
-    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    description: '''Average gross value per order. Higher AOV indicates customers are spending more per transaction.
+
+**Formula**: GMV / Total Orders
+
+**Example**: If GMV is $50,000 from 1,000 orders, AOV = $50,000 / 1,000 = $50.
+
+**Analytical Questions**:
+- Are customers spending more per order over time?
+- Which customer segments have the highest AOV?
+- Do certain product categories drive higher AOV?
+
+**Recommended Dimensions**: created_at, product category, user age_group, gender, country
+'''
     hidden: false
     definition: @aql gmv / total_orders;;
     format: "[\$\$]#,###0"
@@ -251,14 +331,37 @@ Dataset demo_ecommerce_version_2 {
     label: "Total Orders Across All"
     type: "number"
     hidden: false
-    description: "Total number of orders across all selected dimensions. Used as the denominator for ratio metrics like percent_of_total."
+    description: '''Total orders ignoring all dimension filters. Used as denominator for calculating percentages and ratios.
+
+**Formula**: total_orders | of_all(ecommerce_orders)
+
+**Example**: When viewing orders by country, this shows the global total (e.g., 10,000) regardless of country filter.
+
+**Analytical Questions**:
+- What percentage of total orders does each segment represent?
+- How does a specific dimension compare to the overall platform?
+
+**Recommended Dimensions**: Used alongside any dimension to calculate share of total
+'''
     definition: @aql total_orders | of_all(ecommerce_orders);;
   }
   metric percent_of_total {
     label: "Percent Of Total Orders"
     type: "number"
     hidden: false
-    description: "Percentage of orders contributed by the current slice of data compared to the total orders across all segments."
+    description: '''Percentage contribution of a segment to total platform orders. Useful for understanding market share.
+
+**Formula**: (total_orders / total_orders_across_all) × 100%
+
+**Example**: If USA has 2,000 orders out of 10,000 total, percent_of_total = 20%.
+
+**Analytical Questions**:
+- What share of orders comes from each country?
+- Which product category contributes most to order volume?
+- How has market share shifted over time?
+
+**Recommended Dimensions**: country, city, product category, merchant, user age_group
+'''
     definition: @aql total_orders * 1.0 / total_orders_across_all;;
     format: "#,###0.00%"
   }
@@ -266,21 +369,57 @@ Dataset demo_ecommerce_version_2 {
     label: "Total Delivered Orders"
     type: "number"
     hidden: false
-    description: "Count of all orders that were successfully delivered."
+    description: '''Count of orders with status 'delivered'. Represents successfully fulfilled transactions.
+
+**Formula**: total_orders WHERE status = 'delivered'
+
+**Example**: If 800 out of 1,000 orders were delivered, total_delivered_orders = 800.
+
+**Analytical Questions**:
+- What is our delivery success rate?
+- Which regions have the highest delivery completion?
+- How does delivery performance trend over time?
+
+**Recommended Dimensions**: created_at, country, city, merchant, product category
+'''
     definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
   }
   metric total_refunded_orders {
     label: "Total Refunded Orders"
     type: "number"
     hidden: false
-    description: "Count of all orders that were refunded after fulfillment."
+    description: '''Count of orders with status 'refunded'. Indicates post-delivery returns or disputes.
+
+**Formula**: total_orders WHERE status = 'refunded'
+
+**Example**: If 50 out of 1,000 orders were refunded, total_refunded_orders = 50.
+
+**Analytical Questions**:
+- What is our refund rate?
+- Which products have the highest refund rates?
+- Are refunds increasing over time?
+
+**Recommended Dimensions**: created_at, product name, category, merchant, country
+'''
     definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
   }
   metric total_cancelled_orders {
     label: "Total Cancelled Orders"
     type: "number"
     hidden: false
-    description: "Count of orders that were cancelled before fulfillment."
+    description: '''Count of orders with status 'cancelled'. Indicates pre-delivery cancellations by customer or system.
+
+**Formula**: total_orders WHERE status = 'cancelled'
+
+**Example**: If 150 out of 1,000 orders were cancelled, total_cancelled_orders = 150.
+
+**Analytical Questions**:
+- What is our cancellation rate?
+- Which merchants have high cancellation rates?
+- Are there patterns in cancellation timing?
+
+**Recommended Dimensions**: created_at, merchant, product category, country, city
+'''
     definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
   }
 
@@ -288,7 +427,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Cancelled Order Ratio"
     type: "number"
     hidden: false
-    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    description: '''Percentage of orders that were cancelled. Key indicator of order fulfillment health.
+
+**Formula**: (total_cancelled_orders / total_orders) × 100%
+
+**Example**: If 150 orders cancelled out of 1,000 total, cancelled_order_ratio = 15%.
+
+**Analytical Questions**:
+- Is our cancellation rate within acceptable thresholds?
+- Which merchants need intervention due to high cancellations?
+- How does cancellation rate vary by product category?
+
+**Recommended Dimensions**: created_at, merchant, product category, country
+'''
     definition: @aql total_cancelled_orders / total_orders;;
     format: "#,###0.00%"
   }
@@ -297,7 +448,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Cancelled Value"
     type: "number"
     hidden: false
-    description: "Total Value of Cancelled Orders"
+    description: '''Total GMV lost due to cancelled orders. Represents potential revenue that was not realized.
+
+**Formula**: GMV WHERE status = 'cancelled'
+
+**Example**: If $20,000 worth of orders were cancelled, cancelled_value = $20,000.
+
+**Analytical Questions**:
+- How much revenue are we losing to cancellations?
+- Which high-value products have high cancellation rates?
+- What is the financial impact of cancellations by merchant?
+
+**Recommended Dimensions**: created_at, product category, merchant, country
+'''
     definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
     format: "[\$\$]#,###0"
   }
@@ -306,7 +469,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Cancelled Value Ratio"
     type: "number"
     hidden: false
-    description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
+    description: '''Percentage of GMV lost to cancellations. Measures financial impact of order failures.
+
+**Formula**: (cancelled_value / GMV) × 100%
+
+**Example**: If $20,000 cancelled out of $100,000 GMV, cancelled_value_ratio = 20%.
+
+**Analytical Questions**:
+- What percentage of potential revenue is lost to cancellations?
+- Are high-value orders more likely to be cancelled?
+- Which segments have the worst cancellation value ratios?
+
+**Recommended Dimensions**: created_at, product category, merchant, country
+'''
     definition: @aql cancelled_value / gmv;;
     format: "#,###0.00%"
   }
@@ -315,7 +490,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Delivered Value"
     type: "number"
     hidden: false
-    description: "Total Value of Delivered Orders"
+    description: '''Total GMV from successfully delivered orders. Core measure of fulfilled transaction value.
+
+**Formula**: GMV WHERE status = 'delivered'
+
+**Example**: If $80,000 worth of orders were delivered, delivered_value = $80,000.
+
+**Analytical Questions**:
+- What is our total fulfilled order value?
+- Which products drive the most delivered value?
+- How does delivery value trend by region?
+
+**Recommended Dimensions**: created_at, product category, merchant, country, city
+'''
     definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
     format: "[\$\$]#,###0"
   }
@@ -324,7 +511,19 @@ Dataset demo_ecommerce_version_2 {
     label: "Refunded Value"
     type: "number"
     hidden: false
-    description: "Total Value of Refunded Orders"
+    description: '''Total GMV from refunded orders. Indicates post-delivery returns and customer dissatisfaction costs.
+
+**Formula**: GMV WHERE status = 'refunded'
+
+**Example**: If $5,000 worth of orders were refunded, refunded_value = $5,000.
+
+**Analytical Questions**:
+- How much revenue is being returned?
+- Which products have the highest refund values?
+- Are certain merchants generating more refunds?
+
+**Recommended Dimensions**: created_at, product name, category, merchant, country
+'''
     definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
     format: "[\$\$]#,###0"
   }
@@ -332,7 +531,19 @@ Dataset demo_ecommerce_version_2 {
     label: 'Cohort Retention'
     type: 'number'
     hidden: false
-    description: "Cohort retention rate calculated as the percentage of users in a cohort who placed an order in a given month. *Formula*: current period total_users / cohort\'s total_users."
+    description: '''Percentage of users from a cohort who placed an order in a given month. Key metric for understanding customer loyalty.
+
+**Formula**: (users with orders in month N) / (total users in cohort) × 100%
+
+**Example**: If 100 users signed up in Jan and 40 ordered in Feb, Feb retention = 40%.
+
+**Analytical Questions**:
+- How well do we retain customers after their first purchase?
+- Which cohorts have the best long-term retention?
+- At what month do we see the biggest drop-off?
+
+**Recommended Dimensions**: cohort_month, month_number, country, user age_group
+'''
     definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
     format: "#,###0.00%"
   }
@@ -340,28 +551,75 @@ Dataset demo_ecommerce_version_2 {
     label: "Total Buyers"
     type: "number"
     hidden: false
-    description: "Total number of unique users who made at least one purchase."
+    description: '''Count of unique users who made at least one purchase. Measures conversion from registered user to paying customer.
+
+**Formula**: COUNT(users) WHERE is_buyer = true
+
+**Example**: If 3,000 out of 10,000 users made a purchase, total_buyers = 3,000.
+
+**Analytical Questions**:
+- What is our user-to-buyer conversion rate?
+- Which demographics convert best to buyers?
+- How is buyer acquisition trending over time?
+
+**Recommended Dimensions**: sign_up_date, gender, age_group, country, city
+'''
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
   }
   metric total_repeated_buyers {
     label: "Total Repeated Buyers"
     type: "number"
     hidden: false
-    description: "Total number of users who made more than one purchase."
+    description: '''Count of users who made more than one purchase. Indicates customer loyalty and repeat purchase behavior.
+
+**Formula**: COUNT(users) WHERE is_repeated_buyer = true (total_orders > 1)
+
+**Example**: If 1,000 out of 3,000 buyers made 2+ purchases, total_repeated_buyers = 1,000.
+
+**Analytical Questions**:
+- What is our repeat purchase rate?
+- Which products drive repeat purchases?
+- Are certain demographics more likely to become repeat buyers?
+
+**Recommended Dimensions**: sign_up_date, gender, age_group, country, product category
+'''
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
   }
   metric running_total_orders {
     label: "Running Total Orders"
     type: "number"
     hidden: false
-    description: "Cumulative total of orders over time, aggregated by year to show growth trends."
+    description: '''Cumulative sum of orders over time. Shows growth trajectory and total volume progression.
+
+**Formula**: running_total(total_orders) by year
+
+**Example**: If Q1=1,000, Q2=1,500, Q3=2,000 orders → running total at Q3 = 4,500.
+
+**Analytical Questions**:
+- Are we on track to meet annual order targets?
+- How does cumulative growth compare YoY?
+- At what point did we hit major milestones?
+
+**Recommended Dimensions**: created_at (year, quarter, month)
+'''
     definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
 
   metric dynamic_metric {
     label: 'Dynamic Metric (no format)'
     type: 'number'
-    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
+    description: '''Parameter-driven metric that switches between different KPIs based on user selection. Values are unformatted.
+
+**Available Options**: total users, total orders, platform revenue, GMV, NMV, AOV
+
+**Example**: Select 'GMV' from parameter → metric displays GMV value.
+
+**Analytical Questions**:
+- How do different metrics compare across the same dimensions?
+- Build flexible dashboards where users choose their KPI
+
+**Recommended Dimensions**: Any dimension; best used with breakdown_dim for dynamic analysis
+'''
     definition: @aql
       case(
         
@@ -390,7 +648,18 @@ Dataset demo_ecommerce_version_2 {
   metric dynamic_metric_currency {
     label: 'Dynamic Metric (Currency)'
     type: 'number'
-    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
+    description: '''Parameter-driven metric for currency-formatted KPIs. Automatically formats values with $$ symbol.
+
+**Available Options**: platform revenue, GMV, NMV, AOV
+
+**Example**: Select 'AOV' from parameter → metric displays formatted AOV (e.g., $$50).
+
+**Analytical Questions**:
+- Compare monetary metrics across dimensions with proper formatting
+- Build executive dashboards with user-selectable revenue metrics
+
+**Recommended Dimensions**: created_at, country, merchant, product category
+'''
     definition: @aql
       case(
         when: 'platform revenue' in param_model_demo.metric_selections_currency
@@ -414,16 +683,22 @@ Dataset demo_ecommerce_version_2 {
     label: "Revenue Commission Rate (Demo from May 2025)"
     type: "number"
     hidden: false
-    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    description: '''Platform commission rate applied to NMV to calculate revenue. Currently fixed at 50% for demo purposes.
+
+**Formula**: Constant value = 0.5 (50%)
+
+**Example**: revenue = NMV × 0.5. If NMV = $10,000, revenue = $5,000.
+
+**Analytical Questions**:
+- What if we changed the commission rate?
+- How does commission impact platform profitability?
+
+**Note**: This is a configuration metric. In production, this might vary by merchant tier or product category.
+'''
     definition: @aql 0.5;;
     format: "#,###%"
   }
-  metric ssss {
-    label: "Ssss"
-    type: "number"
-    description: ""
-    definition: @aql count(ecommerce_users.id);;
-  }
+
 
   view {
     // Core Volume Metrics
