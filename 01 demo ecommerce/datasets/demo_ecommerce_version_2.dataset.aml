@@ -241,7 +241,6 @@ When users ask the following common questions, use the specific analytical paths
 
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
-    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
     type: 'text'
     model: ecommerce_orders
     definition: @aql case(
@@ -256,6 +255,7 @@ When users ask the following common questions, use the specific analytical paths
 
         , else: ecommerce_countries.name
       ) ;;
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
   }
 
   dimension product_count_within_1_month {
@@ -287,6 +287,7 @@ When users ask the following common questions, use the specific analytical paths
   metric total_users {
     label: 'Total Users'
     type: 'number'
+    definition: @aql count(ecommerce_users.id) ;;
     description: '''Total count of registered users on the platform.
 
 **Example**: If the platform has 10,000 registered accounts, total_users = 10,000.
@@ -298,12 +299,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: sign_up_date, gender, age_group, city, country
 '''
-    definition: @aql count(ecommerce_users.id) ;;
   }
   metric total_orders {
     label: "Total Orders"
     type: "number"
     hidden: false
+    definition: @aql count(ecommerce_orders.id);;
     description: '''Total number of orders placed across the platform, regardless of status (delivered, cancelled, or refunded).
 
 **Example**: If 500 orders were placed today (300 delivered, 150 cancelled, 50 refunded), total_orders = 500.
@@ -315,13 +316,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, status, country, city, product category, merchant
 '''
-    definition: @aql count(ecommerce_orders.id);;
   }
 
   metric gmv {
     label: "GMV (Gross Merchandise Value)"
     type: "number"
     hidden: false
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
     description: '''Total value of all orders before any discounts are applied. Includes all order statuses.
 
 **Formula**: SUM(quantity × product_price)
@@ -335,14 +337,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product name, category, merchant, country, user gender/age_group
 '''
-    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
-    format: "[\$\$]#,###0"
   }
 
   metric total_discount {
     label: "Total Discount"
     type: "number"
     hidden: false
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
     description: '''Total discount amount applied across all orders. Represents the difference between gross and net merchandise value.
 
 **Formula**: GMV - Revenue
@@ -356,14 +358,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country
 '''
-    definition: @aql gmv - revenue;;
-    format: "[\$\$]#,###0"
   }
 
   metric nmv {
     label: "NMV (Net Merchandise Value)"
     type: "number"
     hidden: false
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
     description: '''Fulfilled order value after discounts, excluding cancelled and refunded orders. This is what customers actually paid for completed transactions.
 
 **Formula**: SUM(quantity × price × (1 - discount)) WHERE status NOT IN ('cancelled', 'refunded')
@@ -377,14 +379,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country, city
 '''
-    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
-    format: "[\$\$]#,###0"
   }
 
   metric revenue {
     label: "Total Revenue"
     type: "number"
     hidden: false
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
     description: '''Platform revenue earned from fulfilled orders. Calculated as NMV multiplied by the commission rate (50% as of May 2025).
 
 **Formula**: NMV × revenue_commission (currently 50%)
@@ -398,13 +400,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country, city
 '''
-    definition: @aql nmv * revenue_commission;;
-    format: "[\$\$]#,###0"
   }
 
   metric aov {
     label: "AOV (Average Order Value)"
     type: "number"
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
     description: '''Average gross value per order. Higher AOV indicates customers are spending more per transaction.
 
 **Formula**: GMV / Total Orders
@@ -418,14 +421,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, user age_group, gender, country
 '''
-    hidden: false
-    definition: @aql gmv / total_orders;;
-    format: "[\$\$]#,###0"
   }
   metric total_orders_across_all {
     label: "Total Orders Across All"
     type: "number"
     hidden: false
+    definition: @aql total_orders | of_all(ecommerce_orders);;
     description: '''Total orders ignoring all dimension filters. Used as denominator for calculating percentages and ratios.
 
 **Formula**: total_orders | of_all(ecommerce_orders)
@@ -438,12 +439,13 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: Used alongside any dimension to calculate share of total
 '''
-    definition: @aql total_orders | of_all(ecommerce_orders);;
   }
   metric percent_of_total {
     label: "Percent Of Total Orders"
     type: "number"
     hidden: false
+    definition: @aql total_orders * 1.0 / total_orders_across_all;;
+    format: "#,###0.00%"
     description: '''Percentage contribution of a segment to total platform orders. Useful for understanding market share.
 
 **Formula**: (total_orders / total_orders_across_all) × 100%
@@ -457,13 +459,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: country, city, product category, merchant, user age_group
 '''
-    definition: @aql total_orders * 1.0 / total_orders_across_all;;
-    format: "#,###0.00%"
   }
   metric total_delivered_orders {
     label: "Total Delivered Orders"
     type: "number"
     hidden: false
+    definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
     description: '''Count of orders with status 'delivered'. Represents successfully fulfilled transactions.
 
 **Formula**: total_orders WHERE status = 'delivered'
@@ -477,12 +478,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, country, city, merchant, product category
 '''
-    definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
   }
   metric total_refunded_orders {
     label: "Total Refunded Orders"
     type: "number"
     hidden: false
+    definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
     description: '''Count of orders with status 'refunded'. Indicates post-delivery returns or disputes.
 
 **Formula**: total_orders WHERE status = 'refunded'
@@ -496,12 +497,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product name, category, merchant, country
 '''
-    definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
   }
   metric total_cancelled_orders {
     label: "Total Cancelled Orders"
     type: "number"
     hidden: false
+    definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
     description: '''Count of orders with status 'cancelled'. Indicates pre-delivery cancellations by customer or system.
 
 **Formula**: total_orders WHERE status = 'cancelled'
@@ -515,13 +516,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, merchant, product category, country, city
 '''
-    definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
   }
 
   metric cancelled_order_ratio {
     label: "Cancelled Order Ratio"
     type: "number"
     hidden: false
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: "#,###0.00%"
     description: '''Percentage of orders that were cancelled. Key indicator of order fulfillment health.
 
 **Formula**: (total_cancelled_orders / total_orders) × 100%
@@ -535,14 +537,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, merchant, product category, country
 '''
-    definition: @aql total_cancelled_orders / total_orders;;
-    format: "#,###0.00%"
   }
 
   metric cancelled_value {
     label: "Cancelled Value"
     type: "number"
     hidden: false
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
     description: '''Total GMV lost due to cancelled orders. Represents potential revenue that was not realized.
 
 **Formula**: GMV WHERE status = 'cancelled'
@@ -556,14 +558,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country
 '''
-    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
-    format: "[\$\$]#,###0"
   }
 
   metric cancelled_value_ratio {
     label: "Cancelled Value Ratio"
     type: "number"
     hidden: false
+    definition: @aql cancelled_value / gmv;;
+    format: "#,###0.00%"
     description: '''Percentage of GMV lost to cancellations. Measures financial impact of order failures.
 
 **Formula**: (cancelled_value / GMV) × 100%
@@ -577,14 +579,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country
 '''
-    definition: @aql cancelled_value / gmv;;
-    format: "#,###0.00%"
   }
 
   metric delivered_value {
     label: "Delivered Value"
     type: "number"
     hidden: false
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
     description: '''Total GMV from successfully delivered orders. Core measure of fulfilled transaction value.
 
 **Formula**: GMV WHERE status = 'delivered'
@@ -598,14 +600,14 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product category, merchant, country, city
 '''
-    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
-    format: "[\$\$]#,###0"
   }
 
   metric refunded_value {
     label: "Refunded Value"
     type: "number"
     hidden: false
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
     description: '''Total GMV from refunded orders. Indicates post-delivery returns and customer dissatisfaction costs.
 
 **Formula**: GMV WHERE status = 'refunded'
@@ -619,13 +621,13 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at, product name, category, merchant, country
 '''
-    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
-    format: "[\$\$]#,###0"
   }
   metric retention {
     label: 'Cohort Retention'
     type: 'number'
     hidden: false
+    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
+    format: "#,###0.00%"
     description: '''Percentage of users from a cohort who placed an order in a given month. Key metric for understanding customer loyalty.
 
 **Formula**: (users with orders in month N) / (total users in cohort) × 100%
@@ -639,13 +641,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: cohort_month, month_number, country, user age_group
 '''
-    definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
-    format: "#,###0.00%"
   }
   metric total_buyers {
     label: "Total Buyers"
     type: "number"
     hidden: false
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
     description: '''Count of unique users who made at least one purchase. Measures conversion from registered user to paying customer.
 
 **Formula**: COUNT(users) WHERE is_buyer = true
@@ -659,12 +660,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: sign_up_date, gender, age_group, country, city
 '''
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
   }
   metric total_repeated_buyers {
     label: "Total Repeated Buyers"
     type: "number"
     hidden: false
+    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
     description: '''Count of users who made more than one purchase. Indicates customer loyalty and repeat purchase behavior.
 
 **Formula**: COUNT(users) WHERE is_repeated_buyer = true (total_orders > 1)
@@ -678,12 +679,12 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: sign_up_date, gender, age_group, country, product category
 '''
-    definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
   }
   metric running_total_orders {
     label: "Running Total Orders"
     type: "number"
     hidden: false
+    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
     description: '''Cumulative sum of orders over time. Shows growth trajectory and total volume progression.
 
 **Formula**: running_total(total_orders) by year
@@ -697,24 +698,11 @@ When users ask the following common questions, use the specific analytical paths
 
 **Recommended Dimensions**: created_at (year, quarter, month)
 '''
-    definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
 
   metric dynamic_metric {
     label: 'Dynamic Metric (no format)'
     type: 'number'
-    description: '''Parameter-driven metric that switches between different KPIs based on user selection. Values are unformatted.
-
-**Available Options**: total users, total orders, platform revenue, GMV, NMV, AOV
-
-**Example**: Select 'GMV' from parameter → metric displays GMV value.
-
-**Analytical Questions**:
-- How do different metrics compare across the same dimensions?
-- Build flexible dashboards where users choose their KPI
-
-**Recommended Dimensions**: Any dimension; best used with breakdown_dim for dynamic analysis
-'''
     definition: @aql
       case(
         
@@ -738,23 +726,23 @@ When users ask the following common questions, use the specific analytical paths
 
       )
      ;;
+    description: '''Parameter-driven metric that switches between different KPIs based on user selection. Values are unformatted.
+
+**Available Options**: total users, total orders, platform revenue, GMV, NMV, AOV
+
+**Example**: Select 'GMV' from parameter → metric displays GMV value.
+
+**Analytical Questions**:
+- How do different metrics compare across the same dimensions?
+- Build flexible dashboards where users choose their KPI
+
+**Recommended Dimensions**: Any dimension; best used with breakdown_dim for dynamic analysis
+'''
   }
 
   metric dynamic_metric_currency {
     label: 'Dynamic Metric (Currency)'
     type: 'number'
-    description: '''Parameter-driven metric for currency-formatted KPIs. Automatically formats values with $$ symbol.
-
-**Available Options**: platform revenue, GMV, NMV, AOV
-
-**Example**: Select 'AOV' from parameter → metric displays formatted AOV (e.g., $$50).
-
-**Analytical Questions**:
-- Compare monetary metrics across dimensions with proper formatting
-- Build executive dashboards with user-selectable revenue metrics
-
-**Recommended Dimensions**: created_at, country, merchant, product category
-'''
     definition: @aql
       case(
         when: 'platform revenue' in param_model_demo.metric_selections_currency
@@ -772,12 +760,26 @@ When users ask the following common questions, use the specific analytical paths
       )
      ;;
     format: "[\$\$]#,###0"
+    description: '''Parameter-driven metric for currency-formatted KPIs. Automatically formats values with $$ symbol.
+
+**Available Options**: platform revenue, GMV, NMV, AOV
+
+**Example**: Select 'AOV' from parameter → metric displays formatted AOV (e.g., $$50).
+
+**Analytical Questions**:
+- Compare monetary metrics across dimensions with proper formatting
+- Build executive dashboards with user-selectable revenue metrics
+
+**Recommended Dimensions**: created_at, country, merchant, product category
+'''
   }
 
   metric revenue_commission {
     label: "Revenue Commission Rate (Demo from May 2025)"
     type: "number"
     hidden: false
+    definition: @aql 0.5;;
+    format: "#,###%"
     description: '''Platform commission rate applied to NMV to calculate revenue. Currently fixed at 50% for demo purposes.
 
 **Formula**: Constant value = 0.5 (50%)
@@ -790,8 +792,6 @@ When users ask the following common questions, use the specific analytical paths
 
 **Note**: This is a configuration metric. In production, this might vary by merchant tier or product category.
 '''
-    definition: @aql 0.5;;
-    format: "#,###%"
   }
 
 
@@ -838,35 +838,16 @@ When users ask the following common questions, use the specific analytical paths
       metric cancelled_value_ratio
     }
 
-    model ecommerce_products {
-    }
-
-    model ecommerce_merchants {
-    }
-
-    model ecommerce_countries {
-    }
-
-    model ecommerce_orders {
-    }
-
-    model ecommerce_users {
-    }
-
-    model ecommerce_order_items {
-    }
-
-    model ecommerce_cities {
-    }
-
-    model map_categories {
-    }
-
-    model dim_dates {
-    }
-
-    model ecommerce_employees {
-    }
+    model ecommerce_products {}
+    model ecommerce_merchants {}
+    model ecommerce_countries {}
+    model ecommerce_orders {}
+    model ecommerce_users {}
+    model ecommerce_order_items {}
+    model ecommerce_cities {}
+    model map_categories {}
+    model dim_dates {}
+    model ecommerce_employees {}
   }
 
   owner: 'vincent@holistics.io'
