@@ -1317,117 +1317,36 @@ padding-right: 0.50rem;
   block v_0k2vvux: VizBlock {
     label: 'Revenue'
     viz: MetricKpi {
-      dataset: ecommerce_vux
-      value: r(ecommerce_vux.revenue)
+      dataset: complete_dataset_with_metrics
+      theme {
+        table {
+          general {
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+          }
+        }
+      }
+      value: VizFieldFull {
+        ref: r(sales_model.revenue)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
       settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
         alignment: 'center'
         metric_value {
           font_color: '#255DD4'
         }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v_g7tlvux: VizBlock {
-    label: 'Period Label and Now Dim'
-    viz: MarkdownViz {
-      dataset: ecommerce_vux
-      calculation period_label {
-        label: 'Period Label'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
-  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
-  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
-  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('orders', 'period_label')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: r(ecommerce_vux, orders.now_dim)
-          format {
-            type: 'datetime'
-          }
-        }
-      ]
-      content: @md <style>
-  .period-pills {
-    display: flex;
-    gap: 0.75rem;
-    padding: 1rem;
-  }
-
-  .period-pill {
-    padding: 0.5rem 1.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    background: #FFFFFF;
-    border: 1px solid #D1D5DB;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .period-pill:hover {
-    border-color: #3B82F6;
-    color: #2563EB;
-    background: #EFF6FF;
-  }
-
-  .period-pill:active {
-    background: #DBEAFE;
-    border-color: #2563EB;
-    color: #1D4ED8;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  }
-
-  .click-trigger {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    font-size: 200px;
-    letter-spacing: 1000px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .h-drill-selected {
-    color: #1B7CE4;
-  }
-
-  .period-pill:has(.h-drill-selected) {
-    border-color: #1B7CE4;
-    background: #EFF6FF;
-    transform: translateY(0);
-  }
-
-</style>
-
-<div class="period-pills">
-{% map(rows) %}
-  <div class="period-pill">
-    <!-- <span class="click-trigger">{{ `Period Label` }}</span> -->
-    <span>{{ `Period Label` }}</span>
-  </div>
-{% end %}
-</div>     ;;
-      settings {
-        show_row_total: true
-        show_column_total: true
       }
     }
     settings {
@@ -2390,6 +2309,167 @@ padding-right: 0.50rem;
       }
     }
   }
+  block v_86bq: VizBlock {
+    label: 'Period Label and Now Dim copy'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation now_dim {
+        label: 'Now Dim'
+        formula: @aql @(now);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation this_year {
+        label: 'This Year'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_quarter {
+        label: 'This Quarter'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_month {
+        label: 'This Month'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_week {
+        label: 'This Week'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(orders.created_at)
+          format {
+            type: 'datetime'
+          }
+          uname: 'orders_created_at'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'now_dim')
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_year')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_quarter')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_month')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_week')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .period-pills {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .period-pill {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .period-pill:hover {
+    border-color: #3B82F6;
+    color: #2563EB;
+    background: #EFF6FF;
+  }
+
+  .period-pill:active {
+    background: #DBEAFE;
+    border-color: #2563EB;
+    color: #1D4ED8;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+
+  .h-drill-selected {
+    color: #1B7CE4;
+  }
+
+  .period-pill:has(.h-drill-selected) {
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
+  }
+
+</style>
+
+<div class="period-pills">
+  <div class="period-pill"><span>{{ rows.0.`This Year` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Quarter` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Month` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Week` }}</span></div>
+</div>      ;;
+      settings {
+        pagination_size: 500
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'orders_created_at'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -2519,17 +2599,16 @@ padding-right: 0.50rem;
     }
     tab tab_i1pc: CanvasLayout {
       label: 'Test'
-      width: 600
+      width: 640
       height: 260
       grid_size: 20
       auto_expand_vertically: true
       block v_0k2vvux {
-        position: pos(20, 120, 560, 120)
+        position: pos(20, 120, 600, 120)
         layer: 1
       }
-      block v_g7tlvux {
-        position: pos(20, 20, 560, 100)
-        layer: 2
+      block v_86bq {
+        position: pos(20, 20, 600, 100)
       }
       mobile {
         mode: 'auto'
@@ -2552,121 +2631,31 @@ padding-right: 0.50rem;
   theme: H.themes.classic
   interactions: [
     FilterInteraction {
-      from: 'v5'
+      from: 'v_0k2vvux'
       to: [
         CustomMapping {
-          block: 'v_vhzw'
+          block: 'v_6tc8vux'
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'v_p5re'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_fyrn'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_93o6'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_0k2v'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_g7tl'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mdra'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_ggbb'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_l0eq'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vq7e'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_i51a'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vhzw'
+      from: 'v_6tc8vux'
       to: [
         CustomMapping {
           block: [
-            'v5',
-            'v_p5re',
-            'v_fyrn',
-            'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
-            'v_mdra',
-            'v_ggbb',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
+            'v_0k2vvux',
+            'v_86bq'
           ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_86bq'
+      to: [
+        CustomMapping {
+          block: 'v_6tc8vux'
           disabled: true
         }
       ]
