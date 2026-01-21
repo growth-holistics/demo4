@@ -1,5 +1,3 @@
-@tag('1️⃣ Trust/Endorsed')
-
 const orders_detail = [
   r(ecommerce_orders.id),
   r(ecommerce_orders.status),
@@ -25,8 +23,31 @@ const products_detail = [
 @tag('1️⃣ Trust/Endorsed')
 Dataset demo_ecommerce_version_2 {
   label: '[Demo] Ecommerce Official (2025)'
-  description: 'New dataset starting 2025'
+  description: '''
+# Dataset Capabilities
+
+## What this dataset can answer
+- Financials: Waterfall from GMV (Demand) to NMV (Fulfilled Sales) to Revenue (Platform Earnings).
+- Operational Health: Distinctions between pre-delivery failures (cancellations) and post-delivery failures (refunds).
+- Customer Loyalty: Identification of repeat buyers (is_repeated_buyer).
+- Granularity: Performance by Merchant, Product Category, Country, and City.
+
+## What this dataset cannot answer
+- Net Profit: Operational costs (marketing, server costs, salaries) are not in this dataset.
+- Marketing Attribution: Traffic sources (e.g., Google Ads vs. Facebook) are not tracked here.
+- Inventory: There is no stock level or "out of stock" data.
+
+# Persona Guidelines
+- Executives:
+  - Focus on high-level metrics, trends, Revenue, YoY.
+- Sales / Category Manager
+  - Focus on merchant/category rankings.
+- Data Team
+  - Be precise about definitions and grain.
+'''
   data_source_name: 'demodb'
+  owner: 'vincent@holistics.io'
+
   models: [
     ecommerce_products,
     ecommerce_merchants,
@@ -38,25 +59,35 @@ Dataset demo_ecommerce_version_2 {
     map_categories,
     param_model_demo,
     dim_dates,
-    ecommerce_employees
-  // ecommerce_product_images
+    ecommerce_employees,
+    // ecommerce_product_images,
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
     relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+
     relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
     relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_merchants.city_id > ecommerce_cities.id, false), // optional: not all analyses need this
+
     relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
-    // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
     relationship(ecommerce_products.merchant_id > ecommerce_merchants.id, true),
-    relationship(ecommerce_products_map_categories, true),
-    relationship(ecommerce_orders_dim_dates, true),
-    relationship(ecommerce_users.sign_up_date > dim_dates.date_key, false)
-    ,
-    relationship(ecommerce_merchants.city_id > ecommerce_cities.id, false)
-    ,
-    relationship(ecommerce_employees.merchant_id > ecommerce_merchants.id, true)
+    relationship(ecommerce_products.category_id > map_categories.category_id, true),
+
+    relationship(ecommerce_orders.created_date > dim_dates.date_key, true),
+    relationship(ecommerce_users.sign_up_date > dim_dates.date_key, false), // optional: secondary date relationship
+    relationship(ecommerce_employees.merchant_id > ecommerce_merchants.id, true),
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // DISABLED RELATIONSHIPS
+    // ═══════════════════════════════════════════════════════════════════════════
+    // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+
   ]
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PERMISSIONS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   permission vendor_access {
     field: ref('ecommerce_merchants', 'id')
@@ -81,6 +112,10 @@ Dataset demo_ecommerce_version_2 {
   //   operator: 'matches_user_attribute'
   //   value: 'pii_access'
   // }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DIMENSIONS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   dimension cohort_month {
     model: ecommerce_users
@@ -148,7 +183,6 @@ Dataset demo_ecommerce_version_2 {
 
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
-    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
     type: 'text'
     model: ecommerce_orders
     definition: @aql case(
@@ -163,6 +197,7 @@ Dataset demo_ecommerce_version_2 {
 
         , else: ecommerce_countries.name
       ) ;;
+    description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
   }
 
   dimension product_count_within_1_month {
@@ -191,179 +226,202 @@ Dataset demo_ecommerce_version_2 {
     ;;
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS
+  // ═══════════════════════════════════════════════════════════════════════════
+
   metric total_users {
     label: 'Total Users'
     type: 'number'
-    description: "Total number of users"
     definition: @aql count(ecommerce_users.id) ;;
+    description: ''
   }
+
   metric total_orders {
     label: "Total Orders"
     type: "number"
     hidden: false
-    description: "Total number of orders placed across the platform, regardless of status."
     definition: @aql count(ecommerce_orders.id);;
+    description: ''
   }
 
   metric gmv {
     label: "GMV (Gross Merchandise Value)"
     type: "number"
     hidden: false
-    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
     definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
     format: "[\$\$]#,###0"
+    description: 'Gross value of items ordered before discounts; includes all statuses.'
   }
 
   metric total_discount {
     label: "Total Discount"
     type: "number"
     hidden: false
-    description: "Total Discount: Total discount value of all orders."
     definition: @aql gmv - revenue;;
     format: "[\$\$]#,###0"
+    description: '''GMV-to-Revenue gap.
+Note: This is not a pure discount measure; it blends discount effects, cancellations/refunds (via NMV), and commission mechanics. Do not present it as "discount given".
+'''
   }
 
   metric nmv {
     label: "NMV (Net Merchandise Value)"
     type: "number"
     hidden: false
-    description: "* Fulfilled order value after discount. Excludes cancelled/refunded orders. <br>* Represents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied. <br>* This reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
     definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
     format: "[\$\$]#,###0"
+    description: 'Realized fulfilled value after order-level discounts; excludes `cancelled` and `refunded`.'
   }
 
   metric revenue {
     label: "Total Revenue"
     type: "number"
     hidden: false
-    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate. <br> As of May 2025, this demo assumes a 50% commission margin. Formula: `revenue = NMV × revenue_commission`"
     definition: @aql nmv * revenue_commission;;
     format: "[\$\$]#,###0"
+    description: '''Platform revenue from fulfilled orders.
+Note: Not net profit; commission is demo-fixed (see `revenue_commission`).
+'''
   }
 
   metric aov {
     label: "AOV (Average Order Value)"
     type: "number"
-    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
     hidden: false
     definition: @aql gmv / total_orders;;
     format: "[\$\$]#,###0"
+    description: '''Average gross value per order.
+Note: For "fulfilled AOV," you would need NMV per delivered order.
+'''
   }
+
   metric total_orders_across_all {
     label: "Total Orders Across All"
     type: "number"
     hidden: false
-    description: "Total number of orders across all selected dimensions. Used as the denominator for ratio metrics like percent_of_total."
     definition: @aql total_orders | of_all(ecommerce_orders);;
+    description: ''
   }
+
   metric percent_of_total {
     label: "Percent Of Total Orders"
     type: "number"
     hidden: false
-    description: "Percentage of orders contributed by the current slice of data compared to the total orders across all segments."
     definition: @aql total_orders * 1.0 / total_orders_across_all;;
     format: "#,###0.00%"
+    description: ''
   }
+
   metric total_delivered_orders {
     label: "Total Delivered Orders"
     type: "number"
     hidden: false
-    description: "Count of all orders that were successfully delivered."
     definition: @aql total_orders | where(ecommerce_orders.status is 'delivered');;
+    description: 'Count of orders with status `delivered`.'
   }
+
   metric total_refunded_orders {
     label: "Total Refunded Orders"
     type: "number"
     hidden: false
-    description: "Count of all orders that were refunded after fulfillment."
     definition: @aql total_orders | where(ecommerce_orders.status is 'refunded');;
+    description: 'Count of orders with status `refunded`.'
   }
+
   metric total_cancelled_orders {
     label: "Total Cancelled Orders"
     type: "number"
     hidden: false
-    description: "Count of orders that were cancelled before fulfillment."
     definition: @aql total_orders | where(ecommerce_orders.status is 'cancelled');;
+    description: 'Count of orders with status `cancelled`.'
   }
 
   metric cancelled_order_ratio {
     label: "Cancelled Order Ratio"
     type: "number"
     hidden: false
-    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
     definition: @aql total_cancelled_orders / total_orders;;
     format: "#,###0.00%"
+    description: '''Cancellation rate by count.
+Note: Sensitive to how `total_orders` includes all statuses; compare consistently across segments/time.
+'''
   }
 
   metric cancelled_value {
     label: "Cancelled Value"
     type: "number"
     hidden: false
-    description: "Total Value of Cancelled Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
     format: "[\$\$]#,###0"
+    description: 'GMV of cancelled orders.'
   }
 
   metric cancelled_value_ratio {
     label: "Cancelled Value Ratio"
     type: "number"
     hidden: false
-    description: "Percentage of order values that were cancelled - Total value of cancelled orders/Total revenue"
     definition: @aql cancelled_value / gmv;;
     format: "#,###0.00%"
+    description: 'Share of GMV lost to cancellations.'
   }
 
   metric delivered_value {
     label: "Delivered Value"
     type: "number"
     hidden: false
-    description: "Total Value of Delivered Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
     format: "[\$\$]#,###0"
+    description: ''
   }
 
   metric refunded_value {
     label: "Refunded Value"
     type: "number"
     hidden: false
-    description: "Total Value of Refunded Orders"
     definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
     format: "[\$\$]#,###0"
+    description: ''
   }
+
   metric retention {
     label: 'Cohort Retention'
     type: 'number'
     hidden: false
-    description: "Cohort retention rate calculated as the percentage of users in a cohort who placed an order in a given month. *Formula*: current period total_users / cohort\'s total_users."
     definition: @aql (total_users * 1.0) / (total_users | of_all(ecommerce_orders.month_number)) ;;
     format: "#,###0.00%"
+    description: 'Cohort retention rate (users in a cohort active in month N / cohort size).'
   }
+
   metric total_buyers {
     label: "Total Buyers"
     type: "number"
     hidden: false
-    description: "Total number of unique users who made at least one purchase."
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
+    description: 'Count of users with at least one order, where `is_buyer = total_orders_all_time > 0`.'
   }
+
   metric total_repeated_buyers {
     label: "Total Repeated Buyers"
     type: "number"
     hidden: false
-    description: "Total number of users who made more than one purchase."
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
+    description: '''Count of users with 2+ orders (`is_repeated_buyer = total_orders_all_time > 1`).
+Note: this can pair with `total_buyers` or `total_users` for a ratio.
+'''
   }
+
   metric running_total_orders {
     label: "Running Total Orders"
     type: "number"
     hidden: false
-    description: "Cumulative total of orders over time, aggregated by year to show growth trends."
     definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
+    description: 'Cumulative orders over time (running total by year).'
   }
 
   metric dynamic_metric {
     label: 'Dynamic Metric (no format)'
     type: 'number'
-    description: 'This dynamic metric doesnt take the format into considering, theyre all in their raw form'
     definition: @aql
       case(
         
@@ -387,12 +445,12 @@ Dataset demo_ecommerce_version_2 {
 
       )
      ;;
+    description: ''
   }
 
   metric dynamic_metric_currency {
     label: 'Dynamic Metric (Currency)'
     type: 'number'
-    description: 'Only contains list of metrics with currency (Revenue, GMV, NMV, AOV)'
     definition: @aql
       case(
         when: 'platform revenue' in param_model_demo.metric_selections_currency
@@ -410,22 +468,21 @@ Dataset demo_ecommerce_version_2 {
       )
      ;;
     format: "[\$\$]#,###0"
+    description: ''
   }
 
   metric revenue_commission {
     label: "Revenue Commission Rate (Demo from May 2025)"
     type: "number"
     hidden: false
-    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
     definition: @aql 0.5;;
     format: "#,###%"
+    description: 'Fixed demo commission rate.'
   }
-  metric ssss {
-    label: "Ssss"
-    type: "number"
-    description: ""
-    definition: @aql count(ecommerce_users.id);;
-  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CUSTOM VIEWS
+  // ═══════════════════════════════════════════════════════════════════════════
 
   view {
     // Core Volume Metrics
@@ -470,38 +527,21 @@ Dataset demo_ecommerce_version_2 {
       metric cancelled_value_ratio
     }
 
-    model ecommerce_products {
-    }
-
-    model ecommerce_merchants {
-    }
-
-    model ecommerce_countries {
-    }
-
-    model ecommerce_orders {
-    }
-
-    model ecommerce_users {
-    }
-
-    model ecommerce_order_items {
-    }
-
-    model ecommerce_cities {
-    }
-
-    model map_categories {
-    }
-
-    model dim_dates {
-    }
-
-    model ecommerce_employees {
-    }
+    model ecommerce_products {}
+    model ecommerce_merchants {}
+    model ecommerce_countries {}
+    model ecommerce_orders {}
+    model ecommerce_users {}
+    model ecommerce_order_items {}
+    model ecommerce_cities {}
+    model map_categories {}
+    model dim_dates {}
+    model ecommerce_employees {}
   }
 
-  owner: 'vincent@holistics.io'
+  // ═══════════════════════════════════════════════════════════════════════════
+  // CONTEXT
+  // ═══════════════════════════════════════════════════════════════════════════
 
   context {
     analysis {
