@@ -1,7 +1,6 @@
 @tag('2️⃣ Status/Archived')
 Dashboard demo_ecommerce_overview_pro {
   title: 'Ecommerce Dashboard - Pro'
-
   block hd1: TextBlock {
     content: @md 
     <img style="margin-bottom:0 !important;overflow:hidden;" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" alt="demo" width="255">;;
@@ -29,7 +28,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '12 months ago till now'
       }
       theme {
-
       }
       date_field: VizFieldFull {
         ref: ref('dim_dates', 'date_key')
@@ -139,7 +137,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '2023'
       }
       theme {
-
       }
       value: VizFieldFull {
         ref: 'gmv'
@@ -175,7 +172,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '2023'
       }
       theme {
-
       }
       legend: VizFieldFull {
         ref: ref('map_categories', 'parent_category')
@@ -287,7 +283,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     viz: RetentionHeatmap {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       cohort: VizFieldFull {
         ref: ref('ecommerce_users', 'cohort_month')
@@ -324,7 +319,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     viz: CombinationChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: ref('ecommerce_users', 'sign_up_date')
@@ -388,7 +382,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         data_type: 'number'
       }
       theme {
-
       }
       value: VizFieldFull {
         ref: ref('ecommerce_users', 'total_users')
@@ -429,7 +422,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '12 months ago till now'
       }
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: ref('ecommerce_orders', 'created_at')
@@ -544,7 +536,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     viz: BarChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       legend: VizFieldFull {
         ref: ref('ecommerce_countries', 'name')
@@ -653,7 +644,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '2023'
       }
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: ref('ecommerce_orders', 'created_at')
@@ -757,7 +747,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
 <p class="footer">Email: <a class="footer" href="mailto:support@holistics.io">support@holistics.io </a><br></p>
 <p class="footer">Website: <a class="footer" href="https://www.holistics.io/">www.holistics.io</a> </p>;;
   }
-  // block t46: background_gray()
   block t47: TextBlock {
     content: @md   <div style="height:100%;overflow:hidden;">
   <a href="#heading" class="border-radius:4px;overflow:hidden;">
@@ -860,7 +849,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
         value: '3. From 40 to 49'
       }
       theme {
-
       }
       rows: [
         VizFieldFull {
@@ -937,6 +925,53 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
   block t57: TextBlock {
     content: @md ![Logo](https://cdn.holistics.io/logos/holistics-logo-white.svg)
 ;;
+  }
+  block v_s57h: VizBlock {
+    label: 'Count of Id and Count of Id (Prev. 1y) by Month Created At'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: false
+        pop {
+          field: r(ecommerce_orders.created_at)
+          value: RelativePopValue {
+            duration: 1
+            granularity: 'year'
+          }
+          show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
   }
   view: CanvasLayout {
     label: 'View 1'
@@ -1076,6 +1111,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
       position: pos(20, 3740, 500, 100)
       layer: 1
     }
+    block v_s57h {
+      position: pos(20, 3920, 620, 420)
+      layer: 3
+    }
     mobile {
       mode: 'auto'
     }
@@ -1084,4 +1123,5 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     timezone: 'America/Los_Angeles'
     cache_duration: 10
   }
+  interactions: []
 }
