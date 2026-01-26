@@ -931,7 +931,6 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     viz: LineChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_orders.created_at)
@@ -966,6 +965,66 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
           }
           show_growth_rate: true
         }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_jv22: VizBlock {
+    label: 'Month Date Key, Total Revenue and 2 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_33c2122 {
+        label: 'PoP Comparison of Total Revenue'
+        formula: @aql revenue | relative_period(dim_dates.date_key, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_26bc137 {
+        label: 'Running total of Total Revenue'
+        formula: @aql revenue | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(dim_dates.date_key)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_33c2122'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_26bc137'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -1114,6 +1173,10 @@ This dashboard tracks the KPIs of all managers for their respective teams. This 
     block v_s57h {
       position: pos(20, 3920, 620, 420)
       layer: 3
+    }
+    block v_jv22 {
+      position: pos(660, 3920, 620, 420)
+      layer: 4
     }
     mobile {
       mode: 'auto'
