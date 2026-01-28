@@ -2612,11 +2612,288 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
+  block t_dkj6: TextBlock {
+    content: @md ## Simple metrics tree;;
+  }
+  block v_ltlh: VizBlock {
+    label: 'Metric Tree test 1'
+    viz: MarkdownViz {
+      dataset: metrics_tree
+      rows: [
+        VizFieldFull {
+          ref: r(metrics_tree_csv.month)
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'North Star'
+          ref: r(metrics_tree_csv.north_star)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Revenue'
+          ref: r(metrics_tree_csv.revenue)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Cost'
+          ref: r(metrics_tree_csv.cost)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Aov'
+          ref: r(metrics_tree_csv.aov)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Buyers'
+          ref: r(metrics_tree_csv.buyers)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Cogs'
+          ref: r(metrics_tree_csv.cogs)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Shipping'
+          ref: r(metrics_tree_csv.shipping)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Conversion Rate'
+          ref: r(metrics_tree_csv.conversion_rate)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###\\%'
+          }
+        },
+        VizFieldFull {
+          label: 'Sessions'
+          ref: r(metrics_tree_csv.sessions)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      content: @md <style>
+  .metric-tree-v1 {
+  /* Tree width cap to avoid node stretching */
+    width: 1350px;
+    --tree-pd-left: 160px;
+    --tree-pd-right: 10px;
+    margin: 0 auto;
+
+  /* Responsive sizing */
+    --node-w: clamp(100px, 12vw, 150px);
+    --gap: clamp(6px, 2vw, 12px);
+
+  /* Derived layout */
+  --double-w: calc(var(--node-w) * 2 + var(--gap));
+
+  /* Connectors */
+    --line-color: grey;
+    --line-w: 3px;
+    --line-r: 10px;
+    --line-h: clamp(34px, 4vw, 44px);
+    --node-border-w:3px;
+    padding:10px var(--tree-pd-right) 10px var(--tree-pd-left);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    box-sizing: border-box;
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  }
+/* Levels */
+  .metric-tree-v1 .level{
+    display:grid;
+    gap:var(--gap);
+    justify-content:center;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .metric-tree-v1 .level-1{
+    grid-template-columns:var(--double-w);
+  }
+  .metric-tree-v1 .level-2{
+    grid-template-columns:repeat(3,var(--double-w));}
+  .metric-tree-v1 .level-3{
+    grid-template-columns:repeat(4,var(--double-w));}
+  .metric-tree-v1 .level-4{
+    grid-template-columns:repeat(5,var(--double-w));}
+
+/* Connector rows */
+  .metric-tree-v1 .lines{
+    display:grid;
+    justify-content:center;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .metric-tree-v1 .lines-1{
+    grid-template-columns:calc(var(--double-w)*2);}
+  .metric-tree-v1 .lines-2{
+    grid-template-columns:repeat(3,var(--double-w));}
+  .metric-tree-v1 .lines-3{
+    grid-template-columns:repeat(4,var(--double-w));}
+  .metric-tree-v1 .line{
+    height:var(--line-h);
+    position:relative;
+  }
+  .metric-tree-v1 .line:before{
+    content:"";
+    width:var(--line-w);
+    height:50%;
+    background:var(--line-color);
+    position:absolute;
+    left:calc(50% - var(--line-w)/2);
+    top:0;
+  }
+  .metric-tree-v1 .line:after{
+    content:"";
+    position:absolute;
+    left:calc(var(--line-w)*-1);
+    bottom:0;
+    width:calc(100% + var(--line-w));
+    height:50%;
+    border-style:solid;
+    border-color:var(--line-color);
+    border-width:var(--line-w) var(--line-w) 0 var(--line-w);
+    border-radius:var(--line-r) var(--line-r) 0 0;box-sizing:border-box;
+  }
+/* KPI card */
+  .metric-tree-v1 .node{
+    width:var(--node-w);
+    margin:0 auto;
+    padding:12px 12px 10px;
+    border:var(--node-border-w) solid grey;
+    border-radius:14px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);
+    display:flex;
+    flex-direction:column;
+    gap:px;
+  }
+  .metric-tree-v1 .label{
+    font-size: 15px;
+    opacity: .75;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    line-height: 1.2;
+    color: black;
+  }
+  .metric-tree-v1 .value{
+    font-size:17px;
+    font-weight:700;
+    text-align:center;
+    margin:0 !important;
+    line-height:1.1;
+  }
+  .metric-tree-v1 .metric-subtext{
+    font-size:10px;
+    opacity:.65;
+    text-align:center;
+    margin:0 !important;
+    line-height:1.2;
+  }
+  .metric-tree-v1 .empty{
+    width:var(--node-w);}
+/* Optional accents */
+  .metric-tree-v1 .pos{
+    border-color:rgba(16,185,129,.35);}
+  .metric-tree-v1 .neg{
+    border-color:rgba(239,68,68,.35);}
+</style>
+
+<div class="metric-tree-v1">
+<div class="level level-1">
+<article class="node"><p class="label">North Star</p><p class="value">{{ col_totals.`North Star`.formatted }}</p><p class="metric-subtext">Primary outcome</p></article>
+</div>
+
+<div class="lines lines-1"><div class="line"></div></div>
+
+<div class="level level-2">
+<article class="node pos"><p class="label">Revenue</p><p class="value">{{ col_totals.`Revenue` }}</p><p class="metric-subtext">Money from customers</p></article>
+<div class="empty"></div>
+<article class="node neg"><p class="label">Cost</p><p class="value">{{ col_totals.`Cost` }}</p><p class="metric-subtext">Money paid out</p></article>
+</div>
+
+<div class="lines lines-2">
+<div class="line"></div><div class="empty"></div><div class="line"></div>
+</div>
+
+<div class="level level-3">
+<article class="node pos"><p class="label">Buyers</p><p class="value">{{ col_totals.`Buyers` }}</p><p class="metric-subtext">People who purchased</p></article>
+<article class="node pos"><p class="label">AOV</p><p class="value">{{ col_totals.`Aov` }}</p><p class="metric-subtext">Avg order value</p></article>
+<article class="node neg"><p class="label">COGS</p><p class="value">{{ col_totals.`Cogs` }}</p><p class="metric-subtext">Cost to make</p></article>
+<article class="node neg"><p class="label">Shipping</p><p class="value">{{ col_totals.`Shipping` }}</p><p class="metric-subtext">Cost to deliver</p></article>
+</div>
+
+<div class="lines lines-3"><div class="line"></div></div>
+
+<div class="level level-4">
+<article class="node pos"><p class="label">Sessions</p><p class="value">{{ col_totals.`Sessions` }}</p><p class="metric-subtext">Traffic</p></article>
+<article class="node pos"><p class="label">Conversion Rate</p><p class="value">{{ col_totals.`Conversion Rate` }}</p><p class="metric-subtext">Sessions → buyers</p></article>
+</div>
+</div>    ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_3swd: TextBlock {
+    content: @md ## Metrics tree with sparklines;;
+  }
+  block t_frki: TextBlock {
+    content: @md ### *(WIP)*;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: '🥱 Boring and Static'
       width: 1040
+      height: 840
       grid_size: 20
       block v4 {
         position: pos(400, 20, 620, 360)
@@ -2637,7 +2914,6 @@ padding-right: 0.50rem;
       mobile {
         mode: 'auto'
       }
-      height: 840
     }
     tab tab_sf0p: CanvasLayout {
       label: '🔥 Dynamic Summary'
@@ -2677,14 +2953,6 @@ padding-right: 0.50rem;
       height: 1220
       grid_size: 20
       auto_expand_vertically: true
-      block v_93o5 {
-        position: pos(20, 20, 1020, 1140)
-        layer: 5
-      }
-      block v_lhqm {
-        position: pos(20, 20, 1020, 1140)
-        layer: 5
-      }
       block v_6tc8 {
         position: pos(20, 20, 1100, 1180)
       }
@@ -2739,6 +3007,28 @@ padding-right: 0.50rem;
         mode: 'auto'
       }
     }
+    tab tab_0eq5: CanvasLayout {
+      label: '⚒️ Metrics Tree'
+      width: 1420
+      height: 940
+      grid_size: 20
+      auto_expand_vertically: true
+      block t_dkj6 {
+        position: pos(20, 20, 1380, 60)
+      }
+      block v_ltlh {
+        position: pos(20, 80, 1380, 640)
+      }
+      block t_3swd {
+        position: pos(20, 740, 1380, 60)
+      }
+      block t_frki {
+        position: pos(20, 800, 1380, 120)
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
     tab tab_i1pc: CanvasLayout {
       label: '⚒️ Time Grain Control (WIP)'
       width: 640
@@ -2766,11 +3056,11 @@ padding-right: 0.50rem;
       height: 1340
       grid_size: 20
       auto_expand_vertically: true
-      mobile {
-        mode: 'auto'
-      }
       block v_vhzw {
         position: pos(20, 20, 1100, 1040)
+      }
+      mobile {
+        mode: 'auto'
       }
     }
   }
