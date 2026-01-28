@@ -2888,6 +2888,350 @@ padding-right: 0.50rem;
   block t_frki: TextBlock {
     content: @md ### *(WIP)*;;
   }
+  block v_9x48: VizBlock {
+    label: 'Revenue by Day Created At'
+    viz: PivotTable {
+      dataset: complete_dataset_with_metrics
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xb5w: VizBlock {
+    label: 'Heatmap'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation day_of_week {
+        label: 'Day Of Week'
+        formula: @aql date_part('dow', orders.created_at) + 1;;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation week_index {
+        label: 'Week Index'
+        formula: @aql date_part('week', orders.created_at);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation revenue_percentage {
+        label: 'Revenue Percentage'
+        formula: @aql (sales_model.revenue * 1.0)
+/
+(sales_model.revenue | of_all(orders.created_at));;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql case(
+  when: sales_model.revenue == 0, then: 0,
+  when: sales_model.revenue_percentage < 0.2, then: 1,
+  when: sales_model.revenue_percentage < 0.4, then: 2,
+  when: sales_model.revenue_percentage < 0.6, then: 3,
+  when: sales_model.revenue_percentage < 0.8, then: 4,
+  else: 5
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Date'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'day_of_week')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'week_index')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Month Label'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'revenue_percentage')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'color_bucket')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  /* Scoped styles to avoid collisions */
+  .dcb-cal-heatmap {
+    --cell: 12px;
+    --gap: 3px;
+    --label-w: 34px;
+    --month-h: 18px;
+
+    /* Bucket colors (tweak to match Holistics theme if desired) */
+    --empty: rgba(0,0,0,0.06);
+    --lt20: #c1e598;
+    --lt40: #94d284;
+    --lt60: #62bb6e;
+    --lt80: #399d55;
+    --lt100: #1a7d41;
+
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+      "Segoe UI Emoji";
+    color: #111827;
+  }
+
+  .dcb-cal-heatmap__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 10px 0;
+  }
+
+  .dcb-cal-heatmap__title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .dcb-cal-heatmap__subtitle {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .dcb-cal-heatmap__wrap {
+    display: grid;
+    grid-template-columns: var(--label-w) 1fr;
+    gap: 8px;
+    align-items: start;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  /* Left weekday labels */
+  .dcb-cal-heatmap__ylabels {
+    display: grid;
+    grid-template-rows: var(--month-h) repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+    user-select: none;
+  }
+
+  .dcb-cal-heatmap__ylabels .spacer {
+    height: var(--month-h);
+  }
+
+  .dcb-cal-heatmap__ylabels .ylabel {
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1;
+  }
+
+  /* Main grid */
+  .dcb-cal-heatmap__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(53, var(--cell)); /* supports most years/ranges */
+    grid-template-rows: var(--month-h) repeat(7, var(--cell));
+    column-gap: var(--gap);
+    row-gap: var(--gap);
+    width: max-content;
+  }
+
+  /* Month labels row: absolute-ish via grid placement */
+  .dcb-cal-heatmap__month {
+    grid-row: 1;
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1;
+    align-self: center;
+    transform: translateY(-1px);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Day cells */
+  .dcb-cal-heatmap__cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: var(--empty);
+    cursor: default;
+  }
+
+  .dcb-cal-heatmap__cell.bucket-empty { background: var(--empty); }
+  .dcb-cal-heatmap__cell.bucket-lt20  { background: var(--lt20); }
+  .dcb-cal-heatmap__cell.bucket-lt40  { background: var(--lt40); }
+  .dcb-cal-heatmap__cell.bucket-lt60  { background: var(--lt60); }
+  .dcb-cal-heatmap__cell.bucket-lt80  { background: var(--lt80); }
+  .dcb-cal-heatmap__cell.bucket-lt100 { background: var(--lt100); }
+
+  .dcb-cal-heatmap__cell:hover {
+    outline: 1px solid rgba(17, 24, 39, 0.25);
+    outline-offset: 1px;
+  }
+
+  /* Legend */
+  .dcb-cal-heatmap__legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .dcb-cal-heatmap__legend-swatches {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .dcb-cal-heatmap__swatch {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+  }
+
+  .dcb-cal-heatmap__swatch.empty { background: var(--empty); }
+  .dcb-cal-heatmap__swatch.lt20  { background: var(--lt20); }
+  .dcb-cal-heatmap__swatch.lt40  { background: var(--lt40); }
+  .dcb-cal-heatmap__swatch.lt60  { background: var(--lt60); }
+  .dcb-cal-heatmap__swatch.lt80  { background: var(--lt80); }
+  .dcb-cal-heatmap__swatch.lt100 { background: var(--lt100); }
+</style>
+
+<div class="dcb-cal-heatmap">
+
+  <div class="dcb-cal-heatmap__wrap">
+    <div class="dcb-cal-heatmap__ylabels">
+    <div class="spacer"></div>
+    <div class="ylabel">Mon</div>
+    <div class="ylabel">Tue</div>
+    <div class="ylabel">Wed</div>
+    <div class="ylabel">Thu</div>
+    <div class="ylabel">Fri</div>
+    <div class="ylabel">Sat</div>
+    <div class="ylabel">Sun</div>
+  </div>
+
+  <div class="dcb-cal-heatmap__grid">
+      <!-- Month labels: render only on first-of-month rows via Month Label Display -->
+    {% map(rows) %}
+      <div
+      class="dcb-cal-heatmap__month"
+      style="grid-column: {{ `Week Index`.raw }}; display: {{ `Month Label`.raw }};"
+      title="{{ `Month Label`.raw }}">
+      {{ `Month Label`.formatted }}
+      </div>
+    {% end %}
+ 
+      <!-- Day cells -->
+      {% map(rows) %}
+      <div class="dcb-cal-heatmap__cell bucket-{{ `Color Bucket`.raw }}"
+      style="grid-column: {{ `Week Index`.raw }}; grid-row: calc({{ `Day Of Week`.raw }} + 1);"
+      title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}&#10;Ratio: {{ `Revenue Ratio`.formatted }}">
+      </div>
+      {% end %}
+  </div>
+
+  <div class="dcb-cal-heatmap__legend">
+    <span>Less</span>
+    <span class="dcb-cal-heatmap__legend-swatches">
+      <span class="dcb-cal-heatmap__swatch empty"></span>
+      <span class="dcb-cal-heatmap__swatch lt20"></span>
+      <span class="dcb-cal-heatmap__swatch lt40"></span>
+      <span class="dcb-cal-heatmap__swatch lt60"></span>
+      <span class="dcb-cal-heatmap__swatch lt80"></span>
+      <span class="dcb-cal-heatmap__swatch lt100"></span>
+    </span>
+    <span>More</span>
+  </div>
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -3063,6 +3407,22 @@ padding-right: 0.50rem;
         mode: 'auto'
       }
     }
+    tab tab_0jhn: CanvasLayout {
+      label: 'Calendar Heatmap'
+      width: 1300
+      height: 980
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_9x48 {
+        position: pos(20, 20, 360, 720)
+      }
+      block v_xb5w {
+        position: pos(400, 20, 880, 720)
+      }
+    }
   }
   theme: H.themes.classic
   interactions: [
@@ -3098,6 +3458,30 @@ padding-right: 0.50rem;
       to: [
         CustomMapping {
           block: 'v_vhzw'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0k2v'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_g7tl'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w'
+          ]
           disabled: true
         }
       ]
@@ -3161,6 +3545,58 @@ padding-right: 0.50rem;
             'v_l0eq',
             'v_vq7e',
             'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_6tc8'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ny61'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9x48'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xb5w'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
           ]
           disabled: true
         }
