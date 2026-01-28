@@ -1317,9 +1317,32 @@ padding-right: 0.50rem;
   block v_0k2v: VizBlock {
     label: 'Revenue'
     viz: MetricKpi {
-      dataset: ecommerce_vux
-      value: r(ecommerce_vux.revenue)
+      dataset: complete_dataset_with_metrics
+      theme {
+        table {
+          general {
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+          }
+        }
+      }
+      value: VizFieldFull {
+        ref: r(sales_model.revenue)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
       settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
         alignment: 'center'
         metric_value {
           font_color: '#255DD4'
@@ -1330,17 +1353,52 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
+
   block v_g7tl: VizBlock {
     label: 'Period Label and Now Dim'
     viz: MarkdownViz {
-      dataset: ecommerce_vux
-      calculation period_label {
-        label: 'Period Label'
+      dataset: complete_dataset_with_metrics
+      calculation now_dim {
+        label: 'Now Dim'
+        formula: @aql @(now);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation this_year {
+        label: 'This Year'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_quarter {
+        label: 'This Quarter'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_month {
+        label: 'This Month'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_week {
+        label: 'This Week'
         formula: @aql case(
   when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
-  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
-  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
-  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
   else: 'Older'
 );;
         calc_type: 'dimension'
@@ -1349,15 +1407,40 @@ padding-right: 0.50rem;
       }
       rows: [
         VizFieldFull {
-          ref: ref('orders', 'period_label')
+          ref: ref('orders', 'this_year')
           format {
             type: 'text'
           }
+          uname: 'orders_this_year'
         },
         VizFieldFull {
-          ref: r(ecommerce_vux, orders.now_dim)
+          ref: ref('orders', 'this_quarter')
           format {
-            type: 'datetime'
+            type: 'text'
+          }
+          uname: 'orders_this_quarter'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_month')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_month'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_week')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_week'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
@@ -1383,33 +1466,18 @@ padding-right: 0.50rem;
 
   .period-pill:hover {
     border-color: #3B82F6;
-    color: #2563EB;
-    background: #EFF6FF;
+    background: #F8FAFC;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
   }
 
   .period-pill:active {
-    background: #DBEAFE;
-    border-color: #2563EB;
-    color: #1D4ED8;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
   }
 
-  .click-trigger {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    font-size: 200px;
-    letter-spacing: 1000px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .h-drill-selected {
-    color: #1B7CE4;
-  }
-
-  .period-pill:has(.h-drill-selected) {
+  .h-drill-selected.period-pill {
     border-color: #1B7CE4;
     background: #EFF6FF;
     transform: translateY(0);
@@ -1418,16 +1486,37 @@ padding-right: 0.50rem;
 </style>
 
 <div class="period-pills">
-{% map(rows) %}
-  <div class="period-pill">
-    <!-- <span class="click-trigger">{{ `Period Label` }}</span> -->
-    <span>{{ `Period Label` }}</span>
-  </div>
-{% end %}
-</div>     ;;
+  <div class="period-pill"><span>{{ rows.0.`This Year` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Quarter` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Month` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Week` }}</span></div>
+</div>          ;;
       settings {
+        pagination_size: 500
         show_row_total: true
         show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'orders_this_year'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_quarter'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_month'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_week'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
     settings {
@@ -2401,6 +2490,128 @@ padding-right: 0.50rem;
       }
     }
   }
+  block v_ny61: VizBlock {
+    label: 'Period Label and Now Dim copy'
+    viz: PivotTable {
+      dataset: complete_dataset_with_metrics
+      calculation now_dim {
+        label: 'Now Dim'
+        formula: @aql @(now);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation this_year {
+        label: 'This Year'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_quarter {
+        label: 'This Quarter'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_month {
+        label: 'This Month'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_week {
+        label: 'This Week'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('orders', 'this_year')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_year'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_quarter')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_quarter'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_month')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_month'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_week')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_week'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 500
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'orders_this_year'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_quarter'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_month'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_week'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -2529,18 +2740,21 @@ padding-right: 0.50rem;
       }
     }
     tab tab_i1pc: CanvasLayout {
-      label: 'Test'
-      width: 600
-      height: 260
+      label: '⚒️ Time Grain Control (WIP)'
+      width: 640
+      height: 580
       grid_size: 20
       auto_expand_vertically: true
       block v_0k2v {
-        position: pos(20, 120, 560, 120)
+        position: pos(20, 120, 600, 120)
         layer: 1
       }
       block v_g7tl {
-        position: pos(20, 20, 560, 100)
+        position: pos(20, 20, 600, 100)
         layer: 2
+      }
+      block v_ny61 {
+        position: pos(20, 360, 600, 200)
       }
       mobile {
         mode: 'auto'
@@ -2591,24 +2805,6 @@ padding-right: 0.50rem;
     },
     FilterInteraction {
       from: 'v_93o6'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_0k2v'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_g7tl'
       to: [
         CustomMapping {
           block: 'v_vhzw'
@@ -2670,8 +2866,6 @@ padding-right: 0.50rem;
             'v_p5re',
             'v_fyrn',
             'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
             'v_mdra',
             'v_ggbb',
             'v_l0eq',
