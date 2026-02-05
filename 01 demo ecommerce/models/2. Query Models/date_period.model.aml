@@ -1,0 +1,34 @@
+Model date_period {
+  type: 'query'
+  label: 'Test'
+  description: ''
+  data_source_name: 'demodb'
+  dimension period {
+    label: 'Period'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.period }};;
+  }
+
+  dimension id {
+    label: 'ID'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+
+  owner: 'thong.do@holistics.io'
+  query: @sql
+      SELECT CAST('Week' AS Text) AS period, CAST(1 AS int) AS id
+    UNION ALL
+    SELECT CAST('MTD' AS Text), CAST(2 AS int)
+    UNION ALL
+    SELECT CAST('LY' AS Text), CAST(3 AS int)
+    UNION ALL
+    SELECT CAST('YTD' AS Text), CAST(4 AS int)
+    UNION ALL
+    SELECT CAST('LY' AS Text), CAST(5 AS int)
+;;
+  models: [
+  ]
+}
