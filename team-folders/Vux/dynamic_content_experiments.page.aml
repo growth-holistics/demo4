@@ -3111,8 +3111,7 @@ padding-right: 0.50rem;
       calculation month_label_display {
         label: 'Month Label Display'
         formula: @aql case(
-  when: orders.week_index == window_min(orders.week_index, partition: orders.month_start) and orders.day_of_week == 1,
-  then: 'block',
+  when: date_part('day', orders.created_at) == 1, then: 'block',
   else: 'none'
 );;
         calc_type: 'dimension'
@@ -3228,7 +3227,7 @@ padding-right: 0.50rem;
   }
 
   .hm__ylabels .spacer { height: 18px; }
-  .hm__ylabels .ylabel { font-size: 12px; color: #6b7280; line-height: 1; }
+  .hm__ylabels .ylabel { font-size: 12px; color: var(--label-color); line-height: 1; }
 
   /* Month labels row */
   .hm__months {
@@ -3241,9 +3240,11 @@ padding-right: 0.50rem;
   }
 
   .hm__month {
-    font-size: 10px;
+    font-size: 16px;
+    font-weight: bold;
     color: var(--label-color);
     line-height: 1;
+    padding-bottom: 10px;
     white-space: nowrap;
     user-select: none;
     pointer-events: none;
