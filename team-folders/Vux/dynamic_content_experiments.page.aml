@@ -3075,30 +3075,6 @@ padding-right: 0.50rem;
         data_type: 'number'
         model: orders
       }
-      calculation revenue_percentage_over_max {
-        label: 'Revenue Percentage Over Max'
-        formula: @aql (sales_model.revenue * 1.0) / window_max(sales_model.revenue);;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: sales_model
-      }
-      calculation color_bucket {
-        label: 'Color Bucket'
-        formula: @aql cast (
-  case(
-    when: sales_model.revenue == 0, then: 0,
-    when: sales_model.revenue_percentage_over_max < 0.2, then: 1,
-    when: sales_model.revenue_percentage_over_max < 0.4, then: 2,
-    when: sales_model.revenue_percentage_over_max < 0.6, then: 3,
-    when: sales_model.revenue_percentage_over_max < 0.8, then: 4,
-    else: 5
-  ),
-  'int'
-);;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: sales_model
-      }
       calculation month_start {
         label: 'Month Start'
         formula: @aql month(orders.created_at);;
@@ -3115,6 +3091,27 @@ padding-right: 0.50rem;
         calc_type: 'dimension'
         data_type: 'text'
         model: orders
+      }
+      calculation revenue_percentage_over_max {
+        label: 'Revenue Percentage Over Max'
+        formula: @aql (sales_model.revenue * 1.0) 
+/
+window_max(sales_model.revenue);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql case(
+  when: sales_model.revenue == 0, then: 0,
+  when: revenue_percentage_over_max < 0.2, then: 1,
+  when: revenue_percentage_over_max < 0.4, then: 2,
+  when: revenue_percentage_over_max < 0.6, then: 3,
+  when: revenue_percentage_over_max < 0.8, then: 4,
+  else: 5
+);;
+        calc_type: 'measure'
+        data_type: 'number'
       }
       filter {
         field: r(orders.created_at)
@@ -3155,20 +3152,6 @@ padding-right: 0.50rem;
           }
         },
         VizFieldFull {
-          ref: ref('sales_model', 'revenue_percentage_over_max')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('sales_model', 'color_bucket')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
           ref: ref('orders', 'month_label_display')
           format {
             type: 'text'
@@ -3176,6 +3159,20 @@ padding-right: 0.50rem;
         }
       ]
       values: [
+        VizFieldFull {
+          ref: 'color_bucket'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'revenue_percentage_over_max'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
         VizFieldFull {
           ref: r(sales_model.revenue)
           format {
@@ -3326,7 +3323,7 @@ padding-right: 0.50rem;
   <div class="hm__grid">
   {% map(rows) %}
   <div
-    class="hm__cell lvl-{{ `Color Bucket`.formatted }}"
+    class="hm__cell lvl-{{ values.`Color Bucket`.formatted }}"
     style="grid-column: {{ `Week Index`.formatted }}; grid-row: {{ `Day Of Week`.formatted }};"
     title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}"
   ></div>
@@ -3348,7 +3345,7 @@ padding-right: 0.50rem;
   <span>More</span>
 </div>
 
-</div> ;;
+</div>  ;;
       settings {
         show_row_total: true
         show_column_total: true
