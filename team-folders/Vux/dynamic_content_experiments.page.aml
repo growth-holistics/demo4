@@ -3163,19 +3163,167 @@ padding-right: 0.50rem;
           }
         }
       ]
-      content: @md <div>Rows: {{ rows[0].`Date`.formatted }}</div>
+      content: @md <style>
+  .hm {
+    --cell: 24px;
+    --gap: 6px;
+    --label-w: 45px;
 
-<ul>
-{% map(rows) %}
-  <li>
-    Date={{ `Date`.formatted }},
-    W={{ `Week Index`.raw}},
-    D={{ `Day Of Week`.raw }},
-    Bucket={{ `Color Bucket`.raw }},
-    Revenue={{ values.`Revenue` }}
-  </li>
-{% end %}
-</ul> ;;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    color: #111827;
+  }
+
+  .hm__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 0 10px 0;
+  }
+
+  .hm__title { font-size: 20px; font-weight: 700; margin: 0; }
+  .hm__subtitle { font-size: 12px; color: #6b7280; margin: 0; white-space: nowrap; }
+
+  .hm__wrap {
+    display: grid;
+    grid-template-columns: var(--label-w) 1fr;
+    gap: 8px;
+    align-items: start;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .hm__ylabels {
+    display: grid;
+    grid-template-rows: 18px repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+    user-select: none;
+  }
+
+  .hm__ylabels .spacer { height: 18px; }
+  .hm__ylabels .ylabel { font-size: 10px; color: #6b7280; line-height: 1; }
+
+  /* Month labels row */
+  .hm__months {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    column-gap: var(--gap);
+    height: 18px;
+    align-items: end;
+    width: max-content;
+  }
+
+  .hm__month {
+    font-size: 10px;
+    color: #6b7280;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Heatmap grid */
+  .hm__grid {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    grid-template-rows: repeat(7, var(--cell));
+    column-gap: var(--gap);
+    row-gap: var(--gap);
+    width: max-content;
+  }
+
+  .hm__cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: rgba(0,0,0,0.06);
+    outline: 1px solid rgba(0,0,0,0.05); /* makes empties visible */
+  }
+
+  .hm__cell.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__cell.lvl-1 { background: #e5f4e9; }
+  .hm__cell.lvl-2 { background: #bfe6c9; }
+  .hm__cell.lvl-3 { background: #86cf9a; }
+  .hm__cell.lvl-4 { background: #39a96b; }
+  .hm__cell.lvl-5 { background: #1f7f4d; }
+
+  .hm__legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .hm__legend-swatches { display: inline-flex; align-items: center; gap: 3px; }
+  .hm__swatch { width: var(--cell); height: var(--cell); border-radius: 2px; outline: 1px solid rgba(0,0,0,0.05); }
+  .hm__swatch.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__swatch.lvl-1 { background: #e5f4e9; }
+  .hm__swatch.lvl-2 { background: #bfe6c9; }
+  .hm__swatch.lvl-3 { background: #86cf9a; }
+  .hm__swatch.lvl-4 { background: #39a96b; }
+  .hm__swatch.lvl-5 { background: #1f7f4d; }
+</style>
+
+<div class="hm">
+  <div class="hm__header">
+  <span class="hm__title">Revenue Calendar Heatmap</span>
+  <span class="hm__subtitle">Each cell is a day; darker = higher revenue</span>
+  </div>
+
+<div class="hm__wrap">
+  <div class="hm__ylabels">
+    <div class="spacer"></div>
+    <div class="ylabel">Mon</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Wed</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Fri</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Sun</div>
+  </div>
+
+  <div>
+  <!-- Month labels -->
+  <div class="hm__months">
+  {% map(rows) %}
+  <div 
+  class="hm__month" 
+  style="grid-column: {{ `Week Index`.formatted }};">
+  {{ `Month Label` }}
+  </div>
+  {% end %}
+  </div>
+
+  <!-- Cells -->
+  <div class="hm__grid">
+  {% map(rows) %}
+  <div
+    class="hm__cell lvl-{{ `Color Bucket`.formatted }}"
+    style="grid-column: {{ `Week Index`.formatted }}; grid-row: {{ `Day Of Week`.formatted }};"
+    title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}"
+  ></div>
+  {% end %}
+  </div>
+  </div>
+</div>
+
+<div class="hm__legend">
+  <span>Less</span>
+  <span class="hm__legend-swatches">
+    <span class="hm__swatch lvl-0"></span>
+    <span class="hm__swatch lvl-1"></span>
+    <span class="hm__swatch lvl-2"></span>
+    <span class="hm__swatch lvl-3"></span>
+    <span class="hm__swatch lvl-4"></span>
+    <span class="hm__swatch lvl-5"></span>
+  </span>
+  <span>More</span>
+</div>
+
+</div> ;;
       settings {
         show_row_total: true
         show_column_total: true
