@@ -3075,11 +3075,9 @@ padding-right: 0.50rem;
         data_type: 'number'
         model: orders
       }
-      calculation revenue_percentage {
-        label: 'Revenue Percentage'
-        formula: @aql (sales_model.revenue * 1.0)
-/
-(sales_model.revenue | of_all(orders.created_at));;
+      calculation revenue_percentage_over_max {
+        label: 'Revenue Percentage Over Max'
+        formula: @aql (sales_model.revenue * 1.0) / window_max(sales_model.revenue);;
         calc_type: 'dimension'
         data_type: 'number'
         model: sales_model
@@ -3089,10 +3087,10 @@ padding-right: 0.50rem;
         formula: @aql cast (
   case(
     when: sales_model.revenue == 0, then: 0,
-    when: sales_model.revenue_percentage < 0.2, then: 1,
-    when: sales_model.revenue_percentage < 0.4, then: 2,
-    when: sales_model.revenue_percentage < 0.6, then: 3,
-    when: sales_model.revenue_percentage < 0.8, then: 4,
+    when: sales_model.revenue_percentage_over_max < 0.2, then: 1,
+    when: sales_model.revenue_percentage_over_max < 0.4, then: 2,
+    when: sales_model.revenue_percentage_over_max < 0.6, then: 3,
+    when: sales_model.revenue_percentage_over_max < 0.8, then: 4,
     else: 5
   ),
   'int'
@@ -3157,7 +3155,7 @@ padding-right: 0.50rem;
           }
         },
         VizFieldFull {
-          ref: ref('sales_model', 'revenue_percentage')
+          ref: ref('sales_model', 'revenue_percentage_over_max')
           format {
             type: 'number'
             pattern: 'inherited'
