@@ -2928,6 +2928,136 @@ padding-right: 0.50rem;
     }
   }
   block v_xb5w: VizBlock {
+    label: 'Records'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation day_of_week {
+        label: 'Day Of Week'
+        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation week_index {
+        label: 'Week Index'
+        formula: @aql cast(date_part('week', orders.created_at), 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation revenue_percentage {
+        label: 'Revenue Percentage'
+        formula: @aql (sales_model.revenue * 1.0)
+/
+(sales_model.revenue | of_all(orders.created_at));;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql cast (
+  case(
+    when: sales_model.revenue == 0, then: 0,
+    when: sales_model.revenue_percentage < 0.2, then: 1,
+    when: sales_model.revenue_percentage < 0.4, then: 2,
+    when: sales_model.revenue_percentage < 0.6, then: 3,
+    when: sales_model.revenue_percentage < 0.8, then: 4,
+    else: 5
+  ),
+  'int'
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Date'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'day_of_week')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'week_index')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Month Label'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'revenue_percentage')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'color_bucket')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <div>Rows: {{ rows[0].`Date`.formatted }}</div>
+
+<ul>
+{% map(rows) %}
+  <li>
+    Date={{ `Date`.formatted }},
+    W={{ `Week Index`.raw}},
+    D={{ `Day Of Week`.raw }},
+    Bucket={{ `Color Bucket`.raw }},
+    Revenue={{ values.`Revenue` }}
+  </li>
+{% end %}
+</ul> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_rik3: VizBlock {
     label: 'Heatmap'
     viz: MarkdownViz {
       dataset: complete_dataset_with_metrics
@@ -3045,8 +3175,7 @@ padding-right: 0.50rem;
     Revenue={{ values.`Revenue` }}
   </li>
 {% end %}
-</ul>
- ;;
+</ul> ;;
       settings {
         show_row_total: true
         show_column_total: true
@@ -3236,7 +3365,7 @@ padding-right: 0.50rem;
     tab tab_0jhn: CanvasLayout {
       label: 'Calendar Heatmap'
       width: 1300
-      height: 980
+      height: 1500
       grid_size: 20
       auto_expand_vertically: true
       mobile {
@@ -3246,6 +3375,9 @@ padding-right: 0.50rem;
         position: pos(20, 20, 360, 720)
       }
       block v_xb5w {
+        position: pos(20, 760, 760, 600)
+      }
+      block v_rik3 {
         position: pos(400, 20, 880, 720)
       }
     }
@@ -3294,7 +3426,8 @@ padding-right: 0.50rem;
         CustomMapping {
           block: [
             'v_9x48',
-            'v_xb5w'
+            'v_xb5w',
+            'v_rik3'
           ]
           disabled: true
         }
@@ -3306,7 +3439,8 @@ padding-right: 0.50rem;
         CustomMapping {
           block: [
             'v_9x48',
-            'v_xb5w'
+            'v_xb5w',
+            'v_rik3'
           ]
           disabled: true
         }
@@ -3382,7 +3516,8 @@ padding-right: 0.50rem;
         CustomMapping {
           block: [
             'v_9x48',
-            'v_xb5w'
+            'v_xb5w',
+            'v_rik3'
           ]
           disabled: true
         }
@@ -3394,7 +3529,8 @@ padding-right: 0.50rem;
         CustomMapping {
           block: [
             'v_9x48',
-            'v_xb5w'
+            'v_xb5w',
+            'v_rik3'
           ]
           disabled: true
         }
@@ -3416,6 +3552,20 @@ padding-right: 0.50rem;
     },
     FilterInteraction {
       from: 'v_xb5w'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rik3'
       to: [
         CustomMapping {
           block: [
