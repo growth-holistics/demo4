@@ -1317,9 +1317,32 @@ padding-right: 0.50rem;
   block v_0k2v: VizBlock {
     label: 'Revenue'
     viz: MetricKpi {
-      dataset: ecommerce_vux
-      value: r(ecommerce_vux.revenue)
+      dataset: complete_dataset_with_metrics
+      theme {
+        table {
+          general {
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+          }
+        }
+      }
+      value: VizFieldFull {
+        ref: r(sales_model.revenue)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
       settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
         alignment: 'center'
         metric_value {
           font_color: '#255DD4'
@@ -1330,17 +1353,52 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
+
   block v_g7tl: VizBlock {
     label: 'Period Label and Now Dim'
     viz: MarkdownViz {
-      dataset: ecommerce_vux
-      calculation period_label {
-        label: 'Period Label'
+      dataset: complete_dataset_with_metrics
+      calculation now_dim {
+        label: 'Now Dim'
+        formula: @aql @(now);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation this_year {
+        label: 'This Year'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_quarter {
+        label: 'This Quarter'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_month {
+        label: 'This Month'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_week {
+        label: 'This Week'
         formula: @aql case(
   when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
-  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
-  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
-  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
   else: 'Older'
 );;
         calc_type: 'dimension'
@@ -1349,15 +1407,40 @@ padding-right: 0.50rem;
       }
       rows: [
         VizFieldFull {
-          ref: ref('orders', 'period_label')
+          ref: ref('orders', 'this_year')
           format {
             type: 'text'
           }
+          uname: 'orders_this_year'
         },
         VizFieldFull {
-          ref: r(ecommerce_vux, orders.now_dim)
+          ref: ref('orders', 'this_quarter')
           format {
-            type: 'datetime'
+            type: 'text'
+          }
+          uname: 'orders_this_quarter'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_month')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_month'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_week')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_week'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       ]
@@ -1383,33 +1466,18 @@ padding-right: 0.50rem;
 
   .period-pill:hover {
     border-color: #3B82F6;
-    color: #2563EB;
-    background: #EFF6FF;
+    background: #F8FAFC;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
   }
 
   .period-pill:active {
-    background: #DBEAFE;
-    border-color: #2563EB;
-    color: #1D4ED8;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    border-color: #1B7CE4;
+    background: #EFF6FF;
+    transform: translateY(0);
   }
 
-  .click-trigger {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    font-size: 200px;
-    letter-spacing: 1000px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .h-drill-selected {
-    color: #1B7CE4;
-  }
-
-  .period-pill:has(.h-drill-selected) {
+  .h-drill-selected.period-pill {
     border-color: #1B7CE4;
     background: #EFF6FF;
     transform: translateY(0);
@@ -1418,16 +1486,37 @@ padding-right: 0.50rem;
 </style>
 
 <div class="period-pills">
-{% map(rows) %}
-  <div class="period-pill">
-    <!-- <span class="click-trigger">{{ `Period Label` }}</span> -->
-    <span>{{ `Period Label` }}</span>
-  </div>
-{% end %}
-</div>     ;;
+  <div class="period-pill"><span>{{ rows.0.`This Year` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Quarter` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Month` }}</span></div>
+  <div class="period-pill"><span>{{ rows.0.`This Week` }}</span></div>
+</div>          ;;
       settings {
+        pagination_size: 500
         show_row_total: true
         show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'orders_this_year'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_quarter'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_month'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_week'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
     settings {
@@ -2401,11 +2490,889 @@ padding-right: 0.50rem;
       }
     }
   }
+  block v_ny61: VizBlock {
+    label: 'Period Label and Now Dim copy'
+    viz: PivotTable {
+      dataset: complete_dataset_with_metrics
+      calculation now_dim {
+        label: 'Now Dim'
+        formula: @aql @(now);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation this_year {
+        label: 'This Year'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_quarter {
+        label: 'This Quarter'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_month {
+        label: 'This Month'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation this_week {
+        label: 'This Week'
+        formula: @aql case(
+  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
+  else: 'Older'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('orders', 'this_year')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_year'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_quarter')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_quarter'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_month')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_month'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'this_week')
+          format {
+            type: 'text'
+          }
+          uname: 'orders_this_week'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 500
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'orders_this_year'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_quarter'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_month'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'orders_this_week'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_dkj6: TextBlock {
+    content: @md ## Simple metrics tree;;
+  }
+  block v_ltlh: VizBlock {
+    label: 'Metric Tree test 1'
+    viz: MarkdownViz {
+      dataset: metrics_tree
+      rows: [
+        VizFieldFull {
+          ref: r(metrics_tree_csv.month)
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'North Star'
+          ref: r(metrics_tree_csv.north_star)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Revenue'
+          ref: r(metrics_tree_csv.revenue)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Cost'
+          ref: r(metrics_tree_csv.cost)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Aov'
+          ref: r(metrics_tree_csv.aov)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Buyers'
+          ref: r(metrics_tree_csv.buyers)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Cogs'
+          ref: r(metrics_tree_csv.cogs)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Shipping'
+          ref: r(metrics_tree_csv.shipping)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Conversion Rate'
+          ref: r(metrics_tree_csv.conversion_rate)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###\\%'
+          }
+        },
+        VizFieldFull {
+          label: 'Sessions'
+          ref: r(metrics_tree_csv.sessions)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      content: @md <style>
+  .metric-tree-v1 {
+  /* Tree width cap to avoid node stretching */
+    width: 1350px;
+    --tree-pd-left: 160px;
+    --tree-pd-right: 10px;
+    margin: 0 auto;
+
+  /* Responsive sizing */
+    --node-w: clamp(100px, 12vw, 150px);
+    --gap: clamp(6px, 2vw, 12px);
+
+  /* Derived layout */
+  --double-w: calc(var(--node-w) * 2 + var(--gap));
+
+  /* Connectors */
+    --line-color: grey;
+    --line-w: 3px;
+    --line-r: 10px;
+    --line-h: clamp(34px, 4vw, 44px);
+    --node-border-w:3px;
+    padding:10px var(--tree-pd-right) 10px var(--tree-pd-left);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    box-sizing: border-box;
+    font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  }
+/* Levels */
+  .metric-tree-v1 .level{
+    display:grid;
+    gap:var(--gap);
+    justify-content:center;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .metric-tree-v1 .level-1{
+    grid-template-columns:var(--double-w);
+  }
+  .metric-tree-v1 .level-2{
+    grid-template-columns:repeat(3,var(--double-w));}
+  .metric-tree-v1 .level-3{
+    grid-template-columns:repeat(4,var(--double-w));}
+  .metric-tree-v1 .level-4{
+    grid-template-columns:repeat(5,var(--double-w));}
+
+/* Connector rows */
+  .metric-tree-v1 .lines{
+    display:grid;
+    justify-content:center;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .metric-tree-v1 .lines-1{
+    grid-template-columns:calc(var(--double-w)*2);}
+  .metric-tree-v1 .lines-2{
+    grid-template-columns:repeat(3,var(--double-w));}
+  .metric-tree-v1 .lines-3{
+    grid-template-columns:repeat(4,var(--double-w));}
+  .metric-tree-v1 .line{
+    height:var(--line-h);
+    position:relative;
+  }
+  .metric-tree-v1 .line:before{
+    content:"";
+    width:var(--line-w);
+    height:50%;
+    background:var(--line-color);
+    position:absolute;
+    left:calc(50% - var(--line-w)/2);
+    top:0;
+  }
+  .metric-tree-v1 .line:after{
+    content:"";
+    position:absolute;
+    left:calc(var(--line-w)*-1);
+    bottom:0;
+    width:calc(100% + var(--line-w));
+    height:50%;
+    border-style:solid;
+    border-color:var(--line-color);
+    border-width:var(--line-w) var(--line-w) 0 var(--line-w);
+    border-radius:var(--line-r) var(--line-r) 0 0;box-sizing:border-box;
+  }
+/* KPI card */
+  .metric-tree-v1 .node{
+    width:var(--node-w);
+    margin:0 auto;
+    padding:12px 12px 10px;
+    border:var(--node-border-w) solid grey;
+    border-radius:14px;
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);
+    display:flex;
+    flex-direction:column;
+    gap:px;
+  }
+  .metric-tree-v1 .label{
+    font-size: 15px;
+    opacity: .75;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    line-height: 1.2;
+    color: black;
+  }
+  .metric-tree-v1 .value{
+    font-size:17px;
+    font-weight:700;
+    text-align:center;
+    margin:0 !important;
+    line-height:1.1;
+  }
+  .metric-tree-v1 .metric-subtext{
+    font-size:10px;
+    opacity:.65;
+    text-align:center;
+    margin:0 !important;
+    line-height:1.2;
+  }
+  .metric-tree-v1 .empty{
+    width:var(--node-w);}
+/* Optional accents */
+  .metric-tree-v1 .pos{
+    border-color:rgba(16,185,129,.35);}
+  .metric-tree-v1 .neg{
+    border-color:rgba(239,68,68,.35);}
+</style>
+
+<div class="metric-tree-v1">
+<div class="level level-1">
+<article class="node"><p class="label">North Star</p><p class="value">{{ col_totals.`North Star`.formatted }}</p><p class="metric-subtext">Primary outcome</p></article>
+</div>
+
+<div class="lines lines-1"><div class="line"></div></div>
+
+<div class="level level-2">
+<article class="node pos"><p class="label">Revenue</p><p class="value">{{ col_totals.`Revenue` }}</p><p class="metric-subtext">Money from customers</p></article>
+<div class="empty"></div>
+<article class="node neg"><p class="label">Cost</p><p class="value">{{ col_totals.`Cost` }}</p><p class="metric-subtext">Money paid out</p></article>
+</div>
+
+<div class="lines lines-2">
+<div class="line"></div><div class="empty"></div><div class="line"></div>
+</div>
+
+<div class="level level-3">
+<article class="node pos"><p class="label">Buyers</p><p class="value">{{ col_totals.`Buyers` }}</p><p class="metric-subtext">People who purchased</p></article>
+<article class="node pos"><p class="label">AOV</p><p class="value">{{ col_totals.`Aov` }}</p><p class="metric-subtext">Avg order value</p></article>
+<article class="node neg"><p class="label">COGS</p><p class="value">{{ col_totals.`Cogs` }}</p><p class="metric-subtext">Cost to make</p></article>
+<article class="node neg"><p class="label">Shipping</p><p class="value">{{ col_totals.`Shipping` }}</p><p class="metric-subtext">Cost to deliver</p></article>
+</div>
+
+<div class="lines lines-3"><div class="line"></div></div>
+
+<div class="level level-4">
+<article class="node pos"><p class="label">Sessions</p><p class="value">{{ col_totals.`Sessions` }}</p><p class="metric-subtext">Traffic</p></article>
+<article class="node pos"><p class="label">Conversion Rate</p><p class="value">{{ col_totals.`Conversion Rate` }}</p><p class="metric-subtext">Sessions → buyers</p></article>
+</div>
+</div>    ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_3swd: TextBlock {
+    content: @md ## Metrics tree with sparklines;;
+  }
+  block t_frki: TextBlock {
+    content: @md ### *(WIP)*;;
+  }
+  block v_9x48: VizBlock {
+    label: 'Revenue by Day Created At'
+    viz: PivotTable {
+      dataset: complete_dataset_with_metrics
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xb5w: VizBlock {
+    label: 'Records'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation day_of_week {
+        label: 'Day Of Week'
+        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation week_index {
+        label: 'Week Index'
+        formula: @aql cast(date_part('week', orders.created_at), 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation revenue_percentage {
+        label: 'Revenue Percentage'
+        formula: @aql (sales_model.revenue * 1.0)
+/
+(sales_model.revenue | of_all(orders.created_at));;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql cast (
+  case(
+    when: sales_model.revenue == 0, then: 0,
+    when: sales_model.revenue_percentage < 0.2, then: 1,
+    when: sales_model.revenue_percentage < 0.4, then: 2,
+    when: sales_model.revenue_percentage < 0.6, then: 3,
+    when: sales_model.revenue_percentage < 0.8, then: 4,
+    else: 5
+  ),
+  'int'
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: sales_model
+      }
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Date'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'day_of_week')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'week_index')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Month Label'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'revenue_percentage')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('sales_model', 'color_bucket')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <div>Rows: {{ rows[0].`Date`.formatted }}</div>
+
+<ul>
+{% map(rows) %}
+  <li>
+    Date={{ `Date`.formatted }},
+    W={{ `Week Index`.raw}},
+    D={{ `Day Of Week`.raw }},
+    Bucket={{ `Color Bucket`.raw }},
+    Revenue={{ values.`Revenue` }}
+  </li>
+{% end %}
+</ul> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_rik3: VizBlock {
+    label: 'Heatmap'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation day_of_week {
+        label: 'Day Of Week'
+        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation week_index {
+        label: 'Week Index'
+        formula: @aql cast(date_part('week', orders.created_at), 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation month_start {
+        label: 'Month Start'
+        formula: @aql month(orders.created_at);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation month_label_display {
+        label: 'Month Label Display'
+        formula: @aql case(
+  when: date_part('day', orders.created_at) == 1, then: 'block',
+  else: 'none'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation revenue_percentage_over_max {
+        label: 'Revenue Percentage Over Max'
+        formula: @aql (sales_model.revenue * 1.0) 
+/
+window_max(sales_model.revenue);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql case(
+  when: sales_model.revenue == 0, then: 0,
+  when: revenue_percentage_over_max < 0.2, then: 1,
+  when: revenue_percentage_over_max < 0.4, then: 2,
+  when: revenue_percentage_over_max < 0.6, then: 3,
+  when: revenue_percentage_over_max < 0.8, then: 4,
+  else: 5
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Date'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'day_of_week')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'week_index')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Month Label'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'month_label_display')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'color_bucket'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'revenue_percentage_over_max'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .hm {
+    --cell: 24px;
+    --gap: 6px;
+    --label-w: 45px;
+
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    color: #111827;
+
+    --label-color: #6b7280;
+  }
+
+
+  .hm__scroller{
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px; /* so scrollbar doesn't cover cells */
+  }
+
+  .hm__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 0 10px 0;
+  }
+
+  .hm__title { font-size: 20px; font-weight: 700; margin: 0; }
+  .hm__subtitle { font-size: 12px; color: #6b7280; margin: 0; white-space: nowrap; }
+
+  .hm__wrap {
+    display: grid;
+    grid-template-columns: var(--label-w) 1fr;
+    gap: 10px;
+    align-items: start;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .hm__ylabels {
+    display: grid;
+    grid-template-rows: 13px repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+    user-select: none;
+  }
+
+  .hm__ylabels .spacer { height: 18px; }
+  .hm__ylabels .ylabel { font-size: 12px; color: var(--label-color); line-height: 1; }
+
+  /* Month labels row */
+  .hm__months {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    column-gap: var(--gap);
+    height: 18px;
+    align-items: end;
+    width: max-content;
+  }
+
+  .hm__month {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--label-color);
+    line-height: 1;
+    padding-bottom: 10px;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Heatmap grid */
+  .hm__grid {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    grid-template-rows: repeat(7, var(--cell));
+    column-gap: var(--gap);
+    row-gap: var(--gap);
+    width: max-content;
+  }
+
+  .hm__cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: rgba(0,0,0,0.06);
+    outline: 1px solid rgba(0,0,0,0.05); /* makes empties visible */
+  }
+
+  .hm__cell.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__cell.lvl-1 { background: #e5f4e9; }
+  .hm__cell.lvl-2 { background: #bfe6c9; }
+  .hm__cell.lvl-3 { background: #86cf9a; }
+  .hm__cell.lvl-4 { background: #39a96b; }
+  .hm__cell.lvl-5 { background: #1f7f4d; }
+
+  .hm__legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 30px;
+    font-size: 10px;
+    color: var(--label-color);
+  }
+
+  .hm__legend-swatches { display: inline-flex; align-items: center; gap: 3px; }
+  .hm__swatch { width: var(--cell); height: var(--cell); border-radius: 2px; outline: 1px solid rgba(0,0,0,0.05); }
+  .hm__swatch.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__swatch.lvl-1 { background: #e5f4e9; }
+  .hm__swatch.lvl-2 { background: #bfe6c9; }
+  .hm__swatch.lvl-3 { background: #86cf9a; }
+  .hm__swatch.lvl-4 { background: #39a96b; }
+  .hm__swatch.lvl-5 { background: #1f7f4d; }
+</style>
+
+<div class="hm">
+  <div class="hm__header">
+  <p class="hm__title">Revenue Calendar Heatmap</p>
+  <p class="hm__subtitle">Each cell is a day; darker = higher revenue</p>
+  </div>
+
+<div class="hm__wrap">
+  <div class="hm__ylabels">
+    <div class="spacer"></div>
+    <div class="ylabel">Mon</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Wed</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Fri</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Sun</div>
+  </div>
+
+  <div>
+  <div class="hm__scroller">
+  <!-- Month labels -->
+  <div class="hm__months">
+  {% map(rows) %}
+  <div 
+  class="hm__month" 
+  style="grid-column: {{ `Week Index`.formatted }}; display: {{ `Month Label Display`.raw }};">
+  {{ `Month Label` }}
+  </div>
+  {% end %}
+  </div>
+
+  <!-- Cells -->
+  <div class="hm__grid">
+  {% map(rows) %}
+  <div
+    class="hm__cell lvl-{{ values.`Color Bucket`.formatted }}"
+    style="grid-column: {{ `Week Index`.formatted }}; grid-row: {{ `Day Of Week`.formatted }};"
+    title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}"
+  ></div>
+  {% end %}
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="hm__legend">
+  <span>Less</span>
+  <span class="hm__legend-swatches">
+    <span class="hm__swatch lvl-0"></span>
+    <span class="hm__swatch lvl-1"></span>
+    <span class="hm__swatch lvl-2"></span>
+    <span class="hm__swatch lvl-3"></span>
+    <span class="hm__swatch lvl-4"></span>
+    <span class="hm__swatch lvl-5"></span>
+  </span>
+  <span>More</span>
+</div>
+
+</div>  ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
       label: '🥱 Boring and Static'
       width: 1040
+      height: 840
       grid_size: 20
       block v4 {
         position: pos(400, 20, 620, 360)
@@ -2426,7 +3393,6 @@ padding-right: 0.50rem;
       mobile {
         mode: 'auto'
       }
-      height: 840
     }
     tab tab_sf0p: CanvasLayout {
       label: '🔥 Dynamic Summary'
@@ -2466,14 +3432,6 @@ padding-right: 0.50rem;
       height: 1220
       grid_size: 20
       auto_expand_vertically: true
-      block v_93o5 {
-        position: pos(20, 20, 1020, 1140)
-        layer: 5
-      }
-      block v_lhqm {
-        position: pos(20, 20, 1020, 1140)
-        layer: 5
-      }
       block v_6tc8 {
         position: pos(20, 20, 1100, 1180)
       }
@@ -2528,19 +3486,44 @@ padding-right: 0.50rem;
         mode: 'auto'
       }
     }
+    tab tab_0eq5: CanvasLayout {
+      label: '⚒️ Metrics Tree'
+      width: 1420
+      height: 940
+      grid_size: 20
+      auto_expand_vertically: true
+      block t_dkj6 {
+        position: pos(20, 20, 1380, 60)
+      }
+      block v_ltlh {
+        position: pos(20, 80, 1380, 640)
+      }
+      block t_3swd {
+        position: pos(20, 740, 1380, 60)
+      }
+      block t_frki {
+        position: pos(20, 800, 1380, 120)
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
     tab tab_i1pc: CanvasLayout {
-      label: 'Test'
-      width: 600
-      height: 260
+      label: '⚒️ Time Grain Control (WIP)'
+      width: 640
+      height: 580
       grid_size: 20
       auto_expand_vertically: true
       block v_0k2v {
-        position: pos(20, 120, 560, 120)
+        position: pos(20, 120, 600, 120)
         layer: 1
       }
       block v_g7tl {
-        position: pos(20, 20, 560, 100)
+        position: pos(20, 20, 600, 100)
         layer: 2
+      }
+      block v_ny61 {
+        position: pos(20, 360, 600, 200)
       }
       mobile {
         mode: 'auto'
@@ -2552,11 +3535,29 @@ padding-right: 0.50rem;
       height: 1340
       grid_size: 20
       auto_expand_vertically: true
+      block v_vhzw {
+        position: pos(20, 20, 1100, 1040)
+      }
       mobile {
         mode: 'auto'
       }
-      block v_vhzw {
-        position: pos(20, 20, 1100, 1040)
+    }
+    tab tab_0jhn: CanvasLayout {
+      label: 'Calendar Heatmap'
+      width: 1300
+      height: 1500
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_9x48 {
+        position: pos(20, 20, 360, 720)
+      }
+      block v_xb5w {
+        position: pos(390, 520, 760, 600)
+      }
+      block v_rik3 {
+        position: pos(390, 20, 560, 480)
       }
     }
   }
@@ -2602,7 +3603,11 @@ padding-right: 0.50rem;
       from: 'v_0k2v'
       to: [
         CustomMapping {
-          block: 'v_vhzw'
+          block: [
+            'v_9x48',
+            'v_xb5w',
+            'v_rik3'
+          ]
           disabled: true
         }
       ]
@@ -2611,7 +3616,11 @@ padding-right: 0.50rem;
       from: 'v_g7tl'
       to: [
         CustomMapping {
-          block: 'v_vhzw'
+          block: [
+            'v_9x48',
+            'v_xb5w',
+            'v_rik3'
+          ]
           disabled: true
         }
       ]
@@ -2670,13 +3679,79 @@ padding-right: 0.50rem;
             'v_p5re',
             'v_fyrn',
             'v_93o6',
-            'v_0k2v',
-            'v_g7tl',
             'v_mdra',
             'v_ggbb',
             'v_l0eq',
             'v_vq7e',
             'v_i51a'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_6tc8'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w',
+            'v_rik3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ny61'
+      to: [
+        CustomMapping {
+          block: [
+            'v_9x48',
+            'v_xb5w',
+            'v_rik3'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9x48'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xb5w'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rik3'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
           ]
           disabled: true
         }
