@@ -60,7 +60,13 @@ Dashboard customer_profile {
             type: 'text'
           }
         },
-        r(demo_ecommerce_version_2, ecommerce_users.is_repeated_buyer)
+        r(demo_ecommerce_version_2, ecommerce_users.is_repeated_buyer),
+        VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+        }
       ]
       values: [
         VizFieldFull {
@@ -144,7 +150,7 @@ box-sizing: border-box;
 background: #FFFFFF;
 // border-radius: 12px;
 // box-shadow: 0 4px 6px rgba(5, 38, 76, 0.1);
-max-width: 900px;
+// max-width: 900px;
 width: 100%;
 overflow: hidden;
 margin: 0 auto;
@@ -192,18 +198,19 @@ margin-right: 6px;
 }
 
 .user-profile-body {
-padding: 40px 30px;
+padding: 30px 30px;
 }
 
 .user-profile-section {
 margin-bottom: 45px;
+margin-top: 25px;
 }
 
 .user-profile-section-title {
 color: #05264c;
 font-size: 14px;
 font-weight: 600;
-text-transform: uppercase;
+// text-transform: uppercase;
 letter-spacing: 1px;
 margin-bottom: 25px;
 padding-bottom: 12px;
@@ -212,7 +219,7 @@ border-bottom: 2px solid #e5e7eb;
 
 .user-profile-info-grid {
 display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+grid-template-columns: repeat(4, 1fr);
 gap: 25px;
 }
 
@@ -237,8 +244,10 @@ font-weight: 600;
 }
 
 .user-profile-metrics-section {
-padding: 25px 0;
-margin-top: 35px;
+// padding: 25px 0;
+// margin-top: 15px;
+margin-bottom: 45px;
+margin-top: 25px;
 }
 
 .user-profile-metrics-grid {
@@ -309,11 +318,12 @@ font-size: 24px;
 }
 
 .user-profile-body {
-padding: 30px 20px;
+padding: 20px 20px;
 }
 
 .user-profile-section {
 margin-bottom: 35px;
+margin-top: 25px;
 }
 
 .user-profile-info-grid {
@@ -382,7 +392,7 @@ font-size: 14px;
 </div>
 <div class="user-profile-info-item">
 <span class="user-profile-info-label">Country</span>
-<span class="user-profile-info-value">{{ rows[0].`Country` }}</span>
+<span class="user-profile-info-value">{{ rows[0].`Country Name` }}</span>
 </div>
 </div>
 </div>
@@ -413,24 +423,7 @@ font-size: 14px;
 </div>
 </div>
 
-<div class="user-profile-section">
-<h2 class="user-profile-section-title">Order Breakdown</h2>
-<div class="user-profile-info-grid">
-<div class="user-profile-info-item">
-<span class="user-profile-info-label">Delivered Orders</span>
-<span class="user-profile-info-value">{{ rows[0].values.`Total Delivered Orders` }} orders</span>
-</div>
-<div class="user-profile-info-item">
-<span class="user-profile-info-label">Cancelled Orders</span>
-<span class="user-profile-info-value">{{ rows[0].values.`Total Cancelled Orders` }} orders</span>
-</div>
-<div class="user-profile-info-item">
-<span class="user-profile-info-label">Refunded Orders</span>
-<span class="user-profile-info-value">{{ rows[0].values.`Total Refunded Orders` }} orders</span>
-</div>
-</div>
-</div>
-
+<!-- Performance Metrics moved BEFORE Order Breakdown -->
 <div class="user-profile-metrics-section">
 <h2 class="user-profile-section-title">Performance Metrics</h2>
 <div class="user-profile-metrics-grid">
@@ -460,9 +453,29 @@ font-size: 14px;
 </div>
 </div>
 </div>
+
+<!-- Order Breakdown moved AFTER Performance Metrics -->
+<div class="user-profile-section">
+<h2 class="user-profile-section-title">Order Breakdown</h2>
+<div class="user-profile-info-grid">
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Delivered Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Delivered Orders` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Cancelled Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Cancelled Orders` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Refunded Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Refunded Orders` }}</span>
 </div>
 </div>
-</div>  ;;
+</div>
+
+</div>
+</div>
+</div> ;;
       settings {
         show_row_total: true
         show_column_total: true
@@ -499,18 +512,104 @@ font-size: 14px;
       }
     }
   }
+  block v_htuk: VizBlock {
+    label: 'Id, Status and 5 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.price)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.cost)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.product_image)
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
-    width: 860
-    height: 1340
-    grid_size: 20
+    width: 1220
+    height: 1600
     auto_expand_vertically: true
     block v_0974 {
-      position: pos(0, 0, 860, 1440)
+      position: pos(0, 0, 1220, 1440)
     }
     block f_user_email {
-      position: pos(-320, 20, 300, 80)
+      position: pos(-320, 10, 300, 80)
+    }
+    block v_htuk {
+      position: pos(30, 1080, 1160, 550)
     }
     mobile {
       mode: 'auto'
