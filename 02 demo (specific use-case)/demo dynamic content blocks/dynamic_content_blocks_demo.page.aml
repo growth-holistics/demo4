@@ -1,5 +1,5 @@
-Dashboard dynamic_content_test {
-  title: 'Dynamic Content Experiments'
+Dashboard dynamic_content_blocks_demo {
+  title: 'Dynamic Content Blocks Demo ✨'
   description: ''
   owner: 'vu.dq@holistics.io'
   block v4: VizBlock {
@@ -100,7 +100,7 @@ Dashboard dynamic_content_test {
       }
     }
   }
-  block v_z3mq: VizBlock {
+  block v_z3mqvux: VizBlock {
     label: 'Add-to-Carts vs. Purchases'
     viz: MarkdownViz {
       dataset: product_performance
@@ -336,7 +336,7 @@ Dashboard dynamic_content_test {
       }
     }
   }
-  block v_p5re: VizBlock {
+  block v_p5revux: VizBlock {
     label: 'User Specs'
     viz: MarkdownViz {
       dataset: ecommerce_vux
@@ -746,7 +746,7 @@ Exercise Bike and Resistance Bands have significant cart abandonment, suggesting
 
 👈 *See chart* ;;
   }
-  block v_fyrn: VizBlock {
+  block v_fyrnvux: VizBlock {
     label: 'User Table'
     viz: DataTable {
       dataset: ecommerce_vux
@@ -792,7 +792,7 @@ Exercise Bike and Resistance Bands have significant cart abandonment, suggesting
       }
     }
   }
-  block v_93o6: VizBlock {
+  block v_93o6vux: VizBlock {
     label: 'Product Overview'
     viz: MarkdownViz {
       dataset: ecommerce_vux
@@ -1162,7 +1162,7 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_x1m6: VizBlock {
+  block v_x1m6vux: VizBlock {
     label: 'Key Insights'
     viz: MarkdownViz {
       dataset: product_performance
@@ -1314,216 +1314,7 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_0k2v: VizBlock {
-    label: 'Revenue'
-    viz: MetricKpi {
-      dataset: complete_dataset_with_metrics
-      theme {
-        table {
-          general {
-            font_size: 16
-            cell_padding {
-              top: 7
-              left: 8
-              bottom: 7
-              right: 8
-            }
-          }
-        }
-      }
-      value: VizFieldFull {
-        ref: r(sales_model.revenue)
-        format {
-          type: 'number'
-          pattern: 'inherited'
-        }
-      }
-      settings {
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        alignment: 'center'
-        metric_value {
-          font_color: '#255DD4'
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-
-  block v_g7tl: VizBlock {
-    label: 'Period Label and Now Dim'
-    viz: MarkdownViz {
-      dataset: complete_dataset_with_metrics
-      calculation now_dim {
-        label: 'Now Dim'
-        formula: @aql @(now);;
-        calc_type: 'dimension'
-        data_type: 'datetime'
-        model: orders
-      }
-      calculation this_year {
-        label: 'This Year'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_quarter {
-        label: 'This Quarter'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_month {
-        label: 'This Month'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_week {
-        label: 'This Week'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('orders', 'this_year')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_year'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_quarter')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_quarter'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_month')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_month'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_week')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_week'
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: r(sales_model.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      content: @md <style>
-  .period-pills {
-    display: flex;
-    gap: 0.75rem;
-    padding: 1rem;
-  }
-
-  .period-pill {
-    padding: 0.5rem 1.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    background: #FFFFFF;
-    border: 1px solid #D1D5DB;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-
-  .period-pill:hover {
-    border-color: #3B82F6;
-    background: #F8FAFC;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  }
-
-  .period-pill:active {
-    border-color: #1B7CE4;
-    background: #EFF6FF;
-    transform: translateY(0);
-  }
-
-  .h-drill-selected.period-pill {
-    border-color: #1B7CE4;
-    background: #EFF6FF;
-    transform: translateY(0);
-  }
-
-</style>
-
-<div class="period-pills">
-  <div class="period-pill"><span>{{ rows.0.`This Year` }}</span></div>
-  <div class="period-pill"><span>{{ rows.0.`This Quarter` }}</span></div>
-  <div class="period-pill"><span>{{ rows.0.`This Month` }}</span></div>
-  <div class="period-pill"><span>{{ rows.0.`This Week` }}</span></div>
-</div>          ;;
-      settings {
-        pagination_size: 500
-        show_row_total: true
-        show_column_total: true
-        sorts: [
-          SortSetting {
-            key: 'orders_this_year'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_quarter'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_month'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_week'
-            direction: 'desc'
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block v_mdra: VizBlock {
+  block v_mdravux: VizBlock {
     label: 'Information'
     viz: MarkdownViz {
       dataset: ecommerce_vux
@@ -1716,8 +1507,8 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_ggbb: VizBlock {
-    label: 'Country and Country Icon copy'
+  block v_ggbbvux: VizBlock {
+    label: 'Country and Country Icon'
     viz: MarkdownViz {
       dataset: ecommerce_vux
       calculation continent_icon {
@@ -1814,18 +1605,6 @@ padding-right: 0.50rem;
     transform: translateY(0);
   }
 
-  /*
-  .h-drill-selected > .country-card {
-    border-color: #1B7CE4;
-    background: #EFF6FF;
-    transform: translateY(0);
-  }
-
-  .h-drill-selected > .country-card > .country-label {
-    color: #1B7CE4;
-  }
-  */
-
   .h-drill-selected.country-card {
     border-color: #1B7CE4;
     background: #EFF6FF;
@@ -1847,16 +1626,6 @@ padding-right: 0.50rem;
     color: #111827;
   }
 
-  .country-desc {
-    font-size: 0.75rem;
-    color: #6B7280;
-    line-height: 1.3;
-  }
-
-  .h-click-trigger { 
-    gap: 0.5rem;
-  }
-
 </style>
 
 <div class="country-selector">
@@ -1868,7 +1637,7 @@ padding-right: 0.50rem;
   </div>
   </h-drill>
 {% end %}
-</div>   ;;
+</div>      ;;
       settings {
         show_row_total: true
         show_column_total: true
@@ -1882,7 +1651,7 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
-  block v_l0eq: VizBlock {
+  block v_l0eqvux: VizBlock {
     label: 'Total Users'
     viz: MetricKpi {
       dataset: ecommerce_vux
@@ -1911,7 +1680,7 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
-  block v_vq7e: VizBlock {
+  block v_vq7evux: VizBlock {
     label: 'GMV'
     viz: MetricKpi {
       dataset: ecommerce_vux
@@ -1935,7 +1704,7 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
-  block v_i51a: VizBlock {
+  block v_i51avux: VizBlock {
     label: 'Best Performing Products'
     viz: BarChart {
       dataset: ecommerce_vux
@@ -1991,7 +1760,7 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_vhzw: VizBlock {
+  block v_vhzwvux: VizBlock {
     label: 'Syntax'
     viz: MarkdownViz {
       dataset: ecommerce_vux
@@ -2098,7 +1867,7 @@ padding-right: 0.50rem;
       hide_label: true
     }
   }
-  block v_6tc8: VizBlock {
+  block v_6tc8vux: VizBlock {
     label: 'Product Card Grid'
     viz: MarkdownViz {
       dataset: complete_dataset_with_metrics
@@ -2490,133 +2259,11 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_ny61: VizBlock {
-    label: 'Period Label and Now Dim copy'
-    viz: PivotTable {
-      dataset: complete_dataset_with_metrics
-      calculation now_dim {
-        label: 'Now Dim'
-        formula: @aql @(now);;
-        calc_type: 'dimension'
-        data_type: 'datetime'
-        model: orders
-      }
-      calculation this_year {
-        label: 'This Year'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | year()), then: 'This Year',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_quarter {
-        label: 'This Quarter'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | quarter()), then: 'This Quarter',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_month {
-        label: 'This Month'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | month()), then: 'This Month',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation this_week {
-        label: 'This Week'
-        formula: @aql case(
-  when: orders.created_at >= max(orders.now_dim | week()), then: 'This Week',
-  else: 'Older'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      rows: [
-        VizFieldFull {
-          ref: ref('orders', 'this_year')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_year'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_quarter')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_quarter'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_month')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_month'
-        },
-        VizFieldFull {
-          ref: ref('orders', 'this_week')
-          format {
-            type: 'text'
-          }
-          uname: 'orders_this_week'
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: r(sales_model.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        pagination_size: 500
-        show_row_total: true
-        show_column_total: true
-        sorts: [
-          SortSetting {
-            key: 'orders_this_year'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_quarter'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_month'
-            direction: 'desc'
-          },
-          SortSetting {
-            key: 'orders_this_week'
-            direction: 'desc'
-          }
-        ]
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-  }
-  block t_dkj6: TextBlock {
+  block t_pbri: TextBlock {
     content: @md ## Simple metrics tree;;
   }
-  block v_ltlh: VizBlock {
-    label: 'Metric Tree test 1'
+  block v_016yvux: VizBlock {
+    label: 'Metric Tree Test'
     viz: MarkdownViz {
       dataset: metrics_tree
       rows: [
@@ -2882,490 +2529,11 @@ padding-right: 0.50rem;
       }
     }
   }
-  block t_3swd: TextBlock {
+  block t_40vr: TextBlock {
     content: @md ## Metrics tree with sparklines;;
   }
-  block t_frki: TextBlock {
+  block t_bckq: TextBlock {
     content: @md ### *(WIP)*;;
-  }
-  block v_9x48: VizBlock {
-    label: 'Revenue by Day Created At'
-    viz: PivotTable {
-      dataset: complete_dataset_with_metrics
-      filter {
-        field: r(orders.created_at)
-        operator: 'matches'
-        value: '2025'
-      }
-      rows: [
-        VizFieldFull {
-          ref: r(orders.created_at)
-          transformation: 'datetrunc day'
-          format {
-            type: 'date'
-            pattern: 'LLL dd, yyyy'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: r(sales_model.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_total: true
-        show_column_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v_xb5w: VizBlock {
-    label: 'Records'
-    viz: MarkdownViz {
-      dataset: complete_dataset_with_metrics
-      calculation day_of_week {
-        label: 'Day Of Week'
-        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: orders
-      }
-      calculation week_index {
-        label: 'Week Index'
-        formula: @aql cast(date_part('week', orders.created_at), 'int');;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: orders
-      }
-      calculation revenue_percentage {
-        label: 'Revenue Percentage'
-        formula: @aql (sales_model.revenue * 1.0)
-/
-(sales_model.revenue | of_all(orders.created_at));;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: sales_model
-      }
-      calculation color_bucket {
-        label: 'Color Bucket'
-        formula: @aql cast (
-  case(
-    when: sales_model.revenue == 0, then: 0,
-    when: sales_model.revenue_percentage < 0.2, then: 1,
-    when: sales_model.revenue_percentage < 0.4, then: 2,
-    when: sales_model.revenue_percentage < 0.6, then: 3,
-    when: sales_model.revenue_percentage < 0.8, then: 4,
-    else: 5
-  ),
-  'int'
-);;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: sales_model
-      }
-      filter {
-        field: r(orders.created_at)
-        operator: 'matches'
-        value: '2025'
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Date'
-          ref: r(orders.created_at)
-          transformation: 'datetrunc day'
-          format {
-            type: 'date'
-            pattern: 'LLL dd, yyyy'
-          }
-        },
-        VizFieldFull {
-          ref: ref('orders', 'day_of_week')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('orders', 'week_index')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Month Label'
-          ref: r(orders.created_at)
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-            pattern: 'LLL yyyy'
-          }
-        },
-        VizFieldFull {
-          ref: ref('sales_model', 'revenue_percentage')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('sales_model', 'color_bucket')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: r(sales_model.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      content: @md <div>Rows: {{ rows[0].`Date`.formatted }}</div>
-
-<ul>
-{% map(rows) %}
-  <li>
-    Date={{ `Date`.formatted }},
-    W={{ `Week Index`.raw}},
-    D={{ `Day Of Week`.raw }},
-    Bucket={{ `Color Bucket`.raw }},
-    Revenue={{ values.`Revenue` }}
-  </li>
-{% end %}
-</ul> ;;
-      settings {
-        show_row_total: true
-        show_column_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block v_rik3: VizBlock {
-    label: 'Heatmap'
-    viz: MarkdownViz {
-      dataset: complete_dataset_with_metrics
-      calculation day_of_week {
-        label: 'Day Of Week'
-        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: orders
-      }
-      calculation week_index {
-        label: 'Week Index'
-        formula: @aql cast(date_part('week', orders.created_at), 'int');;
-        calc_type: 'dimension'
-        data_type: 'number'
-        model: orders
-      }
-      calculation month_start {
-        label: 'Month Start'
-        formula: @aql month(orders.created_at);;
-        calc_type: 'dimension'
-        data_type: 'datetime'
-        model: orders
-      }
-      calculation month_label_display {
-        label: 'Month Label Display'
-        formula: @aql case(
-  when: date_part('day', orders.created_at) == 1, then: 'block',
-  else: 'none'
-);;
-        calc_type: 'dimension'
-        data_type: 'text'
-        model: orders
-      }
-      calculation revenue_percentage_over_max {
-        label: 'Revenue Percentage Over Max'
-        formula: @aql (sales_model.revenue * 1.0) 
-/
-window_max(sales_model.revenue);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      calculation color_bucket {
-        label: 'Color Bucket'
-        formula: @aql case(
-  when: sales_model.revenue == 0, then: 0,
-  when: revenue_percentage_over_max < 0.2, then: 1,
-  when: revenue_percentage_over_max < 0.4, then: 2,
-  when: revenue_percentage_over_max < 0.6, then: 3,
-  when: revenue_percentage_over_max < 0.8, then: 4,
-  else: 5
-);;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      filter {
-        field: r(orders.created_at)
-        operator: 'matches'
-        value: '2025'
-      }
-      rows: [
-        VizFieldFull {
-          label: 'Date'
-          ref: r(orders.created_at)
-          transformation: 'datetrunc day'
-          format {
-            type: 'date'
-            pattern: 'LLL dd, yyyy'
-          }
-        },
-        VizFieldFull {
-          ref: ref('orders', 'day_of_week')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: ref('orders', 'week_index')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Month Label'
-          ref: r(orders.created_at)
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-            pattern: 'LLL yyyy'
-          }
-        },
-        VizFieldFull {
-          ref: ref('orders', 'month_label_display')
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: 'color_bucket'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'revenue_percentage_over_max'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: r(sales_model.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      content: @md <style>
-  .hm {
-    --cell: 24px;
-    --gap: 6px;
-    --label-w: 45px;
-
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    color: #111827;
-
-    --label-color: #6b7280;
-  }
-
-
-  .hm__scroller{
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 6px; /* so scrollbar doesn't cover cells */
-  }
-
-  .hm__header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 24px;
-    margin: 0 0 10px 0;
-  }
-
-  .hm__title { font-size: 20px; font-weight: 700; margin: 0; }
-  .hm__subtitle { font-size: 12px; color: #6b7280; margin: 0; white-space: nowrap; }
-
-  .hm__wrap {
-    display: grid;
-    grid-template-columns: var(--label-w) 1fr;
-    gap: 10px;
-    align-items: start;
-    width: max-content;
-    max-width: 100%;
-  }
-
-  .hm__ylabels {
-    display: grid;
-    grid-template-rows: 13px repeat(7, var(--cell));
-    row-gap: var(--gap);
-    align-items: center;
-    user-select: none;
-  }
-
-  .hm__ylabels .spacer { height: 18px; }
-  .hm__ylabels .ylabel { font-size: 12px; color: var(--label-color); line-height: 1; }
-
-  /* Month labels row */
-  .hm__months {
-    display: grid;
-    grid-template-columns: repeat(60, var(--cell));
-    column-gap: var(--gap);
-    height: 18px;
-    align-items: end;
-    width: max-content;
-  }
-
-  .hm__month {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--label-color);
-    line-height: 1;
-    padding-bottom: 10px;
-    white-space: nowrap;
-    user-select: none;
-    pointer-events: none;
-  }
-
-  /* Heatmap grid */
-  .hm__grid {
-    display: grid;
-    grid-template-columns: repeat(60, var(--cell));
-    grid-template-rows: repeat(7, var(--cell));
-    column-gap: var(--gap);
-    row-gap: var(--gap);
-    width: max-content;
-  }
-
-  .hm__cell {
-    width: var(--cell);
-    height: var(--cell);
-    border-radius: 2px;
-    background: rgba(0,0,0,0.06);
-    outline: 1px solid rgba(0,0,0,0.05); /* makes empties visible */
-  }
-
-  .hm__cell.lvl-0 { background: rgba(0,0,0,0.06); }
-  .hm__cell.lvl-1 { background: #e5f4e9; }
-  .hm__cell.lvl-2 { background: #bfe6c9; }
-  .hm__cell.lvl-3 { background: #86cf9a; }
-  .hm__cell.lvl-4 { background: #39a96b; }
-  .hm__cell.lvl-5 { background: #1f7f4d; }
-
-  .hm__legend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 30px;
-    font-size: 10px;
-    color: var(--label-color);
-  }
-
-  .hm__legend-swatches { display: inline-flex; align-items: center; gap: 3px; }
-  .hm__swatch { width: var(--cell); height: var(--cell); border-radius: 2px; outline: 1px solid rgba(0,0,0,0.05); }
-  .hm__swatch.lvl-0 { background: rgba(0,0,0,0.06); }
-  .hm__swatch.lvl-1 { background: #e5f4e9; }
-  .hm__swatch.lvl-2 { background: #bfe6c9; }
-  .hm__swatch.lvl-3 { background: #86cf9a; }
-  .hm__swatch.lvl-4 { background: #39a96b; }
-  .hm__swatch.lvl-5 { background: #1f7f4d; }
-</style>
-
-<div class="hm">
-  <div class="hm__header">
-  <p class="hm__title">Revenue Calendar Heatmap</p>
-  <p class="hm__subtitle">Each cell is a day; darker = higher revenue</p>
-  </div>
-
-<div class="hm__wrap">
-  <div class="hm__ylabels">
-    <div class="spacer"></div>
-    <div class="ylabel">Mon</div>
-    <div class="ylabel"></div>
-    <div class="ylabel">Wed</div>
-    <div class="ylabel"></div>
-    <div class="ylabel">Fri</div>
-    <div class="ylabel"></div>
-    <div class="ylabel">Sun</div>
-  </div>
-
-  <div>
-  <div class="hm__scroller">
-  <!-- Month labels -->
-  <div class="hm__months">
-  {% map(rows) %}
-  <div 
-  class="hm__month" 
-  style="grid-column: {{ `Week Index`.formatted }}; display: {{ `Month Label Display`.raw }};">
-  {{ `Month Label` }}
-  </div>
-  {% end %}
-  </div>
-
-  <!-- Cells -->
-  <div class="hm__grid">
-  {% map(rows) %}
-  <div
-    class="hm__cell lvl-{{ values.`Color Bucket`.formatted }}"
-    style="grid-column: {{ `Week Index`.formatted }}; grid-row: {{ `Day Of Week`.formatted }};"
-    title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}"
-  ></div>
-  {% end %}
-  </div>
-  </div>
-</div>
-</div>
-
-<div class="hm__legend">
-  <span>Less</span>
-  <span class="hm__legend-swatches">
-    <span class="hm__swatch lvl-0"></span>
-    <span class="hm__swatch lvl-1"></span>
-    <span class="hm__swatch lvl-2"></span>
-    <span class="hm__swatch lvl-3"></span>
-    <span class="hm__swatch lvl-4"></span>
-    <span class="hm__swatch lvl-5"></span>
-  </span>
-  <span>More</span>
-</div>
-
-</div>  ;;
-      settings {
-        show_row_total: true
-        show_column_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
   }
   view: TabLayout {
     label: 'View 1'
@@ -3404,7 +2572,7 @@ window_max(sales_model.revenue);;
         position: pos(20, 20, 860, 360)
         layer: 2
       }
-      block v_x1m6 {
+      block v_x1m6vux {
         position: pos(20, 400, 860, 380)
         layer: 1
       }
@@ -3418,7 +2586,7 @@ window_max(sales_model.revenue);;
       height: 700
       grid_size: 20
       auto_expand_vertically: true
-      block v_z3mq {
+      block v_z3mqvux {
         position: pos(20, 20, 860, 660)
         layer: 1
       }
@@ -3432,7 +2600,7 @@ window_max(sales_model.revenue);;
       height: 1220
       grid_size: 20
       auto_expand_vertically: true
-      block v_6tc8 {
+      block v_6tc8vux {
         position: pos(20, 20, 1100, 1180)
       }
       mobile {
@@ -3445,11 +2613,11 @@ window_max(sales_model.revenue);;
       height: 560
       grid_size: 20
       auto_expand_vertically: true
-      block v_p5re {
+      block v_p5revux {
         position: pos(440, 20, 620, 520)
         layer: 3
       }
-      block v_fyrn {
+      block v_fyrnvux {
         position: pos(20, 20, 420, 520)
         layer: 4
       }
@@ -3462,23 +2630,23 @@ window_max(sales_model.revenue);;
       width: 980
       height: 770
       auto_expand_vertically: true
-      block v_mdra {
+      block v_mdravux {
         position: pos(650, 10, 320, 280)
         layer: 4
       }
-      block v_ggbb {
+      block v_ggbbvux {
         position: pos(10, 10, 630, 150)
         layer: 2
       }
-      block v_l0eq {
+      block v_l0eqvux {
         position: pos(330, 170, 310, 120)
         layer: 1
       }
-      block v_vq7e {
+      block v_vq7evux {
         position: pos(10, 170, 310, 120)
         layer: 1
       }
-      block v_i51a {
+      block v_i51avux {
         position: pos(10, 300, 960, 460)
         layer: 3
       }
@@ -3486,44 +2654,23 @@ window_max(sales_model.revenue);;
         mode: 'auto'
       }
     }
-    tab tab_0eq5: CanvasLayout {
+    tab tab_kzjs: CanvasLayout {
       label: '⚒️ Metrics Tree'
       width: 1420
       height: 940
       grid_size: 20
       auto_expand_vertically: true
-      block t_dkj6 {
+      block t_pbri {
         position: pos(20, 20, 1380, 60)
       }
-      block v_ltlh {
+      block v_016yvux {
         position: pos(20, 80, 1380, 640)
       }
-      block t_3swd {
+      block t_40vr {
         position: pos(20, 740, 1380, 60)
       }
-      block t_frki {
+      block t_bckq {
         position: pos(20, 800, 1380, 120)
-      }
-      mobile {
-        mode: 'auto'
-      }
-    }
-    tab tab_i1pc: CanvasLayout {
-      label: '⚒️ Time Grain Control (WIP)'
-      width: 640
-      height: 580
-      grid_size: 20
-      auto_expand_vertically: true
-      block v_0k2v {
-        position: pos(20, 120, 600, 120)
-        layer: 1
-      }
-      block v_g7tl {
-        position: pos(20, 20, 600, 100)
-        layer: 2
-      }
-      block v_ny61 {
-        position: pos(20, 360, 600, 200)
       }
       mobile {
         mode: 'auto'
@@ -3535,227 +2682,13 @@ window_max(sales_model.revenue);;
       height: 1340
       grid_size: 20
       auto_expand_vertically: true
-      block v_vhzw {
-        position: pos(20, 20, 1100, 1040)
+      block v_vhzwvux {
+        position: pos(20, 20, 1100, 920)
       }
       mobile {
         mode: 'auto'
-      }
-    }
-    tab tab_0jhn: CanvasLayout {
-      label: 'Calendar Heatmap'
-      width: 1300
-      height: 1500
-      auto_expand_vertically: true
-      mobile {
-        mode: 'auto'
-      }
-      block v_9x48 {
-        position: pos(20, 20, 360, 720)
-      }
-      block v_xb5w {
-        position: pos(390, 520, 760, 600)
-      }
-      block v_rik3 {
-        position: pos(390, 20, 560, 480)
       }
     }
   }
   theme: H.themes.classic
-  interactions: [
-    FilterInteraction {
-      from: 'v5'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_p5re'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_fyrn'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_93o6'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_0k2v'
-      to: [
-        CustomMapping {
-          block: [
-            'v_9x48',
-            'v_xb5w',
-            'v_rik3'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_g7tl'
-      to: [
-        CustomMapping {
-          block: [
-            'v_9x48',
-            'v_xb5w',
-            'v_rik3'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mdra'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_ggbb'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_l0eq'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vq7e'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_i51a'
-      to: [
-        CustomMapping {
-          block: 'v_vhzw'
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vhzw'
-      to: [
-        CustomMapping {
-          block: [
-            'v5',
-            'v_p5re',
-            'v_fyrn',
-            'v_93o6',
-            'v_mdra',
-            'v_ggbb',
-            'v_l0eq',
-            'v_vq7e',
-            'v_i51a'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_6tc8'
-      to: [
-        CustomMapping {
-          block: [
-            'v_9x48',
-            'v_xb5w',
-            'v_rik3'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_ny61'
-      to: [
-        CustomMapping {
-          block: [
-            'v_9x48',
-            'v_xb5w',
-            'v_rik3'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_9x48'
-      to: [
-        CustomMapping {
-          block: [
-            'v_0k2v',
-            'v_g7tl',
-            'v_6tc8',
-            'v_ny61'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_xb5w'
-      to: [
-        CustomMapping {
-          block: [
-            'v_0k2v',
-            'v_g7tl',
-            'v_6tc8',
-            'v_ny61'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_rik3'
-      to: [
-        CustomMapping {
-          block: [
-            'v_0k2v',
-            'v_g7tl',
-            'v_6tc8',
-            'v_ny61'
-          ]
-          disabled: true
-        }
-      ]
-    }
-  ]
 }

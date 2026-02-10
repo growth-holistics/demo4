@@ -1,0 +1,618 @@
+Dashboard customer_profile {
+  title: 'Customer Profile'
+  description: ''
+  owner: 'thong.do@holistics.io'
+  block v_0974: VizBlock {
+    label: 'Total Orders, Total Delivered Orders and 4 more by Id, Month Sign Up Date and 2 more'
+    viz: MarkdownViz {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_users.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.full_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.sign_up_date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Phone number'
+          ref: r(ecommerce_users.phone)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.email_user)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.age)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.email_pii)
+          format {
+            type: 'text'
+          }
+        },
+        r(demo_ecommerce_version_2, ecommerce_users.is_repeated_buyer),
+        VizFieldFull {
+          ref: r(ecommerce_countries.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_delivered_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_refunded_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_cancelled_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.aov)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.nmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.days_since_last_order)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+.user-profile-wrapper * {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+.user-profile-wrapper {
+// font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+// background: #f5f7fa;
+// padding: 20px;
+}
+
+.user-profile-card {
+background: #FFFFFF;
+// border-radius: 12px;
+// box-shadow: 0 4px 6px rgba(5, 38, 76, 0.1);
+// max-width: 900px;
+width: 100%;
+overflow: hidden;
+margin: 0 auto;
+}
+
+.user-profile-header {
+background: #05264c;
+padding: 40px 30px 40px;
+text-align: center;
+position: relative;
+}
+
+.user-profile-avatar-container {
+position: relative;
+display: inline-block;
+margin-bottom: 5px;
+}
+
+.user-profile-avatar {
+width: 120px;
+height: 120px;
+border-radius: 50%;
+border: 5px solid #FFFFFF;
+object-fit: cover;
+display: block;
+}
+
+.user-profile-name {
+color: #FFFFFF;
+font-size: 28px;
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.user-profile-contact {
+color: rgba(255, 255, 255, 0.8);
+font-size: 16px;
+// margin-bottom: 4px;
+}
+
+.user-profile-contact svg {
+display: inline-block;
+vertical-align: middle;
+margin-right: 6px;
+}
+
+.user-profile-body {
+padding: 30px 30px;
+}
+
+.user-profile-section {
+margin-bottom: 45px;
+margin-top: 25px;
+}
+
+.user-profile-section-title {
+color: #05264c;
+font-size: 14px;
+font-weight: 600;
+// text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 25px;
+padding-bottom: 12px;
+border-bottom: 2px solid #e5e7eb;
+}
+
+.user-profile-info-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 25px;
+}
+
+.user-profile-info-item {
+display: flex;
+flex-direction: column;
+}
+
+.user-profile-info-label {
+color: #6b7280;
+font-size: 13px;
+font-weight: 500;
+margin-bottom: 8px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.user-profile-info-value {
+color: #1f2937;
+font-size: 18px;
+font-weight: 600;
+}
+
+.user-profile-metrics-section {
+// padding: 25px 0;
+// margin-top: 15px;
+margin-bottom: 45px;
+margin-top: 25px;
+}
+
+.user-profile-metrics-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 25px;
+margin-top: 25px;
+}
+
+.user-profile-metric-card {
+text-align: center;
+padding: 25px 20px;
+background: #FFFFFF;
+border-radius: 8px;
+border: 2px solid #e5e7eb;
+transition: all 0.3s ease;
+}
+
+.user-profile-metric-card:hover {
+border-color: #d1d5db;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-metric-value {
+color: #1f2937;
+font-size: 32px;
+font-weight: 700;
+margin-bottom: 10px;
+}
+
+.user-profile-metric-label {
+color: #6b7280;
+font-size: 13px;
+font-weight: 500;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.user-profile-status-badge {
+display: inline-block;
+padding: 6px 12px;
+background: #104A89;
+color: #FFFFFF;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.user-profile-status-badge.status-success {
+background: #10b981;
+}
+
+@media (max-width: 768px) {
+.user-profile-header {
+padding: 30px 20px 60px;
+}
+
+.user-profile-avatar {
+width: 100px;
+height: 100px;
+}
+
+.user-profile-name {
+font-size: 24px;
+}
+
+.user-profile-body {
+padding: 20px 20px;
+}
+
+.user-profile-section {
+margin-bottom: 35px;
+margin-top: 25px;
+}
+
+.user-profile-info-grid {
+grid-template-columns: 1fr;
+gap: 20px;
+}
+
+.user-profile-metrics-grid {
+grid-template-columns: 1fr;
+gap: 18px;
+}
+
+.user-profile-metric-value {
+font-size: 28px;
+}
+}
+
+@media (max-width: 480px) {
+.user-profile-wrapper {
+padding: 10px;
+}
+
+.user-profile-name {
+font-size: 20px;
+}
+
+.user-profile-contact {
+font-size: 14px;
+}
+}
+</style>
+
+<div class="user-profile-wrapper">
+<div class="user-profile-card">
+<div class="user-profile-header">
+<div class="user-profile-avatar-container">
+<img src="https://testingbot.com/free-online-tools/random-avatar/200?u={{ rows[0].`Email`.raw }}" alt="{{ rows[0].`Full Name`.raw }}" class="user-profile-avatar">
+</div>
+<h1 class="user-profile-name">{{ rows[0].`Full Name` }}</h1>
+<p class="user-profile-contact">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top: 8px">
+<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+<polyline points="22,6 12,13 2,6"></polyline>
+</svg>
+{{ rows[0].`Email` }}
+</p>
+<p class="user-profile-contact" style="margin-top: -14px">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top: 8px">
+<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+</svg>
+{{ rows[0].`Phone number` }}
+</p>
+</div>
+
+<div class="user-profile-body">
+<div class="user-profile-section">
+<h2 class="user-profile-section-title">Personal information</h2>
+<div class="user-profile-info-grid">
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Age</span>
+<span class="user-profile-info-value">{{ rows[0].`Age` }} years</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Gender</span>
+<span class="user-profile-info-value">{{ rows[0].`Gender` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Country</span>
+<span class="user-profile-info-value">{{ rows[0].`Country Name` }}</span>
+</div>
+</div>
+</div>
+
+<div class="user-profile-section">
+<h2 class="user-profile-section-title">Account information</h2>
+<div class="user-profile-info-grid">
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Sign Up Date</span>
+<span class="user-profile-info-value">{{ rows[0].`Month Sign Up Date` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Total Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Orders` }} orders</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Repeated Buyer</span>
+<span class="user-profile-info-value">
+    <span class="user-profile-status-badge">{{ rows[0].`Is Repeated Buyer` }}</span>
+</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Customer Status</span>
+<span class="user-profile-info-value">
+    <span class="user-profile-status-badge">Active</span>
+</span>
+</div>
+</div>
+</div>
+
+<!-- Performance Metrics moved BEFORE Order Breakdown -->
+<div class="user-profile-metrics-section">
+<h2 class="user-profile-section-title">Performance metrics</h2>
+<div class="user-profile-metrics-grid">
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`Days Since Last Order` }}</div>
+<div class="user-profile-metric-label">Days Since Last Order</div>
+</div>
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`NMV (Net Merchandise Value)` }}</div>
+<div class="user-profile-metric-label">Total NMV</div>
+</div>
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`AOV (Average Order Value)` }}</div>
+<div class="user-profile-metric-label">Avg NMV</div>
+</div>
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`GMV (Gross Merchandise Value)` }}</div>
+<div class="user-profile-metric-label">GMV</div>
+</div>
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`AOV (Average Order Value)` }}</div>
+<div class="user-profile-metric-label">AOV</div>
+</div>
+<div class="user-profile-metric-card">
+<div class="user-profile-metric-value">{{ rows[0].values.`Total Revenue` }}</div>
+<div class="user-profile-metric-label">Total Revenue</div>
+</div>
+</div>
+</div>
+
+<!-- Order Breakdown moved AFTER Performance Metrics -->
+<div class="user-profile-section">
+<h2 class="user-profile-section-title">Order breakdown</h2>
+<div class="user-profile-info-grid">
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Delivered Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Delivered Orders` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Cancelled Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Cancelled Orders` }}</span>
+</div>
+<div class="user-profile-info-item">
+<span class="user-profile-info-label">Refunded Orders</span>
+<span class="user-profile-info-value">{{ rows[0].values.`Total Refunded Orders` }}</span>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_user_email: FilterBlock {
+    label: 'User Email'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_users.email_pii)
+    }
+    default {
+      operator: 'is'
+      value: 'aalund.dani@mail2kelsey.com'
+    }
+    settings {
+      input_type: 'single'
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block v_htuk: VizBlock {
+    label: 'Id, Status and 5 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+            font_size: 16
+            cell_padding {
+              top: 7
+              left: 8
+              bottom: 7
+              right: 8
+            }
+            borders {
+              outer: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.price)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.cost)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_products.product_image)
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1220
+    height: 1660
+    auto_expand_vertically: true
+    block v_0974 {
+      position: pos(0, 0, 1220, 1440)
+    }
+    block f_user_email {
+      position: pos(-320, 10, 300, 80)
+    }
+    block v_htuk {
+      position: pos(30, 1080, 1160, 540)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+}
