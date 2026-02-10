@@ -1,0 +1,30 @@
+Dataset product_performance {
+  label: 'product_performance'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    product_sales_performance_new_csv
+  ]
+  relationships: []
+  dimension start_percent {
+    label: "Start Percent"
+    type: "number"
+    description: ""
+    definition: @aql (product_sales_performance_new_csv.purchased / product_sales_performance_new_csv.added_to_cart) * 100;;
+    model: product_sales_performance_new_csv
+  }
+  dimension end_percent {
+    label: "End Percent"
+    type: "number"
+    description: ""
+    definition: @aql 100;;
+    model: product_sales_performance_new_csv
+  }
+  dimension bar_width {
+    label: "Bar Width"
+    type: "number"
+    description: ""
+    definition: @aql ((product_sales_performance_new_csv.added_to_cart - product_sales_performance_new_csv.purchased) / product_sales_performance_new_csv.added_to_cart) * 100;;
+    model: product_sales_performance_new_csv
+  }
+}

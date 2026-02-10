@@ -28,27 +28,16 @@ Dashboard embedded_ecommerce_dashboard {
     label: 'Product Performance'
     viz: DataTable {
       dataset: demo_ecommerce_version_2
-      theme {
-
-      }
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_products', 'name')
+          ref: r(ecommerce_products.name)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
-          label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
           label: 'GMV'
-          ref: 'gmv'
+          ref: r(demo_ecommerce_version_2.gmv)
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -57,8 +46,16 @@ Dashboard embedded_ecommerce_dashboard {
           }
         },
         VizFieldFull {
+          label: 'Total Orders'
+          ref: r(ecommerce_orders.total_orders_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
           label: 'AOV'
-          ref: 'aov'
+          ref: r(demo_ecommerce_version_2.aov)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -72,6 +69,7 @@ Dashboard embedded_ecommerce_dashboard {
           enabled: true
           debug_comments: true
         }
+        frozen_columns: 0
       }
     }
     settings {
@@ -87,14 +85,14 @@ Dashboard embedded_ecommerce_dashboard {
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_users', 'email')
+          ref: r(ecommerce_users.email)
           format {
             type: 'text'
           }
         },
         VizFieldFull {
           label: 'Total Orders'
-          ref: ref('ecommerce_orders', 'total_orders_count')
+          ref: r(ecommerce_orders.total_orders_count)
           format {
             type: 'number'
             pattern: 'inherited'
@@ -102,7 +100,7 @@ Dashboard embedded_ecommerce_dashboard {
         },
         VizFieldFull {
           label: 'GMV'
-          ref: 'gmv'
+          ref: r(demo_ecommerce_version_2.gmv)
           format {
             type: 'number'
             pattern: '[$$]#,###0.00,"K"'
@@ -112,19 +110,19 @@ Dashboard embedded_ecommerce_dashboard {
         },
         VizFieldFull {
           label: 'AOV'
-          ref: 'aov'
+          ref: r(demo_ecommerce_version_2.aov)
           format {
             type: 'number'
             pattern: 'inherited'
           }
+          uname: 'custom_aov'
         }
-
       ]
       settings {
         show_row_number: true
         conditional_formats: [
           ConditionalFormat {
-            ref: 'aov'
+            ref: r(demo_ecommerce_version_2.aov)
             format: SingleFormat {
               condition {
                 operator: 'greater_than_equal'
@@ -137,6 +135,16 @@ Dashboard embedded_ecommerce_dashboard {
           }
         ]
         row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'custom_aov'
+            width: 140
+          }
+        ]
       }
     }
     settings {
@@ -170,16 +178,24 @@ Dashboard embedded_ecommerce_dashboard {
       dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'Total Orders'
-        ref: ref('ecommerce_orders', 'total_orders_count')
+        ref: r(ecommerce_orders.total_orders_count)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
+        field: r(ecommerce_orders.created_at)
         duration: 1
         granularity: 'month'
+      }
+      settings {
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
       }
     }
     settings {
@@ -192,18 +208,25 @@ Dashboard embedded_ecommerce_dashboard {
       dataset: demo_ecommerce_version_2
       value: VizFieldFull {
         label: 'GMV'
-        ref: 'gmv'
+        ref: r(demo_ecommerce_version_2.gmv)
         format {
           type: 'number'
-          pattern: '[$$]#,###0.00,"K"'
-          group_separator: ','
-          decimal_separator: '.'
+          pattern: '#,###0.00,,"M"'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('ecommerce_orders', 'created_at')
-        duration: 1
-        granularity: 'month'
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
       }
     }
     settings {
@@ -303,7 +326,7 @@ ecommerce_users.sign_up_date
     type: 'date'
     default {
       operator: 'matches'
-      value: 'last 2 years to today'
+      value: 'last 1 years to today'
     }
   }
   block t5: TextBlock {
@@ -520,14 +543,14 @@ ecommerce_users.sign_up_date
       dataset: demo_ecommerce_version_2
       fields: [
         VizFieldFull {
-          ref: ref('ecommerce_merchants', 'id')
+          ref: r(ecommerce_merchants.id)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: ref('ecommerce_merchants', 'name')
+          ref: r(ecommerce_merchants.name)
           format {
             type: 'text'
           }
@@ -554,110 +577,257 @@ ecommerce_users.sign_up_date
       granularity: 'year'
     }
   }
+  block p_06vn: PopBlock {
+    label: 'Period Comparison'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
+  block v_4ujx: VizBlock {
+    label: 'GMV by Country'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#196848FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_country_name: FilterBlock {
+    label: 'Country Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_countries.name)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          CustomDrillthroughSource {
+            sources: [
+              '_1_country_breakdown'
+            ]
+          }
+        ]
+      }
+    }
+  }
+  block v_et7r: VizBlock {
+    label: 'Users by Country'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#196848FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1440
-    height: 1530
+    height: 2030
     block f2 {
-      position: pos(1110, 10, 310, 80)
+      position: pos(1140, 10, 280, 80)
     }
     block f3 {
-      position: pos(800, 10, 300, 80)
+      position: pos(850, 10, 280, 80)
     }
     block hr {
-      position: pos(-20, 100, 1480, 20)
+      position: pos(-20, 190, 1480, 20)
     }
     block t2 {
-      position: pos(750, 340, 650, 40)
+      position: pos(750, 430, 650, 40)
     }
     block t5 {
       position: pos(30, 10, 170, 90)
     }
     block t9 {
-      position: pos(40, 340, 650, 40)
+      position: pos(40, 430, 650, 40)
     }
     block v1 {
-      position: pos(360, 20, 360, 60)
+      position: pos(240, 20, 360, 60)
     }
     block v2 {
-      position: pos(750, 780, 650, 240)
+      position: pos(750, 1300, 650, 240)
     }
     block v3 {
-      position: pos(40, 780, 650, 240)
+      position: pos(40, 1300, 650, 240)
     }
     block v4 {
-      position: pos(40, 140, 240, 140)
+      position: pos(40, 230, 240, 140)
     }
     block v5 {
-      position: pos(610, 140, 240, 140)
+      position: pos(610, 230, 240, 140)
     }
     block v6 {
-      position: pos(880, 140, 240, 140)
+      position: pos(880, 230, 240, 140)
     }
     block v7 {
-      position: pos(1160, 140, 240, 140)
+      position: pos(1160, 230, 240, 140)
     }
     block v8 {
-      position: pos(40, 390, 650, 370)
+      position: pos(40, 480, 650, 370)
     }
     block t10 {
-      position: pos(300, 120, 10, 180)
+      position: pos(300, 210, 10, 180)
     }
     block t11 {
-      position: pos(580, 120, 10, 180)
+      position: pos(580, 210, 10, 180)
       layer: 1
     }
     block t12 {
-      position: pos(860, 120, 10, 180)
+      position: pos(860, 210, 10, 180)
     }
     block t13 {
-      position: pos(1140, 120, 10, 180)
+      position: pos(1140, 210, 10, 180)
     }
     block t14 {
-      position: pos(20, 320, 690, 720)
+      position: pos(20, 410, 690, 1150)
       layer: -2
     }
     block t15 {
-      position: pos(730, 320, 690, 720)
+      position: pos(730, 410, 690, 1150)
       layer: -2
     }
     block v11 {
-      position: pos(750, 390, 650, 370)
+      position: pos(750, 480, 650, 370)
     }
     block v12 {
-      position: pos(320, 140, 240, 140)
+      position: pos(320, 230, 240, 140)
     }
     block v13 {
-      position: pos(730, 1050, 680, 450)
+      position: pos(730, 1570, 690, 450)
     }
     block v14 {
-      position: pos(10, 1050, 700, 450)
+      position: pos(20, 1570, 690, 450)
     }
     block box1 {
-      position: pos(20, 120, 1400, 180)
+      position: pos(20, 210, 1400, 180)
       layer: -1
     }
     block divider {
       position: pos(230, 30, 10, 40)
     }
     block d1 {
-      position: pos(520, 330, 170, 100)
+      position: pos(520, 420, 170, 100)
     }
     block p1 {
-      position: pos(1190, 330, 210, 80)
+      position: pos(1190, 420, 210, 80)
+    }
+    block p_06vn {
+      position: pos(1140, 90, 280, 80)
+      layer: 2
+    }
+    block v_4ujx {
+      position: pos(750, 870, 650, 420)
+    }
+    block f_country_name {
+      position: pos(850, 90, 280, 80)
+    }
+    block v_et7r {
+      position: pos(40, 870, 650, 420)
     }
   }
   interactions: [
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'f_country_name'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_country_name'
+      to: [
+        CustomMapping {
+          block: 'f3'
+          disabled: true
+        }
+      ]
+    },
     DateDrillInteraction {
       from: 'd1'
       to: [
         CustomMapping {
           block: 'v8'
-          field: ref('ecommerce_users', 'sign_up_date')
+          field: r(ecommerce_users.sign_up_date)
         },
         CustomMapping {
           block: 'v11'
-          field: ref('dim_dates', 'date_key')
+          field: r(dim_dates.date_key)
         }
       ]
     },
@@ -666,11 +836,29 @@ ecommerce_users.sign_up_date
       to: [
         CustomMapping {
           block: 'v11'
-          field: ref('dim_dates', 'date_key')
+          field: r(dim_dates.date_key)
         },
         CustomMapping {
           block: 'v8'
-          field: ref('ecommerce_users', 'sign_up_date')
+          field: r(ecommerce_users.sign_up_date)
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p_06vn'
+      to: [
+        CustomMapping {
+          block: 'v5'
+          field: r(ecommerce_orders.created_at)
+        },
+        CustomMapping {
+          block: [
+            'v4',
+            'v6',
+            'v7',
+            'v12'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     },
@@ -684,7 +872,7 @@ ecommerce_users.sign_up_date
             'v8',
             'v12'
           ]
-          field: ref('ecommerce_users', 'sign_up_date')
+          field: r(ecommerce_users.sign_up_date)
         },
         CustomMapping {
           block: [
@@ -692,11 +880,11 @@ ecommerce_users.sign_up_date
             'v6',
             'v7'
           ]
-          field: ref('ecommerce_orders', 'created_at')
+          field: r(ecommerce_orders.created_at)
         },
         CustomMapping {
           block: 'v11'
-          field: ref('dim_dates', 'date_key')
+          field: r(dim_dates.date_key)
         }
       ]
     }
