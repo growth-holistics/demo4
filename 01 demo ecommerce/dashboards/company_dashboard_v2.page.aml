@@ -307,90 +307,6 @@ Dashboard company_dashboard_v2 {
       value: []
     }
   }
-  block v43: VizBlock {
-    label: 'User demographics'
-    viz: PivotTable {
-      dataset: demo_ecommerce_version_2
-      calculation untitled_metric_316015f {
-        label: 'Untitled Metric'
-        formula: @aql total_repeated_buyers/total_buyers;;
-        calc_type: 'measure'
-        data_type: 'number'
-      }
-      theme {
-        table {
-          general {
-            borders {
-              outer: true
-              horizontal: true
-              vertical: true
-              header: true
-              row_header: true
-            }
-          }
-        }
-      }
-      rows: [
-        VizFieldFull {
-          ref: r(ecommerce_users.age_group)
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      columns: [
-        VizFieldFull {
-          ref: r(ecommerce_users.gender)
-          format {
-            type: 'text'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.total_orders)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.revenue)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.total_users)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.total_repeated_buyers)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      settings {
-        show_row_total: true
-        show_column_total: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-        value_labels_position {
-          placement: 'rows'
-        }
-      }
-    }
-    theme: holistics_ant_card_blocktheme
-  }
   block f3: FilterBlock {
     label: 'Date'
     type: 'field'
@@ -761,154 +677,6 @@ Use the **[Drill Down]** or **[View Underlying Data]** features to explore break
           debug_comments: true
         }
       }
-    }
-  }
-  block v57: VizBlock {
-    label: 'Any Metrics by Product Category'
-    viz: BarChart {
-      dataset: demo_ecommerce_version_2
-      x_axis: VizFieldFull {
-        ref: r(map_categories.parent_category)
-        format {
-          type: 'text'
-        }
-      }
-      legend: VizFieldFull {
-        ref: r(map_categories.category)
-        format {
-          type: 'text'
-        }
-      }
-      y_axis {
-        settings {
-          show_data_label_by: 'value'
-          stack_series_by: 'value'
-        }
-        series {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.dynamic_metric_currency)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#05264C'
-            point {
-              value: 'Body'
-              color: '#05264c'
-            }
-            point {
-              value: 'Face'
-              color: '#003a61'
-            }
-            point {
-              value: 'Tablets'
-              color: '#05264c'
-            }
-            point {
-              value: 'Smartwatches'
-              color: '#003a61'
-            }
-            point {
-              value: 'Mobiles'
-              color: '#004e71'
-            }
-            point {
-              value: 'Bathroom'
-              color: '#05264c'
-            }
-            point {
-              value: 'Outdoor'
-              color: '#003a61'
-            }
-            point {
-              value: 'Kitchen and Dinning'
-              color: '#05264c'
-            }
-            point {
-              value: 'Living Room'
-              color: '#00627a'
-            }
-            point {
-              value: 'Bedroom'
-              color: '#00767b'
-            }
-            point {
-              value: 'Televisions'
-              color: '#05264c'
-            }
-            point {
-              value: 'Gaming'
-              color: '#003a61'
-            }
-            point {
-              value: 'Audio Gadgets'
-              color: '#004e71'
-            }
-            point {
-              value: 'Snacks'
-              color: '#05264c'
-            }
-            point {
-              value: 'Baking and Cooking'
-              color: '#003a61'
-            }
-            point {
-              value: 'Candy'
-              color: '#004e71'
-            }
-            point {
-              value: 'T-shirts'
-              color: '#05264c'
-            }
-            point {
-              value: 'Shoes'
-              color: '#003a61'
-            }
-            point {
-              value: 'Jeans'
-              color: '#004e71'
-            }
-          }
-        }
-      }
-      settings {
-        row_limit: 5000
-        legend_label: 'hidden'
-        x_axis_show_null_datetime: false
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-    settings {
-      hide_label: true
-    }
-    theme: holistics_ant_card_blocktheme
-  }
-  block f9: FilterBlock {
-    label: 'Date'
-    type: 'date'
-    default {
-      operator: 'matches'
-      value: 'last 12 months'
-    }
-  }
-  block f10: FilterBlock {
-    label: 'Select metric'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce_version_2
-      field: r(param_model_demo.metric_selections_currency)
-    }
-    default {
-      operator: 'is'
-      value: 'platform revenue'
-    }
-    settings {
-      input_type: 'single'
     }
   }
   block t30: TextBlock {
@@ -1586,13 +1354,15 @@ Uncover trends by comparing current performance against a previous period.
   }
   block t_f8rx: block_ha_heading('All Metrics To Date')
   block t_vuka: block_ha_heading('Regional Sales Distribution Insight')
-  block t_718y: block_ha_page_header('Products', 'This page provides a unified view of key product metrics and customer behavior, designed to help business teams explore data independently with confidence.')
+  block t_718y: block_ha_page_header(
+    'Products',
+    'An overview of the various product offerings we offer'
+  )
   block t_kde2: block_ha_page_header('Users', 'Track user growth, demographics, retention, and buying behavior to understand customer engagement and loyalty.')
   block t_dv39: block_ha_page_header('Business Profile Snapshot', '''This page provides you a quick understanding of the current shape and scope of the business. <br /> If you have any questions, please don't hesitate to <a href="mailto:hi@holistics.io" style="text-decoration: underline; color: white ">contact us here</a>.''')
   block t_elu8: block_ha_card()
   block t_o55c: block_ha_card()
   block t_m86d: block_annotation_key_insight('Key Insight', 'Our sales performance is anchored in developed Western markets, with the <span class="highlight">United States, Australia, and Germany</span> emerging as our top revenue contributors.', 'Last updated: 20 May 2025 • Peter Parker')
-  block t_mbgg: block_ha_info_whats_this("What's this", '<p style="font-size: 16px; font-weight: 600">Unified Metric Selector: Focused Exploration, One Metric at a Time<p>  <p> This dropdown lets users dynamically switch between key metrics — <code>GMV</code>, <code>NMV</code>, <code>AOV</code>, and more — while preserving the same dimension (e.g., Product Category) so that users can make apples-to-apples comparisons across different KPIs. </p>  <p> ✅ <b>Why it matters</b>: BI teams can reduce the upfront complexity by guiding users to <b>explore one metric at a time</b>, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric. </p>', 'left')
   block t_2ne6: block_ha_page_header_bg()
   block t_o5qy: block_ha_page_header_bg()
   block t_bet4: block_ha_page_header_bg()
@@ -1766,11 +1536,6 @@ https://www.learnui.design/tools/data-color-picker.html#palette
 
 </div>;;
   }
-  block t_tf2t: TextBlock {
-    content: @md <h4>Metric by product category</h4>;;
-  }
-  block t_fpmz: block_ha_card()
-  block t_2jh0: separator()
   block f_xzr7: FilterBlock {
     label: 'Country'
     type: 'field'
@@ -2090,6 +1855,1044 @@ height: 100%
       hide_label: true
     }
   }
+  block v_su0w: VizBlock {
+    label: 'Product Card Grid'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      rows: [
+        VizFieldFull {
+          ref: r(products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Category Name'
+          ref: r(categories.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(product_image_csv.product_image_url)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Price'
+          ref: r(products.price)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  /* https://play.tailwindcss.com/vHqt0FBGy8 */
+	.deals-container {
+		display: grid;
+		padding: 1.5rem; 
+		grid-template-columns: repeat(1, minmax(0, 1fr)); 
+		column-gap: 1.5rem; 
+		row-gap: 2rem; 
+		list-style: none;
+		grid-template-columns: repeat(2, minmax(0, 1fr)); 
+      @media (min-width: 1024px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+		}
+		@media (min-width: 1280px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		@media (min-width: 1536px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		@media (min-width: 1960px) { 
+			grid-template-columns: repeat(3, minmax(0, 1fr)); 
+			column-gap: 2rem; 
+		}
+		
+	}
+
+	.deal-container {
+		overflow: hidden; 
+		border-radius: 0.75rem; 
+		border: 1px solid #E5E7EB;
+		list-style: none;
+	}
+
+	.deal-header {
+		display: flex; 
+		padding: 1.5rem; 
+		column-gap: 1rem; 
+		align-items: center; 
+		border-bottom: 1px solid rgb(17 24 39 / 0.05); 
+		background-color: #F9FAFB; 
+	}
+
+	.deal-logo {
+		object-fit: cover; 
+		flex: none; 
+		border-radius: 0.5rem;
+        border: 1px solid rgb(229 231 235);
+		box-shadow: 0 0 0 0 calc(1px) rgb(229 231 235); 
+		width: 4rem; 
+		height: 4rem; 
+		background-color: #ffffff; 
+	}
+
+	.deal-name {
+		font-size: 1rem;
+		line-height: 1.25rem; 
+		font-weight: 500; 
+		line-height: 1.5rem; 
+		color: #111827; 
+	}
+
+	.deal-details {
+      padding-top: 1rem;
+      padding-bottom: 1rem; 
+      padding-left: 1.5rem;
+      padding-right: 1.5rem; 
+      margin-top: -0.75rem;
+      margin-bottom: -0.75rem; 
+      border-top-width: 1px; 
+      border-color: #F3F4F6; 
+      font-size: 0.875rem;
+      line-height: 1.25rem; 
+      line-height: 1.5rem; 
+	}
+
+	.deal-details-inner {
+      display: flex; 
+      padding-top: 0.3rem;
+      padding-bottom: 0.3rem; 
+      column-gap: 1rem; 
+      justify-content: space-between; 
+	}
+
+  	/* Tailwind Helpers */
+	  .-my-3 {
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+}
+.flex {
+  display: flex;
+}
+.flex-row {
+  flex-direction: row;
+}
+.flex-col {
+  flex-direction: column;
+}
+.grid {
+  display: grid;
+}
+.h-12 {
+  height: 3rem;
+}
+.w-12 {
+  width: 3rem;
+}
+.flex-none {
+  flex: none;
+}
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.gap-x-2 {
+  column-gap: 0.5rem;
+}
+.gap-x-4 {
+  column-gap: 1rem;
+}
+.gap-x-6 {
+  column-gap: 1.5rem;
+}
+.gap-y-8 {
+  row-gap: 2rem;
+}
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  border:0;
+  border-style: solid;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+.divide-y > div.deal-details-inner:last-of-type {
+  border-bottom-width: 0px;
+}
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(243 244 246);
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+.rounded-md {
+  border-radius: 0.375rem;
+}
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+.border {
+  border-width: 1px;
+}
+.border-b {
+  border-bottom-width: 1px;
+}
+.border-gray-200 {
+  border-color: rgb(229 231 235);
+}
+.border-gray-900\\/5 {
+  border-color: rgb(17 24 39 / 0.05);
+}
+.bg-gray-50 {
+  background-color: rgb(249 250 251);
+}
+.bg-red-50 {
+  background-color: rgb(254 242 242);
+}
+.bg-white {
+  background-color: rgb(255 255 255);
+}
+.object-cover {
+  object-fit: cover;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.font-medium {
+  font-weight: 500;
+}
+.leading-6 {
+  line-height: 1.5rem;
+}
+.text-gray-500 {
+  color: rgb(107 114 128);
+}
+.text-gray-700 {
+  color: rgb(55 65 81);
+}
+.text-gray-900 {
+  color: rgb(17 24 39);
+}
+.text-red-700 {
+  color: rgb(185 28 28);
+}
+  .px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem; 
+  }
+  .pl-1 {
+    padding-left: 0.25rem;
+  }
+  .pr-1 {
+padding-right: 0.25rem; 
+  }
+  .px-2 {
+    padding-left: 0.50rem;
+    padding-right: 0.50rem; 
+  }
+  .pl-2 {
+    padding-left: 0.50rem;
+  }
+  .pr-2 {
+padding-right: 0.50rem; 
+  }
+  
+.text-sky-700 {
+  color: rgb(3 105 161);
+}
+  .ring-sky-600\\/10 {
+  border: 1px solid rgb(2 132 199 / 0.1);
+  }
+  .bg-sky-50 {
+  background-color: rgb(240 249 255);
+}
+  .ml-2 {
+    margin-left: 0.5rem;
+  }
+  .bg-green-50 {
+  background-color: rgb(240 253 244);
+}
+  .text-green-700 {
+  color: rgb(21 128 61);
+}
+  .ring-green-600\\/10 {
+  border: 1px solid rgb(22 163 74 / 0.1)\;\;
+  }
+
+.h-drill-selected {
+  color: green;
+}
+
+.deal-container:has(.h-drill-selected) {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  transform: translateY(0);
+}
+
+.deal-name:has(.h-drill-selected) {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  transform: translateY(0);
+}
+
+</style>
+
+<ul class="deals-container">
+  
+{% map(rows) %}
+
+<li class="deal-container">
+<div class="deal-header">
+<img src="{{ `Product Image Url`.raw }}" class="deal-logo" alt="{{ `Name`.raw }}">
+<section class="deal-name flex flex-col" style="justify-content: start;">
+<div class="flex flex-row" style="align-items: center;">{{ `Name` }}
+</div>
+</div>
+</section>
+</div>
+
+<dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
+
+<div class="deal-details-inner" style="border-bottom: none;">
+<dt class="text-gray-500">Revenue</dt>
+<dd class="flex items-start gap-x-2">
+<section class="rounded-md ml-2 font-medium ring-1 ring-inset text-green-700 bg-green-50 ring-green-600/10" style="padding: 2px 6px">{{ values.`Revenue` }}</section>
+</dd>
+</div>
+
+<div class="deal-details-inner">
+<dt class="text-gray-500">Category</dt>
+<dd class="flex items-start gap-x-2">
+<div class="font-medium text-gray-900">{{ `Category Name` }}</div>
+</dd>
+</div>
+
+<div class="deal-details-inner">
+<dt class="text-gray-500">Price</dt>
+<dd class="flex items-start gap-x-2">
+<div class="font-medium text-gray-900">{{ values.`Total Price` }}</div>
+</dd>
+</div>
+
+</dd>
+</div>
+</dl>
+</li>
+
+{% end %}
+
+</ul>        ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_ocqg: VizBlock {
+    label: 'User Specs'
+    viz: MarkdownViz {
+      dataset: ecommerce_vux
+      filter {
+        field: r(user_lookup_csv.record_sample)
+        operator: 'is'
+        value: true
+      }
+      rows: [
+        VizFieldFull {
+          label: 'User ID'
+          ref: r(user_lookup_csv.user_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(users.email)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(users.full_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Profile Image URL'
+          ref: r(user_lookup_csv.profile_image_url)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Location'
+          ref: r(cities.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(user_lookup_csv.status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Member Since'
+          ref: r(user_lookup_csv.member_since)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          label: 'Last Order Date'
+          ref: r(user_lookup_csv.last_order_date)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(user_lookup_csv.total_orders)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Lifetime Value'
+          ref: r(user_lookup_csv.lifetime_value)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg Order Value'
+          ref: r(user_lookup_csv.avg_order_value)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  /* Record Lookup Card Styling */
+  .record-card {
+    max-width: 600px;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .record-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background-color: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .record-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .record-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+
+  .record-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+  }
+
+  .record-email {
+    font-size: 0.875rem;
+    color: #6366F1;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .record-email:hover {
+    text-decoration: underline;
+  }
+
+  .record-location {
+    font-size: 0.875rem;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .record-location a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .record-location a:hover {
+    color: #4B5563;
+    text-decoration: underline;
+  }
+
+  /* Metrics Section */
+  .record-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .metric-item {
+    padding: 1.25rem;
+    text-align: center;
+    border-right: 1px solid #E5E7EB;
+  }
+
+  .metric-item:last-child {
+    border-right: none;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.2;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+
+  /* Details Section */
+  .record-details {
+    padding: 1.5rem;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+  }
+
+  .detail-value {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 600;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-badge.active,
+  .status-badge.ACTIVE,
+  .status-badge:is([class*="active"], [class*="ACTIVE"]) {
+    background-color: #DEF7EC !important;
+    color: #047857 !important;
+  }
+
+  .status-badge.vip,
+  .status-badge.VIP,
+  .status-badge:is([class*="vip"], [class*="VIP"]) {
+    background-color: #FEF3C7 !important;
+    color: #92400E !important;
+  }
+
+  .status-badge.new,
+  .status-badge.NEW,
+  .status-badge:is([class*="new"], [class*="NEW"]) {
+    background-color: #DBEAFE !important;
+    color: #1E3A8A !important;
+  }
+
+  /* Icon Styling */
+  .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 640px) {
+    .record-header {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .record-image {
+      margin: 0 auto;
+    }
+
+    .record-email,
+    .record-location {
+      justify-content: center;
+    }
+
+    .record-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .metric-item {
+      border-right: none;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .metric-item:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* Empty State */
+  .empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: #9CA3AF;
+  }
+
+  .empty-state-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state-text {
+    font-size: 0.875rem;
+  }
+</style>
+
+<div class="record-card">
+
+<!-- Header Section -->
+<div class="record-header">
+<img src="{{ rows.0.`Profile Image URL`.raw }}" alt="{{ rows.0.`Full Name`.formatted }}" class="record-image" />
+
+<div class="record-info">
+<div class="record-name">{{ rows.0.`Full Name` }}</div>
+
+<a href="mailto:{{ rows.0.`Email`.raw }}" class="record-email">
+  <span class="icon">✉️</span>
+  {{ rows.0.`Email` }}
+</a>
+
+<div class="record-location">
+  <span class="icon">📍</span>
+  <a href="https://www.google.com/maps/search/?api=1&query={{ rows.0.`Location`.raw }}" target="_blank" rel="noopener">
+    {{ rows.0.`Location` }}
+  </a>
+</div>
+</div>
+</div>
+
+<!-- Metrics Section -->
+<div class="record-metrics">
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Total Orders` }}</div>
+    <div class="metric-label">Total Orders</div>
+  </div>
+
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Lifetime Value` }}</div>
+    <div class="metric-label">Lifetime Value</div>
+  </div>
+
+  <div class="metric-item">
+    <div class="metric-value">{{ rows.0.values.`Avg Order Value` }}</div>
+    <div class="metric-label">Avg Order</div>
+  </div>
+</div>
+
+<!-- Details Section -->
+<div class="record-details">
+
+  <div class="detail-row">
+    <span class="detail-label">Status</span>
+    <span class="status-badge {{ rows.0.`Status`.raw  }}">{{ rows.0.`Status` }}</span>
+  </div>
+  
+  <div class="detail-row">
+    <span class="detail-label">Member Since</span>
+    <span class="detail-value">{{ rows.0.`Member Since` }}</span>
+  </div>
+
+  <div class="detail-row">
+    <span class="detail-label">Last Order</span>
+    <span class="detail-value">{{ rows.0.`Last Order Date` }}</span>
+  </div>
+
+  <div class="detail-row">
+    <span class="detail-label">User ID</span>
+    <span class="detail-value">{{ rows.0.`User ID` }}</span>
+  </div>
+</div>
+</div>    ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_k3i7: VizBlock {
+    label: 'User demographics'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_316015f {
+        label: 'Untitled Metric'
+        formula: @aql total_repeated_buyers/total_buyers;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+        table {
+          general {
+            borders {
+              outer: true
+              horizontal: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_users.age_group)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        value_labels_position {
+          placement: 'rows'
+        }
+      }
+    }
+    theme: holistics_ant_card_blocktheme
+  }
+  block v_t6or: VizBlock {
+    label: 'Any Metrics by Product Category'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(map_categories.parent_category)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(map_categories.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.dynamic_metric_currency)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+            point {
+              value: 'Body'
+              color: '#05264c'
+            }
+            point {
+              value: 'Face'
+              color: '#003a61'
+            }
+            point {
+              value: 'Tablets'
+              color: '#05264c'
+            }
+            point {
+              value: 'Smartwatches'
+              color: '#003a61'
+            }
+            point {
+              value: 'Mobiles'
+              color: '#004e71'
+            }
+            point {
+              value: 'Bathroom'
+              color: '#05264c'
+            }
+            point {
+              value: 'Outdoor'
+              color: '#003a61'
+            }
+            point {
+              value: 'Kitchen and Dinning'
+              color: '#05264c'
+            }
+            point {
+              value: 'Living Room'
+              color: '#00627a'
+            }
+            point {
+              value: 'Bedroom'
+              color: '#00767b'
+            }
+            point {
+              value: 'Televisions'
+              color: '#05264c'
+            }
+            point {
+              value: 'Gaming'
+              color: '#003a61'
+            }
+            point {
+              value: 'Audio Gadgets'
+              color: '#004e71'
+            }
+            point {
+              value: 'Snacks'
+              color: '#05264c'
+            }
+            point {
+              value: 'Baking and Cooking'
+              color: '#003a61'
+            }
+            point {
+              value: 'Candy'
+              color: '#004e71'
+            }
+            point {
+              value: 'T-shirts'
+              color: '#05264c'
+            }
+            point {
+              value: 'Shoes'
+              color: '#003a61'
+            }
+            point {
+              value: 'Jeans'
+              color: '#004e71'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_ant_card_blocktheme
+  }
+  block f_xivy: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+  }
+  block f_l3cp: FilterBlock {
+    label: 'Select metric'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(param_model_demo.metric_selections_currency)
+    }
+    default {
+      operator: 'is'
+      value: 'platform revenue'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block t_uqmm: block_ha_info_whats_this("What's this", '<p style="font-size: 16px; font-weight: 600">Unified Metric Selector: Focused Exploration, One Metric at a Time<p>  <p> This dropdown lets users dynamically switch between key metrics — <code>GMV</code>, <code>NMV</code>, <code>AOV</code>, and more — while preserving the same dimension (e.g., Product Category) so that users can make apples-to-apples comparisons across different KPIs. </p>  <p> ✅ <b>Why it matters</b>: BI teams can reduce the upfront complexity by guiding users to <b>explore one metric at a time</b>, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric. </p>', 'left')
+  block t_5n44: TextBlock {
+    content: @md <h4>Metric by product category</h4>;;
+  }
+  block t_7ozp: block_ha_card()
+  block t_tbyk: separator()
+  block t_nxsv: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_m0t9: block_ha_page_header(
+    'Analysis',
+    'Some sample analysis different aspects of our business'
+  )
+  block t_x1ng: block_ha_page_header_bg()
+  block t_p4ru: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
@@ -2204,10 +3007,64 @@ height: 100%
       }
       default_zoom: 0.9
     }
+    tab tab_14kk: CanvasLayout {
+      label: 'Analysis'
+      width: 1300
+      height: 1680
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_k3i7 {
+        position: pos(20, 260, 1220, 760)
+        layer: 1
+      }
+      block v_t6or {
+        position: pos(80, 1220, 1140, 420)
+        layer: 6
+      }
+      block f_xivy {
+        position: pos(400, 1140, 300, 60)
+        layer: 10
+      }
+      block f_l3cp {
+        position: pos(80, 1140, 300, 60)
+        layer: 11
+      }
+      block t_uqmm {
+        position: pos(1100, 760, 100, 40)
+        layer: 1014
+      }
+      block t_5n44 {
+        position: pos(80, 1080, 360, 40)
+        layer: 108
+      }
+      block t_7ozp {
+        position: pos(60, 1060, 1180, 600)
+        layer: 2
+      }
+      block t_tbyk {
+        position: pos(60, 1120, 1180, 20)
+        layer: 109
+      }
+      block t_nxsv {
+        position: pos(60, 40, 140, 40)
+        layer: 6
+      }
+      block t_m0t9 {
+        position: pos(60, 80, 600, 100)
+        layer: 16
+      }
+      block t_x1ng {
+        position: pos(20, 0, 1260, 220)
+        layer: 2
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
     tab tab1: CanvasLayout {
       label: 'Users'
       width: 1260
-      height: 2460
+      height: 2960
       block f1 {
         position: pos(40, 240, 310, 80)
         layer: 4
@@ -2217,16 +3074,12 @@ height: 100%
         layer: 9
       }
       block v34 {
-        position: pos(40, 1220, 1180, 520)
+        position: pos(40, 820, 1180, 520)
         layer: 1
       }
       block v37 {
         position: pos(70, 380, 420, 320)
         layer: 2
-      }
-      block v43 {
-        position: pos(530, 360, 690, 760)
-        layer: 1
       }
       block t_wpcr {
         position: pos(40, 30, 140, 40)
@@ -2245,7 +3098,7 @@ height: 100%
         layer: 12
       }
       block t_elu8 {
-        position: pos(40, 360, 470, 370)
+        position: pos(40, 360, 500, 370)
         layer: 1
       }
       block t_bet4 {
@@ -2253,31 +3106,31 @@ height: 100%
         layer: -2
       }
       block t_4e2c {
-        position: pos(40, 750, 470, 370)
+        position: pos(680, 360, 470, 370)
         layer: 1
       }
       block t_gldd {
-        position: pos(40, 1170, 350, 50)
+        position: pos(40, 770, 350, 50)
         layer: 14
       }
       block v_xvgb {
-        position: pos(70, 780, 420, 320)
+        position: pos(700, 400, 420, 320)
         layer: 1
       }
       block v_3dy9 {
-        position: pos(70, 810, 210, 120)
+        position: pos(700, 430, 210, 120)
         layer: 1
       }
       block t_sxoz {
-        position: pos(70, 780, 40, 40)
+        position: pos(700, 400, 40, 40)
         layer: 2
       }
       block t_afjd {
-        position: pos(1210, 350, 30, 30)
+        position: pos(1140, 350, 30, 30)
         layer: 15
       }
       block t_271a {
-        position: pos(500, 350, 30, 30)
+        position: pos(530, 350, 30, 30)
         layer: 16
       }
       block t_6mrf {
@@ -2285,54 +3138,46 @@ height: 100%
         layer: 17
       }
       block f_xzr7 {
-        position: pos(60, 1860, 300, 60)
+        position: pos(60, 1440, 300, 60)
         layer: 1
       }
       block f_29w2 {
-        position: pos(380, 1860, 300, 60)
+        position: pos(380, 1440, 300, 60)
         layer: 2
       }
       block v_mfrz {
-        position: pos(60, 1950, 1140, 450)
+        position: pos(60, 1530, 1140, 450)
         layer: 3
       }
       block t_izwa {
-        position: pos(40, 1840, 1180, 580)
+        position: pos(40, 1420, 1180, 580)
       }
       block t_wopf {
         position: pos(-20, 200, 1300, 120)
         layer: -3
       }
       block t_q1m5 {
-        position: pos(40, 1790, 810, 50)
+        position: pos(40, 1370, 810, 50)
         layer: 18
       }
       block t_kr0c {
-        position: pos(40, 1920, 1180, 20)
+        position: pos(40, 1500, 1180, 20)
         layer: 19
       }
       block t_od8o {
         position: pos(1110, 1860, 100, 30)
         layer: 120
       }
+      block v_ocqg {
+        position: pos(10, 2430, 620, 520)
+        layer: 121
+      }
       default_zoom: 0.9
     }
     tab tab4: CanvasLayout {
       label: 'Products'
       width: 1260
-      height: 900
-      block f9 {
-        position: pos(380, 340, 300, 60)
-        layer: 7
-      }
-      block f10 {
-        position: pos(60, 340, 300, 60)
-        layer: 8
-      }
-      block v57 {
-        position: pos(60, 420, 1140, 420)
-        layer: 3
-      }
+      height: 1490
       block t_9x1p {
         position: pos(40, 30, 140, 40)
         layer: 1
@@ -2341,24 +3186,16 @@ height: 100%
         position: pos(40, 80, 590, 100)
         layer: 16
       }
-      block t_mbgg {
-        position: pos(1110, 280, 90, 30)
-        layer: 1011
-      }
       block t_2ne6 {
         position: pos(0, 0, 1260, 220)
       }
-      block t_tf2t {
-        position: pos(60, 280, 350, 30)
-        layer: 105
+      block v_su0w {
+        position: pos(50, 280, 1120, 1140)
+        layer: 1013
       }
-      block t_fpmz {
-        position: pos(40, 260, 1180, 600)
-        layer: -1
-      }
-      block t_2jh0 {
-        position: pos(40, 310, 1180, 20)
-        layer: 106
+      block t_p4ru {
+        position: pos(30, 260, 1140, 1200)
+        layer: 1012
       }
       mobile {
         mode: 'auto'
@@ -2444,6 +3281,7 @@ height: 100%
     tab tab_5wmu: CanvasLayout {
       label: 'Dictionary'
       width: 1260
+      height: 1150
       auto_expand_vertically: true
       block t_3qfv {
         position: pos(40, 260, 1180, 860)
@@ -2468,7 +3306,6 @@ height: 100%
         mode: 'auto'
       }
       default_zoom: 0.9
-      height: 1150
     }
   }
   interactions: [
@@ -2478,7 +3315,9 @@ height: 100%
         CustomMapping {
           block: [
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2490,7 +3329,9 @@ height: 100%
         CustomMapping {
           block: [
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2504,7 +3345,6 @@ height: 100%
             'v44',
             'v52',
             'v53',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2516,23 +3356,13 @@ height: 100%
             'v_mfrz',
             'v_wtl8',
             'v_68gi',
+            'v_k3i7',
+            'v_t6or',
             'f3',
             'f4',
-            'f10',
             'f_xzr7',
-            'f_29w2'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v43'
-      to: [
-        CustomMapping {
-          block: [
-            'v_wtl8',
-            'v_68gi'
+            'f_29w2',
+            'f_l3cp'
           ]
           disabled: true
         }
@@ -2545,10 +3375,8 @@ height: 100%
           block: [
             'v34',
             'v37',
-            'v43',
             'v52a',
             'v53a',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2562,11 +3390,13 @@ height: 100%
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_k3i7',
+            'v_t6or',
             'f2',
             'f4',
-            'f10',
             'f_xzr7',
-            'f_29w2'
+            'f_29w2',
+            'f_l3cp'
           ]
           disabled: true
         }
@@ -2578,17 +3408,18 @@ height: 100%
         CustomMapping {
           block: [
             'v37',
-            'v57',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_k3i7',
+            'v_t6or',
             'f2',
             'f3',
-            'f10',
             'f_xzr7',
-            'f_29w2'
+            'f_29w2',
+            'f_l3cp'
           ]
           disabled: true
         }
@@ -2601,7 +3432,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2615,7 +3448,9 @@ height: 100%
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2629,7 +3464,9 @@ height: 100%
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2642,7 +3479,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2655,55 +3494,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v57'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f10'
-      to: [
-        CustomMapping {
-          block: [
-            'v37',
-            'v43',
-            'v44',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
             'v_68gi',
-            'f2',
-            'f3',
-            'f4',
-            'f_xzr7',
-            'f_29w2'
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2716,7 +3509,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2729,7 +3524,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2742,7 +3539,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2755,7 +3554,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2768,7 +3569,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2781,7 +3584,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2794,7 +3599,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2807,7 +3614,9 @@ height: 100%
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2819,7 +3628,9 @@ height: 100%
         CustomMapping {
           block: [
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2831,7 +3642,9 @@ height: 100%
         CustomMapping {
           block: [
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2847,7 +3660,6 @@ height: 100%
             'v53a',
             'v52',
             'v53',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2857,7 +3669,9 @@ height: 100%
             'v_mz6i',
             'v_vs7p',
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2873,7 +3687,6 @@ height: 100%
             'v53a',
             'v52',
             'v53',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2884,11 +3697,13 @@ height: 100%
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
+            'v_k3i7',
+            'v_t6or',
             'f2',
             'f3',
             'f4',
-            'f10',
-            'f_29w2'
+            'f_29w2',
+            'f_l3cp'
           ]
           disabled: true
         }
@@ -2904,7 +3719,6 @@ height: 100%
             'v53a',
             'v52',
             'v53',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2915,11 +3729,13 @@ height: 100%
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
+            'v_k3i7',
+            'v_t6or',
             'f2',
             'f3',
             'f4',
-            'f10',
-            'f_xzr7'
+            'f_xzr7',
+            'f_l3cp'
           ]
           disabled: true
         }
@@ -2935,7 +3751,6 @@ height: 100%
             'v53a',
             'v52',
             'v53',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2945,7 +3760,9 @@ height: 100%
             'v_mz6i',
             'v_vs7p',
             'v_wtl8',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2958,10 +3775,8 @@ height: 100%
           block: [
             'v34',
             'v37',
-            'v43',
             'v52a',
             'v53a',
-            'v57',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -2974,7 +3789,9 @@ height: 100%
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
@@ -2987,29 +3804,118 @@ height: 100%
           block: [
             'v34',
             'v37',
-            'v43',
             'v44',
             'v52a',
             'v53a',
             'v52',
             'v53',
-            'v57',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8'
+            'v_wtl8',
+            'v_k3i7',
+            'v_t6or'
           ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'f9'
+      from: 'v_k3i7'
       to: [
         CustomMapping {
-          block: 'v57'
-          field: ref('ecommerce_orders', 'created_at')
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_t6or'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_l3cp'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'f2',
+            'f3',
+            'f4',
+            'f_xzr7',
+            'f_29w2'
+          ]
+          disabled: true
         }
       ]
     },
@@ -3021,7 +3927,7 @@ height: 100%
             'v37',
             'v_xvgb'
           ]
-          field: ref('ecommerce_users', 'sign_up_at')
+          field: r(ecommerce_users.sign_up_at)
         }
       ]
     }
