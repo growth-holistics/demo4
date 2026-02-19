@@ -1354,10 +1354,7 @@ Uncover trends by comparing current performance against a previous period.
   }
   block t_f8rx: block_ha_heading('All Metrics To Date')
   block t_vuka: block_ha_heading('Regional Sales Distribution Insight')
-  block t_718y: block_ha_page_header(
-    'Products',
-    'An overview of the various product offerings we offer'
-  )
+  block t_718y: block_ha_page_header('Products', 'An overview of the various product offerings we offer')
   block t_kde2: block_ha_page_header('Users', 'Track user growth, demographics, retention, and buying behavior to understand customer engagement and loyalty.')
   block t_dv39: block_ha_page_header('Business Profile Snapshot', '''This page provides you a quick understanding of the current shape and scope of the business. <br /> If you have any questions, please don't hesitate to <a href="mailto:hi@holistics.io" style="text-decoration: underline; color: white ">contact us here</a>.''')
   block t_elu8: block_ha_card()
@@ -2644,7 +2641,15 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_k3i7: VizBlock {
+  block t_nxsv: TextBlock {
+    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
+  }
+  block t_m0t9: block_ha_page_header('Analysis', 'Some sample analysis different aspects of our business')
+  block t_x1ng: block_ha_page_header_bg()
+  block t_p4ru: TextBlock {
+    content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block v_530w: VizBlock {
     label: 'User demographics'
     viz: PivotTable {
       dataset: demo_ecommerce_version_2
@@ -2655,17 +2660,7 @@ padding-right: 0.50rem;
         data_type: 'number'
       }
       theme {
-        table {
-          general {
-            borders {
-              outer: true
-              horizontal: true
-              vertical: true
-              header: true
-              row_header: true
-            }
-          }
-        }
+
       }
       rows: [
         VizFieldFull {
@@ -2728,7 +2723,150 @@ padding-right: 0.50rem;
     }
     theme: holistics_ant_card_blocktheme
   }
-  block v_t6or: VizBlock {
+  block t_t9m9: TextBlock {
+    content: @md <!-- Minimal Text Info Button -->
+<style>
+    .info-btn-text {
+        position: absolute;
+        display: inline-block;
+    }
+
+    .info-btn-text .text-button {
+        background: none;
+        border: none;
+        color: #00627a;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: rgba(0, 98, 122, 0.4);
+        text-underline-offset: 3px;
+    }
+
+    .info-btn-text .text-button:hover {
+        background: rgba(0, 98, 122, 0.08);
+        text-decoration-style: solid;
+        text-decoration-color: #00627a;
+        transform: translateY(-1px);
+    }
+
+    .info-btn-text .text-tooltip {
+        position: absolute;
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 480px;
+        max-width: 640px;
+        background: white;
+        color: #333333;
+        border-radius: 12px;
+        padding: 20px 24px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        /*pointer-events: none;*/
+        font-size: 13px;
+        line-height: 1.6;
+        box-shadow: 0 8px 36px rgba(5, 38, 76, 0.25);
+        z-index: 1000;
+    }
+
+    .info-btn-text .text-tooltip::after {
+        content: '';
+        position: absolute;
+        top: calc(100% - 1px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 6px solid #ffffff;
+    }
+
+    .info-btn-text:hover .text-tooltip {
+        opacity: 1;
+        visibility: visible;
+        bottom: calc(100% + 12px);
+    }
+
+    .info-btn-text .text-tooltip-highlight {
+        color: #4ade80;
+        font-weight: 600;
+    }
+
+    /* RIGHT */
+    .info-btn-text.right-position .text-tooltip {
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + 10px);
+    transform: translateY(-50%);
+    }
+
+    .info-btn-text.right-position .text-tooltip::after {
+    top: 50%;
+    left: -5px;
+    transform: translateY(-50%);
+    border: none;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid #ffffff;
+    }
+
+    /* LEFT */
+    .info-btn-text.left-position .text-tooltip {
+    bottom: auto;
+    top: 50%;
+    right: calc(100% + 10px);
+    left: auto;
+    transform: translateY(-50%);
+    }
+
+    .info-btn-text.left-position .text-tooltip::after {
+    top: 50%;
+    right: -5px;
+    left: auto;                         /* NEW: reset base left:50% */
+    bottom: auto;                       /* (defensive reset) */
+    transform: translateY(-50%);
+    border: none;                       /* clear all first */
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid white;       /* KEY CHANGE: triangle points right */
+    }
+
+
+    /* BOTTOM */
+    .info-btn-text.bottom-position .text-tooltip {
+    top: calc(100% + 10px);
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    }
+
+    .info-btn-text.bottom-position .text-tooltip::after {
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: none;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid #ffffff;
+    }
+</style>
+
+<!-- HTML Structure -->
+<div class="info-btn-text left-position">
+    <button class="text-button">What's this</button>
+    <div class="text-tooltip">
+        <p style="font-size: 16px; font-weight: 600">Unified Metric Selector: Focused Exploration, One Metric at a Time<p>  <p> This dropdown lets users dynamically switch between key metrics — <code>GMV</code>, <code>NMV</code>, <code>AOV</code>, and more — while preserving the same dimension (e.g., Product Category) so that users can make apples-to-apples comparisons across different KPIs. </p>  <p> ✅ <b>Why it matters</b>: BI teams can reduce the upfront complexity by guiding users to <b>explore one metric at a time</b>, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric. </p>
+    </div>
+</div>;;
+  }
+  block v_kp1e: VizBlock {
     label: 'Any Metrics by Product Category'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
@@ -2768,27 +2906,47 @@ padding-right: 0.50rem;
               color: '#003a61'
             }
             point {
-              value: 'Tablets'
+              value: 'Candy'
+              color: '#004e71'
+            }
+            point {
+              value: 'Jeans'
+              color: '#004e71'
+            }
+            point {
+              value: 'Shoes'
+              color: '#003a61'
+            }
+            point {
+              value: 'Gaming'
+              color: '#003a61'
+            }
+            point {
+              value: 'Snacks'
               color: '#05264c'
             }
             point {
-              value: 'Smartwatches'
-              color: '#003a61'
+              value: 'Bedroom'
+              color: '#00767b'
             }
             point {
               value: 'Mobiles'
               color: '#004e71'
             }
             point {
-              value: 'Bathroom'
-              color: '#05264c'
-            }
-            point {
               value: 'Outdoor'
               color: '#003a61'
             }
             point {
-              value: 'Kitchen and Dinning'
+              value: 'Tablets'
+              color: '#05264c'
+            }
+            point {
+              value: 'Bathroom'
+              color: '#05264c'
+            }
+            point {
+              value: 'T-shirts'
               color: '#05264c'
             }
             point {
@@ -2796,15 +2954,11 @@ padding-right: 0.50rem;
               color: '#00627a'
             }
             point {
-              value: 'Bedroom'
-              color: '#00767b'
-            }
-            point {
               value: 'Televisions'
               color: '#05264c'
             }
             point {
-              value: 'Gaming'
+              value: 'Smartwatches'
               color: '#003a61'
             }
             point {
@@ -2812,28 +2966,12 @@ padding-right: 0.50rem;
               color: '#004e71'
             }
             point {
-              value: 'Snacks'
-              color: '#05264c'
-            }
-            point {
               value: 'Baking and Cooking'
               color: '#003a61'
             }
             point {
-              value: 'Candy'
-              color: '#004e71'
-            }
-            point {
-              value: 'T-shirts'
+              value: 'Kitchen and Dinning'
               color: '#05264c'
-            }
-            point {
-              value: 'Shoes'
-              color: '#003a61'
-            }
-            point {
-              value: 'Jeans'
-              color: '#004e71'
             }
           }
         }
@@ -2853,7 +2991,7 @@ padding-right: 0.50rem;
     }
     theme: holistics_ant_card_blocktheme
   }
-  block f_xivy: FilterBlock {
+  block f_ua94: FilterBlock {
     label: 'Date'
     type: 'date'
     default {
@@ -2861,7 +2999,7 @@ padding-right: 0.50rem;
       value: 'last 12 months'
     }
   }
-  block f_l3cp: FilterBlock {
+  block f_lmkf: FilterBlock {
     label: 'Select metric'
     type: 'field'
     source: FieldFilterSource {
@@ -2876,22 +3014,29 @@ padding-right: 0.50rem;
       input_type: 'single'
     }
   }
-  block t_uqmm: block_ha_info_whats_this("What's this", '<p style="font-size: 16px; font-weight: 600">Unified Metric Selector: Focused Exploration, One Metric at a Time<p>  <p> This dropdown lets users dynamically switch between key metrics — <code>GMV</code>, <code>NMV</code>, <code>AOV</code>, and more — while preserving the same dimension (e.g., Product Category) so that users can make apples-to-apples comparisons across different KPIs. </p>  <p> ✅ <b>Why it matters</b>: BI teams can reduce the upfront complexity by guiding users to <b>explore one metric at a time</b>, keeping the analysis clean and reducing cognitive load. It also avoids duplicating similar charts for each metric. </p>', 'left')
-  block t_5n44: TextBlock {
+  block t_9qh4: TextBlock {
     content: @md <h4>Metric by product category</h4>;;
   }
-  block t_7ozp: block_ha_card()
-  block t_tbyk: separator()
-  block t_nxsv: TextBlock {
-    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
-  }
-  block t_m0t9: block_ha_page_header(
-    'Analysis',
-    'Some sample analysis different aspects of our business'
-  )
-  block t_x1ng: block_ha_page_header_bg()
-  block t_p4ru: TextBlock {
+  block t_wysj: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
+  }
+  block t_a63g: TextBlock {
+    content: @md <style>
+  .separator {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+  .separator__line {
+    height: 1px;
+    width: 100%;
+    background: #E3E7ED;
+  }
+</style>
+<div class="separator">
+  <div class="separator__line"></div>
+</div>;;
   }
   view: TabLayout {
     label: 'View 1'
@@ -3013,38 +3158,6 @@ padding-right: 0.50rem;
       height: 1680
       grid_size: 20
       auto_expand_vertically: true
-      block v_k3i7 {
-        position: pos(20, 260, 1220, 760)
-        layer: 1
-      }
-      block v_t6or {
-        position: pos(80, 1220, 1140, 420)
-        layer: 6
-      }
-      block f_xivy {
-        position: pos(400, 1140, 300, 60)
-        layer: 10
-      }
-      block f_l3cp {
-        position: pos(80, 1140, 300, 60)
-        layer: 11
-      }
-      block t_uqmm {
-        position: pos(1100, 760, 100, 40)
-        layer: 1014
-      }
-      block t_5n44 {
-        position: pos(80, 1080, 360, 40)
-        layer: 108
-      }
-      block t_7ozp {
-        position: pos(60, 1060, 1180, 600)
-        layer: 2
-      }
-      block t_tbyk {
-        position: pos(60, 1120, 1180, 20)
-        layer: 109
-      }
       block t_nxsv {
         position: pos(60, 40, 140, 40)
         layer: 6
@@ -3205,7 +3318,7 @@ padding-right: 0.50rem;
     tab tab6: CanvasLayout {
       label: 'Sales & Orders'
       width: 1260
-      height: 780
+      height: 2430
       block f3 {
         position: pos(40, 240, 300, 60)
         layer: 2
@@ -3273,6 +3386,38 @@ padding-right: 0.50rem;
         position: pos(800, 360, 420, 370)
         layer: 1
       }
+      block f_lmkf {
+        position: pos(40, 1690, 300, 60)
+        layer: 30
+      }
+      block f_ua94 {
+        position: pos(360, 1690, 300, 60)
+        layer: 29
+      }
+      block t_9qh4 {
+        position: pos(40, 1630, 360, 40)
+        layer: 127
+      }
+      block t_a63g {
+        position: pos(20, 1670, 1180, 20)
+        layer: 128
+      }
+      block t_t9m9 {
+        position: pos(260, 1630, 100, 40)
+        layer: 1033
+      }
+      block t_wysj {
+        position: pos(20, 1610, 1180, 600)
+        layer: 21
+      }
+      block v_530w {
+        position: pos(20, 790, 1220, 760)
+        layer: 20
+      }
+      block v_kp1e {
+        position: pos(40, 1770, 1140, 420)
+        layer: 25
+      }
       mobile {
         mode: 'auto'
       }
@@ -3316,8 +3461,8 @@ padding-right: 0.50rem;
           block: [
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3330,8 +3475,8 @@ padding-right: 0.50rem;
           block: [
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3356,13 +3501,13 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or',
+            'v_530w',
+            'v_kp1e',
             'f3',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_l3cp'
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -3390,13 +3535,11 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or',
             'f2',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_l3cp'
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -3413,13 +3556,11 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or',
             'f2',
             'f3',
             'f_xzr7',
             'f_29w2',
-            'f_l3cp'
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -3432,9 +3573,7 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_68gi'
           ]
           disabled: true
         }
@@ -3449,8 +3588,8 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3465,8 +3604,8 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3479,9 +3618,7 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_68gi'
           ]
           disabled: true
         }
@@ -3494,9 +3631,7 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_68gi'
           ]
           disabled: true
         }
@@ -3510,8 +3645,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3525,8 +3660,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3540,8 +3675,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3555,8 +3690,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3570,8 +3705,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3585,8 +3720,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3600,8 +3735,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3615,8 +3750,8 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3629,8 +3764,8 @@ padding-right: 0.50rem;
           block: [
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3643,8 +3778,8 @@ padding-right: 0.50rem;
           block: [
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3670,8 +3805,8 @@ padding-right: 0.50rem;
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3697,13 +3832,13 @@ padding-right: 0.50rem;
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or',
+            'v_530w',
+            'v_kp1e',
             'f2',
             'f3',
             'f4',
             'f_29w2',
-            'f_l3cp'
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -3729,13 +3864,13 @@ padding-right: 0.50rem;
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or',
+            'v_530w',
+            'v_kp1e',
             'f2',
             'f3',
             'f4',
             'f_xzr7',
-            'f_l3cp'
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -3761,8 +3896,8 @@ padding-right: 0.50rem;
             'v_vs7p',
             'v_wtl8',
             'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3789,9 +3924,7 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi',
-            'v_k3i7',
-            'v_t6or'
+            'v_68gi'
           ]
           disabled: true
         }
@@ -3814,25 +3947,22 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_k3i7',
-            'v_t6or'
+            'v_530w',
+            'v_kp1e'
           ]
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'v_k3i7'
+      from: 'v_530w'
       to: [
         CustomMapping {
           block: [
             'v34',
             'v37',
-            'v44',
             'v52a',
             'v53a',
-            'v52',
-            'v53',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3845,7 +3975,6 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8',
             'v_68gi'
           ]
           disabled: true
@@ -3853,17 +3982,14 @@ padding-right: 0.50rem;
       ]
     },
     FilterInteraction {
-      from: 'v_t6or'
+      from: 'v_kp1e'
       to: [
         CustomMapping {
           block: [
             'v34',
             'v37',
-            'v44',
             'v52a',
             'v53a',
-            'v52',
-            'v53',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3876,7 +4002,6 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8',
             'v_68gi'
           ]
           disabled: true
@@ -3884,17 +4009,14 @@ padding-right: 0.50rem;
       ]
     },
     FilterInteraction {
-      from: 'f_l3cp'
+      from: 'f_lmkf'
       to: [
         CustomMapping {
           block: [
             'v34',
             'v37',
-            'v44',
             'v52a',
             'v53a',
-            'v52',
-            'v53',
             'v_5ty3',
             'v_hkuz',
             'v_co2u',
@@ -3907,7 +4029,6 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_wtl8',
             'v_68gi',
             'f2',
             'f3',
@@ -3927,7 +4048,7 @@ padding-right: 0.50rem;
             'v37',
             'v_xvgb'
           ]
-          field: r(ecommerce_users.sign_up_at)
+          field: ref('ecommerce_users', 'sign_up_at')
         }
       ]
     }
