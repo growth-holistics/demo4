@@ -76,6 +76,41 @@ ecommerce_users.sign_up_date
       }
     }
   }
+  block v_723h: VizBlock {
+    label: 'Count of all cities available'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation city_count {
+        label: 'City Count'
+        formula: @aql ecommerce_cities | count(ecommerce_cities.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      values: [
+        VizFieldFull {
+          label: 'City Count'
+          ref: 'city_count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
@@ -85,6 +120,10 @@ ecommerce_users.sign_up_date
     auto_expand_vertically: true
     block v_xpl6 {
       position: pos(20, 20, 620, 420)
+    }
+    block v_723h {
+      position: pos(660, 20, 620, 420)
+      layer: 1
     }
     mobile {
       mode: 'auto'
