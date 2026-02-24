@@ -3037,6 +3037,243 @@ padding-right: 0.50rem;
   <div class="separator__line"></div>
 </div>;;
   }
+  block v_80tl: VizBlock {
+    label: 'User demographics copy'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation untitled_metric_316015f {
+        label: 'Untitled Metric'
+        formula: @aql total_repeated_buyers/total_buyers;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+        table {
+          general {
+            borders {
+              outer: true
+              horizontal: true
+              vertical: true
+              header: true
+              row_header: true
+            }
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_users.age_group)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_repeated_buyers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        value_labels_position {
+          placement: 'rows'
+        }
+      }
+    }
+    theme: holistics_ant_card_blocktheme
+  }
+  block v_mesk: VizBlock {
+    label: 'Any Metrics by Product Category copy'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(map_categories.parent_category)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(map_categories.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.dynamic_metric_currency)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+            point {
+              value: 'Body'
+              color: '#05264c'
+            }
+            point {
+              value: 'Face'
+              color: '#003a61'
+            }
+            point {
+              value: 'Tablets'
+              color: '#05264c'
+            }
+            point {
+              value: 'Smartwatches'
+              color: '#003a61'
+            }
+            point {
+              value: 'Mobiles'
+              color: '#004e71'
+            }
+            point {
+              value: 'Bathroom'
+              color: '#05264c'
+            }
+            point {
+              value: 'Outdoor'
+              color: '#003a61'
+            }
+            point {
+              value: 'Kitchen and Dinning'
+              color: '#05264c'
+            }
+            point {
+              value: 'Living Room'
+              color: '#00627a'
+            }
+            point {
+              value: 'Bedroom'
+              color: '#00767b'
+            }
+            point {
+              value: 'Televisions'
+              color: '#05264c'
+            }
+            point {
+              value: 'Gaming'
+              color: '#003a61'
+            }
+            point {
+              value: 'Audio Gadgets'
+              color: '#004e71'
+            }
+            point {
+              value: 'Snacks'
+              color: '#05264c'
+            }
+            point {
+              value: 'Baking and Cooking'
+              color: '#003a61'
+            }
+            point {
+              value: 'Candy'
+              color: '#004e71'
+            }
+            point {
+              value: 'T-shirts'
+              color: '#05264c'
+            }
+            point {
+              value: 'Shoes'
+              color: '#003a61'
+            }
+            point {
+              value: 'Jeans'
+              color: '#004e71'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: holistics_ant_card_blocktheme
+  }
+  block f_date_copy: FilterBlock {
+    label: 'Date copy'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+  }
+  block f_select_metric_copy: FilterBlock {
+    label: 'Select metric copy'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(param_model_demo.metric_selections_currency)
+    }
+    default {
+      operator: 'is'
+      value: 'platform revenue'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block t_9s1t: TextBlock {
+    content: @md <h4>Metric by product category</h4>;;
+  }
+  block t_7dbh: block_ha_card()
+  block t_hjyd: separator()
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
@@ -3168,6 +3405,34 @@ padding-right: 0.50rem;
       block t_x1ng {
         position: pos(20, 0, 1260, 220)
         layer: 2
+      }
+      block v_80tl {
+        position: pos(40, 240, 1220, 760)
+        layer: 16
+      }
+      block v_mesk {
+        position: pos(100, 1200, 1140, 420)
+        layer: 21
+      }
+      block f_date_copy {
+        position: pos(420, 1120, 300, 60)
+        layer: 25
+      }
+      block f_select_metric_copy {
+        position: pos(100, 1120, 300, 60)
+        layer: 26
+      }
+      block t_9s1t {
+        position: pos(100, 1060, 360, 40)
+        layer: 123
+      }
+      block t_7dbh {
+        position: pos(80, 1040, 1180, 600)
+        layer: 17
+      }
+      block t_hjyd {
+        position: pos(80, 1100, 1180, 20)
+        layer: 124
       }
       mobile {
         mode: 'auto'
@@ -3461,7 +3726,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3475,7 +3742,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3502,11 +3771,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f3',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3534,11 +3806,14 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3555,11 +3830,14 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3572,7 +3850,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3588,7 +3868,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3604,7 +3886,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3617,7 +3901,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3630,7 +3916,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3645,7 +3933,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3660,7 +3950,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3675,7 +3967,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3690,7 +3984,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3705,7 +4001,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3720,7 +4018,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3735,7 +4035,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3750,7 +4052,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3764,7 +4068,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3778,7 +4084,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3805,7 +4113,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3833,11 +4143,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3865,11 +4178,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_xzr7',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3896,7 +4212,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3923,7 +4241,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3947,7 +4267,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3974,7 +4296,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -4001,7 +4325,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -4029,11 +4355,123 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_xzr7',
-            'f_29w2'
+            'f_29w2',
+            'f_select_metric_copy'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80tl'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_mesk'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mesk'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_80tl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_select_metric_copy'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk',
+            'f2',
+            'f3',
+            'f4',
+            'f_xzr7',
+            'f_29w2',
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -4047,8 +4485,20 @@ padding-right: 0.50rem;
             'v37',
             'v_xvgb'
           ]
-          field: ref('ecommerce_users', 'sign_up_at')
+          field: r(ecommerce_users.sign_up_at)
         }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_k3i7'
+      to: [
+
+      ]
+    },
+    FilterInteraction {
+      from: 'v_t6or'
+      to: [
+
       ]
     }
   ]
