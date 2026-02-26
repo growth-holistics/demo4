@@ -1169,6 +1169,8 @@ Uncover trends by comparing current performance against a previous period.
     label: 'GMV by countries'
     viz: BarChart {
       dataset: demo_ecommerce_version_2
+      theme {
+      }
       x_axis: VizFieldFull {
         ref: r(ecommerce_countries.name)
         format {
@@ -1191,52 +1193,52 @@ Uncover trends by comparing current performance against a previous period.
           }
           settings {
             color: '#05264CFF'
-            color_palette: 36189
-            point {
-              value: 'Australia'
-              color: '#196848FF'
-            }
-            point {
-              value: 'France'
-              color: '#259B6C'
-            }
-            point {
-              value: 'Germany'
-              color: '#7AD1AE'
-            }
             point {
               value: 'India'
-              color: '#CCEDE0'
-            }
-            point {
-              value: 'Indonesia'
-              color: '#104A89FF'
+              color: '#AF7DED'
             }
             point {
               value: 'Korea'
-              color: '#1B7CE4'
+              color: '#F2B602'
             }
             point {
-              value: 'Singapore'
-              color: '#8DBEF2'
+              value: 'France'
+              color: '#18A59E'
             }
             point {
-              value: 'United Kingdom'
-              color: '#D1E5FA'
-            }
-            point {
-              value: 'United States'
-              color: '#5F1BB4'
+              value: 'Germany'
+              color: '#07326C'
             }
             point {
               value: 'Vietnam'
-              color: '#9250E5'
+              color: '#07326C'
+            }
+            point {
+              value: 'Australia'
+              color: '#255DD4'
+            }
+            point {
+              value: 'Indonesia'
+              color: '#A50E43'
+            }
+            point {
+              value: 'Singapore'
+              color: '#E27712'
+            }
+            point {
+              value: 'United States'
+              color: '#18A59E'
+            }
+            point {
+              value: 'United Kingdom'
+              color: '#255DD4'
             }
           }
         }
       }
       settings {
         row_limit: 5000
+        legend_label: 'hidden'
         x_axis_show_null_datetime: false
         aggregate_awareness {
           enabled: true
@@ -2244,408 +2246,6 @@ padding-right: 0.50rem;
       }
     }
   }
-  block v_ocqg: VizBlock {
-    label: 'User Specs'
-    viz: MarkdownViz {
-      dataset: ecommerce_vux
-      filter {
-        field: r(user_lookup_csv.record_sample)
-        operator: 'is'
-        value: true
-      }
-      rows: [
-        VizFieldFull {
-          label: 'User ID'
-          ref: r(user_lookup_csv.user_id)
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: r(users.email)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: r(users.full_name)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'Profile Image URL'
-          ref: r(user_lookup_csv.profile_image_url)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'Location'
-          ref: r(cities.name)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: r(user_lookup_csv.status)
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          label: 'Member Since'
-          ref: r(user_lookup_csv.member_since)
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-            pattern: 'LLL yyyy'
-          }
-        },
-        VizFieldFull {
-          label: 'Last Order Date'
-          ref: r(user_lookup_csv.last_order_date)
-          transformation: 'datetrunc month'
-          format {
-            type: 'date'
-            pattern: 'LLL yyyy'
-          }
-        }
-      ]
-      values: [
-        VizFieldFull {
-          label: 'Total Orders'
-          ref: r(user_lookup_csv.total_orders)
-          aggregation: 'sum'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Lifetime Value'
-          ref: r(user_lookup_csv.lifetime_value)
-          aggregation: 'sum'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          label: 'Avg Order Value'
-          ref: r(user_lookup_csv.avg_order_value)
-          aggregation: 'sum'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        }
-      ]
-      content: @md <style>
-  /* Record Lookup Card Styling */
-  .record-card {
-    max-width: 600px;
-    background-color: white;
-    border-radius: 12px;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-
-  .record-header {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    background-color: #F9FAFB;
-    border-bottom: 1px solid #E5E7EB;
-  }
-
-  .record-image {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .record-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.375rem;
-  }
-
-  .record-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #111827;
-    line-height: 1.3;
-  }
-
-  .record-email {
-    font-size: 0.875rem;
-    color: #6366F1;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-
-  .record-email:hover {
-    text-decoration: underline;
-  }
-
-  .record-location {
-    font-size: 0.875rem;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-
-  .record-location a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .record-location a:hover {
-    color: #4B5563;
-    text-decoration: underline;
-  }
-
-  /* Metrics Section */
-  .record-metrics {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-bottom: 1px solid #E5E7EB;
-  }
-
-  .metric-item {
-    padding: 1.25rem;
-    text-align: center;
-    border-right: 1px solid #E5E7EB;
-  }
-
-  .metric-item:last-child {
-    border-right: none;
-  }
-
-  .metric-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1.2;
-  }
-
-  .metric-label {
-    font-size: 0.75rem;
-    color: #6B7280;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 0.25rem;
-  }
-
-  /* Details Section */
-  .record-details {
-    padding: 1.5rem;
-  }
-
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #F3F4F6;
-  }
-
-  .detail-row:last-child {
-    border-bottom: none;
-  }
-
-  .detail-label {
-    font-size: 0.875rem;
-    color: #6B7280;
-    font-weight: 500;
-  }
-
-  .detail-value {
-    font-size: 0.875rem;
-    color: #111827;
-    font-weight: 600;
-  }
-
-  /* Status Badge */
-  .status-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .status-badge.active,
-  .status-badge.ACTIVE,
-  .status-badge:is([class*="active"], [class*="ACTIVE"]) {
-    background-color: #DEF7EC !important;
-    color: #047857 !important;
-  }
-
-  .status-badge.vip,
-  .status-badge.VIP,
-  .status-badge:is([class*="vip"], [class*="VIP"]) {
-    background-color: #FEF3C7 !important;
-    color: #92400E !important;
-  }
-
-  .status-badge.new,
-  .status-badge.NEW,
-  .status-badge:is([class*="new"], [class*="NEW"]) {
-    background-color: #DBEAFE !important;
-    color: #1E3A8A !important;
-  }
-
-  /* Icon Styling */
-  .icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 640px) {
-    .record-header {
-      grid-template-columns: 1fr;
-      text-align: center;
-      gap: 1rem;
-    }
-
-    .record-image {
-      margin: 0 auto;
-    }
-
-    .record-email,
-    .record-location {
-      justify-content: center;
-    }
-
-    .record-metrics {
-      grid-template-columns: 1fr;
-    }
-
-    .metric-item {
-      border-right: none;
-      border-bottom: 1px solid #E5E7EB;
-    }
-
-    .metric-item:last-child {
-      border-bottom: none;
-    }
-  }
-
-  /* Empty State */
-  .empty-state {
-    padding: 3rem 1.5rem;
-    text-align: center;
-    color: #9CA3AF;
-  }
-
-  .empty-state-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-state-text {
-    font-size: 0.875rem;
-  }
-</style>
-
-<div class="record-card">
-
-<!-- Header Section -->
-<div class="record-header">
-<img src="{{ rows.0.`Profile Image URL`.raw }}" alt="{{ rows.0.`Full Name`.formatted }}" class="record-image" />
-
-<div class="record-info">
-<div class="record-name">{{ rows.0.`Full Name` }}</div>
-
-<a href="mailto:{{ rows.0.`Email`.raw }}" class="record-email">
-  <span class="icon">✉️</span>
-  {{ rows.0.`Email` }}
-</a>
-
-<div class="record-location">
-  <span class="icon">📍</span>
-  <a href="https://www.google.com/maps/search/?api=1&query={{ rows.0.`Location`.raw }}" target="_blank" rel="noopener">
-    {{ rows.0.`Location` }}
-  </a>
-</div>
-</div>
-</div>
-
-<!-- Metrics Section -->
-<div class="record-metrics">
-  <div class="metric-item">
-    <div class="metric-value">{{ rows.0.values.`Total Orders` }}</div>
-    <div class="metric-label">Total Orders</div>
-  </div>
-
-  <div class="metric-item">
-    <div class="metric-value">{{ rows.0.values.`Lifetime Value` }}</div>
-    <div class="metric-label">Lifetime Value</div>
-  </div>
-
-  <div class="metric-item">
-    <div class="metric-value">{{ rows.0.values.`Avg Order Value` }}</div>
-    <div class="metric-label">Avg Order</div>
-  </div>
-</div>
-
-<!-- Details Section -->
-<div class="record-details">
-
-  <div class="detail-row">
-    <span class="detail-label">Status</span>
-    <span class="status-badge {{ rows.0.`Status`.raw  }}">{{ rows.0.`Status` }}</span>
-  </div>
-  
-  <div class="detail-row">
-    <span class="detail-label">Member Since</span>
-    <span class="detail-value">{{ rows.0.`Member Since` }}</span>
-  </div>
-
-  <div class="detail-row">
-    <span class="detail-label">Last Order</span>
-    <span class="detail-value">{{ rows.0.`Last Order Date` }}</span>
-  </div>
-
-  <div class="detail-row">
-    <span class="detail-label">User ID</span>
-    <span class="detail-value">{{ rows.0.`User ID` }}</span>
-  </div>
-</div>
-</div>    ;;
-      settings {
-        show_row_total: true
-        show_column_total: true
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block t_nxsv: TextBlock {
-    content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
-  }
-  block t_m0t9: block_ha_page_header('Analysis', 'Some sample analysis different aspects of our business')
-  block t_x1ng: block_ha_page_header_bg()
   block t_p4ru: TextBlock {
     content: @md <div style="width: 100%; height: 100%; background: white; border: 2px solid #EDF1F5; border-radius: 8px"></div>;;
   }
@@ -3151,32 +2751,10 @@ padding-right: 0.50rem;
       }
       default_zoom: 0.9
     }
-    tab tab_14kk: CanvasLayout {
-      label: 'Analysis'
-      width: 1300
-      height: 1680
-      grid_size: 20
-      auto_expand_vertically: true
-      block t_nxsv {
-        position: pos(60, 40, 140, 40)
-        layer: 6
-      }
-      block t_m0t9 {
-        position: pos(60, 80, 600, 100)
-        layer: 16
-      }
-      block t_x1ng {
-        position: pos(20, 0, 1260, 220)
-        layer: 2
-      }
-      mobile {
-        mode: 'auto'
-      }
-    }
     tab tab1: CanvasLayout {
       label: 'Users'
       width: 1260
-      height: 2960
+      height: 2010
       block f1 {
         position: pos(40, 240, 310, 80)
         layer: 4
@@ -3190,7 +2768,7 @@ padding-right: 0.50rem;
         layer: 1
       }
       block v37 {
-        position: pos(70, 380, 420, 320)
+        position: pos(70, 380, 500, 320)
         layer: 2
       }
       block t_wpcr {
@@ -3210,7 +2788,7 @@ padding-right: 0.50rem;
         layer: 12
       }
       block t_elu8 {
-        position: pos(40, 360, 500, 370)
+        position: pos(40, 360, 550, 370)
         layer: 1
       }
       block t_bet4 {
@@ -3218,7 +2796,7 @@ padding-right: 0.50rem;
         layer: -2
       }
       block t_4e2c {
-        position: pos(680, 360, 470, 370)
+        position: pos(610, 360, 610, 370)
         layer: 1
       }
       block t_gldd {
@@ -3226,27 +2804,27 @@ padding-right: 0.50rem;
         layer: 14
       }
       block v_xvgb {
-        position: pos(700, 400, 420, 320)
+        position: pos(640, 380, 560, 320)
         layer: 1
       }
       block v_3dy9 {
-        position: pos(700, 430, 210, 120)
+        position: pos(640, 420, 210, 120)
         layer: 1
       }
       block t_sxoz {
-        position: pos(700, 400, 40, 40)
+        position: pos(640, 390, 40, 40)
         layer: 2
       }
       block t_afjd {
-        position: pos(1140, 350, 30, 30)
+        position: pos(1210, 350, 30, 30)
         layer: 15
       }
       block t_271a {
-        position: pos(530, 350, 30, 30)
+        position: pos(570, 350, 30, 30)
         layer: 16
       }
       block t_6mrf {
-        position: pos(1210, 1210, 30, 30)
+        position: pos(1200, 800, 30, 30)
         layer: 17
       }
       block f_xzr7 {
@@ -3279,10 +2857,6 @@ padding-right: 0.50rem;
       block t_od8o {
         position: pos(1110, 1860, 100, 30)
         layer: 120
-      }
-      block v_ocqg {
-        position: pos(10, 2430, 620, 520)
-        layer: 121
       }
       default_zoom: 0.9
     }
@@ -3461,7 +3035,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3475,7 +3051,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3502,11 +3080,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f3',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3534,11 +3115,14 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f4',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3555,11 +3139,14 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f_xzr7',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3572,7 +3159,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3588,7 +3177,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3604,7 +3195,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3617,7 +3210,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3630,7 +3225,9 @@ padding-right: 0.50rem;
           block: [
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3645,7 +3242,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3660,7 +3259,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3675,7 +3276,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3690,7 +3293,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3705,7 +3310,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3720,7 +3327,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3735,7 +3344,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3750,7 +3361,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3764,7 +3377,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3778,7 +3393,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3805,7 +3422,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3833,11 +3452,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_29w2',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3865,11 +3487,14 @@ padding-right: 0.50rem;
             'v_68gi',
             'v_530w',
             'v_kp1e',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_xzr7',
-            'f_lmkf'
+            'f_lmkf',
+            'f_select_metric_copy'
           ]
           disabled: true
         }
@@ -3896,7 +3521,9 @@ padding-right: 0.50rem;
             'v_wtl8',
             'v_68gi',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3923,7 +3550,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3947,7 +3576,9 @@ padding-right: 0.50rem;
             'v_mfrz',
             'v_wtl8',
             'v_530w',
-            'v_kp1e'
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -3974,7 +3605,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -4001,7 +3634,9 @@ padding-right: 0.50rem;
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
-            'v_68gi'
+            'v_68gi',
+            'v_80tl',
+            'v_mesk'
           ]
           disabled: true
         }
@@ -4029,11 +3664,123 @@ padding-right: 0.50rem;
             'v_3dy9',
             'v_mfrz',
             'v_68gi',
+            'v_80tl',
+            'v_mesk',
             'f2',
             'f3',
             'f4',
             'f_xzr7',
-            'f_29w2'
+            'f_29w2',
+            'f_select_metric_copy'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80tl'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_mesk'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mesk'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_80tl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_select_metric_copy'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e',
+            'v_80tl',
+            'v_mesk',
+            'f2',
+            'f3',
+            'f4',
+            'f_xzr7',
+            'f_29w2',
+            'f_lmkf'
           ]
           disabled: true
         }
@@ -4047,9 +3794,17 @@ padding-right: 0.50rem;
             'v37',
             'v_xvgb'
           ]
-          field: ref('ecommerce_users', 'sign_up_at')
+          field: r(ecommerce_users.sign_up_at)
         }
       ]
+    },
+    FilterInteraction {
+      from: 'v_k3i7'
+      to: []
+    },
+    FilterInteraction {
+      from: 'v_t6or'
+      to: []
     }
   ]
   theme: holistics_ant
