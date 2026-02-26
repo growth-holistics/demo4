@@ -1,3 +1,10 @@
+const pii =
+  if (H.current_user.pii_access == 0) {
+    '\'(redacted)\''
+  } else {
+    '{{ #SOURCE.email }}'
+  }
+
 @tag('1️⃣ Trust/Endorsed')
 Model ecommerce_users {
   type: 'table'
@@ -82,13 +89,7 @@ Model ecommerce_users {
   dimension email_pii {
     label: 'Email'
     type: 'text'
-    definition: @aml
-      case (
-        when: 
-          in(1, H.current_user.pii_access),
-        then: ecommerce_users.email,
-        else: '(redacted)'
-      );;
+    definition: @sql ${pii} ;;
   }
 
 
