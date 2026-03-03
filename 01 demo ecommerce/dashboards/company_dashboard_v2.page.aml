@@ -2637,12 +2637,143 @@ padding-right: 0.50rem;
   <div class="separator__line"></div>
 </div>;;
   }
+  block v_imjj: VizBlock {
+    label: 'Total Users, Female Users and 5 more by Sign Up Quarter'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation female_users {
+        label: 'Female Users'
+        formula: @aql total_users | where(ecommerce_users.gender == "Female");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation female_ratio {
+        label: 'Female Ratio'
+        formula: @aql female_users / total_users;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation cumulative_female_users {
+        label: 'Cumulative Female Users'
+        formula: @aql female_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation last_quarter_cumulative_female {
+        label: 'Last Quarter Cumulative Female'
+        formula: @aql cumulative_female_users | relative_period(ecommerce_users.sign_up_date, interval(-1 quarter), strict: true);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation male_users {
+        label: 'Male Users'
+        formula: @aql total_users | where(ecommerce_users.gender == "Male");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation male_ratio {
+        label: 'Male Ratio'
+        formula: @aql male_users / total_users;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Sign Up Quarter'
+          ref: r(ecommerce_users.sign_up_date)
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+          uname: 'datetrunc_quarter_sign_up_date'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Users'
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Female Users'
+          ref: 'female_users'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Cumulative Female Users'
+          ref: 'cumulative_female_users'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Last Quarter Cumulative Female'
+          ref: 'last_quarter_cumulative_female'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Female Ratio'
+          ref: 'female_ratio'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Male Users'
+          ref: 'male_users'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Male Ratio'
+          ref: 'male_ratio'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_quarter_sign_up_date'
+            direction: 'asc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
       label: 'Overview'
       width: 1260
-      height: 2100
+      height: 2520
       auto_expand_vertically: true
       block t_ra2i {
         position: pos(40, 30, 140, 40)
@@ -2745,6 +2876,10 @@ padding-right: 0.50rem;
       block v_68gi {
         position: pos(890, 1280, 320, 210)
         layer: 29
+      }
+      block v_imjj {
+        position: pos(10, 2090, 620, 420)
+        layer: 30
       }
       mobile {
         mode: 'auto'
@@ -3031,14 +3166,7 @@ padding-right: 0.50rem;
       from: 'v34'
       to: [
         CustomMapping {
-          block: [
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3047,14 +3175,7 @@ padding-right: 0.50rem;
       from: 'v37'
       to: [
         CustomMapping {
-          block: [
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3063,32 +3184,7 @@ padding-right: 0.50rem;
       from: 'f2'
       to: [
         CustomMapping {
-          block: [
-            'v44',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk',
-            'f3',
-            'f4',
-            'f_xzr7',
-            'f_29w2',
-            'f_lmkf',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3097,33 +3193,7 @@ padding-right: 0.50rem;
       from: 'f3'
       to: [
         CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v52a',
-            'v53a',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f4',
-            'f_xzr7',
-            'f_29w2',
-            'f_lmkf',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3132,22 +3202,7 @@ padding-right: 0.50rem;
       from: 'f4'
       to: [
         CustomMapping {
-          block: [
-            'v37',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f3',
-            'f_xzr7',
-            'f_29w2',
-            'f_lmkf',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3156,13 +3211,7 @@ padding-right: 0.50rem;
       from: 'v44'
       to: [
         CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3171,16 +3220,7 @@ padding-right: 0.50rem;
       from: 'v52a'
       to: [
         CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3189,16 +3229,7 @@ padding-right: 0.50rem;
       from: 'v53a'
       to: [
         CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3207,13 +3238,7 @@ padding-right: 0.50rem;
       from: 'v52'
       to: [
         CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3222,149 +3247,7 @@ padding-right: 0.50rem;
       from: 'v53'
       to: [
         CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_5ty3'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_hkuz'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_co2u'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mwo5'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_7wqj'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_80yo'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mz6i'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_vs7p'
-      to: [
-        CustomMapping {
-          block: [
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3373,14 +3256,7 @@ padding-right: 0.50rem;
       from: 'v_mb64'
       to: [
         CustomMapping {
-          block: [
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3389,14 +3265,7 @@ padding-right: 0.50rem;
       from: 'v_xvgb'
       to: [
         CustomMapping {
-          block: [
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3405,27 +3274,7 @@ padding-right: 0.50rem;
       from: 'v_3dy9'
       to: [
         CustomMapping {
-          block: [
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3434,33 +3283,7 @@ padding-right: 0.50rem;
       from: 'f_xzr7'
       to: [
         CustomMapping {
-          block: [
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f3',
-            'f4',
-            'f_29w2',
-            'f_lmkf',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3469,33 +3292,7 @@ padding-right: 0.50rem;
       from: 'f_29w2'
       to: [
         CustomMapping {
-          block: [
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f3',
-            'f4',
-            'f_xzr7',
-            'f_lmkf',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3504,27 +3301,7 @@ padding-right: 0.50rem;
       from: 'v_mfrz'
       to: [
         CustomMapping {
-          block: [
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3533,53 +3310,7 @@ padding-right: 0.50rem;
       from: 'v_wtl8'
       to: [
         CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v52a',
-            'v53a',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_68gi'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3588,27 +3319,7 @@ padding-right: 0.50rem;
       from: 'v_530w'
       to: [
         CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v52a',
-            'v53a',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3617,27 +3328,7 @@ padding-right: 0.50rem;
       from: 'v_kp1e'
       to: [
         CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v52a',
-            'v53a',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
@@ -3646,39 +3337,13 @@ padding-right: 0.50rem;
       from: 'f_lmkf'
       to: [
         CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v52a',
-            'v53a',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_68gi',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f3',
-            'f4',
-            'f_xzr7',
-            'f_29w2',
-            'f_select_metric_copy'
-          ]
+          block: 'v_imjj'
           disabled: true
         }
       ]
     },
     FilterInteraction {
-      from: 'v_80tl'
+      from: 'v_imjj'
       to: [
         CustomMapping {
           block: [
@@ -3689,98 +3354,13 @@ padding-right: 0.50rem;
             'v53a',
             'v52',
             'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
             'v_mb64',
             'v_xvgb',
             'v_3dy9',
             'v_mfrz',
             'v_wtl8',
-            'v_68gi',
             'v_530w',
-            'v_kp1e',
-            'v_mesk'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'v_mesk'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f_select_metric_copy'
-      to: [
-        CustomMapping {
-          block: [
-            'v34',
-            'v37',
-            'v44',
-            'v52a',
-            'v53a',
-            'v52',
-            'v53',
-            'v_5ty3',
-            'v_hkuz',
-            'v_co2u',
-            'v_mwo5',
-            'v_7wqj',
-            'v_80yo',
-            'v_mz6i',
-            'v_vs7p',
-            'v_mb64',
-            'v_xvgb',
-            'v_3dy9',
-            'v_mfrz',
-            'v_wtl8',
-            'v_68gi',
-            'v_530w',
-            'v_kp1e',
-            'v_80tl',
-            'v_mesk',
-            'f2',
-            'f3',
-            'f4',
-            'f_xzr7',
-            'f_29w2',
-            'f_lmkf'
+            'v_kp1e'
           ]
           disabled: true
         }
@@ -3794,17 +3374,9 @@ padding-right: 0.50rem;
             'v37',
             'v_xvgb'
           ]
-          field: r(ecommerce_users.sign_up_at)
+          field: ref('ecommerce_users', 'sign_up_at')
         }
       ]
-    },
-    FilterInteraction {
-      from: 'v_k3i7'
-      to: []
-    },
-    FilterInteraction {
-      from: 'v_t6or'
-      to: []
     }
   ]
   theme: holistics_ant
