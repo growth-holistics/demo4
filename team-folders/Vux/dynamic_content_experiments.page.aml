@@ -3045,8 +3045,9 @@ padding-right: 0.50rem;
     Revenue={{ values.`Revenue` }}
   </li>
 {% end %}
-</ul> ;;
+</ul>  ;;
       settings {
+        pagination_size: 1000
         show_row_total: true
         show_column_total: true
         row_limit: 5000
@@ -3127,6 +3128,7 @@ window_max(sales_model.revenue);;
             type: 'date'
             pattern: 'LLL dd, yyyy'
           }
+          uname: 'datetrunc_day_created_at'
         },
         VizFieldFull {
           ref: ref('orders', 'day_of_week')
@@ -3181,7 +3183,11 @@ window_max(sales_model.revenue);;
           }
         }
       ]
-      content: @md <style>
+      content: @md <div style="font:24px/1.4 system-ui; color:#6b7280; margin-bottom:8px;">
+  Row count: {{ rows.length }}
+</div>
+
+<style>
   .hm {
     --cell: 24px;
     --gap: 6px;
@@ -3194,12 +3200,10 @@ window_max(sales_model.revenue);;
   }
 
 
-  .hm__scroller{
-    max-width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 6px; /* so scrollbar doesn't cover cells */
-  }
+.hm__scroller {
+  overflow-x: auto;
+  width: 100%;
+}
 
   .hm__header {
     display: flex;
@@ -3212,14 +3216,12 @@ window_max(sales_model.revenue);;
   .hm__title { font-size: 20px; font-weight: 700; margin: 0; }
   .hm__subtitle { font-size: 12px; color: #6b7280; margin: 0; white-space: nowrap; }
 
-  .hm__wrap {
-    display: grid;
-    grid-template-columns: var(--label-w) 1fr;
-    gap: 10px;
-    align-items: start;
-    width: max-content;
-    max-width: 100%;
-  }
+.hm__wrap {
+  display: grid;
+  grid-template-columns: var(--label-w) auto;
+  gap: 10px;
+  align-items: start;
+}
 
   .hm__ylabels {
     display: grid;
@@ -3261,6 +3263,7 @@ window_max(sales_model.revenue);;
     column-gap: var(--gap);
     row-gap: var(--gap);
     width: max-content;
+    min-width: 2000px;
   }
 
   .hm__cell {
@@ -3355,11 +3358,18 @@ window_max(sales_model.revenue);;
   <span>More</span>
 </div>
 
-</div>  ;;
+</div>   ;;
       settings {
+        pagination_size: 1000
         show_row_total: true
         show_column_total: true
-        row_limit: 5000
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_day_created_at'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 10000
         aggregate_awareness {
           enabled: true
           debug_comments: true
@@ -3554,10 +3564,10 @@ window_max(sales_model.revenue);;
         position: pos(20, 20, 360, 720)
       }
       block v_xb5w {
-        position: pos(390, 520, 760, 600)
+        position: pos(390, 520, 870, 600)
       }
       block v_rik3 {
-        position: pos(390, 20, 560, 480)
+        position: pos(390, 20, 870, 480)
       }
     }
   }
