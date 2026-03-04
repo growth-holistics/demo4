@@ -1,0 +1,22 @@
+Dataset hiring_analytics {
+  label: 'Hiring & People Analytics'
+  description: 'Galaxy schema for hiring funnel, offers, referrals, and hire quality analysis'
+  data_source_name: 'demodb'
+
+  models: [
+    fct_applications,
+    fct_stage_events,
+    dim_candidates,
+    dim_jobs,
+    dim_sources,
+    dim_employees
+  ]
+
+  relationships: [
+    relationship(fct_applications.candidate_id > dim_candidates.candidate_id, true),
+    relationship(fct_applications.job_id > dim_jobs.job_id, true),
+    relationship(fct_applications.source_id > dim_sources.source_id, true),
+    relationship(fct_applications.referrer_employee_id > dim_employees.employee_id, true),
+    relationship(fct_stage_events.application_id > fct_applications.application_id, true),
+  ]
+}
