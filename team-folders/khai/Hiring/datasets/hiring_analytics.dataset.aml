@@ -10,6 +10,8 @@ Dataset hiring_analytics {
     dim_jobs,
     dim_sources,
     dim_employees
+    ,
+    dim_date_job
   ]
 
   relationships: [
@@ -18,5 +20,36 @@ Dataset hiring_analytics {
     relationship(fct_applications.source_id > dim_sources.source_id, true),
     relationship(fct_applications.referrer_employee_id > dim_employees.employee_id, true),
     relationship(fct_stage_events.application_id > fct_applications.application_id, true),
+    relationship(fct_applications.applied_at > dim_date_job.date_key, true)
   ]
+  metric stage_to_stage_conversion_rate {
+    label: "Stage To Stage Conversion Rate"
+    type: "number"
+    description: ""
+    definition: @aql count(fct_applications.screened_at) / count(fct_applications.applied_at);;
+    format: '#,###%'
+  }
+  metric overall_funnel_yield {
+    label: "Overall Funnel Yield"
+    type: "number"
+    description: ""
+    definition: @aql count(fct_applications.application_id) / count(fct_applications.hired_at);;
+  }
+  metric total_hires {
+    label: "Total Hires"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_applications.application_id)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric avg_days_to_hire {
+    label: "Avg. day to hire"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_to_hire)
+| where(fct_applications.outcome == "hired");;
+  }
 }
