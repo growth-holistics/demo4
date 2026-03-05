@@ -104,6 +104,49 @@ Dataset hiring_analytics {
     definition: @aql avg(fct_applications.days_offer_to_hire)
 | where(fct_applications.outcome == "hired");;
   }
+  metric total_events {
+    label: "Total Events"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null);;
+  }
+  metric total_advanced_exit {
+    label: "Total Advanced Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "advanced");;
+    format: ""
+  }
+  metric total_rejected_exit {
+    label: "Total Rejected Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "rejected");;
+    format: ""
+  }
+  metric total_withdrawn_exit {
+    label: "Total Withdrawn Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "withdrawn");;
+  }
+  metric avg_hours_stage {
+    label: "Average Hours (in stage)"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_stage_events.time_in_stage_hours)
+| where(fct_stage_events.exited_at is not null);;
+    format: ""
+  }
   dimension days_to_fill {
     label: "Days to Fill"
     type: "number"
