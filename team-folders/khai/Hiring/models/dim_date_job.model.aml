@@ -1,0 +1,87 @@
+Model dim_date_job {
+  type: 'query'
+  label: 'Dim Date Job'
+  description: ''
+  data_source_name: 'demodb'
+  dimension date_key {
+    label: 'Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date_key }};;
+  }
+  dimension year {
+    label: 'Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.year }};;
+  }
+  dimension quarter {
+    label: 'Quarter'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quarter }};;
+  }
+  dimension quarter_label {
+    label: 'Quarter Label'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.quarter_label }};;
+  }
+  dimension month {
+    label: 'Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension month_label {
+    label: 'Month Label'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_label }};;
+  }
+  dimension week_of_year {
+    label: 'Week Of Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.week_of_year }};;
+  }
+  dimension day_of_week {
+    label: 'Day Of Week'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_of_week }};;
+  }
+  dimension day_name {
+    label: 'Day Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_name }};;
+  }
+  dimension is_weekend {
+    label: 'Is Weekend'
+    type: 'truefalse'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_weekend }};;
+  }
+
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    SELECT
+      d::date                                          AS date_key,
+      EXTRACT(YEAR FROM d)::int                        AS year,
+      EXTRACT(QUARTER FROM d)::int                     AS quarter,
+      'Q' || EXTRACT(QUARTER FROM d)::int || ' ' || EXTRACT(YEAR FROM d)::int AS quarter_label,
+      EXTRACT(MONTH FROM d)::int                       AS month,
+      TO_CHAR(d, 'Mon YYYY')                           AS month_label,
+      EXTRACT(WEEK FROM d)::int                        AS week_of_year,
+      EXTRACT(ISODOW FROM d)::int                      AS day_of_week,
+      TO_CHAR(d, 'Day')                                AS day_name,
+      EXTRACT(ISODOW FROM d)::int IN (6, 7)            AS is_weekend
+    FROM generate_series(
+      '2025-01-01'::date,
+      '2025-06-30'::date,
+      '1 day'::interval
+    ) AS d;;
+  models: [
+  ]
+}
