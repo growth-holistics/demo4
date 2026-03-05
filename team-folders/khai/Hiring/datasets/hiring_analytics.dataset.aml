@@ -147,6 +147,22 @@ Dataset hiring_analytics {
 | where(fct_stage_events.exited_at is not null);;
     format: ""
   }
+  metric open_reqs {
+    label: "Open Reqs "
+    type: "number"
+    hidden: false
+    description: "Open Jobs"
+    definition: @aql count(dim_jobs.job_id)
+| where(dim_jobs.status == "open");;
+  }
+  metric open_req_title {
+    label: "List of Open Titles"
+    type: "json"
+    hidden: false
+    description: ""
+    definition: @aql dim_jobs
+| select(dim_jobs.title);;
+  }
   dimension days_to_fill {
     label: "Days to Fill"
     type: "number"
@@ -154,5 +170,29 @@ Dataset hiring_analytics {
     description: ""
     definition: @aql date_diff('day', dim_jobs.opened_date, fct_applications.hired_at);;
     model: fct_applications
+  }
+  dimension days_open {
+    label: "Days Open"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql date_diff('day', dim_jobs.opened_date, @(2025-03-26));;
+    model: dim_jobs
+  }
+  dimension age_bucket {
+    label: "Age Bucket"
+    type: "text"
+    hidden: false
+    description: ""
+    definition: @aql case(
+  when: dim_jobs.days_open <= 30,
+  then: "0-30 days",
+  when: dim_jobs.days_open <= 60,
+  then: "31-60 days",
+  when: dim_jobs.days_open <= 90,
+  then: "61-90 days",
+  else: "Other"
+);;
+    model: dim_jobs
   }
 }
