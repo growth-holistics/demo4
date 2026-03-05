@@ -3377,6 +3377,325 @@ window_max(sales_model.revenue);;
       }
     }
   }
+  block v_xpzc: VizBlock {
+    label: 'Heatmap copy'
+    viz: MarkdownViz {
+      dataset: complete_dataset_with_metrics
+      calculation day_of_week {
+        label: 'Day Of Week'
+        formula: @aql cast(date_part('dow', orders.created_at) + 1, 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation week_index {
+        label: 'Week Index'
+        formula: @aql cast(date_part('week', orders.created_at), 'int');;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: orders
+      }
+      calculation month_start {
+        label: 'Month Start'
+        formula: @aql month(orders.created_at);;
+        calc_type: 'dimension'
+        data_type: 'datetime'
+        model: orders
+      }
+      calculation month_label_display {
+        label: 'Month Label Display'
+        formula: @aql case(
+  when: date_part('day', orders.created_at) == 1, then: 'block',
+  else: 'none'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: orders
+      }
+      calculation revenue_percentage_over_max {
+        label: 'Revenue Percentage Over Max'
+        formula: @aql (sales_model.revenue * 1.0) 
+/
+window_max(sales_model.revenue);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation color_bucket {
+        label: 'Color Bucket'
+        formula: @aql case(
+  when: sales_model.revenue == 0, then: 0,
+  when: revenue_percentage_over_max < 0.2, then: 1,
+  when: revenue_percentage_over_max < 0.4, then: 2,
+  when: revenue_percentage_over_max < 0.6, then: 3,
+  when: revenue_percentage_over_max < 0.8, then: 4,
+  else: 5
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(orders.created_at)
+        operator: 'matches'
+        value: '2025'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Date'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc day'
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+          uname: 'datetrunc_day_created_at'
+        },
+        VizFieldFull {
+          ref: ref('orders', 'day_of_week')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'week_index')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Month Label'
+          ref: r(orders.created_at)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        },
+        VizFieldFull {
+          ref: ref('orders', 'month_label_display')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: 'color_bucket'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'revenue_percentage_over_max'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(sales_model.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <div style="font:24px/1.4 system-ui; color:#6b7280; margin-bottom:8px;">
+  Row count: {{ rows.length }}
+</div>
+
+<style>
+  .hm {
+    --cell: 24px;
+    --gap: 6px;
+    --label-w: 45px;
+
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    color: #111827;
+
+    --label-color: #6b7280;
+  }
+
+
+.hm__scroller {
+  overflow-x: auto;
+  width: 100%;
+}
+
+  .hm__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 0 10px 0;
+  }
+
+  .hm__title { font-size: 20px; font-weight: 700; margin: 0; }
+  .hm__subtitle { font-size: 12px; color: #6b7280; margin: 0; white-space: nowrap; }
+
+.hm__wrap {
+  display: grid;
+  grid-template-columns: var(--label-w) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+  .hm__ylabels {
+    display: grid;
+    grid-template-rows: 13px repeat(7, var(--cell));
+    row-gap: var(--gap);
+    align-items: center;
+    user-select: none;
+  }
+
+  .hm__ylabels .spacer { height: 18px; }
+  .hm__ylabels .ylabel { font-size: 12px; color: var(--label-color); line-height: 1; }
+
+  /* Month labels row */
+  .hm__months {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    column-gap: var(--gap);
+    height: 18px;
+    align-items: end;
+    width: max-content;
+  }
+
+  .hm__month {
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--label-color);
+    line-height: 1;
+    padding-bottom: 10px;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* Heatmap grid */
+  .hm__grid {
+    display: grid;
+    grid-template-columns: repeat(60, var(--cell));
+    grid-template-rows: repeat(7, var(--cell));
+    column-gap: var(--gap);
+    row-gap: var(--gap);
+    width: max-content;
+    min-width: 2000px;
+  }
+
+  .hm__cell {
+    width: var(--cell);
+    height: var(--cell);
+    border-radius: 2px;
+    background: rgba(0,0,0,0.06);
+    outline: 1px solid rgba(0,0,0,0.05); /* makes empties visible */
+  }
+
+  .hm__cell.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__cell.lvl-1 { background: #e5f4e9; }
+  .hm__cell.lvl-2 { background: #bfe6c9; }
+  .hm__cell.lvl-3 { background: #86cf9a; }
+  .hm__cell.lvl-4 { background: #39a96b; }
+  .hm__cell.lvl-5 { background: #1f7f4d; }
+
+  .hm__legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 30px;
+    font-size: 10px;
+    color: var(--label-color);
+  }
+
+  .hm__legend-swatches { display: inline-flex; align-items: center; gap: 3px; }
+  .hm__swatch { width: var(--cell); height: var(--cell); border-radius: 2px; outline: 1px solid rgba(0,0,0,0.05); }
+  .hm__swatch.lvl-0 { background: rgba(0,0,0,0.06); }
+  .hm__swatch.lvl-1 { background: #e5f4e9; }
+  .hm__swatch.lvl-2 { background: #bfe6c9; }
+  .hm__swatch.lvl-3 { background: #86cf9a; }
+  .hm__swatch.lvl-4 { background: #39a96b; }
+  .hm__swatch.lvl-5 { background: #1f7f4d; }
+</style>
+
+<div class="hm">
+  <div class="hm__header">
+  <p class="hm__title">Revenue Calendar Heatmap</p>
+  <p class="hm__subtitle">Each cell is a day; darker = higher revenue</p>
+  </div>
+
+<div class="hm__wrap">
+  <div class="hm__ylabels">
+    <div class="spacer"></div>
+    <div class="ylabel">Mon</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Wed</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Fri</div>
+    <div class="ylabel"></div>
+    <div class="ylabel">Sun</div>
+  </div>
+
+  <div>
+  <div class="hm__scroller">
+  <!-- Month labels -->
+  <div class="hm__months">
+  {% map(rows) %}
+  <div 
+  class="hm__month" 
+  style="grid-column: {{ `Week Index`.formatted }}; display: {{ `Month Label Display`.raw }};">
+  {{ `Month Label` }}
+  </div>
+  {% end %}
+  </div>
+
+  <!-- Cells -->
+  <div class="hm__grid">
+  {% map(rows) %}
+  <div
+    class="hm__cell lvl-{{ values.`Color Bucket`.formatted }}"
+    style="grid-column: {{ `Week Index`.formatted }}; grid-row: {{ `Day Of Week`.formatted }};"
+    title="Date: {{ `Date`.formatted }}&#10;Revenue: {{ values.`Revenue` }}"
+  ></div>
+  {% end %}
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="hm__legend">
+  <span>Less</span>
+  <span class="hm__legend-swatches">
+    <span class="hm__swatch lvl-0"></span>
+    <span class="hm__swatch lvl-1"></span>
+    <span class="hm__swatch lvl-2"></span>
+    <span class="hm__swatch lvl-3"></span>
+    <span class="hm__swatch lvl-4"></span>
+    <span class="hm__swatch lvl-5"></span>
+  </span>
+  <span>More</span>
+</div>
+
+</div>   ;;
+      settings {
+        pagination_size: 1000
+        show_row_total: true
+        show_column_total: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_day_created_at'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab2: CanvasLayout {
@@ -3555,7 +3874,7 @@ window_max(sales_model.revenue);;
     tab tab_0jhn: CanvasLayout {
       label: 'Calendar Heatmap'
       width: 1300
-      height: 1500
+      height: 1640
       auto_expand_vertically: true
       mobile {
         mode: 'auto'
@@ -3568,6 +3887,9 @@ window_max(sales_model.revenue);;
       }
       block v_rik3 {
         position: pos(390, 20, 870, 480)
+      }
+      block v_xpzc {
+        position: pos(10, 1140, 870, 480)
       }
     }
   }
@@ -3616,7 +3938,8 @@ window_max(sales_model.revenue);;
           block: [
             'v_9x48',
             'v_xb5w',
-            'v_rik3'
+            'v_rik3',
+            'v_xpzc'
           ]
           disabled: true
         }
@@ -3629,7 +3952,8 @@ window_max(sales_model.revenue);;
           block: [
             'v_9x48',
             'v_xb5w',
-            'v_rik3'
+            'v_rik3',
+            'v_xpzc'
           ]
           disabled: true
         }
@@ -3706,7 +4030,8 @@ window_max(sales_model.revenue);;
           block: [
             'v_9x48',
             'v_xb5w',
-            'v_rik3'
+            'v_rik3',
+            'v_xpzc'
           ]
           disabled: true
         }
@@ -3719,7 +4044,8 @@ window_max(sales_model.revenue);;
           block: [
             'v_9x48',
             'v_xb5w',
-            'v_rik3'
+            'v_rik3',
+            'v_xpzc'
           ]
           disabled: true
         }
@@ -3755,6 +4081,20 @@ window_max(sales_model.revenue);;
     },
     FilterInteraction {
       from: 'v_rik3'
+      to: [
+        CustomMapping {
+          block: [
+            'v_0k2v',
+            'v_g7tl',
+            'v_6tc8',
+            'v_ny61'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xpzc'
       to: [
         CustomMapping {
           block: [
