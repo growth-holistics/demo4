@@ -1,0 +1,115 @@
+Dataset hiring_analytics {
+  label: 'Hiring & People Analytics'
+  description: 'Galaxy schema for hiring funnel, offers, referrals, and hire quality analysis'
+  data_source_name: 'demodb'
+
+  models: [
+    fct_applications,
+    fct_stage_events,
+    dim_candidates,
+    dim_jobs,
+    dim_sources,
+    dim_employees
+    ,
+    dim_date_job
+  ]
+
+  relationships: [
+    relationship(fct_applications.candidate_id > dim_candidates.candidate_id, true),
+    relationship(fct_applications.job_id > dim_jobs.job_id, true),
+    relationship(fct_applications.source_id > dim_sources.source_id, true),
+    relationship(fct_applications.referrer_employee_id > dim_employees.employee_id, true),
+    relationship(fct_stage_events.application_id > fct_applications.application_id, true),
+    relationship(fct_applications.applied_at > dim_date_job.date_key, true)
+  ]
+  metric stage_to_stage_conversion_rate {
+    label: "Stage To Stage Conversion Rate"
+    type: "number"
+    description: ""
+    definition: @aql count(fct_applications.screened_at) / count(fct_applications.applied_at);;
+    format: '#,###%'
+  }
+  metric overall_funnel_yield {
+    label: "Overall Funnel Yield"
+    type: "number"
+    description: ""
+    definition: @aql count(fct_applications.application_id) / count(fct_applications.hired_at);;
+  }
+  metric total_hires {
+    label: "Total Hires"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_applications.application_id)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric avg_days_to_hire {
+    label: "Avg. day to hire"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_to_hire)
+| where(fct_applications.outcome == "hired");;
+  }
+  metric fastest_hires {
+    label: "Fastest hires"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql min(fct_applications.days_to_hire)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric slowest_hires {
+    label: "Slowest hires"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql max(fct_applications.days_to_hire)
+| where(fct_applications.outcome == "hired");;
+  }
+  metric avg_apply_to_screen {
+    label: "Average Days Apply To Screen"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_apply_to_screen)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric avg_screen_to_interview {
+    label: "Average Days Screen To Interview"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_screen_to_interview)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric avg_interview_to_offer {
+    label: "Average Days Interview To Offer"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_interview_to_offer)
+| where(fct_applications.outcome == "hired");;
+    format: ""
+  }
+  metric avg_offer_to_accept {
+    label: "Average Days Offer To Accept"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_offer_to_hire)
+| where(fct_applications.outcome == "hired");;
+  }
+  dimension days_to_fill {
+    label: "Days to Fill"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql date_diff('day', dim_jobs.opened_date, fct_applications.hired_at);;
+    model: fct_applications
+  }
+}

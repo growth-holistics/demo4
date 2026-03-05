@@ -1,0 +1,80 @@
+Dashboard dashboard_product_id_product_name_and_2_more_oemvx {
+  title: 'Dashboard Product Id, Product Name and 2 more'
+  owner: 'embed_f90e7149f1e44c59dc@holistics.io'
+  block v_rfao: VizBlock {
+    label: 'Product Id, Product Name and 2 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          label: 'Product Id'
+          ref: r(ecommerce_products.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'ecommerce_products_id_1'
+        },
+        VizFieldFull {
+          label: 'Product Name'
+          ref: r(ecommerce_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+          uname: 'custom_total_orders_1'
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_delivered_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_total_orders_1'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'ecommerce_products_id_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        single_cell_display: 'normal'
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_rfao {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}

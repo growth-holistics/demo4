@@ -1,0 +1,299 @@
+Dashboard feature_pop_weekly_business_review_orders {
+  title: '[Feature] PoP - Weekly Business Review Orders'
+  owner: 'chukwudi@holistics.io'
+  block date_drill: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block compare_against_period: PopBlock {
+    label: 'Compare Against Period'
+  }
+  block v_o3ru: VizBlock {
+    label: 'Last 6 weeks (vs preceeding)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'last'
+        value: 6
+        modifier: 'week'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc week'
+        format {
+          type: 'date'
+          pattern: 'wwww'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: r(ecommerce_orders.created_at)
+          value: RelativePopValue {
+            duration: 6
+            granularity: 'week'
+          }
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v_29aa: VizBlock {
+    label: 'Last 12 months (YoY)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'last'
+        value: 12
+        modifier: 'month'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: r(ecommerce_orders.created_at)
+          value: RelativePopValue {
+            duration: 12
+            granularity: 'month'
+          }
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v_hr4v: VizBlock {
+    label: 'Last 7 days (vs preceeding)'
+    viz: LineChart {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'last'
+        value: 7
+        modifier: 'day'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        pop {
+          field: r(ecommerce_orders.created_at)
+          value: RelativePopValue {
+            duration: 7
+            granularity: 'day'
+          }
+          show_growth_rate: true
+        }
+      }
+    }
+  }
+  block v_mbgn: VizBlock {
+    label: 'QTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'this quarter begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: r(ecommerce_orders.total_orders_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+    }
+  }
+  block v_3cwv: VizBlock {
+    label: 'YTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'this year begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: r(ecommerce_orders.total_orders_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+    }
+  }
+  block v_n48b: VizBlock {
+    label: 'All time'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: '2010 to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: r(ecommerce_orders.total_orders_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+    }
+  }
+  block v_r4ig: VizBlock {
+    label: 'MTD (vs YoY)'
+    viz: MetricKpi {
+      dataset: demo_ecommerce
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'this month begin to today'
+      }
+      value: VizFieldFull {
+        label: 'Orders'
+        ref: r(ecommerce_orders.total_orders_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'Canvas Layout'
+    width: 1220
+    height: 1090
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_29aa {
+      position: pos(20, 340, 1180, 330)
+      layer: 1
+    }
+    block v_3cwv {
+      position: pos(920, 140, 280, 180)
+      layer: 1
+    }
+    block v_hr4v {
+      position: pos(20, 690, 580, 380)
+      layer: 1
+    }
+    block v_mbgn {
+      position: pos(620, 140, 280, 180)
+      layer: 1
+    }
+    block v_n48b {
+      position: pos(20, 140, 280, 180)
+      layer: 1
+    }
+    block v_o3ru {
+      position: pos(620, 690, 580, 380)
+      layer: 1
+    }
+    block v_r4ig {
+      position: pos(320, 140, 280, 180)
+      layer: 1
+    }
+    block date_drill {
+      position: pos(20, 20, 280, 100)
+      layer: 1
+    }
+    block compare_against_period {
+      position: pos(320, 20, 280, 100)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+  settings {
+    cache_duration: 1440
+  }
+}

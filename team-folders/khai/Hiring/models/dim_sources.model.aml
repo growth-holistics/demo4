@@ -1,0 +1,52 @@
+Model dim_sources {
+  type: 'query'
+  label: 'Dim Sources'
+  description: ''
+  data_source_name: 'demodb'
+  dimension source_id {
+    label: 'Source Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.source_id }};;
+  }
+  dimension source_name {
+    label: 'Source Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.source_name }};;
+  }
+  dimension source_category {
+    label: 'Source Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.source_category }};;
+  }
+  dimension cost_model {
+    label: 'Cost Model'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.cost_model }};;
+  }
+
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    SELECT *
+    FROM (
+      VALUES
+        ('s001', 'LinkedIn Jobs',       'inbound_organic', 'per_posting'),
+        ('s002', 'LinkedIn Recruiter',  'outbound',        'per_posting'),
+        ('s003', 'Employee Referral',   'referral',        'free'),
+        ('s004', 'Company Careers Page','inbound_organic', 'free'),
+        ('s005', 'Indeed',              'inbound_paid',    'per_click'),
+        ('s006', 'TopCV',              'inbound_paid',    'per_posting'),
+        ('s007', 'Hired.co Agency',    'agency',          'per_hire_percentage'),
+        ('s008', 'University Program', 'inbound_organic', 'free')
+    ) AS dim_sources (
+      source_id,
+      source_name,
+      source_category,
+      cost_model
+    );;
+  models: [
+  ]
+}
