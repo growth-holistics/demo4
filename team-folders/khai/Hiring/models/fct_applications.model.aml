@@ -1,313 +1,432 @@
 Model fct_applications {
   type: 'query'
   label: 'Fct Applications'
-  description: ''
+  description: '''
+    Core fact table for hiring analytics. 
+    Each row represents one application (a single candidate applying to a single job). 
+    Contains the full hiring lifecycle in one wide row: candidate snapshot at time of application, funnel progression with stage timestamps, interview summary, offer details, referral tracking, post-hire quality metrics, and candidate experience scores. 
+    This is the primary table for funnel conversion, speed analysis, source ROI, offer analytics, referral program, and quality of hire reporting. 
+    Most hiring metrics can be answered from this table with at most one dimension join.
+  '''
   data_source_name: 'demodb'
   dimension application_id {
     label: 'Application Id'
     type: 'text'
+    description: "**Application Id**  \nUnique identifier for each job application record in the hiring analytics system.  \nRepresents a single candidate applying to a single job.  \nUsed to track and analyze the full hiring lifecycle for that application.  \nExamples include `a001`, `a002`, `a003`, up to `a040`."
     hidden: false
     definition: @sql {{ #SOURCE.application_id }};;
+    primary_key: false
   }
   dimension candidate_id {
     label: 'Candidate Id'
     type: 'text'
+    description: "The **candidate_id** field contains a unique identifier for each candidate who has submitted an application.  \nEach value represents a distinct individual in the hiring process, allowing tracking of multiple applications by the same candidate over time.  \nExamples include `c001`, `c010`, and `c016`."
     hidden: false
     definition: @sql {{ #SOURCE.candidate_id }};;
+    primary_key: false
   }
   dimension job_id {
     label: 'Job Id'
     type: 'text'
+    description: "**Job Id**  \nUnique identifier for the job to which the candidate applied.  \nRepresents a specific job opening in the hiring system.  \nExamples include `j001`, `j004`, `j006`, `j002`, `j003`."
     hidden: false
     definition: @sql {{ #SOURCE.job_id }};;
+    primary_key: false
   }
   dimension source_id {
     label: 'Source Id'
     type: 'text'
+    description: "**Source Id**  \nIdentifier for the recruitment source through which the candidate applied.  \nRepresents distinct channels or platforms such as job boards, referrals, or career sites used to attract applicants.  \nExamples include `s001`, `s002`, `s003`, `s004`, representing different sourcing origins tracked for analyzing source effectiveness and ROI."
     hidden: false
     definition: @sql {{ #SOURCE.source_id }};;
+    primary_key: false
   }
   dimension candidate_company {
     label: 'Candidate Company'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.candidate_company }};;
+    description: '''
+      Company the candidate worked at when they submitted this application. 
+      Point-in-time snapshot, may differ across applications if the same person applies again later. 
+      NULL for fresh graduates or unemployed candidates.
+    '''
   }
   dimension candidate_title {
     label: 'Candidate Title'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.candidate_title }};;
+    description: '''
+      Job title the candidate held when they submitted this application. 
+      Point-in-time snapshot. Useful for understanding what kinds of roles candidates are coming from — e.g. are we attracting senior-enough people for senior roles?
+    '''
   }
   dimension candidate_yoe {
     label: 'Candidate Yoe'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.candidate_yoe }};;
+    description: '''
+      Years of professional experience at time of application. 
+      Point-in-time snapshot (stored per application, not on the candidate, because it changes over time). 
+      Use to build experience brackets (0-2, 2-5, 5-8, 8+) and analyze hire rate and quality by experience level.
+    '''
   }
   dimension current_stage {
     label: 'Current Stage'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.current_stage }};;
+    description: '''
+      The pipeline stage this application is currently in. 
+      Values: Applied, Recruiter Screen, HM Screen, Interview, Offer, Hired. For closed applications (rejected/withdrawn), this is the stage where they exited. 
+      Use to build funnel visualizations and identify where candidates are concentrated right now.
+    '''
   }
   dimension outcome {
     label: 'Outcome'
     type: 'text'
+    description: "The outcome of the application represents the final or current status of the candidate\'s hiring process.  \nCommon values include `hired`, `active`, `rejected`, and `withdrawn`.  \nUse this field to measure conversion rates, track candidate progression, and analyze hiring success.  \nFor example, an application with outcome `hired` indicates the candidate was successfully hired, while `rejected` means the application was declined."
     hidden: false
     definition: @sql {{ #SOURCE.outcome }};;
+    primary_key: false
   }
   dimension rejection_type {
     label: 'Rejection Type'
     type: 'text'
+    description: "The type of rejection for this application.  \nIndicates whether the application was rejected by the company or if the candidate withdrew.  \nExamples include `company_rejected` and `candidate_withdrew`."
     hidden: false
     definition: @sql {{ #SOURCE.rejection_type }};;
+    primary_key: false
   }
   dimension rejection_reason {
     label: 'Rejection Reason'
     type: 'text'
+    description: "The **rejection_reason** field contains the specific explanation for why a candidate’s application was rejected during the hiring process.  \nIt provides detailed feedback on candidate shortcomings or process issues, such as \"Insufficient PM experience,\" \"No design experience,\" \"Portfolio lacks depth,\" or \"Process too slow.\"  \nUse this field to analyze common causes of rejection and identify areas for improving candidate sourcing or evaluation criteria."
     hidden: false
     definition: @sql {{ #SOURCE.rejection_reason }};;
+    primary_key: false
   }
   dimension applied_at {
     label: 'Applied At'
     type: 'date'
+    description: "Date when the candidate submitted the application for a job.  \nRepresents the starting point of the hiring funnel for this application.  \nUse to analyze application trends over time and measure funnel conversion rates.  \nExamples include `2025-01-12`, `2025-02-25`, and `2025-03-20`."
     hidden: false
     definition: @sql {{ #SOURCE.applied_at }}::date;;
+    primary_key: false
   }
   dimension screened_at {
     label: 'Screened At'
     type: 'date'
+    description: "Date when the candidate was screened by the recruiter during the hiring process.  \nThis timestamp marks the completion of the initial recruiter screening stage for the application.  \nUse this field to analyze funnel progression speed and recruiter workload.  \nExamples include `2025-01-15`, `2025-02-08`, and `2025-03-22`."
     hidden: false
     definition: @sql {{ #SOURCE.screened_at }}::date;;
+    primary_key: false
   }
   dimension hm_screened_at {
     label: 'Hm Screened At'
     type: 'date'
+    description: "Date when the hiring manager conducted their screening interview for this application.  \nThis timestamp marks the point in the hiring funnel when the candidate was evaluated by the hiring manager.  \nUse this field to analyze funnel progression speed and conversion rates at the hiring manager screen stage.  \nExamples include `2025-01-22`, `2025-02-14`, and `2025-03-01`."
     hidden: false
     definition: @sql {{ #SOURCE.hm_screened_at }}::date;;
+    primary_key: false
   }
   dimension interviewed_at {
     label: 'Interviewed At'
     type: 'date'
+    description: "The date when the candidate completed their interview for this application.  \nThis timestamp marks a key milestone in the hiring funnel, used to analyze interview scheduling and pipeline velocity.  \nExamples include `2025-03-01`, `2025-02-05`, and `2025-04-08`."
     hidden: false
     definition: @sql {{ #SOURCE.interviewed_at }}::date;;
+    primary_key: false
   }
   dimension offered_at {
     label: 'Offered At'
     type: 'date'
+    description: "Date when the offer was extended to the candidate for this application.  \nThis marks the point in the hiring process when a formal job offer was made.  \nExamples include `2025-02-28`, `2025-03-01`, and `2025-04-15`."
     hidden: false
     definition: @sql {{ #SOURCE.offered_at }}::date;;
+    primary_key: false
   }
   dimension hired_at {
     label: 'Hired At'
     type: 'date'
+    description: "The date when the candidate was officially hired for the job.  \nThis marks the transition from candidate to employee in the hiring lifecycle.  \nExamples include `2025-03-05`, `2025-03-08`, and `2025-03-12`."
     hidden: false
     definition: @sql {{ #SOURCE.hired_at }}::date;;
+    primary_key: false
   }
   dimension closed_at {
     label: 'Closed At'
     type: 'date'
+    description: "The date when the application was officially closed, marking the end of the hiring process for that candidate and job.  \nThis includes both successful hires and candidates who were rejected or withdrew.  \nUse this field to analyze the total duration of the application lifecycle and to identify when hiring decisions were finalized.  \nExamples of values include `2025-03-01`, `2025-03-05`, and `2025-04-22`."
     hidden: false
     definition: @sql {{ #SOURCE.closed_at }}::date;;
+    primary_key: false
   }
   dimension days_to_hire {
     label: 'Days To Hire'
     type: 'number'
+    description: "Days to Hire represents the total number of days from when a candidate applies to when they are hired.  \nIt measures the full duration of the hiring process for each application.  \nUse this metric to analyze hiring speed and identify bottlenecks in the recruitment funnel.  \nExamples include values like 22, 31, 36, 43, and 46 days."
     hidden: false
     definition: @sql {{ #SOURCE.days_to_hire }};;
+    primary_key: false
   }
   dimension days_to_close {
     label: 'Days To Close'
     type: 'number'
+    description: "Days to Close measures the total number of days from when a candidate applies until their application is closed, either by hiring, rejection, or withdrawal.  \nIt reflects the full duration of the hiring process for that application.  \nUse this metric to analyze hiring cycle length and identify bottlenecks in closing candidates.  \nExamples include values like `1`, `31`, `43`, `36`, and `44` days."
     hidden: false
     definition: @sql {{ #SOURCE.days_to_close }};;
+    primary_key: false
   }
   dimension days_apply_to_screen {
     label: 'Days Apply To Screen'
     type: 'number'
+    description: "Time in days between when a candidate submitted their application and when they were first screened by a recruiter.  \nUse this metric to analyze the speed of initial candidate evaluation in the hiring funnel.  \nExamples include values like `2`, `3`, and `4` days."
     hidden: false
     definition: @sql {{ #SOURCE.days_apply_to_screen }};;
+    primary_key: false
   }
   dimension days_screen_to_interview {
     label: 'Days Screen To Interview'
     type: 'number'
+    description: "Time in days between the candidate being screened and their first interview for this application.  \nUse to analyze the speed of moving candidates from screening to interview stages in the hiring funnel.  \nExamples include 5, 6, 7, 8, 9, and 11 days."
     hidden: false
     definition: @sql {{ #SOURCE.days_screen_to_interview }};;
+    primary_key: false
   }
   dimension days_interview_to_offer {
     label: 'Days Interview To Offer'
     type: 'number'
+    description: "Time in days between the candidate\'s interview date and the date an offer was made for this application.  \nUse this metric to analyze the speed of moving candidates from interview to offer stage in the hiring process.  \nExamples include values such as 7, 10, 13, 14, 17, and 23 days."
     hidden: false
     definition: @sql {{ #SOURCE.days_interview_to_offer }};;
+    primary_key: false
   }
   dimension days_offer_to_hire {
     label: 'Days Offer To Hire'
     type: 'number'
+    description: "Time in days between when a job offer was made and when the candidate was hired.  \nUse this metric to analyze the speed of closing hires after extending offers.  \nExamples include values like 2, 3, 4, 5, 6, and 7 days."
     hidden: false
     definition: @sql {{ #SOURCE.days_offer_to_hire }};;
+    primary_key: false
   }
   dimension interview_count {
     label: 'Interview Count'
     type: 'number'
+    description: "Number of interviews conducted for this application.  \nExamples include `0`, `1`, `2`, `3`, and `4` interviews.  \nUse this field to analyze candidate engagement and interview process intensity."
     hidden: false
     definition: @sql {{ #SOURCE.interview_count }};;
+    primary_key: false
   }
   dimension interview_hours {
     label: 'Interview Hours'
     type: 'number'
+    description: "Total hours spent interviewing the candidate during this application.  \nRepresents the cumulative duration of all interview sessions for the candidate.  \nUse to analyze time investment in the interview process and efficiency.  \nExamples include values such as `0.0`, `1.5`, `3.0`, `4.5`, and `6.0` hours."
     hidden: false
     definition: @sql {{ #SOURCE.interview_hours }};;
+    primary_key: false
   }
   dimension avg_interview_score {
     label: 'Avg Interview Score'
     type: 'number'
+    description: "Average score given to the candidate across all interviews in this application.  \nUsed to assess candidate performance during the interview process.  \nExample values include `3.0`, `3.5`, and `2.5`."
     hidden: false
     definition: @sql {{ #SOURCE.avg_interview_score }};;
+    primary_key: false
   }
   dimension interviewers {
     label: 'Interviewers'
     type: 'text'
+    description: "Names of the interviewers who conducted the candidate\'s interviews for this application.  \nThis field captures all interviewers involved, listed as a comma-separated string.  \nUse it to analyze interviewer participation and impact on hiring outcomes.  \nExamples include:  \n- `Dang Thuy Trang, Tran Minh Tuan`  \n- `Do Hai Yen, Hoang Duc Anh, Nguyen Van Thanh`  \n- `Ly Khanh Huong, Bui Ngoc Mai`"
     hidden: false
     definition: @sql {{ #SOURCE.interviewers }};;
+    primary_key: false
   }
   dimension offer_base_salary {
     label: 'Offer Base Salary'
     type: 'number'
+    description: "Offer base salary is the fixed annual salary amount proposed to the candidate in the job offer.  \nIt represents the guaranteed cash compensation before bonuses or other benefits.  \nExamples include `16000000`, `22000000`, and `35000000`.  \nUse this field to analyze salary competitiveness and offer acceptance trends."
     hidden: false
     definition: @sql {{ #SOURCE.offer_base_salary }};;
+    primary_key: false
   }
   dimension offer_total_comp {
     label: 'Offer Total Comp'
     type: 'number'
+    description: "Total compensation offered to the candidate in this application, including base salary and all additional monetary components.  \nRepresents the full financial value of the offer made to the candidate.  \nExamples include values like `20000000`, `44000000`, and `72000000`."
     hidden: false
     definition: @sql {{ #SOURCE.offer_total_comp }};;
+    primary_key: false
   }
   dimension offer_currency {
     label: 'Offer Currency'
     type: 'text'
+    description: "The currency in which the job offer compensation is expressed.  \nExamples include `USD`.  \nThis field helps analyze offer amounts consistently across different currencies."
     hidden: false
     definition: @sql {{ #SOURCE.offer_currency }};;
+    primary_key: false
   }
   dimension offer_status {
     label: 'Offer Status'
     type: 'text'
+    description: "**Offer Status** indicates the current state of the job offer made to the candidate.  \nCommon values include `accepted` when the candidate has accepted the offer, and `extended` when the offer has been presented but not yet responded to.  \nUse this field to track offer outcomes and analyze offer acceptance rates.  \nExamples: `accepted`, `extended`."
     hidden: false
     definition: @sql {{ #SOURCE.offer_status }};;
+    primary_key: false
   }
   dimension offer_decline_reason {
     label: 'Offer Decline Reason'
     type: 'text'
+    description: "**Offer Decline Reason** records the specific reason why a candidate declined a job offer.  \nThis field helps analyze patterns in offer rejections to improve offer competitiveness and candidate experience.  \nExamples include reasons such as \"Accepted another offer,\" \"Compensation too low,\" or \"Location not suitable.\""
     hidden: false
     definition: @sql {{ #SOURCE.offer_decline_reason }};;
+    primary_key: false
   }
   dimension was_negotiated {
     label: 'Was Negotiated'
     type: 'truefalse'
+    description: "Indicates whether the offer for this application was subject to negotiation.  \nValues are `true` if negotiation occurred, `false` if not.  \nUse this field to analyze the impact of negotiation on offer acceptance and hiring outcomes.  \nExamples: `true`, `false`."
     hidden: false
     definition: @sql {{ #SOURCE.was_negotiated }};;
+    primary_key: false
   }
   dimension days_to_offer_decision {
     label: 'Days To Offer Decision'
     type: 'number'
+    description: "Number of days taken by the candidate to make a decision after receiving the offer.  \nUse this metric to analyze candidate responsiveness and optimize offer timelines.  \nExamples include values like `2`, `3`, `4`, `5`, `6`, and `7` days."
     hidden: false
     definition: @sql {{ #SOURCE.days_to_offer_decision }};;
+    primary_key: false
   }
   dimension is_referral {
     label: 'Is Referral'
     type: 'truefalse'
+    description: "Indicates whether the application was submitted through a referral.  \nA value of `true` means the candidate was referred by an employee or another source, while `false` means no referral was involved.  \nUse this field to analyze the impact of referral programs on hiring outcomes and candidate quality.  \nExample values include `true` and `false`."
     hidden: false
     definition: @sql {{ #SOURCE.is_referral }};;
+    primary_key: false
   }
   dimension referrer_employee_id {
     label: 'Referrer Employee Id'
     type: 'text'
+    description: "Employee ID of the internal referrer who recommended this candidate for the job.  \nThis links the application to the employee who made the referral, enabling tracking and analysis of referral program effectiveness.  \nExamples include `e009`, `e010`, `e007`."
     hidden: false
     definition: @sql {{ #SOURCE.referrer_employee_id }};;
+    primary_key: false
   }
   dimension referral_bonus_amount {
     label: 'Referral Bonus Amount'
     type: 'number'
+    description: "The **referral_bonus_amount** field records the monetary value of the bonus awarded for a successful candidate referral.  \nThis amount reflects the incentive paid to the employee who referred the candidate, supporting analysis of referral program costs and effectiveness.  \nExample values include `5000000` representing a bonus of 5,000,000 in the relevant currency.  \nNull values indicate no referral bonus was awarded for that application."
     hidden: false
     definition: @sql {{ #SOURCE.referral_bonus_amount }};;
+    primary_key: false
   }
   dimension referral_bonus_status {
     label: 'Referral Bonus Status'
     type: 'text'
+    description: "**Referral Bonus Status** indicates the current payment state of the referral bonus associated with this application.  \nCommon values include `paid` when the bonus has been disbursed, and `pending` when the bonus is awaiting payment.  \nThis field helps track the progress and fulfillment of referral incentives.  \nExamples: `paid`, `pending`."
     hidden: false
     definition: @sql {{ #SOURCE.referral_bonus_status }};;
+    primary_key: false
   }
   dimension start_date {
     label: 'Start Date'
     type: 'date'
+    description: "The **start_date** is the date when the hired candidate is scheduled to begin their employment.  \nIt marks the official commencement of the employee\'s tenure following the hiring process.  \nExamples include `2025-04-01`, `2025-04-10`, and `2025-05-01`."
     hidden: false
     definition: @sql {{ #SOURCE.start_date }};;
+    primary_key: false
   }
   dimension probation_passed {
     label: 'Probation Passed'
     type: 'truefalse'
+    description: "Indicates whether the candidate successfully passed their probation period after being hired.  \nThis field helps assess early employee retention and onboarding effectiveness.  \nValues include `true` for passed probation and `NULL` if not applicable or unknown.  \nExample: `true` for candidates who completed probation successfully."
     hidden: false
     definition: @sql {{ #SOURCE.probation_passed }};;
+    primary_key: false
   }
   dimension perf_rating_90d {
     label: 'Perf Rating 90d'
     type: 'number'
+    description: "Performance rating assigned to the candidate 90 days after hire.  \nUsed to evaluate early job performance and inform quality of hire analysis.  \nExamples of values include `4`, `3`, and `5`."
     hidden: false
     definition: @sql {{ #SOURCE.perf_rating_90d }};;
+    primary_key: false
   }
   dimension perf_rating_6m {
     label: 'Perf Rating 6m'
     type: 'number'
+    description: "Performance rating of the hired candidate six months after their start date.  \nUsed to evaluate medium-term employee performance and hiring quality.  \nExample values include `3`, `4`, and `5`."
     hidden: false
     definition: @sql {{ #SOURCE.perf_rating_6m }};;
+    primary_key: false
   }
   dimension perf_rating_1y {
     label: 'Perf Rating 1y'
     type: 'number'
+    description: "Performance rating of the hired candidate one year after their start date.  \nUsed to evaluate long-term employee performance and quality of hire.  \nExample values include `4` or NULL if the rating is not available."
     hidden: false
     definition: @sql {{ #SOURCE.perf_rating_1y }};;
+    primary_key: false
   }
   dimension hiring_manager_satisfaction {
     label: 'Hiring Manager Satisfaction'
     type: 'number'
+    description: "Hiring Manager Satisfaction captures the hiring manager’s rating of their satisfaction with the candidate and the overall hiring process.  \nThis score reflects the quality and fit of the hire from the manager’s perspective.  \nValues typically range from 1 to 5, with examples including `4`, `5`, and `3`.  \nUse this metric to assess hiring success and manager experience with candidates."
     hidden: false
     definition: @sql {{ #SOURCE.hiring_manager_satisfaction }};;
+    primary_key: false
   }
   dimension is_retained_90d {
     label: 'Is Retained 90d'
     type: 'truefalse'
+    description: "**Is Retained 90d** indicates whether the candidate who was hired remained employed with the company for at least 90 days after their start date.  \nThis metric is used to assess early retention success and the effectiveness of the hiring process in selecting candidates likely to stay.  \nValues are `true` if retained 90 days, otherwise `false` or NULL.  \nExample: `true` means the candidate stayed beyond 90 days; `false` means they left before 90 days."
     hidden: false
     definition: @sql {{ #SOURCE.is_retained_90d }};;
+    primary_key: false
   }
   dimension is_retained_6m {
     label: 'Is Retained 6m'
     type: 'truefalse'
+    description: "Indicates whether the hired candidate remained employed at the company for at least six months after their start date.  \nUse this field to measure medium-term retention and assess hiring quality.  \nExample values: `true` for candidates retained 6 months, `false` or `NULL` if not retained or data unavailable."
     hidden: false
     definition: @sql {{ #SOURCE.is_retained_6m }};;
+    primary_key: false
   }
   dimension is_retained_1y {
     label: 'Is Retained 1y'
     type: 'truefalse'
+    description: "Indicates whether the candidate was still employed with the company one year after their hire date.  \nUse this field to measure long-term retention and assess the effectiveness of hiring decisions on employee longevity.  \nExample: `true` means the candidate remained employed at 1 year; `false` or `NULL` means they did not."
     hidden: false
     definition: @sql {{ #SOURCE.is_retained_1y }};;
+    primary_key: false
   }
   dimension is_regrettable_attrition {
     label: 'Is Regrettable Attrition'
     type: 'truefalse'
+    description: "Indicates whether the candidate’s departure from the company is classified as regrettable attrition.  \nThis flag helps measure the quality and retention risk of hires by identifying employees whose exit negatively impacts the organization.  \nValues are typically true or false.  \nFor example, `false` means the candidate’s attrition is not considered regrettable."
     hidden: false
     definition: @sql {{ #SOURCE.is_regrettable_attrition }};;
+    primary_key: false
   }
   dimension cnps_score {
     label: 'Cnps Score'
     type: 'number'
+    description: "Candidate Net Promoter Score (CNPS) measures the candidate\'s likelihood to recommend the hiring process or company to others.  \nIt reflects candidate experience and satisfaction with the recruitment journey.  \nTypical scores range from 0 to 10, where higher values indicate stronger recommendation intent.  \nExamples include scores such as `7`, `8`, `9`, `6`, and `10`."
     hidden: false
     definition: @sql {{ #SOURCE.cnps_score }};;
+    primary_key: false
   }
   dimension would_recommend {
     label: 'Would Recommend'
     type: 'truefalse'
+    description: "Indicates whether the candidate would recommend the hiring process or company to others.  \nThis reflects candidate satisfaction and experience quality during recruitment.  \nExample values include `true` and `false`."
     hidden: false
     definition: @sql {{ #SOURCE.would_recommend }};;
+    primary_key: false
   }
 
   owner: 'khai.to@holistics.io'
