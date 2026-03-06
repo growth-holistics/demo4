@@ -693,110 +693,340 @@ ecommerce_users.sign_up_date
       }
     }
   }
-  view: CanvasLayout {
+  block v_gmv_sales: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: r(demo_ecommerce_version_2.gmv)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_nmv: VizBlock {
+    label: 'NMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'NMV'
+        ref: r(demo_ecommerce_version_2.nmv)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_revenue: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Revenue'
+        ref: r(demo_ecommerce_version_2.revenue)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_order_status: VizBlock {
+    label: 'Orders by Status'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.status)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#196848FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+      }
+    }
+  }
+  block v_category_table: VizBlock {
+    label: 'Orders by Category'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(map_categories.category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(ecommerce_orders.total_orders_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'Cancelled Ratio'
+          ref: r(demo_ecommerce_version_2.cancelled_order_ratio)
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+      }
+    }
+  }
+  block t_gn3v: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_radius: 10
+        border_color: '#e8e8e8'
+        border_width: 2
+      }
+    }
+  }
+  block t_nf6y: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t_v1ip: TextBlock {
+    content: @md <div class="h-full border-l-2"/>;;
+  }
+  block t_50lr: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_radius: 10
+        border_color: '#e8e8e8'
+        border_width: 2
+      }
+    }
+  }
+  block t_tfcn: TextBlock {
+    content: @md &nbsp; ;;
+    theme {
+      border {
+        border_radius: 10
+        border_color: '#e8e8e8'
+        border_width: 2
+      }
+    }
+  }
+  view: TabLayout {
     label: 'View 1'
-    width: 1440
-    height: 2030
-    block f2 {
-      position: pos(1140, 10, 280, 80)
+    tab view_1: CanvasLayout {
+      label: 'Overview'
+      width: 1440
+      height: 2030
+      block f2 {
+        position: pos(1140, 10, 280, 80)
+      }
+      block f3 {
+        position: pos(850, 10, 280, 80)
+      }
+      block hr {
+        position: pos(-20, 190, 1480, 20)
+      }
+      block t2 {
+        position: pos(750, 430, 650, 40)
+      }
+      block t5 {
+        position: pos(30, 10, 170, 90)
+      }
+      block t9 {
+        position: pos(40, 430, 650, 40)
+      }
+      block v1 {
+        position: pos(240, 20, 360, 60)
+      }
+      block v2 {
+        position: pos(750, 1300, 650, 240)
+      }
+      block v3 {
+        position: pos(40, 1300, 650, 240)
+      }
+      block v4 {
+        position: pos(40, 230, 240, 140)
+      }
+      block v5 {
+        position: pos(610, 230, 240, 140)
+      }
+      block v6 {
+        position: pos(880, 230, 240, 140)
+      }
+      block v7 {
+        position: pos(1160, 230, 240, 140)
+      }
+      block v8 {
+        position: pos(40, 480, 650, 370)
+      }
+      block t10 {
+        position: pos(300, 210, 10, 180)
+      }
+      block t11 {
+        position: pos(580, 210, 10, 180)
+        layer: 1
+      }
+      block t12 {
+        position: pos(860, 210, 10, 180)
+      }
+      block t13 {
+        position: pos(1140, 210, 10, 180)
+      }
+      block t14 {
+        position: pos(20, 410, 690, 1150)
+        layer: -2
+      }
+      block t15 {
+        position: pos(730, 410, 690, 1150)
+        layer: -2
+      }
+      block v11 {
+        position: pos(750, 480, 650, 370)
+      }
+      block v12 {
+        position: pos(320, 230, 240, 140)
+      }
+      block v13 {
+        position: pos(730, 1570, 690, 450)
+      }
+      block v14 {
+        position: pos(20, 1570, 690, 450)
+      }
+      block box1 {
+        position: pos(20, 210, 1400, 180)
+        layer: -1
+      }
+      block divider {
+        position: pos(230, 30, 10, 40)
+      }
+      block d1 {
+        position: pos(520, 420, 170, 100)
+      }
+      block p1 {
+        position: pos(1190, 420, 210, 80)
+      }
+      block p_06vn {
+        position: pos(1140, 90, 280, 80)
+        layer: 2
+      }
+      block v_4ujx {
+        position: pos(750, 870, 650, 420)
+      }
+      block f_country_name {
+        position: pos(850, 90, 280, 80)
+      }
+      block v_et7r {
+        position: pos(40, 870, 650, 420)
+      }
+      default_zoom: 'fit_to_width'
     }
-    block f3 {
-      position: pos(850, 10, 280, 80)
-    }
-    block hr {
-      position: pos(-20, 190, 1480, 20)
-    }
-    block t2 {
-      position: pos(750, 430, 650, 40)
-    }
-    block t5 {
-      position: pos(30, 10, 170, 90)
-    }
-    block t9 {
-      position: pos(40, 430, 650, 40)
-    }
-    block v1 {
-      position: pos(240, 20, 360, 60)
-    }
-    block v2 {
-      position: pos(750, 1300, 650, 240)
-    }
-    block v3 {
-      position: pos(40, 1300, 650, 240)
-    }
-    block v4 {
-      position: pos(40, 230, 240, 140)
-    }
-    block v5 {
-      position: pos(610, 230, 240, 140)
-    }
-    block v6 {
-      position: pos(880, 230, 240, 140)
-    }
-    block v7 {
-      position: pos(1160, 230, 240, 140)
-    }
-    block v8 {
-      position: pos(40, 480, 650, 370)
-    }
-    block t10 {
-      position: pos(300, 210, 10, 180)
-    }
-    block t11 {
-      position: pos(580, 210, 10, 180)
-      layer: 1
-    }
-    block t12 {
-      position: pos(860, 210, 10, 180)
-    }
-    block t13 {
-      position: pos(1140, 210, 10, 180)
-    }
-    block t14 {
-      position: pos(20, 410, 690, 1150)
-      layer: -2
-    }
-    block t15 {
-      position: pos(730, 410, 690, 1150)
-      layer: -2
-    }
-    block v11 {
-      position: pos(750, 480, 650, 370)
-    }
-    block v12 {
-      position: pos(320, 230, 240, 140)
-    }
-    block v13 {
-      position: pos(730, 1570, 690, 450)
-    }
-    block v14 {
-      position: pos(20, 1570, 690, 450)
-    }
-    block box1 {
-      position: pos(20, 210, 1400, 180)
-      layer: -1
-    }
-    block divider {
-      position: pos(230, 30, 10, 40)
-    }
-    block d1 {
-      position: pos(520, 420, 170, 100)
-    }
-    block p1 {
-      position: pos(1190, 420, 210, 80)
-    }
-    block p_06vn {
-      position: pos(1140, 90, 280, 80)
-      layer: 2
-    }
-    block v_4ujx {
-      position: pos(750, 870, 650, 420)
-    }
-    block f_country_name {
-      position: pos(850, 90, 280, 80)
-    }
-    block v_et7r {
-      position: pos(40, 870, 650, 420)
+    tab tab_1ds6: CanvasLayout {
+      label: 'Sales Metrics'
+      width: 1300
+      height: 610
+      block v_gmv_sales {
+        position: pos(30, 30, 380, 90)
+      }
+      block v_nmv {
+        position: pos(460, 30, 380, 90)
+      }
+      block v_revenue {
+        position: pos(880, 30, 380, 90)
+      }
+      block v_order_status {
+        position: pos(40, 150, 560, 440)
+      }
+      block v_category_table {
+        position: pos(640, 150, 620, 440)
+      }
+      block t_gn3v {
+        position: pos(10, 10, 1280, 120)
+        layer: -1
+      }
+      block t_nf6y {
+        position: pos(460, 10, 10, 120)
+      }
+      block t_v1ip {
+        position: pos(840, 10, 10, 120)
+      }
+      block t_50lr {
+        position: pos(10, 140, 590, 460)
+      }
+      block t_tfcn {
+        position: pos(630, 140, 660, 460)
+      }
+      default_zoom: 'fit_to_width'
     }
   }
   interactions: [
@@ -848,17 +1078,14 @@ ecommerce_users.sign_up_date
       from: 'p_06vn'
       to: [
         CustomMapping {
-          block: 'v5'
-          field: r(ecommerce_orders.created_at)
-        },
-        CustomMapping {
           block: [
+            'v5',
             'v4',
             'v6',
             'v7',
             'v12'
           ]
-          field: ref('ecommerce_orders', 'created_at')
+          field: r(ecommerce_orders.created_at)
         }
       ]
     },
