@@ -43,7 +43,6 @@ Dashboard sandbox_dashboard {
         data_type: 'text'
       }
       theme {
-
       }
       rows: [
         VizFieldFull {
@@ -110,17 +109,60 @@ Dashboard sandbox_dashboard {
       }
     }
   }
+  block v_owxh: VizBlock {
+    label: 'Total Users by Quarter Sign Up At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 800
+    height: 980
     grid_size: 20
     auto_expand_vertically: true
     block title {
-      position: pos(20, 20, 1260, 60)
+      position: pos(20, 20, 1260, 80)
     }
     block v_d1c8 {
+      position: pos(640, 100, 620, 420)
+      layer: 1
+    }
+    block v_owxh {
       position: pos(20, 100, 620, 420)
       layer: 1
     }
@@ -128,5 +170,5 @@ Dashboard sandbox_dashboard {
       mode: 'auto'
     }
   }
-  theme: H.themes.vanilla
+  theme: H.themes.oasis
 }
