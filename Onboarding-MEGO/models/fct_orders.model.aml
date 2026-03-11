@@ -1,0 +1,99 @@
+Model fct_orders {
+  type: 'query'
+  label: 'Fct Orders'
+  description: ''
+  data_source_name: 'demodb'
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension order_status {
+    label: 'Order Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_status }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension discount {
+    label: 'Discount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.discount }};;
+  }
+  dimension delivery_attempts {
+    label: 'Delivery Attempts'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivery_attempts }};;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension item_values {
+    label: 'Item Values'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.item_values }};;
+  }
+  dimension cancelled_at {
+    label: 'Cancelled At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.cancelled_at }};;
+  }
+  dimension delivered_at {
+    label: 'Delivered At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_at }};;
+  }
+  dimension refunded_at {
+    label: 'Refunded At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.refunded_at }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    with a as (
+      SELECT 
+        p.id as product_id
+        , o.id as order_id 
+        , o.status as order_status
+        , o.created_at::date
+        , o.discount
+        , o.delivery_attempts
+        , o.user_id
+        , oi.quantity * p.price as item_values
+        , CASE WHEN o.status = 'cancelled' THEN o.created_at::date + (floor(random() * 10 + 1)::int || ' day')::interval END as cancelled_at
+        , CASE WHEN o.status in ('delivered', 'refunded') THEN o.created_at::date + (floor(random() * 10 + 1)::int || ' day')::interval END as delivered_at
+    FROM 
+      ecommerce.order_items oi 
+      LEFT JOIN ecommerce.orders o on oi.order_id = o.id
+      LEFT JOIN ecommerce.products p on oi.product_id = p.id
+    )
+    select *
+      , CASE 
+          WHEN order_status = 'refunded' THEN delivered_at::date + (floor(random() * 10 + 1)::int || ' day')::interval
+        END as refunded_at
+    from a;;
+  models: [
+  ]
+}

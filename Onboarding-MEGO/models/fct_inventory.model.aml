@@ -1,0 +1,49 @@
+Model fct_inventory {
+  type: 'query'
+  label: 'Fct Inventory'
+  description: ''
+  data_source_name: 'demodb'
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension quantity_reserved {
+    label: 'Quantity Reserved'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_reserved }};;
+  }
+  dimension quantity_avaiable {
+    label: 'Quantity Avaiable'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_avaiable }};;
+  }
+  dimension quantity_on_hand {
+    label: 'Quantity On Hand'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_on_hand }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    select p.id as product_id
+      , case when o.status = 'delivered' then oi.quantity else 0 end as quantity_reserved
+      , case when o.status = 'cancelled' then oi.quantity else 0 end as quantity_avaiable
+      , case when o.status = 'refunded' then oi.quantity else 0 end as quantity_on_hand
+      , o.created_at::date 
+    from ecommerce.order_items oi
+      left join ecommerce.orders o on oi.order_id = o.id
+      left join ecommerce.products p on oi.product_id = p.id;;
+  models: [
+  ]
+}
