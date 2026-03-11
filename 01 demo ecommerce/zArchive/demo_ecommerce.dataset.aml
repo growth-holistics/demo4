@@ -3,31 +3,25 @@ PreAggregate agg_daily {
     for: ref('order_master', 'order_created_at')
     time_granularity: 'day'
   }
-
   measure order_count {
     for: ref('order_master', 'order_id')
     aggregation_type: 'count'
   }
-
   persistence: IncrementalPersistence {
     schema: 'persisted'
     incremental_column: 'timestamp'
   }
 }
-
-@tag('1️⃣ Trust/Deprecated')
+@tag('1️⃣ Trust/Deprecated', '2️⃣ Status/Archived')
 Dataset demo_ecommerce {
-  __engine__: 'aql' //turn this Dataset to using AQL Engine
+  __engine__: 'aql'
   label: '[Demo] Ecommerce Official (2024)'
   description: "Official dataset for demoing E-commerce use cases test"
   owner: 'ha.pham+demo4@holistics.io'
   data_source_name: 'demodb'
-
   pre_aggregates: {
     daily: agg_daily
   }
-
-
   models: [
     order_master,
     ecommerce_users,
@@ -43,7 +37,6 @@ Dataset demo_ecommerce {
     ecommerce_orders,
     param_model_nam
   ]
-
   dimension cohort_month {
     model: order_master
     label: 'Cohort Month'
@@ -51,35 +44,30 @@ Dataset demo_ecommerce {
     definition: @aql min(order_master.order_created_at | month()) | exact_grains(order_master.user_id)
     ;;
   }
-
   dimension month_no {
     model: order_master
     label: 'Month No'
     type: 'number'
     definition: @aql date_diff('month', order_master.cohort_month, order_master.order_created_at | month()) - 1 ;;
   }
-
   dimension cohort_size {
     model: order_master
     label: 'Cohort Size'
     type: 'number'
     definition: @aql count_distinct(order_master.user_id) | exact_grains(order_master.cohort_month) ;;
   }
-
   dimension aov_by_product {
     model: order_master
     label: 'AOV by Product'
     type: 'text'
     definition: @aql dimensionalize(order_master.aov, order_master.product_id) ;;
   }
-
   dimension gmv_by_product {
     model: order_master
     label: 'GMV by Product'
     type: 'text'
     definition: @aql dimensionalize(order_master.gmv, order_master.product_id) ;;
   }
-
   dimension product_performance_analysis {
     model: order_master
     label: 'Product Performance Analysis'
@@ -102,7 +90,6 @@ Dataset demo_ecommerce {
     definition: @aql ecommerce_orders.created_at | month_num();;
     model: ecommerce_orders
   }
-
   dimension breakdown_dim {
     label: 'Dynamic Breakdown Dimension'
     description: 'The dimension will be automatically switched among Country, Age Group, Order Status. By default, it will be Country'
@@ -124,19 +111,15 @@ Dataset demo_ecommerce {
         , else: ecommerce_countries.name
       ) ;;
   }
-
   relationships: [
     relationship(ecommerce_orders_dim_dates, true),
     relationship(ecommerce_orders_ecommerce_users, true),
     relationship(ecommerce_products_map_categories, true),
     relationship(ecommerce_users_ecommerce_cities, true),
     relationship(order_master_ecommerce_merchants, true),
-    relationship(order_master_ecommerce_products, true)
-    ,
-    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true)
-    ,
-    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true)
-    ,
+    relationship(order_master_ecommerce_products, true),
+    relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
     relationship(order_master.user_id > ecommerce_users.id, true)
   ]
   metric total_orders {
@@ -160,13 +143,6 @@ Dataset demo_ecommerce {
     description: ""
     definition: @aql total_orders * 1.0 / total_orders_across_all;;
   }
-  // metric abc {
-  //   label: "Abc"
-  //   type: "number"
-  //   hidden: false
-  //   description: ""
-  //   definition: @aql count(ecommerce_orders.id) | where(ecommerce_users.gender == 'm', ecommerce_cities.name == 'New York');;
-  // }
   metric month_number {
     label: "Month Number"
     type: "number"
@@ -181,7 +157,6 @@ Dataset demo_ecommerce {
     description: ""
     definition: @aql running_total(total_orders, ecommerce_orders.created_at | year());;
   }
-
   metric dynamic_metric {
     label: 'Dynamic Metric'
     type: 'number'
