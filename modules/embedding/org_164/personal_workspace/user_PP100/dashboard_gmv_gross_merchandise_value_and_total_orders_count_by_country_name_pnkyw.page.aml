@@ -1,0 +1,77 @@
+Dashboard dashboard_gmv_gross_merchandise_value_and_total_orders_count_by_country_name_pnkyw {
+  title: 'Dashboard GMV (Gross Merchandise Value) and Total Orders Count by Country Name'
+  owner: 'embed_f90e7149f1e44c59dc@holistics.io'
+  block v_b96y: VizBlock {
+    label: 'GMV (Gross Merchandise Value) and Total Orders Count by Country Name'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#8BD2CE'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          show_data_label_by: 'value'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(ecommerce_orders.total_order)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E27712'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_b96y {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
