@@ -226,6 +226,15 @@ Dataset demo_ecommerce_version_2 {
     ;;
   }
 
+  dimension first_order_date {
+    model: ecommerce_users
+    label: 'First Order Date'
+    type: 'date'
+    definition: @aql
+      min(ecommerce_orders.created_at) | dimensionalize(ecommerce_users.id)
+    ;;
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // METRICS
   // ═══════════════════════════════════════════════════════════════════════════
@@ -490,6 +499,7 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
   else: total_users
 );;
   }
+
   metric metric_67076ce {
     label: "PoP Comparison of Total Orders"
     type: "number"
@@ -497,6 +507,29 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
     description: ""
     definition: @aql total_orders | relative_period(ecommerce_products.created_at, interval(-1 year), strict: true);;
     format: ""
+  }
+
+  metric num_signups {
+    label: "Num Signups"
+    type: "number"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric n_day_conv {
+    label: "N Day Conversion"
+    type: "number"
+    definition: @aql
+      num_signups
+      | where(
+        date_diff('day', ecommerce_users.sign_up_date, ecommerce_users.first_order_date) <= first(param_model_demo.num_of_date_selections)
+      )
+      ;;
+  }
+
+  metric conv_n {
+    label: "Conversion Rate N Days"
+    type: "number"
+    definition: @aql n_day_conv / num_signups ;;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
