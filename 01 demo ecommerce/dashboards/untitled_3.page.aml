@@ -6,41 +6,35 @@ Dashboard untitled_3_2 {
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 780
+    height: 820
     grid_size: 20
     auto_expand_vertically: true
     mobile {
       mode: 'auto'
     }
     block f_days {
-      position: pos(140, 20, 300, 80)
+      position: pos(660, 20, 300, 80)
     }
     block v_co68 {
-      position: pos(460, 260, 300, 140)
+      position: pos(540, 380, 300, 140)
     }
     block v_h3hy {
-      position: pos(140, 100, 300, 140)
-    }
-    block v_tn5t {
-      position: pos(460, 100, 300, 140)
-    }
-    block f_7_days {
-      position: pos(460, 20, 300, 80)
+      position: pos(420, 120, 300, 140)
     }
     block v_uv23 {
-      position: pos(780, 100, 300, 140)
+      position: pos(420, 660, 300, 140)
     }
     block f_30_days {
-      position: pos(780, 20, 300, 80)
+      position: pos(980, 20, 300, 80)
     }
     block v_wwqz {
-      position: pos(140, 420, 300, 140)
-    }
-    block v_dpnj {
-      position: pos(460, 420, 300, 140)
+      position: pos(940, 120, 300, 220)
     }
     block v_bsmq {
-      position: pos(780, 420, 300, 140)
+      position: pos(940, 580, 300, 220)
+    }
+    block t_9tos {
+      position: pos(20, 120, 380, 660)
     }
     default_zoom: 'fit_to_page'
   }
@@ -108,43 +102,6 @@ Dashboard untitled_3_2 {
       }
     }
   }
-  block v_tn5t: VizBlock {
-    label: '7 Days Conversion'
-    viz: DataTable {
-      dataset: demo_ecommerce_version_2
-      fields: [
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.n_day_conv)
-          format {
-            type: 'number'
-            pattern: '#,###'
-            group_separator: ' '
-            decimal_separator: '.'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
-  block f_7_days: FilterBlock {
-    label: '7 Days'
-    type: 'field'
-    source: FieldFilterSource {
-      dataset: demo_ecommerce_version_2
-      field: r(param_model_demo.num_of_date_selections)
-    }
-    default {
-      operator: 'is'
-      value: '7'
-    }
-  }
   block v_uv23: VizBlock {
     label: '30 Days Conversion'
     viz: DataTable {
@@ -207,31 +164,6 @@ Dashboard untitled_3_2 {
       }
     }
   }
-  block v_dpnj: VizBlock {
-    label: '7 Days Conversion'
-    viz: DataTable {
-      dataset: demo_ecommerce_version_2
-      fields: [
-        VizFieldFull {
-          ref: r(demo_ecommerce_version_2.conv_n)
-          format {
-            type: 'number'
-            pattern: '#,###0.00%'
-            group_separator: ' '
-            decimal_separator: '.'
-          }
-        }
-      ]
-      settings {
-        show_row_number: true
-        row_limit: 5000
-        aggregate_awareness {
-          enabled: true
-          debug_comments: true
-        }
-      }
-    }
-  }
   block v_bsmq: VizBlock {
     label: '30 Days Conversion Rate'
     viz: DataTable {
@@ -257,6 +189,9 @@ Dashboard untitled_3_2 {
       }
     }
   }
+  block t_9tos: TextBlock {
+    content: @md Metrics Definition (AQL);;
+  }
   interactions: [
     FilterInteraction {
       from: 'f_days'
@@ -264,27 +199,8 @@ Dashboard untitled_3_2 {
         CustomMapping {
           block: [
             'v_co68',
-            'v_tn5t',
             'v_uv23',
-            'v_dpnj',
             'v_bsmq',
-            'f_7_days',
-            'f_30_days'
-          ]
-          disabled: true
-        }
-      ]
-    },
-    FilterInteraction {
-      from: 'f_7_days'
-      to: [
-        CustomMapping {
-          block: [
-            'v_h3hy',
-            'v_uv23',
-            'v_wwqz',
-            'v_bsmq',
-            'f_days',
             'f_30_days'
           ]
           disabled: true
@@ -298,11 +214,8 @@ Dashboard untitled_3_2 {
           block: [
             'v_co68',
             'v_h3hy',
-            'v_tn5t',
             'v_wwqz',
-            'v_dpnj',
-            'f_days',
-            'f_7_days'
+            'f_days'
           ]
           disabled: true
         }
