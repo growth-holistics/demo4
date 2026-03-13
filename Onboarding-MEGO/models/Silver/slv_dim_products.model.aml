@@ -1,0 +1,109 @@
+Model slv_dim_products {
+  type: 'query'
+  label: 'Slv Dim Products'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_product {
+    label: 'Sk Product'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_product }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension category_id {
+    label: 'Category Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_id }};;
+  }
+  dimension merchant_id {
+    label: 'Merchant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension name_normalized {
+    label: 'Name Normalized'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name_normalized }};;
+  }
+  dimension price {
+    label: 'Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }};;
+  }
+  dimension cost {
+    label: 'Cost'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cost }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension product_image_url {
+    label: 'Product Image Url'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_image_url }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH base AS (
+      SELECT
+        id,
+        category_id,
+        name,
+        merchant_id,
+        price,
+        created_at,
+        product_image_url,
+        cost
+      FROM {{ #dim_products }}
+    )
+
+    SELECT
+      -- Surrogate key (stable, deterministic)
+      MD5(CAST(id AS varchar)) AS sk_product,
+
+      id,
+      category_id,
+      merchant_id,
+
+      -- Normalize whitespace
+      NULLIF(BTRIM(name), '') AS name,
+
+      -- Optional helper field for matching/searching (does not change grain)
+      LOWER(NULLIF(BTRIM(name), '')) AS name_normalized,
+
+      price,
+      cost,
+      created_at,
+
+      -- Normalize blank strings to NULL
+      CASE
+        WHEN product_image_url IS NULL OR BTRIM(product_image_url) = '' THEN NULL
+        ELSE product_image_url
+      END AS product_image_url
+    FROM base;;
+  models: [
+    dim_products
+  ]
+}

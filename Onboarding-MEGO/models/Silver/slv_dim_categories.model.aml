@@ -1,0 +1,82 @@
+Model slv_dim_categories {
+  type: 'query'
+  label: 'Slv Dim Categories'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_category {
+    label: 'Sk Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_category }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension parent_id {
+    label: 'Parent Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.parent_id }};;
+  }
+  dimension min_price {
+    label: 'Min Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.min_price }};;
+  }
+  dimension max_price {
+    label: 'Max Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.max_price }};;
+  }
+  dimension category_image_url {
+    label: 'Category Image Url'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_image_url }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH base AS (
+      -- Bronze categories table is already clean (1 row per category_id)
+      SELECT
+        id,
+        name,
+        parent_id,
+        min_price,
+        max_price,
+        category_image_url
+      FROM {{ #dim_categories }}
+    )
+
+    SELECT
+      -- Surrogate key for category (stable, deterministic)
+      MD5(CAST(id AS varchar)) AS sk_category,
+
+      id,
+      name,
+      parent_id,
+      min_price,
+      max_price,
+
+      -- Normalize blank strings to NULL (optional cleanliness)
+      CASE
+        WHEN category_image_url IS NULL OR TRIM(category_image_url) = '' THEN NULL
+        ELSE category_image_url
+      END AS category_image_url
+    FROM base;;
+  models: [
+    dim_categories
+  ]
+}

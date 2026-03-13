@@ -1,0 +1,56 @@
+Model slv_dim_cities {
+  type: 'query'
+  label: 'Slv Dim Cities'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_city {
+    label: 'Sk City'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_city }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension country_code {
+    label: 'Country Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_code }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH base AS (
+      SELECT
+        id,
+        name,
+        country_code
+      FROM {{ #dim_cities }}
+    )
+
+    SELECT
+      -- Surrogate key (stable, deterministic)
+      MD5(CAST(id AS varchar)) AS sk_city,
+
+      id,
+
+      -- Normalize whitespace
+      NULLIF(BTRIM(name), '') AS name,
+
+      -- Standardize to uppercase + trim
+      NULLIF(UPPER(BTRIM(country_code)), '') AS country_code
+    FROM base;;
+  models: [
+    dim_cities
+  ]
+}

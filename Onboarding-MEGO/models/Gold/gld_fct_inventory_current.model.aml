@@ -1,0 +1,107 @@
+Model gld_fct_inventory_current {
+  type: 'query'
+  label: 'Gld Fct Inventory Current'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_inventory_current {
+    label: 'Sk Inventory Current'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_inventory_current }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension quantity_on_hand {
+    label: 'Quantity On Hand'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_on_hand }};;
+  }
+  dimension quantity_available {
+    label: 'Quantity Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_available }};;
+  }
+  dimension quantity_reserved {
+    label: 'Quantity Reserved'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_reserved }};;
+  }
+  dimension latest_snapshot_at {
+    label: 'Latest Snapshot At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.latest_snapshot_at }};;
+  }
+  dimension snapshot_date_key {
+    label: 'Snapshot Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.snapshot_date_key }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH snapshots AS (
+      -- Silver inventory snapshots (one row per product_id + created_at)
+      -- Replace #slv_fct_inventory with your actual Silver model name if different
+      SELECT
+        sk_inventory_snapshot,
+        product_id,
+        quantity_reserved,
+        quantity_available,
+        quantity_on_hand,
+        created_at
+      FROM {{ #slv_fct_inventory }}
+    ),
+
+    ranked AS (
+      /* ---------------------------------------------------
+         Keep the latest snapshot per product_id.
+         Tie-breaker:
+         - if multiple rows have the same created_at (shouldn't happen after silver),
+           we keep the one with the highest on_hand/available/reserved.
+      --------------------------------------------------- */
+      SELECT
+        s.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY product_id
+          ORDER BY
+            created_at DESC,
+            quantity_on_hand DESC,
+            quantity_available DESC,
+            quantity_reserved DESC,
+            sk_inventory_snapshot DESC
+        ) AS rn
+      FROM snapshots s
+      WHERE product_id IS NOT NULL
+        AND created_at IS NOT NULL
+    )
+
+    SELECT
+      -- Surrogate key at current grain (product)
+      MD5(CAST(product_id AS varchar)) AS sk_inventory_current,
+
+      product_id,
+
+      quantity_on_hand,
+      quantity_available,
+      quantity_reserved,
+
+      created_at AS latest_snapshot_at,
+
+      -- Useful for joining to dim_dates if needed
+      CAST(created_at AS date) AS snapshot_date_key
+
+    FROM ranked
+    WHERE rn = 1;;
+  models: [
+    slv_fct_inventory
+  ]
+}

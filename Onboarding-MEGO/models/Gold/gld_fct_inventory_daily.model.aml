@@ -1,0 +1,101 @@
+Model gld_fct_inventory_daily {
+  type: 'query'
+  label: 'Gld Fct Inventory Daily'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_inventory_daily {
+    label: 'Sk Inventory Daily'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_inventory_daily }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension snapshot_date_key {
+    label: 'Snapshot Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.snapshot_date_key }};;
+  }
+  dimension quantity_on_hand {
+    label: 'Quantity On Hand'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_on_hand }};;
+  }
+  dimension quantity_available {
+    label: 'Quantity Available'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_available }};;
+  }
+  dimension quantity_reserved {
+    label: 'Quantity Reserved'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quantity_reserved }};;
+  }
+  dimension snapshot_at {
+    label: 'Snapshot At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.snapshot_at }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH snapshots AS (
+      -- Silver inventory snapshots (one row per product_id + created_at)
+      -- Replace #slv_fct_inventory with your actual Silver model name if different
+      SELECT
+        sk_inventory_snapshot,
+        product_id,
+        quantity_reserved,
+        quantity_available,
+        quantity_on_hand,
+        created_at,
+        CAST(created_at AS date) AS snapshot_date_key
+      FROM {{ #slv_fct_inventory }}
+      WHERE product_id IS NOT NULL
+        AND created_at IS NOT NULL
+    ),
+
+    ranked AS (
+      /* ---------------------------------------------------
+         Keep ONE snapshot per product per day:
+         - latest snapshot in the day wins
+      --------------------------------------------------- */
+      SELECT
+        s.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY product_id, snapshot_date_key
+          ORDER BY created_at DESC, sk_inventory_snapshot DESC
+        ) AS rn
+      FROM snapshots s
+    )
+
+    SELECT
+      -- Surrogate key at daily grain
+      MD5(
+        CAST(product_id AS varchar) || '|' ||
+        CAST(snapshot_date_key AS varchar)
+      ) AS sk_inventory_daily,
+
+      product_id,
+      snapshot_date_key,
+
+      quantity_on_hand,
+      quantity_available,
+      quantity_reserved,
+
+      created_at AS snapshot_at
+    FROM ranked
+    WHERE rn = 1;;
+  models: [
+    slv_fct_inventory
+  ]
+}

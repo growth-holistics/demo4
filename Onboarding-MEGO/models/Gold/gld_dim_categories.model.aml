@@ -1,0 +1,63 @@
+Model gld_dim_categories {
+  type: 'query'
+  label: 'Gld Dim Categories'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_category {
+    label: 'Sk Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_category }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension parent_id {
+    label: 'Parent Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.parent_id }};;
+  }
+  dimension min_price {
+    label: 'Min Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.min_price }};;
+  }
+  dimension max_price {
+    label: 'Max Price'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.max_price }};;
+  }
+  dimension category_image_url {
+    label: 'Category Image Url'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category_image_url }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    SELECT
+      sk_category,
+      id,
+      name,
+      parent_id,
+      min_price,
+      max_price,
+      category_image_url
+    FROM {{ #slv_dim_categories }};;
+  models: [
+    slv_dim_categories
+  ]
+}

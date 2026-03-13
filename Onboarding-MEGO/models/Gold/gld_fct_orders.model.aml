@@ -1,0 +1,239 @@
+Model gld_fct_orders {
+  type: 'query'
+  label: 'Gld Fct Orders'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_order {
+    label: 'Sk Order'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_order }};;
+  }
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension order_status {
+    label: 'Order Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_status }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension delivered_at {
+    label: 'Delivered At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_at }};;
+  }
+  dimension cancelled_at {
+    label: 'Cancelled At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.cancelled_at }};;
+  }
+  dimension refunded_at {
+    label: 'Refunded At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.refunded_at }};;
+  }
+  dimension created_date_key {
+    label: 'Created Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_date_key }};;
+  }
+  dimension delivered_date_key {
+    label: 'Delivered Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_date_key }};;
+  }
+  dimension cancelled_date_key {
+    label: 'Cancelled Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.cancelled_date_key }};;
+  }
+  dimension refunded_date_key {
+    label: 'Refunded Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.refunded_date_key }};;
+  }
+  dimension order_line_count {
+    label: 'Order Line Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_line_count }};;
+  }
+  dimension order_gross_revenue {
+    label: 'Order Gross Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_gross_revenue }};;
+  }
+  dimension order_discount_amount {
+    label: 'Order Discount Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_discount_amount }};;
+  }
+  dimension order_net_revenue {
+    label: 'Order Net Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_net_revenue }};;
+  }
+  dimension is_delivered {
+    label: 'Is Delivered'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_delivered }};;
+  }
+  dimension is_cancelled {
+    label: 'Is Cancelled'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_cancelled }};;
+  }
+  dimension is_refunded {
+    label: 'Is Refunded'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_refunded }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH lines AS (
+      -- Gold order lines at grain (order_id, product_id)
+      SELECT
+        sk_order_line,
+        order_id,
+        user_id,
+        order_status,
+        created_at,
+        delivered_at,
+        cancelled_at,
+        refunded_at,
+        created_date_key,
+        delivered_date_key,
+        cancelled_date_key,
+        refunded_date_key,
+        gross_revenue,
+        discount_amount,
+        net_revenue
+      FROM {{ #gld_fct_order_lines }}
+    ),
+
+    /* ---------------------------------------------------
+       Aggregate to one row per order_id.
+       Because lines share the same order timestamps/status,
+       we can safely use MAX() for timestamps and flags.
+    --------------------------------------------------- */
+    agg AS (
+      SELECT
+        order_id,
+
+        -- User should be consistent per order; MAX is safe here.
+        MAX(user_id) AS user_id,
+
+        -- Use MAX timestamps to keep the latest known event timestamp per order
+        MAX(created_at)   AS created_at,
+        MAX(delivered_at) AS delivered_at,
+        MAX(cancelled_at) AS cancelled_at,
+        MAX(refunded_at)  AS refunded_at,
+
+        -- Date keys (align with timestamps)
+        MAX(created_date_key)   AS created_date_key,
+        MAX(delivered_date_key) AS delivered_date_key,
+        MAX(cancelled_date_key) AS cancelled_date_key,
+        MAX(refunded_date_key)  AS refunded_date_key,
+
+        -- Order-level amounts
+        SUM(gross_revenue)    AS order_gross_revenue,
+        SUM(discount_amount)  AS order_discount_amount,
+        SUM(net_revenue)      AS order_net_revenue,
+
+        -- Line count (useful for diagnostics / analysis)
+        COUNT(*) AS order_line_count,
+
+        -- Flags (helpful for filtering / QA)
+        CASE WHEN MAX(delivered_at) IS NOT NULL THEN 1 ELSE 0 END AS is_delivered,
+        CASE WHEN MAX(cancelled_at) IS NOT NULL THEN 1 ELSE 0 END AS is_cancelled,
+        CASE WHEN MAX(refunded_at) IS NOT NULL THEN 1 ELSE 0 END AS is_refunded
+
+      FROM lines
+      WHERE order_id IS NOT NULL
+      GROUP BY order_id
+    ),
+
+    /* ---------------------------------------------------
+       Normalize order status at order grain.
+       Priority:
+       - refunded if refunded exists
+       - cancelled if cancelled exists
+       - delivered if delivered exists
+       - else 'created' this is a new order status taht I created.
+    --------------------------------------------------- */
+    final AS (
+      SELECT
+        a.*,
+        CASE
+          WHEN is_refunded = 1 THEN 'refunded'
+          WHEN is_cancelled = 1 THEN 'cancelled'
+          WHEN is_delivered = 1 THEN 'delivered'
+          ELSE 'created'
+        END AS order_status
+      FROM agg a
+    )
+
+    SELECT
+      -- Surrogate key at order grain
+      MD5(CAST(order_id AS varchar)) AS sk_order,
+
+      order_id,
+      user_id,
+
+      order_status,
+
+      created_at,
+      delivered_at,
+      cancelled_at,
+      refunded_at,
+
+      created_date_key,
+      delivered_date_key,
+      cancelled_date_key,
+      refunded_date_key,
+
+      order_line_count,
+
+      order_gross_revenue,
+      order_discount_amount,
+      order_net_revenue,
+
+      is_delivered,
+      is_cancelled,
+      is_refunded
+
+    FROM final;;
+  models: [
+    gld_fct_order_lines
+  ]
+}

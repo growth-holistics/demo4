@@ -1,0 +1,172 @@
+Model slv_dim_dates {
+  type: 'query'
+  label: 'Slv Dim Dates'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_date {
+    label: 'Sk Date'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_date }};;
+  }
+  dimension date_key {
+    label: 'Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date_key }};;
+  }
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension day_of_week {
+    label: 'Day Of Week'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_of_week }};;
+  }
+  dimension day_of_month {
+    label: 'Day Of Month'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_of_month }};;
+  }
+  dimension day_of_year {
+    label: 'Day Of Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_of_year }};;
+  }
+  dimension week_number {
+    label: 'Week Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.week_number }};;
+  }
+  dimension week_number_iso {
+    label: 'Week Number Iso'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.week_number_iso }};;
+  }
+  dimension month_number {
+    label: 'Month Number'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_number }};;
+  }
+  dimension quarter {
+    label: 'Quarter'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quarter }};;
+  }
+  dimension year {
+    label: 'Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.year }};;
+  }
+  dimension weekday_name {
+    label: 'Weekday Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.weekday_name }};;
+  }
+  dimension weekday_name_abbr {
+    label: 'Weekday Name Abbr'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.weekday_name_abbr }};;
+  }
+  dimension month_name {
+    label: 'Month Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_name }};;
+  }
+  dimension month_name_abbr {
+    label: 'Month Name Abbr'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_name_abbr }};;
+  }
+  dimension year_week_iso {
+    label: 'Year Week Iso'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.year_week_iso }};;
+  }
+  dimension year_month {
+    label: 'Year Month'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.year_month }};;
+  }
+  dimension year_quarter {
+    label: 'Year Quarter'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.year_quarter }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH src AS (
+      SELECT
+        date_key,
+        date,
+        day_of_week,
+        day_of_month,
+        day_of_year,
+        weekday_name,
+        weekday_name_abbr,
+        week_number,
+        week_number_iso,
+        year_week_iso,
+        month_name,
+        month_name_abbr,
+        month_number,
+        year_month,
+        quarter,
+        year_quarter,
+        year
+      FROM {{ #dim_dates }}
+    )
+
+    SELECT
+      -- Surrogate key (optional, deterministic). date_key itself is already a PK.
+      MD5(CAST(date_key AS varchar)) AS sk_date,
+
+      -- Keys
+      date_key::date AS date_key,
+      date::date AS date,
+
+      -- Numeric fields (cast safely from text)
+      NULLIF(BTRIM(day_of_week), '')::int      AS day_of_week,
+      NULLIF(BTRIM(day_of_month), '')::int     AS day_of_month,
+      NULLIF(BTRIM(day_of_year), '')::int      AS day_of_year,
+      NULLIF(BTRIM(week_number), '')::int      AS week_number,
+      NULLIF(BTRIM(week_number_iso), '')::int  AS week_number_iso,
+      NULLIF(BTRIM(month_number), '')::int     AS month_number,
+      NULLIF(BTRIM(quarter), '')::int          AS quarter,
+      NULLIF(BTRIM(year), '')::int             AS year,
+
+      -- Name fields (trim padding from to_char('Day'/'Month'))
+      NULLIF(BTRIM(weekday_name), '')          AS weekday_name,
+      NULLIF(BTRIM(weekday_name_abbr), '')     AS weekday_name_abbr,
+      NULLIF(BTRIM(month_name), '')            AS month_name,
+      NULLIF(BTRIM(month_name_abbr), '')       AS month_name_abbr,
+
+      -- Derived string fields (keep as-is but trim)
+      NULLIF(BTRIM(year_week_iso), '')         AS year_week_iso,
+      NULLIF(BTRIM(year_month), '')            AS year_month,
+      NULLIF(BTRIM(year_quarter), '')          AS year_quarter
+
+    FROM src;;
+  models: [
+    dim_dates
+  ]
+}

@@ -1,0 +1,116 @@
+Model slv_dim_users {
+  type: 'query'
+  label: 'Slv Dim Users'
+  description: ''
+  data_source_name: 'demodb'
+  dimension email_norm {
+    label: 'Email Norm'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.email_norm }};;
+  }
+  dimension email_rank {
+    label: 'Email Rank'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.email_rank }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension sign_up_at {
+    label: 'Sign Up At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.sign_up_at }};;
+  }
+  dimension first_name {
+    label: 'First Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.first_name }};;
+  }
+  dimension last_name {
+    label: 'Last Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.last_name }};;
+  }
+  dimension birth_date {
+    label: 'Birth Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.birth_date }};;
+  }
+  dimension gender {
+    label: 'Gender'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.gender }};;
+  }
+  dimension city_id {
+    label: 'City Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.city_id }};;
+  }
+  dimension full_name {
+    label: 'Full Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.full_name }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH u AS (
+      SELECT
+        id,
+        sign_up_at,
+        first_name,
+        last_name,
+        email,
+        birth_date,
+        gender,
+        city_id,
+        full_name
+      FROM {{ #dim_users }}
+    ),
+    dups AS (
+      SELECT LOWER(BTRIM(email)) AS email_norm
+      FROM u
+      WHERE email IS NOT NULL AND BTRIM(email) <> ''
+      GROUP BY 1
+      HAVING COUNT(*) > 1
+    ),
+    ranked AS (
+      SELECT
+        u.*,
+        LOWER(BTRIM(u.email)) AS email_norm,
+        ROW_NUMBER() OVER (
+          PARTITION BY LOWER(BTRIM(u.email))
+          ORDER BY sign_up_at DESC, id DESC
+        ) AS rn
+      FROM u
+      LEFT JOIN dups d ON LOWER(BTRIM(u.email)) = d.email_norm
+    )
+    SELECT
+      email_norm,
+      rn AS email_rank,
+      id,
+      sign_up_at,
+      first_name,
+      last_name,
+      birth_date,
+      gender,
+      city_id,
+      full_name
+    FROM ranked
+    ORDER BY email_norm, rn;;
+  models: [
+    dim_users
+  ]
+}

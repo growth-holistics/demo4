@@ -1,0 +1,42 @@
+Model gld_dim_cities {
+  type: 'query'
+  label: 'Gld Dim Cities'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_city {
+    label: 'Sk City'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_city }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension country_code {
+    label: 'Country Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country_code }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    SELECT
+      sk_city,
+      id,
+      name,
+      country_code
+    FROM {{ #slv_dim_cities }};;
+  models: [
+    slv_dim_cities
+  ]
+}

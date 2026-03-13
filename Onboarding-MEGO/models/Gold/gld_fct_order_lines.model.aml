@@ -1,0 +1,180 @@
+Model gld_fct_order_lines {
+  type: 'query'
+  label: 'Gld Fct Order Lines'
+  description: ''
+  data_source_name: 'demodb'
+  dimension sk_order_line {
+    label: 'Sk Order Line'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.sk_order_line }};;
+  }
+  dimension order_id {
+    label: 'Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_id }};;
+  }
+  dimension product_id {
+    label: 'Product Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.product_id }};;
+  }
+  dimension user_id {
+    label: 'User Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension order_status {
+    label: 'Order Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.order_status }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension delivered_at {
+    label: 'Delivered At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_at }};;
+  }
+  dimension cancelled_at {
+    label: 'Cancelled At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.cancelled_at }};;
+  }
+  dimension refunded_at {
+    label: 'Refunded At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.refunded_at }};;
+  }
+  dimension created_date_key {
+    label: 'Created Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_date_key }};;
+  }
+  dimension delivered_date_key {
+    label: 'Delivered Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivered_date_key }};;
+  }
+  dimension cancelled_date_key {
+    label: 'Cancelled Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.cancelled_date_key }};;
+  }
+  dimension refunded_date_key {
+    label: 'Refunded Date Key'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.refunded_date_key }};;
+  }
+  dimension delivery_attempts {
+    label: 'Delivery Attempts'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.delivery_attempts }};;
+  }
+  dimension gross_revenue {
+    label: 'Gross Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.gross_revenue }};;
+  }
+  dimension discount_amount {
+    label: 'Discount Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.discount_amount }};;
+  }
+  dimension net_revenue {
+    label: 'Net Revenue'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.net_revenue }};;
+  }
+
+  owner: 'mario@holistics.io'
+  query: @sql
+    WITH src AS (
+      -- Silver fact at grain (order_id, product_id)
+      -- Replace #slv_orders with your actual Silver model name if different
+      SELECT
+        sk_order_product,
+        order_id,
+        product_id,
+        user_id,
+        order_status,
+        created_at,
+        delivered_at,
+        cancelled_at,
+        refunded_at,
+        discount,
+        delivery_attempts,
+        item_values
+      FROM {{ #slv_fct_orders }}
+    ),
+
+    enriched AS (
+      SELECT
+        s.*,
+
+        -- Date keys for role-playing date dimension joins
+        CAST(s.created_at AS date)   AS created_date_key,
+        CAST(s.delivered_at AS date) AS delivered_date_key,
+        CAST(s.cancelled_at AS date) AS cancelled_date_key,
+        CAST(s.refunded_at AS date)  AS refunded_date_key,
+
+        -- Revenue fields (line grain)
+        COALESCE(s.item_values, 0) AS gross_revenue,
+
+        -- Keep discount as numeric; if it's null, treat as zero
+        COALESCE(s.discount, 0) AS discount_amount,
+
+        -- Net revenue (safe default)
+        (COALESCE(s.item_values, 0) - COALESCE(s.discount, 0)) AS net_revenue
+
+      FROM src s
+    )
+
+    SELECT
+      -- Surrogate key at the line grain
+      sk_order_product AS sk_order_line,
+
+      order_id,
+      product_id,
+      user_id,
+
+      order_status,
+      created_at,
+      delivered_at,
+      cancelled_at,
+      refunded_at,
+
+      created_date_key,
+      delivered_date_key,
+      cancelled_date_key,
+      refunded_date_key,
+
+      delivery_attempts,
+
+      gross_revenue,
+      discount_amount,
+      net_revenue
+    FROM enriched;;
+  models: [
+    slv_fct_orders
+  ]
+}
