@@ -152,7 +152,6 @@ Dashboard sandbox_dashboard {
     viz: ColumnChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_products.created_at)
@@ -186,11 +185,32 @@ Dashboard sandbox_dashboard {
       }
     }
   }
-  interactions: []
+  block f_date: FilterBlock {
+    label: 'Date'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'f_date'
+      to: [
+        CustomMapping {
+          block: [
+            'v_owxh',
+            'v_i5ns'
+          ]
+          field: ref('ecommerce_orders', 'created_at')
+        }
+      ]
+    }
+  ]
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 980
+    height: 1070
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -201,11 +221,15 @@ Dashboard sandbox_dashboard {
       layer: 1
     }
     block v_owxh {
-      position: pos(20, 100, 620, 420)
+      position: pos(660, 630, 620, 420)
       layer: 1
     }
     block v_i5ns {
-      position: pos(20, 520, 620, 420)
+      position: pos(20, 630, 620, 420)
+      layer: 1
+    }
+    block f_date {
+      position: pos(400, 640, 240, 80)
       layer: 1
     }
     mobile {
