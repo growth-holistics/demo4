@@ -114,7 +114,6 @@ Dashboard sandbox_dashboard {
     viz: ColumnChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_users.sign_up_at)
@@ -128,6 +127,45 @@ Dashboard sandbox_dashboard {
         series {
           field: VizFieldFull {
             ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_i5ns: VizBlock {
+    label: 'Total Orders by Quarter Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_products.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_orders)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -164,6 +202,10 @@ Dashboard sandbox_dashboard {
     }
     block v_owxh {
       position: pos(20, 100, 620, 420)
+      layer: 1
+    }
+    block v_i5ns {
+      position: pos(20, 520, 620, 420)
       layer: 1
     }
     mobile {
