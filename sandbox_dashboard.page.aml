@@ -193,6 +193,81 @@ Dashboard sandbox_dashboard {
       value: '$H_NIL$'
     }
   }
+  block v_id77: VizBlock {
+    label: 'Total Users, Percent Growth, and Absolute Growth Qoq by Quarter Sign Up At'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation absolute_growth_qoq {
+        label: 'Absolute Growth Qoq'
+        formula: @aql total_users - (total_users | relative_period(ecommerce_users.sign_up_at, interval(-1 quarter)));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_growth {
+        label: 'Percent Growth'
+        formula: @aql safe_divide(total_users, total_users | relative_period(ecommerce_users.sign_up_at, interval(-1 quarter))) - 1;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Quarter Sign Up At'
+          ref: r(ecommerce_users.sign_up_at)
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+          uname: 'datetrunc_quarter_sign_up_at'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Users'
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Percent Growth'
+          ref: 'percent_growth'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Absolute Growth Qoq'
+          ref: 'absolute_growth_qoq'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_quarter_sign_up_at'
+            direction: 'asc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'f_date'
@@ -210,7 +285,7 @@ Dashboard sandbox_dashboard {
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 1070
+    height: 1510
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -231,6 +306,10 @@ Dashboard sandbox_dashboard {
     block f_date {
       position: pos(400, 640, 240, 80)
       layer: 1
+    }
+    block v_id77 {
+      position: pos(20, 1070, 620, 420)
+      layer: 2
     }
     mobile {
       mode: 'auto'
