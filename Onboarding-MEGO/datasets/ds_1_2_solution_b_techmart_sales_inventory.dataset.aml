@@ -1,0 +1,58 @@
+Dataset ds_1_2_Solution_B_techmart_sales_inventory {
+  label: 'ds_techmart_sales_inventory'
+  description: 'This dataset combines sales and inventory data into a single, analytics-ready model. It enables analysis of revenue, orders, customers, and current inventory levels across products, categories, merchants, regions, and time, using clean Gold-layer facts and conformed dimensions for self-service reporting.'
+  data_source_name: 'demodb'
+
+  models: [
+    gld_fct_orders,
+
+    // Role-playing date dimensions
+    gld_dim_dates_created,
+    gld_dim_dates_delivered,
+    gld_dim_dates_cancelled,
+    gld_dim_dates_refunded
+  ]
+
+  relationships: [
+    // Role-playing Dates (Solution B)
+    relationship(gld_fct_orders.created_date_key   > gld_dim_dates_created.date_key, true),
+    relationship(gld_fct_orders.delivered_date_key > gld_dim_dates_delivered.date_key, true),
+    relationship(gld_fct_orders.cancelled_date_key > gld_dim_dates_cancelled.date_key, true),
+    relationship(gld_fct_orders.refunded_date_key  > gld_dim_dates_refunded.date_key, true)
+  ]
+
+  // ------------------------
+  // Metrics (Solution B)
+  // ------------------------
+
+  // Use flags to avoid false positives (refunded + delivered can happen)
+  metric orders_delivered {
+    label: "Orders Delivered"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | filter(gld_fct_orders.is_delivered == 1)
+      | count_distinct(gld_fct_orders.order_id)
+    ;;
+  }
+
+  metric orders_cancelled {
+    label: "Orders Cancelled"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | filter(gld_fct_orders.order_status == "cancelled")
+      | count_distinct(gld_fct_orders.order_id)
+    ;;
+  }
+
+  metric orders_refunded {
+    label: "Orders Refunded"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | filter(gld_fct_orders.order_status == "refunded")
+      | count_distinct(gld_fct_orders.order_id)
+    ;;
+  }
+
+
+  owner: "Mario Gómez"
+}

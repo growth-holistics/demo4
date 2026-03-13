@@ -1,0 +1,204 @@
+Dataset ds_techmart_sales_inventory {
+  label: 'ds_techmart_sales_inventory'
+  description: 'This dataset combines sales and inventory data into a single, analytics-ready model. It enables analysis of revenue, orders, customers, and current inventory levels across products, categories, merchants, regions, and time, using clean Gold-layer facts and conformed dimensions for self-service reporting.'
+  data_source_name: 'demodb'
+  models: [
+    // Facts (Gold)
+    gld_fct_order_lines,
+    gld_fct_orders,
+    gld_fct_inventory_current,
+
+    // Dimensions (Gold)
+    gld_dim_products,
+    gld_dim_categories,
+    gld_dim_merchants,
+    gld_dim_users,
+    gld_dim_cities,
+    gld_dim_countries,
+    gld_dim_dates_created,
+    gld_dim_dates_delivered,
+    gld_dim_dates_cancelled,
+    gld_dim_dates_refunded
+  ]
+  relationships: [
+    // ------------------------
+    // Sales core relationships
+    // ------------------------
+
+    // Many order lines belong to one order
+    relationship(gld_fct_order_lines.order_id > gld_fct_orders.order_id, true),
+
+    // Many order lines belong to one user (customer)
+    relationship(gld_fct_order_lines.user_id > gld_dim_users.id, true),
+
+    // Many order lines belong to one product
+    relationship(gld_fct_order_lines.product_id > gld_dim_products.id, true),
+
+    // ------------------------
+    // Product / merchant / geo
+    // ------------------------
+
+    relationship(gld_dim_products.category_id > gld_dim_categories.id, true),
+    relationship(gld_dim_products.merchant_id > gld_dim_merchants.id, true),
+
+    relationship(gld_dim_merchants.city_id > gld_dim_cities.id, true),
+    relationship(gld_dim_users.city_id > gld_dim_cities.id, true),
+
+    // Cities -> Countries (code-based)
+    relationship(gld_dim_cities.country_code > gld_dim_countries.code, true),
+
+    // ------------------------
+    // Inventory relationships
+    // ------------------------
+
+    // Current inventory is by product
+    relationship(gld_fct_inventory_current.product_id > gld_dim_products.id, true),
+
+    // ------------------------
+    // Dates (role-playing)
+    // ------------------------
+    // Role-playing Dates (Solution B)
+    relationship(gld_fct_orders.created_date_key   > gld_dim_dates_created.date_key, true),
+    relationship(gld_fct_orders.delivered_date_key > gld_dim_dates_delivered.date_key, true),
+    relationship(gld_fct_orders.cancelled_date_key > gld_dim_dates_cancelled.date_key, true),
+    relationship(gld_fct_orders.refunded_date_key  > gld_dim_dates_refunded.date_key, true)
+  ]
+
+  // ------------------------
+  // 2.1 Metrics
+  // ------------------------
+
+  metric total_revenue {
+    label: "Total Revenue"
+    type: "number"
+    definition: @aql gld_fct_order_lines
+      | filter(gld_fct_order_lines.order_status == "delivered")
+      | sum(gld_fct_order_lines.gross_revenue)
+    ;;
+  }
+
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | count_distinct(gld_fct_orders.order_id)
+    ;;
+  }
+
+  metric gross_margin_completed {
+    label: "Gross Margin % (Completed)"
+    type: "number"
+    definition: @aql safe_divide(
+      (
+        gld_fct_order_lines
+          | filter(gld_fct_order_lines.order_status == "delivered")
+          | sum(gld_fct_order_lines.gross_revenue)
+      )
+      -
+      (
+        gld_dim_products
+          | sum(gld_dim_products.cost)
+      ),
+      gld_fct_order_lines
+        | filter(gld_fct_order_lines.order_status == "delivered")
+        | sum(gld_fct_order_lines.gross_revenue)
+    )
+    ;;
+  }
+
+
+  metric aov_completed {
+    label: "Average Order Value (Completed)"
+    type: "number"
+    definition: @aql safe_divide(
+      gld_fct_order_lines
+        | filter(gld_fct_order_lines.order_status == "delivered")
+        | sum(gld_fct_order_lines.gross_revenue),
+
+      gld_fct_order_lines
+        | filter(gld_fct_order_lines.order_status == "delivered")
+        | count_distinct(gld_fct_order_lines.order_id)
+    )
+    ;;
+  }
+
+
+  metric customer_count {
+    label: "Customer Count"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | count_distinct(gld_fct_orders.user_id)
+    ;;
+  }
+
+  // ------------------------
+  // 1.1 metrics
+  // ------------------------
+  // Assumptions:
+  // - Inventory value uses latest snapshot (current inventory)
+  // - Each order line represents one unit sold (no order_items.quantity available yet)
+
+  metric estimated_cogs {
+    label: "Estimated COGS (Assume 1 unit per line)"
+    type: "number"
+    definition: @aql gld_fct_order_lines
+      | sum(gld_dim_products.cost)
+    ;;
+  }
+
+  metric current_inventory_value {
+    label: "Current Inventory Value"
+    type: "number"
+    definition: @aql gld_fct_inventory_current
+      | sum(gld_fct_inventory_current.quantity_on_hand * gld_dim_products.cost)
+    ;;
+  }
+
+  metric inventory_turnover_rate {
+    label: "Inventory Turnover Rate (Approx)"
+    type: "number"
+    definition: @aql safe_divide(estimated_cogs, current_inventory_value) ;;
+  }
+
+
+
+  // ------------------------
+  // 2.2 metrics
+  // ------------------------
+
+
+  metric revenue_completed {
+    label: "Revenue (Completed)"
+    type: "number"
+    definition: @aql gld_fct_order_lines
+      // Keep revenue aligned to completed orders using the orders model filter
+      | filter(gld_fct_orders.is_delivered == 1)
+      | sum(gld_fct_order_lines.net_revenue)
+    ;;
+  }
+
+  metric revenue_pct_of_total_by_category {
+    label: "Revenue % of Total (Completed)"
+    type: "number"
+    definition: @aql (revenue_completed * 1.0)
+      / (revenue_completed | of_all(gld_dim_categories))
+    ;;
+  }
+
+  metric revenue_mom_growth_pct {
+  label: "Revenue MoM Growth % (Completed)"
+  type: "number"
+  definition: @aql safe_divide(
+    revenue_completed - (revenue_completed | relative_period(gld_dim_dates_created.date, interval(-1 month))),
+    (revenue_completed | relative_period(gld_dim_dates_created.date, interval(-1 month)))
+  ) ;;
+}
+
+
+
+
+
+
+
+  owner: "Mario Gómez"
+}
