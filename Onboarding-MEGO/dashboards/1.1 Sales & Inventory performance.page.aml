@@ -1,0 +1,140 @@
+Dashboard salesinventory {
+  title: '1'
+  description: ''
+  owner: 'mario@holistics.io'
+  block title: TextBlock {
+    content: @md 1.1 Sales & Inventory performance;;
+  }
+  block v_arw2: VizBlock {
+    label: 'Revenue by product category'
+    viz: DataTable {
+      dataset: ds_techmart_sales_inventory
+      filter_groups: [
+        AndFilters {
+          filters: [
+            VizFilter {
+              field: r(gld_fct_order_lines.order_status)
+              operator: 'is'
+              value: 'delivered'
+            },
+            VizFilter {
+              field: r(gld_fct_order_lines.order_status)
+              operator: 'is_not'
+              value: 'refunded'
+            }
+          ]
+        }
+      ]
+      fields: [
+        VizFieldFull {
+          label: 'Product Name'
+          ref: r(gld_dim_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Category Name'
+          ref: r(gld_dim_categories.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(gld_fct_order_lines.gross_revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'gld_fct_order_lines_gross_revenue_1'
+        },
+        VizFieldFull {
+          ref: r(gld_fct_order_lines.discount_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(gld_fct_order_lines.net_revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'gld_fct_order_lines_gross_revenue_1'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_1onm: VizBlock {
+    label: 'Inventory Turnover Rate per product'
+    viz: DataTable {
+      dataset: ds_techmart_sales_inventory
+      fields: [
+        VizFieldFull {
+          label: 'Product Name'
+          ref: r(gld_dim_products.name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(ds_techmart_sales_inventory.inventory_turnover_rate)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_inventory_turnover_rate_1'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_inventory_turnover_rate_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_arw2 {
+      position: pos(40, 80, 600, 400)
+    }
+    block v_1onm {
+      position: pos(680, 80, 560, 400)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}

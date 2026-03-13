@@ -1,0 +1,98 @@
+Dashboard orderbystatus {
+  title: 'untitled'
+  description: ''
+  owner: 'mario@holistics.io'
+  block title: TextBlock {
+    content: @md 1.2 Orders by Status;;
+  }
+  block v_n98v: VizBlock {
+    label: 'Solution_A_Orders_by_Status'
+    viz: PieChart {
+      dataset: ds_1_2_Solution_A_techmart_sales_inventory
+      legend: VizFieldFull {
+        ref: r(gld_fct_orders.order_status)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'orders'
+          ref: r(ds_1_2_Solution_A_techmart_sales_inventory.orders_delivered)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        data_label_position: 'none'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_egz1: VizBlock {
+    label: 'Solution_B_Orders_by_Status'
+    viz: PieChart {
+      dataset: ds_1_2_Solution_B_techmart_sales_inventory
+      legend: VizFieldFull {
+        ref: r(gld_fct_orders.order_status)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'orders'
+          ref: r(ds_1_2_Solution_B_techmart_sales_inventory.orders_delivered)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'orders'
+          ref: r(ds_1_2_Solution_B_techmart_sales_inventory.orders_cancelled)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        data_label_position: 'none'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_n98v {
+      position: pos(20, 120, 620, 420)
+    }
+    block v_egz1 {
+      position: pos(660, 120, 620, 420)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}
