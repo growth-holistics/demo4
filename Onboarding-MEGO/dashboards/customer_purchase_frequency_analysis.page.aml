@@ -5,15 +5,113 @@ Dashboard customer_purchase_frequency_analysis {
   block title: TextBlock {
     content: @md # Your title goes here ;;
   }
+  block v_jmqc: VizBlock {
+    label: 'Orders per Customer, Count Customers, and Cumulative % Customers'
+    viz: DataTable {
+      dataset: ds_techmart_sales_inventory
+      fields: [
+        VizFieldFull {
+          ref: r(ds_techmart_sales_inventory, gld_dim_users.orders_per_customer)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ds_techmart_sales_inventory.count_customers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ds_techmart_sales_inventory.percent_of_customers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ds_techmart_sales_inventory.cumulative_percent_customers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
+  block v_ua39: VizBlock {
+    label: 'Count Customers and Cumulative % Customers by Orders per Customer'
+    viz: CombinationChart {
+      dataset: ds_techmart_sales_inventory
+      x_axis: VizFieldFull {
+        ref: r(ds_techmart_sales_inventory, gld_dim_users.orders_per_customer)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ds_techmart_sales_inventory.count_customers)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(ds_techmart_sales_inventory.cumulative_percent_customers)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
 
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 800
+    height: 980
     grid_size: 20
     auto_expand_vertically: true
     block title {
       position: pos(20, 20, 1260, 60)
+    }
+    block v_jmqc {
+      position: pos(180, 120, 620, 420)
+    }
+    block v_ua39 {
+      position: pos(180, 540, 620, 420)
     }
     mobile {
       mode: 'auto'
@@ -21,5 +119,4 @@ Dashboard customer_purchase_frequency_analysis {
   }
 
   theme: H.themes.vanilla
-
 }
