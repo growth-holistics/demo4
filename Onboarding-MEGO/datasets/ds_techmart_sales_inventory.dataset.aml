@@ -186,19 +186,64 @@ Dataset ds_techmart_sales_inventory {
   }
 
   metric revenue_mom_growth_pct {
-  label: "Revenue MoM Growth % (Completed)"
-  type: "number"
-  definition: @aql safe_divide(
-    revenue_completed - (revenue_completed | relative_period(gld_dim_dates_created.date, interval(-1 month))),
-    (revenue_completed | relative_period(gld_dim_dates_created.date, interval(-1 month)))
-  ) ;;
-}
+    label: "Revenue MoM Growth % (Completed)"
+    type: "number"
+    definition: @aql safe_divide(
+      revenue_completed
+        - (revenue_completed
+            | relative_period(gld_dim_dates_created.date, interval(-1 month))
+          ),
+      (revenue_completed
+        | relative_period(gld_dim_dates_created.date, interval(-1 month))
+      )
+    )
+    ;;
+  }
 
 
+  // ------------------------
+  // 2.3 Cohort-based metrics
+  // ------------------------
 
+  metric customer_acquisition_month {
+    label: "Customer Acquisition Month"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | group_by(gld_fct_orders.user_id)
+      | min(date_trunc("month", gld_dim_dates_created.date))
+    ;;
+  }
 
+  metric cohort_customers_retained {
+    label: "Cohort Customers Retained"
+    type: "number"
+    definition: @aql gld_fct_orders
+      | group_by(gld_fct_orders.user_id, customer_acquisition_month)
+      | count_distinct(gld_fct_orders.user_id)
+    ;;
+  }
 
+  metric cohort_customers_retained_by_acquisition_month {
+    label: "Cohort Customers Retained by Acquisition Month"
+    type: "number"
+    definition: @aql dimensionalize(
+      cohort_customers_retained,
+      [customer_acquisition_month]
+    )
+    ;;
+  }
 
+  metric cohort_retention_rate {
+    label: "Cohort Retention Rate"
+    type: "number"
+    definition: @aql safe_divide(
+      cohort_customers_retained_by_acquisition_month,
+      (cohort_customers_retained_by_acquisition_month
+        | of_all(customer_acquisition_month)
+      )
+    )
+    ;;
+  }
 
   owner: "Mario Gómez"
 }
