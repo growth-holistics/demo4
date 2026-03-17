@@ -1,0 +1,69 @@
+Dashboard _2 {
+  title: '2'
+  description: ''
+  owner: 'mario@holistics.io'
+  block title: TextBlock {
+    content: @md # Revenue in different currencies ;;
+  }
+  block v_ljk0: VizBlock {
+    label: 'Total Revenue (Converted)'
+    viz: MetricKpi {
+      dataset: ds_techmart_sales_inventory
+      value: VizFieldFull {
+        label: 'Total Revenue'
+        ref: r(ds_techmart_sales_inventory.total_revenue_converted)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_desired_currency: FilterBlock {
+    label: 'Select the desired currency'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: ds_techmart_sales_inventory
+      field: r(gld_currency_param.currency)
+    }
+    default {
+      operator: 'is'
+      value: 'USD'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_ljk0 {
+      position: pos(380, 120, 260, 180)
+    }
+    block f_desired_currency {
+      position: pos(60, 100, 300, 80)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}

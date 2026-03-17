@@ -18,7 +18,10 @@
       gld_dim_dates_created,
       gld_dim_dates_delivered,
       gld_dim_dates_cancelled,
-      gld_dim_dates_refunded
+      gld_dim_dates_refunded,
+
+      //Dynamic currency conversions
+      gld_currency_param
     ]
     relationships: [
       // ------------------------
@@ -279,6 +282,22 @@
         | running_total(gld_dim_users.orders_per_customer)
       ;;
     }
+
+    // ------------------------
+    // 2.4 Dynamic parameters
+    // ------------------------
+    metric total_revenue_converted {
+      label: "Total Revenue (Converted)"
+      type: "number"
+      definition: @aql case(
+      when: 'USD' in gld_currency_param.currency, then: total_revenue * 1,
+      when: 'EUR' in gld_currency_param.currency, then: total_revenue * 0.921,
+      when: 'GBP' in gld_currency_param.currency, then: total_revenue * 0.79,
+      when: 'SGD' in gld_currency_param.currency, then: total_revenue * 1.35,
+    ) ;;
+    }
+
+
 
     owner: "Mario Gómez"
   }
