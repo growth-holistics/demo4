@@ -41,6 +41,64 @@ Dashboard untitled_vfykm {
       }
     }
   }
+  block v_t07c: VizBlock {
+    label: '''Total Orders by User Demographic
+'''
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Age Group'
+          ref: r(ecommerce_users.age_group)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_users_age_group_1'
+        },
+        VizFieldFull {
+          label: 'Gender'
+          ref: r(ecommerce_users.gender)
+          format {
+            type: 'text'
+          }
+          uname: 'ecommerce_users_gender_1'
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+          uname: 'demo_ecommerce_version_2_total_orders_1'
+        }
+      ]
+      settings {
+        pagination_size: 100
+        wrap_header_text: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'ecommerce_users_age_group_1'
+            direction: 'asc'
+          },
+          SortSetting {
+            key: 'ecommerce_users_gender_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        single_cell_display: 'normal'
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
@@ -53,6 +111,10 @@ Dashboard untitled_vfykm {
     }
     block v_7z9z {
       position: pos(20, 80, 620, 420)
+    }
+    block v_t07c {
+      position: pos(660, 100, 620, 420)
+      layer: 1
     }
     mobile {
       mode: 'auto'
