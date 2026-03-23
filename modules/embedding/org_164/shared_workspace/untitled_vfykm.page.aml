@@ -47,7 +47,6 @@ Dashboard untitled_vfykm {
     viz: DataTable {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       fields: [
         VizFieldFull {
@@ -99,11 +98,80 @@ Dashboard untitled_vfykm {
       }
     }
   }
+  block v_vp48: VizBlock {
+    label: '''Monthly YoY GMV
+'''
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      calculation gmv_2025 {
+        label: 'GMV 2025'
+        formula: @aql gmv | relative_period(ecommerce_orders.created_at, interval(-1 year));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      conditions: [
+        'ecommerce_orders.created_at is @(this year)'
+      ]
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        label: 'Order Month'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+        uname: 'datetrunc_month_created_at_1'
+      }
+      y_axis {
+        label: 'GMV'
+        series {
+          field: VizFieldFull {
+            label: 'GMV 2026'
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#0891F2'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'GMV 2025'
+            ref: 'gmv_2025'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        x_axis_label: 'Month'
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 800
+    height: 960
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -115,6 +183,10 @@ Dashboard untitled_vfykm {
     block v_t07c {
       position: pos(660, 100, 620, 420)
       layer: 1
+    }
+    block v_vp48 {
+      position: pos(20, 520, 620, 420)
+      layer: 2
     }
     mobile {
       mode: 'auto'
