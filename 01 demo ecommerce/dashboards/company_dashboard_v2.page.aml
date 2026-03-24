@@ -2477,6 +2477,415 @@ padding-right: 0.50rem;
 </div>;;
   }
   block t_block_dictionary_ecommerce_metrics: block_dictionary_ecommerce_metrics()
+  block v_hrkv: VizBlock {
+    label: 'Revenue, NMV and 10 more by Month Date Key copy'
+    viz: MarkdownViz {
+      dataset: demo_ecommerce_version_2
+      rows: [
+        VizFieldFull {
+          ref: r(dim_dates.date_key)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Revenue'
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'NMV'
+          ref: r(demo_ecommerce_version_2.nmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Commission'
+          ref: r(demo_ecommerce_version_2.revenue_commission)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.order_fulfillment_rate)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Order Quantity'
+          ref: r(ecommerce_order_items.quantity)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.purchase_price)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Order Item Price'
+          ref: r(ecommerce_products.price)
+          aggregation: 'sum'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'Discount'
+          ref: r(ecommerce_orders.discount)
+          aggregation: 'avg'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'Merchant Count'
+          ref: r(ecommerce_merchants.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Product Variety'
+          ref: r(ecommerce_products.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        },
+        VizFieldFull {
+          label: 'Buyer Count'
+          ref: r(demo_ecommerce_version_2.total_buyers)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .mt {
+    --node-w: clamp(100px, 12vw, 140px);
+    --gap: clamp(6px, 1.5vw, 14px);
+    --line-color: #999;
+    --line-w: 2px;
+    --stem-h: clamp(20px, 3vw, 30px);
+
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Node wrapper: vertical flex column, centered */
+  .mt .nw {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Branch row: horizontal flex, holds sibling branches */
+  .mt .br-row {
+    display: flex;
+    gap: var(--gap);
+  }
+
+  /* Branch: one child subtree */
+  .mt .br {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Vertical stem from parent down to branch row */
+  .mt .stem {
+    width: var(--line-w);
+    height: var(--stem-h);
+    background: var(--line-color);
+    flex-shrink: 0;
+  }
+
+  /* Connector: horizontal bar + vertical stem to child node */
+  .mt .conn {
+    align-self: stretch;
+    height: var(--stem-h);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Horizontal bar segment (extends into flex gap via negative offsets) */
+  .mt .conn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: calc(var(--gap) / -2);
+    right: calc(var(--gap) / -2);
+    height: var(--line-w);
+    background: var(--line-color);
+  }
+
+  /* First child: bar from center to right edge */
+  .mt .br-row > .br:first-child > .conn::before {
+    left: 50%;
+    right: calc(var(--gap) / -2);
+  }
+
+  /* Last child: bar from left edge to center */
+  .mt .br-row > .br:last-child > .conn::before {
+    left: calc(var(--gap) / -2);
+    right: 50%;
+  }
+
+  /* Only child: no horizontal bar needed */
+  .mt .br-row > .br:only-child > .conn::before {
+    display: none;
+  }
+
+  /* Vertical stem from bar down to child */
+  .mt .conn::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - var(--line-w) / 2);
+    top: 0;
+    width: var(--line-w);
+    height: 100%;
+    background: var(--line-color);
+  }
+
+  /* Node card */
+  .mt .node {
+    width: var(--node-w);
+    min-width: 0;
+    padding: 10px 8px 8px;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    box-sizing: border-box;
+  }
+
+  .mt .label {
+    font-size: clamp(11px, 1.2vw, 14px);
+    opacity: 0.7;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    color: #333;
+    white-space: normal !important;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  .mt .value {
+    font-size: clamp(14px, 1.5vw, 17px);
+    font-weight: 700;
+    text-align: center;
+    margin: 0 !important;
+    line-height: 1.2;
+  }
+</style>
+
+<div class="mt">
+<div class="nw">
+<!-- Revenue -->
+<article class="node">
+<p class="label">Revenue</p>
+<p class="value">{{ col_totals.`Revenue`.formatted }}</p>
+<h-sparkline column="Revenue"  width="100" height="30" class="size-full"></h-sparkline>
+</article>
+<div class="stem"></div>
+<div class="br-row">
+
+<!-- NMV subtree -->
+<div class="br">
+  <div class="conn"></div>
+  <div class="nw">
+  <article class="node">
+  <p class="label">NMV</p>
+  <p class="value">{{ col_totals.`NMV`.formatted }}</p>
+  <h-sparkline column="NMV"  width="100" height="30" class="size-full"></h-sparkline>
+  </article>
+  <div class="stem"></div>
+<div class="br-row">
+
+<!-- Order Fulfillment Rate (leaf) -->
+<div class="br">
+  <div class="conn"></div>
+  <div class="nw">
+  <article class="node">
+  <p class="label">Order Fulfillment Rate</p>
+  <p class="value">{{ col_totals.`Order Fulfillment Rate`.formatted }}</p>
+  <h-sparkline column="Order Fulfillment Rate"  width="100" height="30" class="size-full"></h-sparkline>
+  </article>
+  </div>
+</div>
+
+<!-- GMV subtree -->
+<div class="br">
+  <div class="conn"></div>
+  <div class="nw">
+  <article class="node">
+  <p class="label">GMV</p>
+  <p class="value">{{ col_totals.`GMV`.formatted }}</p>
+  <h-sparkline column="GMV"  width="100" height="30" class="size-full"></h-sparkline>
+  </article>
+  <div class="stem"></div>
+<div class="br-row">
+
+<!-- Order Quantity subtree -->
+<div class="br">
+<div class="conn"></div>
+<div class="nw">
+  <article class="node">
+    <p class="label">Order Quantity</p>
+    <p class="value">{{ col_totals.`Order Quantity`.formatted }}</p>
+    <h-sparkline column="Order Quantity"  width="100" height="30" class="size-full"></h-sparkline>
+  </article>
+  <div class="stem"></div>
+  <div class="br-row">
+    <div class="br">
+      <div class="conn"></div>
+      <div class="nw">
+        <article class="node">
+          <p class="label">Merchant Count</p>
+          <p class="value">{{ col_totals.`Merchant Count`.formatted }}</p>
+          <h-sparkline column="Merchant Count"  width="100" height="30" class="size-full"></h-sparkline>
+        </article>
+      </div>
+    </div>
+    <div class="br">
+      <div class="conn"></div>
+      <div class="nw">
+        <article class="node">
+          <p class="label">Product Variety</p>
+          <p class="value">{{ col_totals.`Product Variety`.formatted }}</p>
+          <h-sparkline column="Product Variety"  width="100" height="30" class="size-full"></h-sparkline>
+        </article>
+      </div>
+    </div>
+    <div class="br">
+      <div class="conn"></div>
+      <div class="nw">
+        <article class="node">
+          <p class="label">Buyer Count</p>
+          <p class="value">{{ col_totals.`Buyer Count`.formatted }}</p>
+          <h-sparkline column="Buyer Count"  width="100" height="30" class="size-full"></h-sparkline>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Purchase Price subtree -->
+<div class="br">
+<div class="conn"></div>
+<div class="nw">
+  <article class="node">
+    <p class="label">Purchase Price</p>
+    <p class="value">{{ col_totals.`Purchase Price`.formatted }}</p>
+    <h-sparkline column="Purchase Price"  width="100" height="30" class="size-full"></h-sparkline>
+  </article>
+  <div class="stem"></div>
+  <div class="br-row">
+    <div class="br">
+      <div class="conn"></div>
+      <div class="nw">
+        <article class="node">
+          <p class="label">Order Item Price</p>
+          <p class="value">{{ col_totals.`Order Item Price`.formatted }}</p>
+          <h-sparkline column="Order Item Price"  width="100" height="30" class="size-full"></h-sparkline>
+        </article>
+      </div>
+    </div>
+    <div class="br">
+      <div class="conn"></div>
+      <div class="nw">
+        <article class="node">
+          <p class="label">Discount</p>
+          <p class="value">{{ col_totals.`Discount`.formatted }}</p>
+          <h-sparkline column="Discount"  width="100" height="30" class="size-full"></h-sparkline>
+        </article>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- Commission (leaf) -->
+<div class="br">
+<div class="conn"></div>
+<div class="nw">
+<article class="node">
+<p class="label">Commission</p>
+<p class="value">{{ col_totals.`Commission`.formatted }}</p>
+<h-sparkline column="Commission"  width="100" height="30" class="size-full"></h-sparkline>
+</article>
+</div>
+</div>
+
+</div>
+</div>
+</div>  ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_5dpo: CanvasLayout {
@@ -2864,8 +3273,315 @@ padding-right: 0.50rem;
       }
       default_zoom: 0.9
     }
+    tab tab_dstw: CanvasLayout {
+      label: 'Metrics Tree'
+      width: 1240
+      height: 1000
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_hrkv {
+        position: pos(20, 20, 1200, 960)
+      }
+    }
   }
   interactions: [
+    FilterInteraction {
+      from: 'v34'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v37'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f3'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f4'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v44'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52a'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53a'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v52'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v53'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_5ty3'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hkuz'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_co2u'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mwo5'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_7wqj'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_80yo'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mz6i'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vs7p'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mb64'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xvgb'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3dy9'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_xzr7'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_29w2'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mfrz'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_wtl8'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_68gi'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_530w'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_kp1e'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_lmkf'
+      to: [
+        CustomMapping {
+          block: 'v_hrkv'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hrkv'
+      to: [
+        CustomMapping {
+          block: [
+            'v34',
+            'v37',
+            'v44',
+            'v52a',
+            'v53a',
+            'v52',
+            'v53',
+            'v_5ty3',
+            'v_hkuz',
+            'v_co2u',
+            'v_mwo5',
+            'v_7wqj',
+            'v_80yo',
+            'v_mz6i',
+            'v_vs7p',
+            'v_mb64',
+            'v_xvgb',
+            'v_3dy9',
+            'v_mfrz',
+            'v_wtl8',
+            'v_68gi',
+            'v_530w',
+            'v_kp1e'
+          ]
+          disabled: true
+        }
+      ]
+    },
     FilterInteraction {
       from: 'f1'
       to: [
