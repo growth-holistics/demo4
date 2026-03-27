@@ -1,0 +1,547 @@
+Dashboard demo_finance_use_cases {
+  title: 'demo_finance_use_cases'
+  description: ''
+  owner: 'dong.ln@holistics.io'
+  block title: TextBlock {
+    content: @md # Demo Finance - Drill-down scenarios;;
+  }
+  block v_tzik: VizBlock {
+    label: 'Paid Amount by Bill Department'
+    viz: BarChart {
+      dataset: demo_finance_version_2
+      x_axis: VizFieldFull {
+        ref: r(finance_supplier_bills.bill_department)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(finance_supplier_bills.paid_amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_7kh7: VizBlock {
+    label: 'Recurring Expenses by Dept'
+    viz: LineChart {
+      dataset: demo_finance_version_2
+      x_axis: VizFieldFull {
+        ref: r(finance_non_bill_operating_expenses.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(finance_non_bill_operating_expenses.cost_department)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(finance_non_bill_operating_expenses.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_2mjy: VizBlock {
+    label: 'Outstanding Bills'
+    viz: DataTable {
+      dataset: demo_finance_version_2
+      filter {
+        field: r(finance_supplier_bills.bill_status)
+        operator: 'is'
+        value: [
+          'open',
+          'partial'
+        ]
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(finance_supplier_bills.bill_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'finance_supplier_bills_bill_id'
+        },
+        VizFieldFull {
+          ref: r(finance_dim_vendors.vendor_name)
+          format {
+            type: 'text'
+          }
+          uname: 'finance_dim_vendors_vendor_name'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.bill_status)
+          format {
+            type: 'text'
+          }
+          uname: 'finance_supplier_bills_bill_status'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.bill_department)
+          format {
+            type: 'text'
+          }
+          uname: 'finance_supplier_bills_bill_department'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.bill_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'finance_supplier_bills_bill_amount'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.paid_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'finance_supplier_bills_paid_amount'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.remaining_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'finance_supplier_bills_remaining_amount'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.bill_date)
+          format {
+            type: 'datetime'
+          }
+          uname: 'finance_supplier_bills_bill_date'
+        },
+        VizFieldFull {
+          ref: r(finance_supplier_bills.due_date)
+          format {
+            type: 'datetime'
+          }
+          uname: 'finance_supplier_bills_due_date'
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'finance_supplier_bills_bill_status'
+            width: 111
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_bill_department'
+            width: 142
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_bill_amount'
+            width: 119
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_paid_amount'
+            width: 127
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_remaining_amount'
+            width: 163
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_bill_date'
+            width: 154
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_due_date'
+            width: 154
+          },
+          ColumnStyle {
+            key: 'finance_supplier_bills_bill_id'
+            width: 84
+          },
+          ColumnStyle {
+            key: 'finance_dim_vendors_vendor_name'
+            width: 169
+          }
+        ]
+      }
+    }
+  }
+  block v_u9pa: VizBlock {
+    label: 'Outstanding Invoices'
+    viz: DataTable {
+      dataset: demo_finance_version_2
+      filter {
+        field: r(finance_customer_invoices.invoice_status)
+        operator: 'is'
+        value: [
+          'open',
+          'partial'
+        ]
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(finance_customer_invoices.invoice_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.order_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.invoice_status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.invoice_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.paid_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.remaining_amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.payment_terms_days)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.invoice_date)
+          format {
+            type: 'datetime'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_customer_invoices.due_date)
+          format {
+            type: 'datetime'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_ta9y: VizBlock {
+    label: 'Po Status and Count of Purchase Order Id'
+    viz: DataTable {
+      dataset: demo_finance_version_2
+      fields: [
+        VizFieldFull {
+          ref: r(finance_purchase_orders.po_status)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(finance_purchase_orders.purchase_order_id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_2h1a: VizBlock {
+    label: 'COGS, Costs of Operations, and Total Budget'
+    viz: CombinationChart {
+      dataset: demo_finance_extended
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_goods_sold)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#255DD4'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.cost_of_operations)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#FCB8B8'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(demo_finance_extended.expense_budgets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#A74FC0'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: block_white
+  }
+  block v_f69h: VizBlock {
+    label: 'Top 10 vendors by spend'
+    viz: ColumnChart {
+      dataset: demo_finance_version_2
+      filter {
+        field: r(finance_dim_vendors.vendor_name)
+        operator: 'top'
+        value: 10
+        options {
+          rank_by {
+            field: r(finance_supplier_payments.payment_amount)
+            aggregation: 'sum'
+            logic: 'standard'
+          }
+        }
+      }
+      x_axis: VizFieldFull {
+        ref: r(finance_dim_vendors.vendor_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(finance_supplier_payments.payment_amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_fuqv: VizBlock {
+    label: 'Price Trend by Top 5 Vendors'
+    viz: LineChart {
+      dataset: demo_finance_version_2
+      filter {
+        field: r(finance_dim_vendors.vendor_name)
+        operator: 'top'
+        value: 5
+        options {
+          rank_by {
+            field: r(finance_supplier_payments.payment_amount)
+            aggregation: 'sum'
+            logic: 'standard'
+          }
+        }
+      }
+      filter {
+        field: r(finance_supplier_payments.payment_date)
+        operator: 'matches'
+        value: 'last 12 months'
+      }
+      x_axis: VizFieldFull {
+        ref: r(finance_supplier_payments.payment_date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(finance_dim_vendors.vendor_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(finance_supplier_payments.payment_amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 2240
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 60)
+    }
+    block v_tzik {
+      position: pos(20, 100, 620, 420)
+    }
+    block v_7kh7 {
+      position: pos(660, 100, 620, 420)
+    }
+    block v_2mjy {
+      position: pos(20, 540, 620, 420)
+    }
+    block v_u9pa {
+      position: pos(660, 540, 620, 420)
+    }
+    block v_ta9y {
+      position: pos(20, 980, 620, 180)
+    }
+    block v_2h1a {
+      position: pos(660, 980, 580, 380)
+    }
+    block v_f69h {
+      position: pos(20, 1180, 620, 300)
+    }
+    block v_fuqv {
+      position: pos(20, 1500, 620, 300)
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+
+  theme: H.themes.vanilla
+}
