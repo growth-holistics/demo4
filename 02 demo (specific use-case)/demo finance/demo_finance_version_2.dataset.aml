@@ -1,0 +1,174 @@
+Dataset demo_finance_version_2 {
+  label: 'demo_finance_version_2'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    finance_budget_targets,
+    finance_customer_invoices,
+    finance_customer_payments,
+    finance_dim_expense_categories,
+    finance_dim_vendors,
+    finance_non_bill_operating_expenses,
+    finance_purchase_orders,
+    finance_supplier_bills,
+    finance_supplier_payments,
+    ecommerce_orders,
+    ecommerce_products,
+    ecommerce_countries,
+    ecommerce_users,
+    ecommerce_order_items,
+    ecommerce_cities,
+    dim_dates,
+    param_model_demo,
+  ]
+
+  relationships: [
+    relationship(finance_budget_targets.category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_dim_vendors.default_category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_non_bill_operating_expenses.vendor_id > finance_dim_vendors.vendor_id, true),
+    relationship(finance_non_bill_operating_expenses.category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_purchase_orders.purchase_order_id - finance_supplier_bills.purchase_order_id, true),
+    relationship(finance_supplier_payments.bill_id > finance_supplier_bills.bill_id, true),
+    relationship(finance_customer_payments.invoice_id > finance_customer_invoices.invoice_id, true),
+    relationship(ecommerce_orders.id - finance_customer_invoices.order_id, true),
+    relationship(finance_purchase_orders.vendor_id > finance_dim_vendors.vendor_id, true),
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(finance_budget_targets.date > dim_dates.date_key, true),
+    relationship(finance_non_bill_operating_expenses.date > dim_dates.date_key, true),
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(finance_supplier_bills.due_date > dim_dates.date_key, true),
+    relationship(finance_customer_invoices.due_date > dim_dates.date_key, true),
+  ]
+
+  // 1. Revenue metrics
+
+  metric total_customers {
+    label: 'Total Customers'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count_distinct(ecommerce_orders.user_id) ;;
+  }
+
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
+  }
+  
+  metric nmv {
+    label: "NMV - Net Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue {
+    label: "Total Revenue (Platform)"
+    type: "number"
+    hidden: false
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cancelled_order_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: "#,###0.00%"
+  }
+
+  metric cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Cancelled Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue_commission {
+    label: "Revenue Commission Rate (Demo from May 2025)"
+    type: "number"
+    hidden: false
+    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    definition: @aql 0.5;;
+    format: "#,###%"
+  }
+
+  // 2. Expense metrics
+
+  metric cost_of_goods_sold {
+    label: "Cost Of Goods Sold"
+    type: "number"
+    hidden: false
+    description: "Cost of goods sold for all orders."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.cost);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric non_bill_operating_costs {
+    label: "Non-bill Operating Costs"
+    type: "number"
+    hidden: false
+    definition: @aql sum(ecommerce_non_bill_operating_costs.amount);;
+    format: "[\$\$]#,###0"
+  }
+  
+
+}
