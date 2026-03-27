@@ -1,0 +1,293 @@
+Dashboard sandbox_dashboard {
+  title: 'Sandbox Dashboard'
+  owner: 'vincent@holistics.io'
+  block title: TextBlock {
+    content: @md # This is a playground for everyone to add your dashboards;;
+  }
+  block v_d1c8: VizBlock {
+    label: 'Total Orders, Percent of total of Total Orders, and Classification of Percent of total of... by Continent Name and Parent Category'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation metric_d1c8b38 {
+        label: 'Running total of Total Users'
+        formula: @aql total_users | running_total();;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_82ea2f9 {
+        label: 'PoP Comparison of Running total of Total Users'
+        formula: @aql metric_d1c8b38 | relative_period(ecommerce_users.sign_up_at, interval(-2 quarters), strict: true);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_f19e46a {
+        label: 'Percent of total of Total Users'
+        formula: @aql safe_divide(total_users, (total_users | of_all(ecommerce_users.gender, ecommerce_users.age_group, keep_filters: true)));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_6282933 {
+        label: 'Percent of total of Total Orders'
+        formula: @aql safe_divide(total_orders, (total_orders | of_all(map_categories.parent_category, keep_filters: true)));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_dfa5e6a {
+        label: 'Classification of Percent of total of Total Orders'
+        formula: @aql case(
+  when: metric_6282933 < 0.15,
+  then: "Danger",
+  else: "Safe"
+);;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      theme {
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(ecommerce_countries.continent_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(map_categories.parent_category)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_6282933'
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        },
+        VizFieldFull {
+          ref: 'metric_dfa5e6a'
+          format {
+            type: 'text'
+          }
+          uname: 'custom_metric_dfa5e6a'
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        pagination_size: 50
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'custom_metric_dfa5e6a'
+            format: SingleFormat {
+              condition {
+                operator: 'is'
+                value: 'Danger'
+              }
+              text_color: '#BF0E08'
+              background_color: '#FAD2D1'
+            }
+          }
+        ]
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+      }
+    }
+  }
+  block v_owxh: VizBlock {
+    label: 'Total Users by Quarter Sign Up At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_i5ns: VizBlock {
+    label: 'Total Orders by Quarter Created At'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      theme {
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_products.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_orders)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_id77: VizBlock {
+    label: 'Total Users, Percent Growth, and Absolute Growth Qoq by Quarter Sign Up At'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation absolute_growth_qoq {
+        label: 'Absolute Growth Qoq'
+        formula: @aql total_users - (total_users | relative_period(ecommerce_users.sign_up_at, interval(-1 quarter)));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation percent_growth {
+        label: 'Percent Growth'
+        formula: @aql safe_divide(total_users, total_users | relative_period(ecommerce_users.sign_up_at, interval(-1 quarter))) - 1;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Quarter Sign Up At'
+          ref: r(ecommerce_users.sign_up_at)
+          transformation: 'datetrunc quarter'
+          format {
+            type: 'date'
+            pattern: 'yyyy Qq'
+          }
+          uname: 'datetrunc_quarter_sign_up_at'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Users'
+          ref: r(demo_ecommerce_version_2.total_users)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Percent Growth'
+          ref: 'percent_growth'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'Absolute Growth Qoq'
+          ref: 'absolute_growth_qoq'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'datetrunc_quarter_sign_up_at'
+            direction: 'asc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 1510
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 80)
+    }
+    block v_d1c8 {
+      position: pos(640, 100, 620, 420)
+      layer: 1
+    }
+    block v_owxh {
+      position: pos(660, 630, 620, 420)
+      layer: 1
+    }
+    block v_i5ns {
+      position: pos(20, 630, 620, 420)
+      layer: 1
+    }
+    block v_id77 {
+      position: pos(20, 1070, 620, 420)
+      layer: 2
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.oasis
+}

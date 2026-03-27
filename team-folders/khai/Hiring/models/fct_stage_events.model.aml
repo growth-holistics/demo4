@@ -1,0 +1,310 @@
+Model fct_stage_events {
+  type: 'query'
+  label: 'Fct Stage Events'
+  description: '''
+    Event log tracking every stage transition in the hiring pipeline. Each row represents one candidate's time in one stage. 
+    Used for bottleneck detection, time-in-stage analysis, and understanding where and why candidates exit the funnel. 
+    This is the detail-level complement to fct_applications -> use it when you need to know not just how long the whole process took, but which specific stage is slowing things down.
+  '''
+  data_source_name: 'demodb'
+  dimension event_id {
+    label: 'Event Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.event_id }};;
+  }
+  dimension application_id {
+    label: 'Application Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.application_id }};;
+  }
+  dimension stage {
+    label: 'Stage'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.stage }};;
+    description: '''
+      The pipeline stage the candidate was in during this event. 
+      Values follow the funnel order: Applied → Recruiter Screen → HM Screen → Interview → Offer → Hired. 
+      Use this to group bottleneck analysis — e.g. 'which stage has the longest average dwell time?'
+    '''
+  }
+  dimension entered_at {
+    label: 'Entered At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.entered_at }};;
+    description: '''
+      Timestamp when the candidate entered this stage. Marks the start of their dwell time. Use with exited_at to calculate how long candidates wait at each step.
+    '''
+  }
+  dimension exited_at {
+    label: 'Exited At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.exited_at }};;
+    description: '''
+      * Timestamp when the candidate left this stage. <br/>
+      * NULL means they are still in this stage — use this to find stuck candidates. <br/>
+      * The difference between exited_at and entered_at gives time_in_stage_hours.
+    '''
+  }
+  dimension time_in_stage_hours {
+    label: 'Time In Stage Hours'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.time_in_stage_hours }};;
+    description: '''
+      Hours the candidate spent in this stage before moving on. 
+      This is the core bottleneck metric — high averages at a specific stage indicate a process problem (slow scheduling, delayed feedback, lengthy approvals). 
+      Compare avg vs median vs p90 to spot outliers dragging up the mean.
+    '''
+  }
+  dimension moved_by {
+    label: 'Moved By'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.moved_by }};;
+    description: '''
+      Name of the recruiter, hiring manager, or interviewer who moved the candidate to the next stage. 
+      Use to identify operational bottlenecks at the individual level. e.g. 'which recruiter takes the longest to move candidates from screen to HM review?'
+    '''
+  }
+  dimension exit_type {
+    label: 'Exit Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.exit_type }};;
+    description: '''
+      How the candidate left this stage. Values: 'advanced' (moved forward in funnel), 'rejected' (company said no), 'withdrawn' (candidate said no), or NULL (still in stage). 
+      Critical for distinguishing healthy funnel narrowing (rejection) from talent loss (withdrawal). 
+      Filter to 'advanced' only when calculating speed for successful candidates; include all exit types for drop-off analysis.
+    '''
+  }
+
+  owner: 'khai.to@holistics.io'
+  query: @sql
+    SELECT *
+    FROM (VALUES
+
+      -- ===== a001: Applied → Screen → HM → Interview → Offer → Hired =====
+      ('ev001', 'a001', 'Applied',          '2025-01-12'::timestamp, '2025-01-15'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev002', 'a001', 'Recruiter Screen', '2025-01-15'::timestamp, '2025-01-22'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev003', 'a001', 'HM Screen',        '2025-01-22'::timestamp, '2025-02-01'::timestamp, 240.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev004', 'a001', 'Interview',        '2025-02-01'::timestamp, '2025-02-20'::timestamp, 456.0, 'Vo Minh Khoi',       'advanced'),
+      ('ev005', 'a001', 'Offer',            '2025-02-20'::timestamp, '2025-02-25'::timestamp, 120.0, 'Le Thu Ha',          'advanced'),
+      ('ev006', 'a001', 'Hired',            '2025-02-25'::timestamp, NULL::timestamp,          NULL,  'Le Thu Ha',          NULL),
+
+      -- ===== a002: Applied → Screen → HM → Interview → Rejected =====
+      ('ev007', 'a002', 'Applied',          '2025-01-14'::timestamp, '2025-01-17'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev008', 'a002', 'Recruiter Screen', '2025-01-17'::timestamp, '2025-01-24'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev009', 'a002', 'HM Screen',        '2025-01-24'::timestamp, '2025-02-03'::timestamp, 240.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev010', 'a002', 'Interview',        '2025-02-03'::timestamp, '2025-02-05'::timestamp,  48.0, 'Vo Minh Khoi',       'rejected'),
+
+      -- ===== a003: Applied → Screen → HM → Rejected =====
+      ('ev011', 'a003', 'Applied',          '2025-01-16'::timestamp, '2025-01-20'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev012', 'a003', 'Recruiter Screen', '2025-01-20'::timestamp, '2025-01-27'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev013', 'a003', 'HM Screen',        '2025-01-27'::timestamp, '2025-01-28'::timestamp,  24.0, 'Nguyen Van Thanh',   'rejected'),
+
+      -- ===== a004: Applied → Screen → Rejected =====
+      ('ev014', 'a004', 'Applied',          '2025-01-18'::timestamp, '2025-01-22'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev015', 'a004', 'Recruiter Screen', '2025-01-22'::timestamp, '2025-01-23'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a005: Applied → Screen → HM → Interview → Withdrawn =====
+      ('ev016', 'a005', 'Applied',          '2025-01-20'::timestamp, '2025-01-24'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev017', 'a005', 'Recruiter Screen', '2025-01-24'::timestamp, '2025-01-30'::timestamp, 144.0, 'Le Thu Ha',          'advanced'),
+      ('ev018', 'a005', 'HM Screen',        '2025-01-30'::timestamp, '2025-02-05'::timestamp, 144.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev019', 'a005', 'Interview',        '2025-02-05'::timestamp, '2025-02-07'::timestamp,  48.0, 'Vo Minh Khoi',       'withdrawn'),
+
+      -- ===== a006: Applied → Rejected =====
+      ('ev020', 'a006', 'Applied',          '2025-01-25'::timestamp, '2025-01-26'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a007: Applied → Screen → HM → Interview → Offer → Hired =====
+      ('ev021', 'a007', 'Applied',          '2025-01-20'::timestamp, '2025-01-23'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev022', 'a007', 'Recruiter Screen', '2025-01-23'::timestamp, '2025-01-28'::timestamp, 120.0, 'Le Thu Ha',          'advanced'),
+      ('ev023', 'a007', 'HM Screen',        '2025-01-28'::timestamp, '2025-02-05'::timestamp, 192.0, 'Tran Minh Tuan',     'advanced'),
+      ('ev024', 'a007', 'Interview',        '2025-02-05'::timestamp, '2025-02-28'::timestamp, 552.0, 'Dang Thuy Trang',    'advanced'),
+      ('ev025', 'a007', 'Offer',            '2025-02-28'::timestamp, '2025-03-05'::timestamp, 120.0, 'Le Thu Ha',          'advanced'),
+      ('ev026', 'a007', 'Hired',            '2025-03-05'::timestamp, NULL::timestamp,          NULL,  'Le Thu Ha',          NULL),
+
+      -- ===== a008: Applied → Screen → HM → Interview → Rejected =====
+      ('ev027', 'a008', 'Applied',          '2025-01-22'::timestamp, '2025-01-25'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev028', 'a008', 'Recruiter Screen', '2025-01-25'::timestamp, '2025-02-01'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev029', 'a008', 'HM Screen',        '2025-02-01'::timestamp, '2025-02-10'::timestamp, 216.0, 'Tran Minh Tuan',     'advanced'),
+      ('ev030', 'a008', 'Interview',        '2025-02-10'::timestamp, '2025-02-12'::timestamp,  48.0, 'Dang Thuy Trang',    'rejected'),
+
+      -- ===== a009: Applied → Screen → Rejected =====
+      ('ev031', 'a009', 'Applied',          '2025-01-25'::timestamp, '2025-01-28'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev032', 'a009', 'Recruiter Screen', '2025-01-28'::timestamp, '2025-01-29'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a010: Applied → Screen → Withdrawn (ghosted) =====
+      ('ev033', 'a010', 'Applied',          '2025-02-01'::timestamp, '2025-02-05'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev034', 'a010', 'Recruiter Screen', '2025-02-05'::timestamp, '2025-02-15'::timestamp, 240.0, 'Le Thu Ha',          'withdrawn'),
+
+      -- ===== a011: Applied → Rejected =====
+      ('ev035', 'a011', 'Applied',          '2025-02-03'::timestamp, '2025-02-04'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a012: Applied → Screen → HM → Interview (active) =====
+      ('ev036', 'a012', 'Applied',          '2025-02-05'::timestamp, '2025-02-08'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev037', 'a012', 'Recruiter Screen', '2025-02-08'::timestamp, '2025-02-14'::timestamp, 144.0, 'Le Thu Ha',          'advanced'),
+      ('ev038', 'a012', 'HM Screen',        '2025-02-14'::timestamp, '2025-02-25'::timestamp, 264.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev039', 'a012', 'Interview',        '2025-02-25'::timestamp, NULL::timestamp,          NULL,  'Vo Minh Khoi',       NULL),
+
+      -- ===== a013: Applied → Screen → HM (active) =====
+      ('ev040', 'a013', 'Applied',          '2025-02-10'::timestamp, '2025-02-13'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev041', 'a013', 'Recruiter Screen', '2025-02-13'::timestamp, '2025-02-20'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev042', 'a013', 'HM Screen',        '2025-02-20'::timestamp, NULL::timestamp,          NULL,  'Nguyen Van Thanh',   NULL),
+
+      -- ===== a014: Applied → Screen → HM → Interview (active) =====
+      ('ev043', 'a014', 'Applied',          '2025-02-12'::timestamp, '2025-02-15'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev044', 'a014', 'Recruiter Screen', '2025-02-15'::timestamp, '2025-02-22'::timestamp, 168.0, 'Le Thu Ha',          'advanced'),
+      ('ev045', 'a014', 'HM Screen',        '2025-02-22'::timestamp, '2025-03-01'::timestamp, 168.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev046', 'a014', 'Interview',        '2025-03-01'::timestamp, NULL::timestamp,          NULL,  'Vo Minh Khoi',       NULL),
+
+      -- ===== a015: Applied → Screen → Rejected =====
+      ('ev047', 'a015', 'Applied',          '2025-02-20'::timestamp, '2025-02-24'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev048', 'a015', 'Recruiter Screen', '2025-02-24'::timestamp, '2025-02-25'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a016: Applied → Screen → HM → Interview → Offer → Hired =====
+      ('ev049', 'a016', 'Applied',          '2025-01-25'::timestamp, '2025-01-29'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev050', 'a016', 'Recruiter Screen', '2025-01-29'::timestamp, '2025-02-05'::timestamp, 168.0, 'Phan Anh Tu',        'advanced'),
+      ('ev051', 'a016', 'HM Screen',        '2025-02-05'::timestamp, '2025-02-15'::timestamp, 240.0, 'Do Hai Yen',         'advanced'),
+      ('ev052', 'a016', 'Interview',        '2025-02-15'::timestamp, '2025-03-01'::timestamp, 336.0, 'Do Hai Yen',         'advanced'),
+      ('ev053', 'a016', 'Offer',            '2025-03-01'::timestamp, '2025-03-08'::timestamp, 168.0, 'Phan Anh Tu',        'advanced'),
+      ('ev054', 'a016', 'Hired',            '2025-03-08'::timestamp, NULL::timestamp,          NULL,  'Phan Anh Tu',        NULL),
+
+      -- ===== a017: Applied → Screen → HM → Interview → Offer → Declined =====
+      ('ev055', 'a017', 'Applied',          '2025-01-28'::timestamp, '2025-02-01'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev056', 'a017', 'Recruiter Screen', '2025-02-01'::timestamp, '2025-02-07'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev057', 'a017', 'HM Screen',        '2025-02-07'::timestamp, '2025-02-18'::timestamp, 264.0, 'Do Hai Yen',         'advanced'),
+      ('ev058', 'a017', 'Interview',        '2025-02-18'::timestamp, '2025-03-05'::timestamp, 360.0, 'Do Hai Yen',         'advanced'),
+      ('ev059', 'a017', 'Offer',            '2025-03-05'::timestamp, '2025-03-15'::timestamp, 240.0, 'Phan Anh Tu',        'withdrawn'),
+
+      -- ===== a018: Applied → Screen → HM → Interview → Rejected =====
+      ('ev060', 'a018', 'Applied',          '2025-02-01'::timestamp, '2025-02-04'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev061', 'a018', 'Recruiter Screen', '2025-02-04'::timestamp, '2025-02-10'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev062', 'a018', 'HM Screen',        '2025-02-10'::timestamp, '2025-02-20'::timestamp, 240.0, 'Do Hai Yen',         'advanced'),
+      ('ev063', 'a018', 'Interview',        '2025-02-20'::timestamp, '2025-02-22'::timestamp,  48.0, 'Do Hai Yen',         'rejected'),
+
+      -- ===== a019: Applied → Screen → HM → Rejected =====
+      ('ev064', 'a019', 'Applied',          '2025-02-05'::timestamp, '2025-02-08'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev065', 'a019', 'Recruiter Screen', '2025-02-08'::timestamp, '2025-02-14'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev066', 'a019', 'HM Screen',        '2025-02-14'::timestamp, '2025-02-15'::timestamp,  24.0, 'Do Hai Yen',         'rejected'),
+
+      -- ===== a020: Applied → Rejected =====
+      ('ev067', 'a020', 'Applied',          '2025-02-10'::timestamp, '2025-02-11'::timestamp,  24.0, 'Phan Anh Tu',        'rejected'),
+
+      -- ===== a021: Applied → Screen → Rejected =====
+      ('ev068', 'a021', 'Applied',          '2025-02-12'::timestamp, '2025-02-15'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev069', 'a021', 'Recruiter Screen', '2025-02-15'::timestamp, '2025-02-16'::timestamp,  24.0, 'Phan Anh Tu',        'rejected'),
+
+      -- ===== a022: Applied → Screen → HM → Interview → Offer (active) =====
+      ('ev070', 'a022', 'Applied',          '2025-03-05'::timestamp, '2025-03-08'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev071', 'a022', 'Recruiter Screen', '2025-03-08'::timestamp, '2025-03-14'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev072', 'a022', 'HM Screen',        '2025-03-14'::timestamp, '2025-03-22'::timestamp, 192.0, 'Do Hai Yen',         'advanced'),
+      ('ev073', 'a022', 'Interview',        '2025-03-22'::timestamp, '2025-04-05'::timestamp, 336.0, 'Hoang Duc Anh',      'advanced'),
+      ('ev074', 'a022', 'Offer',            '2025-04-05'::timestamp, NULL::timestamp,          NULL,  'Phan Anh Tu',        NULL),
+
+      -- ===== a023: Applied → Screen → HM → Withdrawn =====
+      ('ev075', 'a023', 'Applied',          '2025-03-08'::timestamp, '2025-03-12'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev076', 'a023', 'Recruiter Screen', '2025-03-12'::timestamp, '2025-03-18'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev077', 'a023', 'HM Screen',        '2025-03-18'::timestamp, '2025-03-20'::timestamp,  48.0, 'Do Hai Yen',         'withdrawn'),
+
+      -- ===== a024: Applied → Screen → Rejected =====
+      ('ev078', 'a024', 'Applied',          '2025-03-10'::timestamp, '2025-03-14'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev079', 'a024', 'Recruiter Screen', '2025-03-14'::timestamp, '2025-03-15'::timestamp,  24.0, 'Phan Anh Tu',        'rejected'),
+
+      -- ===== a025: Applied → Screen → HM → Interview → Withdrawn =====
+      ('ev080', 'a025', 'Applied',          '2025-03-12'::timestamp, '2025-03-16'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev081', 'a025', 'Recruiter Screen', '2025-03-16'::timestamp, '2025-03-25'::timestamp, 216.0, 'Phan Anh Tu',        'advanced'),
+      ('ev082', 'a025', 'HM Screen',        '2025-03-25'::timestamp, '2025-04-05'::timestamp, 264.0, 'Do Hai Yen',         'advanced'),
+      ('ev083', 'a025', 'Interview',        '2025-04-05'::timestamp, '2025-04-08'::timestamp,  72.0, 'Hoang Duc Anh',      'withdrawn'),
+
+      -- ===== a026: Applied → Screen → HM → Interview → Offer → Hired =====
+      ('ev084', 'a026', 'Applied',          '2025-01-08'::timestamp, '2025-01-11'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev085', 'a026', 'Recruiter Screen', '2025-01-11'::timestamp, '2025-01-16'::timestamp, 120.0, 'Phan Anh Tu',        'advanced'),
+      ('ev086', 'a026', 'HM Screen',        '2025-01-16'::timestamp, '2025-01-25'::timestamp, 216.0, 'Ly Khanh Huong',     'advanced'),
+      ('ev087', 'a026', 'Interview',        '2025-01-25'::timestamp, '2025-02-08'::timestamp, 336.0, 'Ly Khanh Huong',     'advanced'),
+      ('ev088', 'a026', 'Offer',            '2025-02-08'::timestamp, '2025-02-12'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev089', 'a026', 'Hired',            '2025-02-12'::timestamp, NULL::timestamp,          NULL,  'Phan Anh Tu',        NULL),
+
+      -- ===== a027: Applied → Screen → HM → Interview → Rejected =====
+      ('ev090', 'a027', 'Applied',          '2025-01-10'::timestamp, '2025-01-14'::timestamp,  96.0, 'Phan Anh Tu',        'advanced'),
+      ('ev091', 'a027', 'Recruiter Screen', '2025-01-14'::timestamp, '2025-01-20'::timestamp, 144.0, 'Phan Anh Tu',        'advanced'),
+      ('ev092', 'a027', 'HM Screen',        '2025-01-20'::timestamp, '2025-01-28'::timestamp, 192.0, 'Ly Khanh Huong',     'advanced'),
+      ('ev093', 'a027', 'Interview',        '2025-01-28'::timestamp, '2025-01-30'::timestamp,  48.0, 'Ly Khanh Huong',     'rejected'),
+
+      -- ===== a028: Applied → Screen → HM → Rejected =====
+      ('ev094', 'a028', 'Applied',          '2025-01-12'::timestamp, '2025-01-15'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev095', 'a028', 'Recruiter Screen', '2025-01-15'::timestamp, '2025-01-20'::timestamp, 120.0, 'Phan Anh Tu',        'advanced'),
+      ('ev096', 'a028', 'HM Screen',        '2025-01-20'::timestamp, '2025-01-21'::timestamp,  24.0, 'Ly Khanh Huong',     'rejected'),
+
+      -- ===== a029: Applied → Screen → Withdrawn =====
+      ('ev097', 'a029', 'Applied',          '2025-01-15'::timestamp, '2025-01-18'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev098', 'a029', 'Recruiter Screen', '2025-01-18'::timestamp, '2025-01-19'::timestamp,  24.0, 'Phan Anh Tu',        'withdrawn'),
+
+      -- ===== a030: Applied → Rejected =====
+      ('ev099', 'a030', 'Applied',          '2025-01-18'::timestamp, '2025-01-19'::timestamp,  24.0, 'Phan Anh Tu',        'rejected'),
+
+      -- ===== a031: Applied → Screen → HM → Interview (active) =====
+      ('ev100', 'a031', 'Applied',          '2025-03-18'::timestamp, '2025-03-21'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev101', 'a031', 'Recruiter Screen', '2025-03-21'::timestamp, '2025-03-27'::timestamp, 144.0, 'Le Thu Ha',          'advanced'),
+      ('ev102', 'a031', 'HM Screen',        '2025-03-27'::timestamp, '2025-04-03'::timestamp, 168.0, 'Ly Khanh Huong',     'advanced'),
+      ('ev103', 'a031', 'Interview',        '2025-04-03'::timestamp, NULL::timestamp,          NULL,  'Ly Khanh Huong',     NULL),
+
+      -- ===== a032: Applied → Screen → HM → Withdrawn =====
+      ('ev104', 'a032', 'Applied',          '2025-03-20'::timestamp, '2025-03-24'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev105', 'a032', 'Recruiter Screen', '2025-03-24'::timestamp, '2025-03-30'::timestamp, 144.0, 'Le Thu Ha',          'advanced'),
+      ('ev106', 'a032', 'HM Screen',        '2025-03-30'::timestamp, '2025-04-01'::timestamp,  48.0, 'Ly Khanh Huong',     'withdrawn'),
+
+      -- ===== a033: Applied → Rejected =====
+      ('ev107', 'a033', 'Applied',          '2025-03-22'::timestamp, '2025-03-23'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a034: Applied → Screen → Rejected =====
+      ('ev108', 'a034', 'Applied',          '2025-03-25'::timestamp, '2025-03-28'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev109', 'a034', 'Recruiter Screen', '2025-03-28'::timestamp, '2025-03-29'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a035: Applied → Screen → Withdrawn (req cancelled) =====
+      ('ev110', 'a035', 'Applied',          '2025-02-12'::timestamp, '2025-02-16'::timestamp,  96.0, 'Le Thu Ha',          'advanced'),
+      ('ev111', 'a035', 'Recruiter Screen', '2025-02-16'::timestamp, '2025-02-25'::timestamp, 216.0, 'Le Thu Ha',          'withdrawn'),
+
+      -- ===== a036: Applied → Withdrawn (req cancelled) =====
+      ('ev112', 'a036', 'Applied',          '2025-02-14'::timestamp, '2025-02-25'::timestamp, 264.0, 'Le Thu Ha',          'withdrawn'),
+
+      -- ===== a037: Applied → Screen → HM → Interview → Offer → Hired =====
+      ('ev113', 'a037', 'Applied',          '2025-02-18'::timestamp, '2025-02-20'::timestamp,  48.0, 'Le Thu Ha',          'advanced'),
+      ('ev114', 'a037', 'Recruiter Screen', '2025-02-20'::timestamp, '2025-02-25'::timestamp, 120.0, 'Le Thu Ha',          'advanced'),
+      ('ev115', 'a037', 'HM Screen',        '2025-02-25'::timestamp, '2025-03-03'::timestamp, 144.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev116', 'a037', 'Interview',        '2025-03-03'::timestamp, '2025-03-10'::timestamp, 168.0, 'Pham Quang Huy',     'advanced'),
+      ('ev117', 'a037', 'Offer',            '2025-03-10'::timestamp, '2025-03-12'::timestamp,  48.0, 'Le Thu Ha',          'advanced'),
+      ('ev118', 'a037', 'Hired',            '2025-03-12'::timestamp, NULL::timestamp,          NULL,  'Le Thu Ha',          NULL),
+
+      -- ===== a038: Applied → Screen → HM → Interview → Rejected =====
+      ('ev119', 'a038', 'Applied',          '2025-02-20'::timestamp, '2025-02-22'::timestamp,  48.0, 'Le Thu Ha',          'advanced'),
+      ('ev120', 'a038', 'Recruiter Screen', '2025-02-22'::timestamp, '2025-02-27'::timestamp, 120.0, 'Le Thu Ha',          'advanced'),
+      ('ev121', 'a038', 'HM Screen',        '2025-02-27'::timestamp, '2025-03-05'::timestamp, 144.0, 'Nguyen Van Thanh',   'advanced'),
+      ('ev122', 'a038', 'Interview',        '2025-03-05'::timestamp, '2025-03-07'::timestamp,  48.0, 'Pham Quang Huy',     'rejected'),
+
+      -- ===== a039: Applied → Screen → Rejected =====
+      ('ev123', 'a039', 'Applied',          '2025-02-22'::timestamp, '2025-02-25'::timestamp,  72.0, 'Le Thu Ha',          'advanced'),
+      ('ev124', 'a039', 'Recruiter Screen', '2025-02-25'::timestamp, '2025-02-26'::timestamp,  24.0, 'Le Thu Ha',          'rejected'),
+
+      -- ===== a040: Applied → Screen → HM → Withdrawn =====
+      ('ev125', 'a040', 'Applied',          '2025-03-12'::timestamp, '2025-03-15'::timestamp,  72.0, 'Phan Anh Tu',        'advanced'),
+      ('ev126', 'a040', 'Recruiter Screen', '2025-03-15'::timestamp, '2025-03-22'::timestamp, 168.0, 'Phan Anh Tu',        'advanced'),
+      ('ev127', 'a040', 'HM Screen',        '2025-03-22'::timestamp, '2025-04-05'::timestamp, 336.0, 'Do Hai Yen',         'withdrawn')
+
+    ) AS fct_stage_events (
+      event_id,
+      application_id,
+      stage,
+      entered_at,
+      exited_at,
+      time_in_stage_hours,
+      moved_by,
+      exit_type
+    );;
+  models: [
+  ]
+}

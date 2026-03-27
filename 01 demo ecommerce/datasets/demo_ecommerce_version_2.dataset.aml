@@ -60,7 +60,7 @@ Dataset demo_ecommerce_version_2 {
     param_model_demo,
     dim_dates,
     ecommerce_employees,
-    // ecommerce_product_images,
+  // ecommerce_product_images,
   ]
   relationships: [
     relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
@@ -78,10 +78,10 @@ Dataset demo_ecommerce_version_2 {
     relationship(ecommerce_users.sign_up_date > dim_dates.date_key, false), // optional: secondary date relationship
     relationship(ecommerce_employees.merchant_id > ecommerce_merchants.id, true),
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    // DISABLED RELATIONSHIPS
-    // ═══════════════════════════════════════════════════════════════════════════
-    // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DISABLED RELATIONSHIPS
+  // ═══════════════════════════════════════════════════════════════════════════
+  // relationship(ecommerce_products.id - ecommerce_product_images.product_id, true),
 
   ]
 
@@ -96,7 +96,7 @@ Dataset demo_ecommerce_version_2 {
   }
 
   permission country_access {
-    field: ref('ecommerce_countries', 'code')
+    field: ref('ecommerce_countries', 'name')
     operator: 'matches_user_attribute'
     value: 'country'
   }
@@ -223,6 +223,15 @@ Dataset demo_ecommerce_version_2 {
         when: map_categories.product_count_within_1_month > 150, then: map_categories.category,
         else: null
       )
+    ;;
+  }
+
+  dimension first_order_date {
+    model: ecommerce_users
+    label: 'First Order Date'
+    type: 'date'
+    definition: @aql
+      min(ecommerce_orders.created_at) | dimensionalize(ecommerce_users.id)
     ;;
   }
 
@@ -399,6 +408,7 @@ Note: Sensitive to how `total_orders` includes all statuses; compare consistentl
     hidden: false
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_buyer is true);;
     description: 'Count of users with at least one order, where `is_buyer = total_orders_all_time > 0`.'
+    format: '#,###'
   }
 
   metric total_repeated_buyers {
@@ -479,6 +489,64 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
     format: "#,###%"
     description: 'Fixed demo commission rate.'
   }
+  metric metric_a1cdc7b {
+    label: "Classification of Total Users"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql case(
+  when: thong_test.period == 'Week',
+  then: total_buyers,
+  else: total_users
+);;
+  }
+
+  metric metric_67076ce {
+    label: "PoP Comparison of Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_orders | relative_period(ecommerce_products.created_at, interval(-1 year), strict: true);;
+    format: ""
+  }
+
+  metric num_signups {
+    label: "Num Signups"
+    type: "number"
+    definition: @aql count(ecommerce_users.id) ;;
+  }
+
+  metric n_day_conv {
+    label: "N Day Conversion"
+    type: "number"
+    definition: @aql
+      num_signups
+      | where(
+        date_diff('day', ecommerce_users.sign_up_date, ecommerce_users.first_order_date) <= first(param_model_demo.num_of_date_selections)
+      )
+      ;;
+  }
+
+  metric conv_n {
+    label: "Conversion Rate N Days"
+    type: "number"
+    definition: @aql n_day_conv / num_signups ;;
+  }
+  metric order_fulfillment_rate {
+    label: "Order Fulfillment Rate"
+    type: "number"
+    description: ""
+    definition: @aql total_delivered_orders / total_orders;;
+    format: '#,###0.0%'
+  }
+  metric purchase_price {
+    label: "Purchase Price"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql ecommerce_order_items | sum(ecommerce_products.price * ecommerce_orders.discount);;
+    format: '[$$]#,###'
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CUSTOM VIEWS
@@ -527,16 +595,26 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
       metric cancelled_value_ratio
     }
 
-    model ecommerce_products {}
-    model ecommerce_merchants {}
-    model ecommerce_countries {}
-    model ecommerce_orders {}
-    model ecommerce_users {}
-    model ecommerce_order_items {}
-    model ecommerce_cities {}
-    model map_categories {}
-    model dim_dates {}
-    model ecommerce_employees {}
+    model ecommerce_products {
+    }
+    model ecommerce_merchants {
+    }
+    model ecommerce_countries {
+    }
+    model ecommerce_orders {
+    }
+    model ecommerce_users {
+    }
+    model ecommerce_order_items {
+    }
+    model ecommerce_cities {
+    }
+    model map_categories {
+    }
+    model dim_dates {
+    }
+    model ecommerce_employees {
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
