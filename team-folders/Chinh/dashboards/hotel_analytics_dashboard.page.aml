@@ -1,0 +1,78 @@
+Dashboard hotel_analytics_dashboard {
+  title: 'Hotel Analytics Dashboard'
+  description: ''
+  owner: 'chinh.dm+demo4@holistics.io'
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    mobile {
+      mode: 'auto'
+    }
+    block v_ja9f {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    block v_4z2a {
+      position: pos(660, 20, 620, 420)
+      layer: 2
+    }
+  }
+
+  theme: H.themes.vanilla
+  block v_ja9f: VizBlock {
+    label: 'Hotel List'
+    viz: DataTable {
+      dataset: hotel_analytics
+      fields: [
+        VizFieldFull {
+          ref: r(public_hotel.hotel_id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(public_hotel.hotel_name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_4z2a: VizBlock {
+    label: 'Hotel Revenue'
+    viz: DataTable {
+      dataset: hotel_analytics
+      fields: [
+        VizFieldFull {
+          ref: r(hotel_analytics.hotel_revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}
