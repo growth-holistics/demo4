@@ -69,8 +69,8 @@ Model finance_customer_invoices {
     hidden: false
     definition: @sql {{ #SOURCE.payment_terms_days }};;
   }
-  dimension seed_invoice_date {
-    label: 'Seed Invoice Date'
+  dimension days_outstanding {
+    label: 'Days Outstanding'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.seed_invoice_date }};;
@@ -92,6 +92,12 @@ Model finance_customer_invoices {
     type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.due_date }};;
+  }
+  dimension aging_bucket {
+    label: 'Aging Bucket'
+    type: 'text'
+    hidden: false
+    definition: @aql case(when: finance_customer_invoices.days_outstanding <= 30, then: '0-30 Days', when: finance_customer_invoices.days_outstanding <= 60, then: '31-60 Days', when: finance_customer_invoices.days_outstanding <= 90, then: '61-90 Days', else: '90+ Days');;
   }
 
   owner: 'dong.ln@holistics.io'
