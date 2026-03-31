@@ -256,46 +256,103 @@ Reading flow:
     }
   }
 
-  block t2: TextBlock {
-    content: @md
+  block t2: VizBlock {
+    label: 'Executive KPI Row'
+    viz: MarkdownViz {
+      dataset: hiring_analytics
+      filter {
+        field: r(dim_date_job.date_key)
+        operator: 'matches'
+        value: 'last 12 months'
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(dim_date_job.date_key)
+          transformation: 'datetrunc month'
+          format {
+            type: 'date'
+            pattern: 'LLL yyyy'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Hires'
+          ref: r(hiring_analytics.total_hires)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg Days to Hire'
+          ref: r(hiring_analytics.avg_days_to_hire)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg Days to Close'
+          ref: r(hiring_analytics.avg_days_to_close)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Active Applications'
+          ref: r(fct_applications.application_id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      content: @md
 <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px;">
   <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#2563EB 0%,#60A5FA 100%);"></div>
     <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
-    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">15</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">{{ col_totals.`Total Hires`.formatted }}</div>
     <div style="margin-top:8px;font-size:14px;color:#334155;">Total Hires</div>
     <div style="margin-top:10px;font-size:12px;color:#2563EB;font-weight:600;">Last 12 months</div>
+    <div style="margin-top:10px;"><h-sparkline column="Total Hires" width="100" height="30" class="size-full" type="column"></h-sparkline></div>
   </div>
   <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#F59E0B 0%,#FBBF24 100%);"></div>
     <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
-    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">37.7</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">{{ col_totals.`Avg Days to Hire`.formatted }}</div>
     <div style="margin-top:8px;font-size:14px;color:#334155;">Avg Days to Hire</div>
     <div style="margin-top:10px;font-size:12px;color:#B45309;font-weight:600;">Hiring speed</div>
+    <div style="margin-top:10px;"><h-sparkline column="Avg Days to Hire" width="100" height="30" class="size-full"></h-sparkline></div>
   </div>
   <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#10B981 0%,#34D399 100%);"></div>
     <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
-    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">30.7</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">{{ col_totals.`Avg Days to Close`.formatted }}</div>
     <div style="margin-top:8px;font-size:14px;color:#334155;">Avg Days to Close</div>
     <div style="margin-top:10px;font-size:12px;color:#047857;font-weight:600;">Decision cycle</div>
+    <div style="margin-top:10px;"><h-sparkline column="Avg Days to Close" width="100" height="30" class="size-full"></h-sparkline></div>
   </div>
   <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#7C3AED 0%,#A78BFA 100%);"></div>
     <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
-    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">10</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">{{ col_totals.`Active Applications`.formatted }}</div>
     <div style="margin-top:8px;font-size:14px;color:#334155;">Active Applications</div>
     <div style="margin-top:10px;font-size:12px;color:#6D28D9;font-weight:600;">Current pipeline</div>
+    <div style="margin-top:10px;"><h-sparkline column="Active Applications" width="100" height="30" class="size-full" type="column"></h-sparkline></div>
   </div>
 </div>
-    ;;
-    theme: BlockTheme {
-      border {
-        border_color: 'transparent'
+      ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
       }
-      background {
-        bg_color: 'transparent'
-      }
+    }
+    settings {
+      hide_label: true
     }
   }
 
@@ -613,7 +670,7 @@ Reading flow:
 
   view: CanvasLayout {
     width: 1420
-    height: 1790
+    height: 1730
     block t1 {
       position: pos(10, 20, 1400, 380)
     }
@@ -630,19 +687,19 @@ Reading flow:
       position: pos(1060, 430, 350, 80)
     }
     block t2 {
-      position: pos(10, 540, 1400, 170)
+      position: pos(10, 540, 1400, 160)
     }
     block v1 {
-      position: pos(10, 730, 1400, 330)
+      position: pos(10, 710, 1400, 330)
     }
     block v2 {
-      position: pos(10, 1090, 680, 300)
+      position: pos(10, 1070, 680, 300)
     }
     block v3 {
-      position: pos(730, 1090, 680, 300)
+      position: pos(730, 1070, 680, 300)
     }
     block v4 {
-      position: pos(10, 1420, 1400, 320)
+      position: pos(10, 1400, 1400, 320)
     }
   }
 }
