@@ -10,16 +10,17 @@ Dataset hotels_dataset {
   data_source_name: customer_data_source
 
   models: [
-    hotels
+    hotels,
+    bookings,
   ]
 
-  relationships: []
+  relationships: [
+    relationship(bookings.hotel_id > hotels.hotel_id, true),
+  ]
 
   metric hotel_revenue {
     label: "Hotel Revenue"
     type: "number"
-    description: ""
     definition: @aql sum(hotels.hotel_revenue);;
-    format: ""
   }
 }
