@@ -1,0 +1,615 @@
+Dashboard hiring_exec_dashboard_v2 {
+  title: 'Hiring Executive Dashboard'
+  description: '''
+Executive hiring dashboard built on @Dataset:hiring_analytics.
+
+Reading flow:
+- Top: filters and context
+- Middle: hiring output and speed
+- Bottom: source effectiveness and stage bottlenecks
+'''
+
+  theme: PageTheme {
+    canvas {
+      background {
+        bg_color: '#EEF3F8'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+    }
+    block {
+      background {
+        bg_color: '#FFFFFF'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+      label {
+        font_color: '#0F172A'
+      }
+      text {
+        font_color: '#334155'
+      }
+    }
+    custom_css: @css
+      body {
+        background:
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
+          radial-gradient(circle at top right, rgba(15, 23, 42, 0.10), transparent 24%),
+          linear-gradient(180deg, #F8FBFF 0%, #F4F7FB 100%);
+      }
+
+      .dac-canvas {
+        background: transparent;
+      }
+
+      .dac-viz-block,
+      .dac-ic-block,
+      .dac-text-block {
+        border-radius: 22px;
+        border: 1px solid rgba(215, 227, 240, 0.95);
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+      }
+
+      .dac-viz-block {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(248, 251, 255, 0.98) 100%);
+      }
+
+      .dac-ic-block {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(250, 252, 255, 0.98) 100%);
+      }
+
+      .dac-viz-block-label,
+      .dac-ic-block-label {
+        color: #0F172A;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+      }
+
+      .dac-viz-block-label {
+        padding-bottom: 8px;
+      }
+
+      .dac-viz-block .text-secondary,
+      .dac-viz-block .text-gray-500,
+      .dac-viz-block .text-blue-gray-60 {
+        color: #64748B !important;
+      }
+
+      .dac-text-block {
+        background:
+          radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 24%),
+          linear-gradient(135deg, #0F172A 0%, #1D4ED8 55%, #2563EB 100%);
+        color: #FFFFFF;
+        box-shadow: 0 28px 70px rgba(29, 78, 216, 0.24);
+      }
+
+      .dac-text-block h1,
+      .dac-text-block p,
+      .dac-text-block li,
+      .dac-text-block strong {
+        color: #FFFFFF;
+      }
+
+      .dac-text-block h1 {
+        font-size: 34px;
+        line-height: 1.1;
+        margin-bottom: 18px;
+      }
+
+      .dac-text-block strong {
+        opacity: 0.96;
+      }
+
+      .dac-ic-block-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #334155;
+      }
+
+      .dac-viz-block:hover,
+      .dac-ic-block:hover {
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.10);
+        transform: translateY(-1px);
+        transition: all 180ms ease;
+      }
+    ;;
+  }
+  block t1: TextBlock {
+    content: @md
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:28px;">
+  <div style="max-width:820px;">
+    <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.16);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.88;margin-bottom:16px;">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#93C5FD;"></span>
+      Talent Intelligence
+    </div>
+    <h1 style="margin:0 0 14px 0;">Hiring Executive Dashboard</h1>
+    <div style="font-size:17px;line-height:1.65;max-width:760px;opacity:0.94;">
+      Premium executive view of hiring output, funnel speed, source efficiency, and stage bottlenecks.
+    </div>
+  </div>
+  <div style="min-width:300px;max-width:320px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.16);border-radius:20px;padding:18px 20px;backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);">
+    <div style="font-size:12px;letter-spacing:0.10em;text-transform:uppercase;opacity:0.78;margin-bottom:10px;">Executive focus</div>
+    <div style="line-height:1.9;opacity:0.96;">
+      • Hiring output<br/>
+      • Funnel speed<br/>
+      • Source efficiency<br/>
+      • Stage bottlenecks
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:14px;">
+  <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);border-radius:18px;padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.72;">Read 1</div>
+    <div style="margin-top:8px;font-size:14px;line-height:1.55;">Start with the monthly trend</div>
+  </div>
+  <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);border-radius:18px;padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.72;">Read 2</div>
+    <div style="margin-top:8px;font-size:14px;line-height:1.55;">Check where candidates accumulate</div>
+  </div>
+  <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);border-radius:18px;padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.72;">Read 3</div>
+    <div style="margin-top:8px;font-size:14px;line-height:1.55;">Compare source quality vs speed</div>
+  </div>
+  <div style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.14);border-radius:18px;padding:16px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.72;">Read 4</div>
+    <div style="margin-top:8px;font-size:14px;line-height:1.55;">Use bottlenecks to prioritize fixes</div>
+  </div>
+</div>
+    ;;
+    theme: BlockTheme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+    }
+  }
+
+  block f_date: FilterBlock {
+    label: 'Hiring Date'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: hiring_analytics
+      field: r(dim_date_job.date_key)
+    }
+    default {
+      operator: 'matches'
+      value: 'last 12 months'
+    }
+    theme: BlockTheme {
+      background {
+        bg_color: '#FFFFFF'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+      label {
+        font_color: '#0F172A'
+      }
+    }
+  }
+
+  block f_department: FilterBlock {
+    label: 'Department'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: hiring_analytics
+      field: r(dim_jobs.department)
+    }
+    theme: BlockTheme {
+      background {
+        bg_color: '#FFFFFF'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+      label {
+        font_color: '#0F172A'
+      }
+    }
+  }
+
+  block f_recruiter: FilterBlock {
+    label: 'Recruiter'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: hiring_analytics
+      field: r(dim_jobs.recruiter)
+    }
+    theme: BlockTheme {
+      background {
+        bg_color: '#FFFFFF'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+      label {
+        font_color: '#0F172A'
+      }
+    }
+  }
+
+  block f_source: FilterBlock {
+    label: 'Source'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: hiring_analytics
+      field: r(dim_sources.source_name)
+    }
+    theme: BlockTheme {
+      background {
+        bg_color: '#FFFFFF'
+      }
+      border {
+        border_color: '#D7E3F0'
+      }
+      label {
+        font_color: '#0F172A'
+      }
+    }
+  }
+
+  block t2: TextBlock {
+    content: @md
+<div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px;">
+  <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">15</div>
+    <div style="margin-top:8px;font-size:14px;color:#334155;">Total Hires</div>
+  </div>
+  <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">37.7</div>
+    <div style="margin-top:8px;font-size:14px;color:#334155;">Avg Days to Hire</div>
+  </div>
+  <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">30.7</div>
+    <div style="margin-top:8px;font-size:14px;color:#334155;">Avg Days to Close</div>
+  </div>
+  <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);">
+    <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
+    <div style="margin-top:10px;font-size:30px;font-weight:800;color:#0F172A;line-height:1;">10</div>
+    <div style="margin-top:8px;font-size:14px;color:#334155;">Active Applications</div>
+  </div>
+</div>
+    ;;
+    theme: BlockTheme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+    }
+  }
+
+  block v1: VizBlock {
+    label: 'Monthly Hiring Output and Speed'
+    description: 'Executive trend view of hiring volume and cycle speed.'
+    viz: CombinationChart {
+      dataset: hiring_analytics
+      x_axis: VizFieldFull {
+        ref: r(dim_date_job.month_label)
+        label: 'Month'
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Hires'
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.total_hires)
+            label: 'Total Hires'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#4F46E5'
+          }
+        }
+        settings {
+          alignment: 'left'
+        }
+      }
+      y_axis {
+        label: 'Days'
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.avg_days_to_hire)
+            label: 'Avg Days to Hire'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+            line_style: 'solid'
+            line_interpolation: 'linear'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.avg_days_to_close)
+            label: 'Avg Days to Close'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#10B981'
+            line_style: 'solid'
+            line_interpolation: 'linear'
+          }
+        }
+        settings {
+          alignment: 'right'
+        }
+      }
+      settings {
+        legend_label: 'top'
+        row_limit: 100
+        show_data_points: true
+        sort: LineFamilySort {
+          type: 'xaxis'
+          direction: 'asc'
+        }
+      }
+    }
+  }
+
+  block v2: VizBlock {
+    label: 'Pipeline Concentration by Current Stage'
+    description: 'Shows where active demand is currently concentrated in the funnel.'
+    viz: BarChart {
+      dataset: hiring_analytics
+      calculation application_count {
+        label: 'Application Count'
+        formula: @aql count(fct_applications.application_id) ;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(fct_applications.current_stage)
+        label: 'Current Stage'
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Applications'
+        series {
+          field: VizFieldFull {
+            ref: 'application_count'
+            label: 'Application Count'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#6366F1'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        row_limit: 100
+      }
+    }
+  }
+
+  block v3: VizBlock {
+    label: 'Source Effectiveness'
+    description: 'Compares hiring output against speed by acquisition channel.'
+    viz: CombinationChart {
+      dataset: hiring_analytics
+      x_axis: VizFieldFull {
+        ref: r(dim_sources.source_name)
+        label: 'Source'
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Hires'
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.total_hires)
+            label: 'Total Hires'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2563EB'
+          }
+        }
+        settings {
+          alignment: 'left'
+          axis_min: 0
+        }
+      }
+      y_axis {
+        label: 'Avg Days to Hire'
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.avg_days_to_hire)
+            label: 'Avg Days to Hire'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+            line_style: 'solid'
+            line_interpolation: 'smooth'
+          }
+        }
+        settings {
+          alignment: 'right'
+          axis_min: 0
+        }
+      }
+      settings {
+        legend_label: 'top'
+        row_limit: 100
+        show_data_points: true
+        sort: LineFamilySort {
+          type: 'yaxis'
+          field_index: 0
+          direction: 'desc'
+        }
+      }
+    }
+  }
+
+  block v4: VizBlock {
+    label: 'Stage Bottlenecks'
+    description: 'Highlights where candidates exit and where stage dwell time is highest.'
+    viz: CombinationChart {
+      dataset: hiring_analytics
+      x_axis: VizFieldFull {
+        ref: r(fct_stage_events.stage)
+        label: 'Stage'
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Exit Count'
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.total_advanced_exit)
+            label: 'Advanced'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#16A34A'
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.total_rejected_exit)
+            label: 'Rejected'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.total_withdrawn_exit)
+            label: 'Withdrawn'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#6B7280'
+          }
+        }
+        settings {
+          alignment: 'left'
+          stack_series_by: 'value'
+          show_stack_total: true
+          show_total_in_tooltip: true
+        }
+      }
+      y_axis {
+        label: 'Avg Hours in Stage'
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(hiring_analytics.avg_hours_stage)
+            label: 'Avg Hours in Stage'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#EF4444'
+            line_style: 'solid'
+            line_interpolation: 'linear'
+          }
+        }
+        settings {
+          alignment: 'right'
+        }
+      }
+      conditions: [
+        "fct_stage_events.exited_at is not null"
+      ]
+      settings {
+        legend_label: 'top'
+        row_limit: 100
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    width: 1420
+    height: 1730
+    block t1 {
+      position: pos(10, 20, 1400, 380)
+    }
+    block f_date {
+      position: pos(10, 430, 330, 80)
+    }
+    block f_department {
+      position: pos(360, 430, 330, 80)
+    }
+    block f_recruiter {
+      position: pos(710, 430, 330, 80)
+    }
+    block f_source {
+      position: pos(1060, 430, 350, 80)
+    }
+    block t2 {
+      position: pos(10, 540, 1400, 140)
+    }
+    block v1 {
+      position: pos(10, 710, 1400, 330)
+    }
+    block v2 {
+      position: pos(10, 1070, 680, 300)
+    }
+    block v3 {
+      position: pos(730, 1070, 680, 300)
+    }
+    block v4 {
+      position: pos(10, 1400, 1400, 320)
+    }
+  }
+}
