@@ -355,18 +355,17 @@ Reading flow:
       hide_label: true
     }
   }
-
-
   block v1: VizBlock {
     label: 'Monthly Hiring Output and Speed'
     description: 'Executive trend view of hiring volume and cycle speed.'
     viz: CombinationChart {
       dataset: hiring_analytics
       x_axis: VizFieldFull {
-        ref: r(dim_date_job.month_label)
-        label: 'Month'
+        ref: r(dim_date_job.date_key)
+        transformation: 'datetrunc month'
         format {
-          type: 'text'
+          type: 'date'
+          pattern: 'LLL yyyy'
         }
       }
       y_axis {
@@ -374,8 +373,8 @@ Reading flow:
         series {
           mark_type: 'column'
           field: VizFieldFull {
-            ref: r(hiring_analytics.total_hires)
             label: 'Total Hires'
+            ref: r(hiring_analytics.total_hires)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -385,17 +384,17 @@ Reading flow:
             color: '#4F46E5'
           }
         }
-        settings {
-          alignment: 'left'
-        }
       }
       y_axis {
         label: 'Days'
+        settings {
+          alignment: 'right'
+        }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: r(hiring_analytics.avg_days_to_hire)
             label: 'Avg Days to Hire'
+            ref: r(hiring_analytics.avg_days_to_hire)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -403,15 +402,13 @@ Reading flow:
           }
           settings {
             color: '#F59E0B'
-            line_style: 'solid'
-            line_interpolation: 'linear'
           }
         }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: r(hiring_analytics.avg_days_to_close)
             label: 'Avg Days to Close'
+            ref: r(hiring_analytics.avg_days_to_close)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -419,21 +416,23 @@ Reading flow:
           }
           settings {
             color: '#10B981'
-            line_style: 'solid'
-            line_interpolation: 'linear'
           }
-        }
-        settings {
-          alignment: 'right'
         }
       }
       settings {
-        legend_label: 'top'
-        row_limit: 100
         show_data_points: true
-        sort: LineFamilySort {
-          type: 'xaxis'
+        row_limit: 100
+        sort {
+          field_index: 0
           direction: 'asc'
+          type: 'xaxis'
+        }
+        legend_label: 'top'
+        x_axis_label: 'Month'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
