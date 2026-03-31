@@ -1,0 +1,72 @@
+Dashboard dashboard_total_users_by_country_name_blue_epstn {
+  title: 'Dashboard Total Users by Country Name Blue'
+  owner: 'embed_f90e7149f1e44c59dc@holistics.io'
+  block v_5x3g: VizBlock {
+    label: 'Total Users by Country Name Blue'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_products.name)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#255DD4'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_5x3g {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+}
