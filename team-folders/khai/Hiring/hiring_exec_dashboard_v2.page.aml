@@ -171,7 +171,6 @@ Reading flow:
       }
     }
   }
-
   block f_date: FilterBlock {
     label: 'Hiring Date'
     type: 'field'
@@ -181,29 +180,45 @@ Reading flow:
     }
     default {
       operator: 'matches'
-      value: 'last 12 months'
+      value: '$H_NIL$'
     }
-    theme: BlockTheme {
-      background {
-        bg_color: 'transparent'
+    settings {
+      hide_label: true
+    }
+    theme {
+      label {
+        font_color: '#0F172A'
       }
       border {
         border_color: 'transparent'
       }
-      label {
-        font_color: '#0F172A'
+      background {
+        bg_color: 'transparent'
       }
     }
   }
-
   block f_department: VizBlock {
     label: 'Department'
     viz: MarkdownViz {
       dataset: hiring_analytics
+      calculation department_icon {
+        label: 'Department Icon'
+        formula: @aql case(
+  when: dim_jobs.department == 'Design'
+  , then: '🎨 Design'
+  , when: dim_jobs.department == 'Engineering'
+  , then: '🧑‍💻 Engineering'
+  , when: dim_jobs.department == 'Product'
+  , then: '👴 Product'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: dim_jobs
+      }
       rows: [
         VizFieldFull {
           label: 'Department'
-          ref: r(dim_jobs.department)
+          ref: ref('dim_jobs', 'department_icon')
           format {
             type: 'text'
           }
@@ -274,7 +289,7 @@ Reading flow:
     </div>
   </h-drill>
 {% end %}
-</div>      ;;
+</div>       ;;
       settings {
         show_row_total: true
         show_column_total: true
@@ -287,12 +302,12 @@ Reading flow:
     settings {
       hide_label: true
     }
-    theme: BlockTheme {
-      background {
-        bg_color: 'transparent'
-      }
+    theme {
       border {
         border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
       }
     }
   }
@@ -315,6 +330,9 @@ Reading flow:
         font_color: '#0F172A'
       }
     }
+    settings {
+      hide_label: true
+    }
   }
 
   block f_source: FilterBlock {
@@ -335,17 +353,14 @@ Reading flow:
         font_color: '#0F172A'
       }
     }
+    settings {
+      hide_label: true
+    }
   }
-
   block t2: VizBlock {
     label: 'Executive KPI Row'
     viz: MarkdownViz {
       dataset: hiring_analytics
-      filter {
-        field: r(dim_date_job.date_key)
-        operator: 'matches'
-        value: 'last 12 months'
-      }
       rows: [
         VizFieldFull {
           ref: r(dim_date_job.date_key)
@@ -391,8 +406,7 @@ Reading flow:
           }
         }
       ]
-      content: @md
-<div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px;">
+      content: @md <div style="display:grid;grid-template-columns:repeat(4, minmax(0, 1fr));gap:16px;">
   <div style="background:linear-gradient(180deg,#FFFFFF 0%,#F8FBFF 100%);border:1px solid #D7E3F0;border-radius:20px;padding:18px 20px;box-shadow:0 14px 40px rgba(15,23,42,0.06);position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#2563EB 0%,#60A5FA 100%);"></div>
     <div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">KPI</div>
@@ -425,25 +439,28 @@ Reading flow:
     <div style="margin-top:10px;font-size:12px;color:#6D28D9;font-weight:600;">Current pipeline</div>
     <div style="margin-top:10px;"><h-sparkline column="Active Applications" width="100" height="30" class="size-full" type="column"></h-sparkline></div>
   </div>
-</div>
-      ;;
+</div> ;;
       settings {
         show_row_total: true
         show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
     settings {
       hide_label: true
     }
-    theme: BlockTheme {
-      background {
-        bg_color: 'transparent'
+    theme {
+      label {
+        font_color: '#0F172A'
       }
       border {
         border_color: 'transparent'
       }
-      label {
-        font_color: '#0F172A'
+      background {
+        bg_color: 'transparent'
       }
     }
   }
@@ -791,11 +808,6 @@ Reading flow:
         calc_type: 'measure'
         data_type: 'number'
       }
-      filter {
-        field: r(dim_date_job.date_key)
-        operator: 'matches'
-        value: 'last 12 months'
-      }
       x_axis: VizFieldFull {
         ref: r(dim_date_job.date_key)
         transformation: 'datetrunc week'
@@ -910,15 +922,15 @@ Reading flow:
         }
       }
     }
-    theme: BlockTheme {
-      background {
-        bg_color: 'transparent'
+    theme {
+      label {
+        font_color: '#0F172A'
       }
       border {
         border_color: 'transparent'
       }
-      label {
-        font_color: '#0F172A'
+      background {
+        bg_color: 'transparent'
       }
     }
   }
@@ -927,24 +939,36 @@ Reading flow:
     '#8F99A3',
     '#FFFFFF'
   )
+  block t_a9kb: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;">Hiring date</div>;;
+  }
+  block t_438q: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;">Source</div>;;
+  }
+  block t_idnl: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;">Recruiter</div>;;
+  }
+  block t_dzt9: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;">Position</div>;;
+  }
 
   view: CanvasLayout {
-    width: 1940
-    height: 1850
+    width: 2030
+    height: 1820
     block t1 {
-      position: pos(10, 20, 1900, 330)
+      position: pos(10, 20, 2010, 330)
     }
     block f_date {
-      position: pos(1470, 480, 400, 80)
+      position: pos(1580, 430, 400, 40)
     }
     block f_department {
-      position: pos(1470, 820, 400, 80)
+      position: pos(1580, 720, 410, 70)
     }
     block f_recruiter {
-      position: pos(1470, 710, 400, 80)
+      position: pos(1580, 630, 400, 40)
     }
     block f_source {
-      position: pos(1470, 580, 400, 80)
+      position: pos(1580, 530, 400, 40)
     }
     block t2 {
       position: pos(10, 390, 1400, 290)
@@ -966,8 +990,23 @@ Reading flow:
       layer: 1
     }
     block t_hblocksrectangle {
-      position: pos(1430, 460, 470, 1430)
+      position: pos(1430, 390, 590, 1410)
       layer: -1
+    }
+    block t_a9kb {
+      position: pos(1450, 430, 120, 40)
+      layer: 1
+    }
+    block t_438q {
+      position: pos(1450, 530, 120, 40)
+      layer: -1
+    }
+    block t_idnl {
+      position: pos(1450, 630, 120, 40)
+    }
+    block t_dzt9 {
+      position: pos(1450, 730, 120, 40)
+      layer: 1
     }
   }
   interactions: [
