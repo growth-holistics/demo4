@@ -196,12 +196,96 @@ Reading flow:
     }
   }
 
-  block f_department: FilterBlock {
+  block f_department: VizBlock {
     label: 'Department'
-    type: 'field'
-    source: FieldFilterSource {
+    viz: MarkdownViz {
       dataset: hiring_analytics
-      field: r(dim_jobs.department)
+      rows: [
+        VizFieldFull {
+          label: 'Department'
+          ref: r(dim_jobs.department)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .dept-selector {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .dept-card {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1rem;
+    background: #FFFFFF;
+    border: 1.5px solid #D7E3F0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 110px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+  }
+
+  .dept-card:hover {
+    border-color: #3B82F6;
+    background: #F8FAFC;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.12);
+  }
+
+  .dept-card:active {
+    border-color: #1D4ED8;
+    background: #EFF6FF;
+    transform: translateY(0);
+  }
+
+  .h-drill-selected.dept-card {
+    border-color: #1D4ED8;
+    background: #EFF6FF;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
+  }
+
+  .dept-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0F172A;
+    line-height: 1.2;
+  }
+
+  .h-drill-selected.dept-card > .dept-label {
+    color: #1D4ED8;
+  }
+</style>
+
+<div class="dept-selector">
+{% map(rows) %}
+  <h-drill row="0" value="{{ Department.raw }}">
+    <div class="dept-card">
+      <span class="dept-label">{{ Department.formatted }}</span>
+    </div>
+  </h-drill>
+{% end %}
+</div>      ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
     }
     theme: BlockTheme {
       background {
@@ -209,9 +293,6 @@ Reading flow:
       }
       border {
         border_color: '#D7E3F0'
-      }
-      label {
-        font_color: '#0F172A'
       }
     }
   }
@@ -819,13 +900,13 @@ Reading flow:
       position: pos(10, 360, 340, 80)
     }
     block f_department {
-      position: pos(360, 360, 330, 80)
+      position: pos(370, 360, 410, 80)
     }
     block f_recruiter {
-      position: pos(710, 360, 330, 80)
+      position: pos(800, 360, 290, 80)
     }
     block f_source {
-      position: pos(1060, 360, 350, 80)
+      position: pos(1110, 360, 300, 80)
     }
     block t2 {
       position: pos(10, 470, 1400, 290)
