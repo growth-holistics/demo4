@@ -1,0 +1,111 @@
+Model finance_supplier_bills {
+  type: 'table'
+  label: 'Supplier Bills'
+  description: ''
+  data_source_name: 'demodb'
+  dimension bill_id {
+    label: 'Bill Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_id }};;
+  }
+  dimension purchase_order_id {
+    label: 'Purchase Order Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.purchase_order_id }};;
+  }
+  dimension vendor_id {
+    label: 'Vendor Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.vendor_id }};;
+  }
+  dimension merchant_id {
+    label: 'Merchant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.merchant_id }};;
+  }
+  dimension bill_status {
+    label: 'Bill Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_status }};;
+  }
+  dimension bill_type {
+    label: 'Bill Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_type }};;
+  }
+  dimension bill_department {
+    label: 'Bill Department'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_department }};;
+  }
+  dimension expense_category_id {
+    label: 'Expense Category Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.expense_category_id }};;
+  }
+  dimension currency_code {
+    label: 'Currency Code'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.currency_code }};;
+  }
+  dimension bill_amount {
+    label: 'Bill Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_amount }};;
+  }
+  dimension paid_amount {
+    label: 'Paid Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.paid_amount }};;
+  }
+  dimension remaining_amount {
+    label: 'Remaining Amount'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.remaining_amount }};;
+  }
+  dimension days_outstanding {
+    label: 'Days Outstanding'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.seed_bill_date }};;
+  }
+  dimension seed_due_date {
+    label: 'Seed Due Date'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.seed_due_date }};;
+  }
+  dimension bill_date {
+    label: 'Bill Date'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.bill_date }};;
+  }
+  dimension due_date {
+    label: 'Due Date'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.due_date }};;
+  }
+  dimension aging_bucket {
+    label: 'Aging Bucket'
+    type: 'text'
+    hidden: false
+    definition: @aql case(when: finance_supplier_bills.days_outstanding <= 30, then: '0-30 Days', when: finance_supplier_bills.days_outstanding <= 60, then: '31-60 Days', when: finance_supplier_bills.days_outstanding <= 90, then: '61-90 Days', else: '90+ Days');;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  table_name: '"finance"."supplier_bills"'
+}

@@ -1,0 +1,295 @@
+Dataset demo_finance_version_2 {
+  label: 'demo_finance_version_2'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    finance_budget_targets,
+    finance_customer_invoices,
+    finance_customer_payments,
+    finance_dim_expense_categories,
+    finance_dim_vendors,
+    finance_recurring_expenses,
+    finance_purchase_orders,
+    finance_supplier_bills,
+    finance_supplier_payments,
+    ecommerce_orders,
+    ecommerce_products,
+    ecommerce_countries,
+    ecommerce_users,
+    ecommerce_order_items,
+    ecommerce_cities,
+    dim_dates,
+    param_model_demo,
+  ]
+
+  relationships: [
+    relationship(finance_budget_targets.category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_dim_vendors.default_category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_recurring_expenses.vendor_id > finance_dim_vendors.vendor_id, true),
+    relationship(finance_recurring_expenses.category_id > finance_dim_expense_categories.category_id, true),
+    relationship(finance_purchase_orders.purchase_order_id - finance_supplier_bills.purchase_order_id, true),
+    relationship(finance_supplier_payments.bill_id > finance_supplier_bills.bill_id, true),
+    relationship(finance_customer_payments.invoice_id > finance_customer_invoices.invoice_id, true),
+    relationship(ecommerce_orders.id - finance_customer_invoices.order_id, true),
+    relationship(finance_purchase_orders.vendor_id > finance_dim_vendors.vendor_id, true),
+    relationship(ecommerce_order_items.order_id > ecommerce_orders.id, true),
+    relationship(ecommerce_orders.user_id > ecommerce_users.id, true),
+    relationship(ecommerce_users.city_id > ecommerce_cities.id, true),
+    relationship(ecommerce_cities.country_code > ecommerce_countries.code, true),
+    relationship(ecommerce_order_items.product_id > ecommerce_products.id, true),
+    relationship(finance_budget_targets.date > dim_dates.date_key, true),
+    relationship(finance_recurring_expenses.date > dim_dates.date_key, true),
+    relationship(ecommerce_orders_dim_dates, true),
+    relationship(finance_supplier_bills.due_date > dim_dates.date_key, true),
+    relationship(finance_customer_invoices.due_date > dim_dates.date_key, true),
+  ]
+
+  metric total_customers {
+    label: 'Total Customers'
+    type: 'number'
+    description: "Total number of users"
+    definition: @aql count_distinct(ecommerce_orders.user_id) ;;
+  }
+
+  metric total_orders {
+    label: "Total Orders"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(ecommerce_orders.id);;
+  }
+
+  metric gmv {
+    label: "GMV - Gross Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "GMV - Gross Merchandise Value: Total value of all orders before discount."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_discount {
+    label: "Total Discount"
+    type: "number"
+    hidden: false
+    description: "Total Discount: Total discount value of all orders."
+    definition: @aql gmv - revenue;;
+    format: "[\$\$]#,###0"
+  }
+  
+  metric nmv {
+    label: "NMV - Net Merchandise Value"
+    type: "number"
+    hidden: false
+    description: "Fulfilled order value after discount. Excludes cancelled/refunded orders.\n\nRepresents the total paid value of fulfilled orders, excluding cancelled and refunded orders, and adjusted for any discounts applied.\n\nThis reflects what customers actually paid for successfully completed transactions, and serves as the revenue base before applying commission."
+    definition: @aql (ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price * (1 - ecommerce_orders.discount))) |  where(ecommerce_orders.status not in ['cancelled', 'refunded']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue {
+    label: "Total Revenue (Platform)"
+    type: "number"
+    hidden: false
+    description: "Represents the total revenue earned by the platform based on fulfilled order value (NMV), multiplied by a commission rate.\nAs of May 2025, this demo assumes a 50% commission margin.\nFormula: revenue = NMV × revenue_commission"
+    definition: @aql nmv * revenue_commission;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric aov {
+    label: "AOV - Average Order Value"
+    type: "number"
+    description: "AOV - Average Order Value: Average value per order (GMV / number of orders)."
+    hidden: false
+    definition: @aql gmv / total_orders;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric cancelled_order_ratio {
+    label: "Cancelled Order Ratio"
+    type: "number"
+    hidden: false
+    description: "Percentage of orders that were cancelled - Total number of cancelled orders/Total numbers of orders"
+    definition: @aql total_cancelled_orders / total_orders;;
+    format: "#,###0.00%"
+  }
+
+  metric cancelled_value {
+    label: "Cancelled Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Cancelled Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'cancelled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric delivered_value {
+    label: "Delivered Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Delivered Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'delivered');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric refunded_value {
+    label: "Refunded Value"
+    type: "number"
+    hidden: false
+    description: "Total Value of Refunded Orders"
+    definition: @aql gmv | where(ecommerce_orders.status is 'refunded');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric revenue_commission {
+    label: "Revenue Commission Rate (Demo from May 2025)"
+    type: "number"
+    hidden: false
+    description: "Commission margin (%) our platform earns on NMV transactions. Set to 50% as of May 2025 for demonstration purposes. Used in revenue calculation: revenue = NMV × commission_rate."
+    definition: @aql 0.5;;
+    format: "#,###%"
+  }
+
+  metric cost_of_goods_sold {
+    label: "Cost Of Goods Sold"
+    type: "number"
+    hidden: false
+    description: "Cost of goods sold for all orders."
+    definition: @aql ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.cost);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric recurring_operating_costs {
+    label: "Recurring Operating Costs"
+    type: "number"
+    hidden: false
+    definition: @aql sum(finance_recurring_expenses.amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric supplier_bill_costs {
+    label: "Supplier Bill Costs"
+    type: "number"
+    hidden: false
+    description: "Costs recorded from supplier bills."
+    definition: @aql sum(finance_supplier_bills.bill_amount);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cost {
+    label: "Total Cost"
+    type: "number"
+    hidden: false
+    description: "Total cost incurred including cost of goods sold, recurring operating costs, and supplier bill costs."
+    definition: @aql cost_of_goods_sold + recurring_operating_costs + supplier_bill_costs;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit {
+    label: "Net Profit"
+    type: "number"
+    hidden: false
+    description: "Net profit calculated as net merchandise value minus total cost."
+    definition: @aql nmv - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric operating_profit {
+    label: "Operating Profit"
+    type: "number"
+    hidden: false
+    description: "Operating profit calculated as revenue minus total cost."
+    definition: @aql revenue - total_cost;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric gross_profit {
+    label: "Gross Profit"
+    type: "number"
+    hidden: false
+    description: "Gross profit calculated as revenue minus total cost of goods sold."
+    definition: @aql revenue - cost_of_goods_sold;;
+    format: "[\$\$]#,###0"
+  }
+
+  metric net_profit_margin {
+    label: "Net Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Net profit margin calculated as net profit divided by NMV."
+    definition: @aql safe_divide(net_profit, nmv);;
+    format: "#,###0.00%"
+  }
+
+  metric operating_profit_margin {
+    label: "Operating Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Operating profit margin calculated as operating profit divided by revenue."
+    definition: @aql safe_divide(operating_profit, revenue);;
+    format: "#,###0.00%"
+  }
+
+  metric gross_profit_margin {
+    label: "Gross Profit Margin"
+    type: "number"
+    hidden: false
+    description: "Gross profit margin calculated as gross profit divided by revenue."
+    definition: @aql safe_divide(gross_profit, revenue);;
+    format: "#,###0.00%"
+  }
+
+  metric expense_budgets {
+    label: "Expense Budgets"
+    type: "number"
+    hidden: false
+    description: "Total budgeted expenses for the period."
+    definition: @aql sum(finance_budget_targets.category_budget);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric budget_ratio {
+    label: "Budget Ratio"
+    type: "number"
+    hidden: false
+    description: "Budget ratio calculated as total cost divided by expense budgets."
+    definition: @aql safe_divide(total_cost, expense_budgets);;
+    format: "#,###0.00%"
+  }
+
+  metric total_cash_inflows {
+    label: "Total Cash Inflows"
+    type: "number"
+    hidden: false
+    description: "Total cash inflows, including all customer payments with settled status."
+    definition: @aql sum(finance_customer_payments.payment_amount) | where(finance_customer_payments.payment_status is 'settled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_cash_outflows {
+    label: "Total Cash Outflows"
+    type: "number"
+    hidden: false
+    description: "Total cash outflows, including all supplier payments with settled status."
+    definition: @aql sum(finance_supplier_payments.payment_amount) | where(finance_supplier_payments.payment_status is 'settled');;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_payable {
+    label: "Total Accounts Payable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts payable, calculated as the sum of unpaid amounts for open or partial bills."
+    definition: @aql sum(finance_supplier_bills.remaining_amount) | where(finance_supplier_bills.bill_status in ['open', 'partial']);;
+    format: "[\$\$]#,###0"
+  }
+
+  metric total_accounts_receivable {
+    label: "Total Accounts Receivable"
+    type: "number"
+    hidden: false
+    description: "Total outstanding accounts receivable, calculated as the sum of unpaid amounts for open or pending invoices."
+    definition: @aql sum(finance_customer_invoices.remaining_amount) | where(finance_customer_invoices.invoice_status in ['open', 'partial']);;
+    format: "[\$\$]#,###0"
+  }
+
+}

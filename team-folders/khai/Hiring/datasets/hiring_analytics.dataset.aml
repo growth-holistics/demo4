@@ -15,12 +15,18 @@ Dataset hiring_analytics {
   ]
 
   relationships: [
-    relationship(fct_applications.candidate_id > dim_candidates.candidate_id, true),
-    relationship(fct_applications.job_id > dim_jobs.job_id, true),
-    relationship(fct_applications.source_id > dim_sources.source_id, true),
-    relationship(fct_applications.referrer_employee_id > dim_employees.employee_id, true),
-    relationship(fct_stage_events.application_id > fct_applications.application_id, true),
-    relationship(fct_applications.applied_at > dim_date_job.date_key, true)
+    relationship(fct_applications.candidate_id > dim_candidates.candidate_id, true, 'one_way'),
+    relationship(fct_applications.job_id > dim_jobs.job_id, true, 'one_way'),
+    relationship(fct_applications.source_id > dim_sources.source_id, true, 'one_way'),
+    relationship(fct_applications.referrer_employee_id > dim_employees.employee_id, true, 'one_way'),
+    relationship(fct_stage_events.application_id > fct_applications.application_id, true, 'one_way'),
+    relationship(fct_applications.applied_at > dim_date_job.date_key, true, 'one_way'),
+    relationship(fct_applications.hired_at > dim_date_job.date_key, false, 'one_way'),
+    relationship(fct_applications.screened_at > dim_date_job.date_key, false, 'one_way'),
+    relationship(fct_applications.hm_screened_at > dim_date_job.date_key, false, 'one_way'),
+    relationship(fct_applications.interviewed_at > dim_date_job.date_key, false, 'one_way'),
+    relationship(fct_applications.offered_at > dim_date_job.date_key, false, 'one_way'),
+    relationship(fct_applications.closed_at > dim_date_job.date_key, false, 'one_way'),
   ]
   metric stage_to_stage_conversion_rate {
     label: "Stage To Stage Conversion Rate"
@@ -41,7 +47,11 @@ Dataset hiring_analytics {
     hidden: false
     description: ""
     definition: @aql count(fct_applications.application_id)
-| where(fct_applications.outcome == "hired");;
+      | where(fct_applications.outcome == "hired")
+      | with_relationships(
+        relationship(fct_applications.applied_at > dim_date_job.date_key, false, 'one_way'),
+        relationship(fct_applications.hired_at > dim_date_job.date_key, true, 'one_way'),
+      );;
     format: ""
   }
   metric avg_days_to_hire {
@@ -50,7 +60,25 @@ Dataset hiring_analytics {
     hidden: false
     description: ""
     definition: @aql avg(fct_applications.days_to_hire)
-| where(fct_applications.outcome == "hired");;
+      | where(fct_applications.outcome == "hired")
+      | with_relationships(
+        relationship(fct_applications.applied_at > dim_date_job.date_key, false, 'one_way'),
+        relationship(fct_applications.hired_at > dim_date_job.date_key, true, 'one_way'),
+      );;
+    format: "#,###0.00"
+  }
+  metric avg_days_to_close {
+    label: "Avg. day to close"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_applications.days_to_close)
+      | where(fct_applications.outcome != "active")
+      | with_relationships(
+        relationship(fct_applications.applied_at > dim_date_job.date_key, false, 'one_way'),
+        relationship(fct_applications.closed_at > dim_date_job.date_key, true, 'one_way'),
+      );;
+    format: "#,###0.00"
   }
   metric fastest_hires {
     label: "Fastest hires"
@@ -58,7 +86,11 @@ Dataset hiring_analytics {
     hidden: false
     description: ""
     definition: @aql min(fct_applications.days_to_hire)
-| where(fct_applications.outcome == "hired");;
+      | where(fct_applications.outcome == "hired")
+      | with_relationships(
+        relationship(fct_applications.applied_at > dim_date_job.date_key, false, 'one_way'),
+        relationship(fct_applications.hired_at > dim_date_job.date_key, true, 'one_way'),
+      );;
     format: ""
   }
   metric slowest_hires {
@@ -67,7 +99,11 @@ Dataset hiring_analytics {
     hidden: false
     description: ""
     definition: @aql max(fct_applications.days_to_hire)
-| where(fct_applications.outcome == "hired");;
+      | where(fct_applications.outcome == "hired")
+      | with_relationships(
+        relationship(fct_applications.applied_at > dim_date_job.date_key, false, 'one_way'),
+        relationship(fct_applications.hired_at > dim_date_job.date_key, true, 'one_way'),
+      );;
   }
   metric avg_apply_to_screen {
     label: "Average Days Apply To Screen"
@@ -76,7 +112,7 @@ Dataset hiring_analytics {
     description: ""
     definition: @aql avg(fct_applications.days_apply_to_screen)
 | where(fct_applications.outcome == "hired");;
-    format: ""
+    format: "#,###0.00"
   }
   metric avg_screen_to_interview {
     label: "Average Days Screen To Interview"
@@ -85,7 +121,7 @@ Dataset hiring_analytics {
     description: ""
     definition: @aql avg(fct_applications.days_screen_to_interview)
 | where(fct_applications.outcome == "hired");;
-    format: ""
+    format: "#,###0.00"
   }
   metric avg_interview_to_offer {
     label: "Average Days Interview To Offer"
@@ -94,7 +130,7 @@ Dataset hiring_analytics {
     description: ""
     definition: @aql avg(fct_applications.days_interview_to_offer)
 | where(fct_applications.outcome == "hired");;
-    format: ""
+    format: "#,###0.00"
   }
   metric avg_offer_to_accept {
     label: "Average Days Offer To Accept"
@@ -104,6 +140,66 @@ Dataset hiring_analytics {
     definition: @aql avg(fct_applications.days_offer_to_hire)
 | where(fct_applications.outcome == "hired");;
   }
+  metric total_events {
+    label: "Total Events"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null);;
+  }
+  metric total_advanced_exit {
+    label: "Total Advanced Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "advanced");;
+    format: ""
+  }
+  metric total_rejected_exit {
+    label: "Total Rejected Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "rejected");;
+    format: ""
+  }
+  metric total_withdrawn_exit {
+    label: "Total Withdrawn Exit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(fct_stage_events.event_id)
+| where(fct_stage_events.exited_at is not null, fct_stage_events.exit_type == "withdrawn");;
+  }
+  metric avg_hours_stage {
+    label: "Average Hours (in stage)"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(fct_stage_events.time_in_stage_hours)
+| where(fct_stage_events.exited_at is not null);;
+    format: ""
+  }
+  metric open_reqs {
+    label: "Open Reqs "
+    type: "number"
+    hidden: false
+    description: "Open Jobs"
+    definition: @aql count(dim_jobs.job_id)
+| where(dim_jobs.status == "open");;
+  }
+  metric open_req_title {
+    label: "List of Open Titles"
+    type: "json"
+    hidden: false
+    description: ""
+    definition: @aql dim_jobs
+| select(dim_jobs.title)
+| where(dim_jobs.status == "open");;
+  }
   dimension days_to_fill {
     label: "Days to Fill"
     type: "number"
@@ -111,5 +207,29 @@ Dataset hiring_analytics {
     description: ""
     definition: @aql date_diff('day', dim_jobs.opened_date, fct_applications.hired_at);;
     model: fct_applications
+  }
+  dimension days_open {
+    label: "Days Open"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql date_diff('day', dim_jobs.opened_date, @(2025-03-26));;
+    model: dim_jobs
+  }
+  dimension age_bucket {
+    label: "Age Bucket"
+    type: "text"
+    hidden: false
+    description: ""
+    definition: @aql case(
+  when: dim_jobs.days_open <= 30,
+  then: "0-30 days",
+  when: dim_jobs.days_open <= 60,
+  then: "31-60 days",
+  when: dim_jobs.days_open <= 90,
+  then: "61-90 days",
+  else: "Other"
+);;
+    model: dim_jobs
   }
 }

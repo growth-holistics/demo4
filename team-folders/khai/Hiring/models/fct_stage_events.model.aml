@@ -1,7 +1,11 @@
 Model fct_stage_events {
   type: 'query'
   label: 'Fct Stage Events'
-  description: ''
+  description: '''
+    Event log tracking every stage transition in the hiring pipeline. Each row represents one candidate's time in one stage. 
+    Used for bottleneck detection, time-in-stage analysis, and understanding where and why candidates exit the funnel. 
+    This is the detail-level complement to fct_applications -> use it when you need to know not just how long the whole process took, but which specific stage is slowing things down.
+  '''
   data_source_name: 'demodb'
   dimension event_id {
     label: 'Event Id'
@@ -20,36 +24,63 @@ Model fct_stage_events {
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.stage }};;
+    description: '''
+      The pipeline stage the candidate was in during this event. 
+      Values follow the funnel order: Applied → Recruiter Screen → HM Screen → Interview → Offer → Hired. 
+      Use this to group bottleneck analysis — e.g. 'which stage has the longest average dwell time?'
+    '''
   }
   dimension entered_at {
     label: 'Entered At'
     type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.entered_at }};;
+    description: '''
+      Timestamp when the candidate entered this stage. Marks the start of their dwell time. Use with exited_at to calculate how long candidates wait at each step.
+    '''
   }
   dimension exited_at {
     label: 'Exited At'
     type: 'datetime'
     hidden: false
     definition: @sql {{ #SOURCE.exited_at }};;
+    description: '''
+      * Timestamp when the candidate left this stage. <br/>
+      * NULL means they are still in this stage — use this to find stuck candidates. <br/>
+      * The difference between exited_at and entered_at gives time_in_stage_hours.
+    '''
   }
   dimension time_in_stage_hours {
     label: 'Time In Stage Hours'
     type: 'number'
     hidden: false
     definition: @sql {{ #SOURCE.time_in_stage_hours }};;
+    description: '''
+      Hours the candidate spent in this stage before moving on. 
+      This is the core bottleneck metric — high averages at a specific stage indicate a process problem (slow scheduling, delayed feedback, lengthy approvals). 
+      Compare avg vs median vs p90 to spot outliers dragging up the mean.
+    '''
   }
   dimension moved_by {
     label: 'Moved By'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.moved_by }};;
+    description: '''
+      Name of the recruiter, hiring manager, or interviewer who moved the candidate to the next stage. 
+      Use to identify operational bottlenecks at the individual level. e.g. 'which recruiter takes the longest to move candidates from screen to HM review?'
+    '''
   }
   dimension exit_type {
     label: 'Exit Type'
     type: 'text'
     hidden: false
     definition: @sql {{ #SOURCE.exit_type }};;
+    description: '''
+      How the candidate left this stage. Values: 'advanced' (moved forward in funnel), 'rejected' (company said no), 'withdrawn' (candidate said no), or NULL (still in stage). 
+      Critical for distinguishing healthy funnel narrowing (rejection) from talent loss (withdrawal). 
+      Filter to 'advanced' only when calculating speed for successful candidates; include all exit types for drop-off analysis.
+    '''
   }
 
   owner: 'khai.to@holistics.io'

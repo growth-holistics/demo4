@@ -1,0 +1,26 @@
+const customer_data_source = if (H.current_user.data_source) {
+  H.current_user.data_source
+} else {
+  'customer_staging'
+}
+
+Dataset hotels_dataset {
+  label: 'Hotels Dataset'
+  description: ''
+  data_source_name: customer_data_source
+
+  models: [
+    hotels,
+    stays,
+  ]
+
+  relationships: [
+    relationship(stays.hotel_id > hotels.hotel_id, true),
+  ]
+
+  metric hotel_revenue {
+    label: "Hotel Revenue"
+    type: "number"
+    definition: @aql sum(hotels.hotel_revenue);;
+  }
+}
