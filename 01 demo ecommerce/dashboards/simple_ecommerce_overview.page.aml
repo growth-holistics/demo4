@@ -1,0 +1,456 @@
+BlockTheme kpi_card {
+  border {
+    border_width: 1
+    border_radius: 12
+    border_color: '#E5E7EB'
+  }
+  background {
+    bg_color: '#FFFFFF'
+  }
+  padding: 20
+}
+
+BlockTheme chart_card {
+  border {
+    border_width: 1
+    border_radius: 12
+    border_color: '#E5E7EB'
+  }
+  background {
+    bg_color: '#FFFFFF'
+  }
+  padding: 16
+}
+
+@tag('2️⃣ Status/Active')
+Dashboard simple_ecommerce_overview {
+  title: 'Ecommerce Overview'
+  description: 'High-level performance overview: revenue, orders, and growth across categories and countries.'
+
+  block header: TextBlock {
+    content: @md <div style="
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 70%, #6366f1 100%);
+      border-radius: 12px;
+      padding: 28px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    ">
+      <div style="color: #c7d2fe; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+        Analytics Dashboard
+      </div>
+      <div style="color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 10px;">
+        Ecommerce Overview
+      </div>
+      <div style="color: #a5b4fc; font-size: 14px; line-height: 1.6;">
+        Track GMV, Revenue, Orders, and growth trends across your ecommerce platform.
+      </div>
+    </div>;;
+  }
+
+  block date_filter: FilterBlock {
+    label: 'Date Range'
+    type: 'date_range'
+    source: DateRangeFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_orders', 'created_at')
+    }
+    default {
+      operator: 'last'
+      value: 1
+      modifier: 'year'
+    }
+  }
+
+  block country_filter: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  block kpi_gmv: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.gmv)
+        label: 'GMV'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        show_growth_rate: true
+        value {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_percent'
+        alignment: 'center'
+        label {
+          font_size: 13
+          font_color: '#6B7280'
+        }
+        metric_value {
+          font_size: 28
+          font_color: '#111827'
+        }
+        compare_value {
+          font_size: 13
+        }
+      }
+    }
+    theme: kpi_card
+  }
+
+  block kpi_revenue: VizBlock {
+    label: 'Total Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.revenue)
+        label: 'Total Revenue'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        show_growth_rate: true
+        value {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_percent'
+        alignment: 'center'
+        label {
+          font_size: 13
+          font_color: '#6B7280'
+        }
+        metric_value {
+          font_size: 28
+          font_color: '#111827'
+        }
+        compare_value {
+          font_size: 13
+        }
+      }
+    }
+    theme: kpi_card
+  }
+
+  block kpi_orders: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.total_orders)
+        label: 'Total Orders'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        show_growth_rate: true
+        value {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_percent'
+        alignment: 'center'
+        label {
+          font_size: 13
+          font_color: '#6B7280'
+        }
+        metric_value {
+          font_size: 28
+          font_color: '#111827'
+        }
+        compare_value {
+          font_size: 13
+        }
+      }
+    }
+    theme: kpi_card
+  }
+
+  block kpi_aov: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.aov)
+        label: 'Avg. Order Value'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_orders.created_at)
+        show_growth_rate: true
+        value {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_percent'
+        alignment: 'center'
+        label {
+          font_size: 13
+          font_color: '#6B7280'
+        }
+        metric_value {
+          font_size: 28
+          font_color: '#111827'
+        }
+        compare_value {
+          font_size: 13
+        }
+      }
+    }
+    theme: kpi_card
+  }
+
+  block revenue_trend: VizBlock {
+    label: 'Revenue Waterfall by Month'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            label: 'GMV'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#6366F1'
+            line_style: 'solid'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.nmv)
+            label: 'NMV'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#10B981'
+            line_style: 'solid'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.revenue)
+            label: 'Revenue'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+            line_style: 'solid'
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+        show_data_points: true
+        connect_discontinuous_points: false
+        sort: LineFamilySort {
+          type: 'xaxis'
+          direction: 'asc'
+        }
+      }
+    }
+    theme: chart_card
+  }
+
+  block orders_by_status: VizBlock {
+    label: 'Orders by Status'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        ref: r(ecommerce_orders.status)
+        label: 'Order Status'
+      }
+      series {
+        field: VizFieldFull {
+          ref: r(demo_ecommerce_version_2.total_orders)
+          label: 'Total Orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        legend_label: 'right'
+        show_data_label: true
+        show_percentage: true
+        data_label_position: 'outside'
+      }
+    }
+    theme: chart_card
+  }
+
+  block top_categories: VizBlock {
+    label: 'Top 10 Categories by GMV'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(map_categories.category)
+        label: 'Category'
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            label: 'GMV'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#6366F1'
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort: LineFamilySort {
+          type: 'yaxis'
+          field_index: 0
+          direction: 'desc'
+        }
+      }
+    }
+    theme: chart_card
+  }
+
+  block top_countries: VizBlock {
+    label: 'Top 10 Countries by Orders'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        label: 'Country'
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.total_orders)
+            label: 'Total Orders'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#4F46E5'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            label: 'GMV'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#10B981'
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort: LineFamilySort {
+          type: 'yaxis'
+          field_index: 0
+          direction: 'desc'
+        }
+        legend_label: 'top'
+      }
+    }
+    theme: chart_card
+  }
+
+  filter_settings: [
+    FilterInteraction {
+      from: 'date_filter'
+      to: [
+        CustomMapping {
+          block: [
+            'kpi_gmv',
+            'kpi_revenue',
+            'kpi_orders',
+            'kpi_aov',
+            'revenue_trend',
+            'orders_by_status',
+            'top_categories',
+            'top_countries'
+          ]
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'country_filter'
+      to: [
+        CustomMapping {
+          block: [
+            'kpi_gmv',
+            'kpi_revenue',
+            'kpi_orders',
+            'kpi_aov',
+            'revenue_trend',
+            'orders_by_status',
+            'top_categories',
+            'top_countries'
+          ]
+        }
+      ]
+    }
+  ]
+
+  theme: holistics_ant
+}
