@@ -424,7 +424,6 @@ Dashboard sandbox_dashboard {
         value: '2. From 20 to 29'
       }
       theme {
-
       }
       fields: [
         VizFieldFull {
@@ -460,11 +459,78 @@ Dashboard sandbox_dashboard {
       }
     }
   }
+  block v_f04y: VizBlock {
+    label: 'Median Gmv'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation user_gmv {
+        label: 'User Gmv'
+        formula: @aql unique(ecommerce_users.id) | select(v: gmv) | median(v);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(ecommerce_cities.name)
+        operator: 'is'
+        value: 'Chennai'
+      }
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'India'
+      }
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'last 24 months'
+      }
+      filter {
+        field: r(ecommerce_users.age_group)
+        operator: 'is'
+        value: '3. 30 and above'
+      }
+      filter {
+        field: r(ecommerce_users.gender)
+        operator: 'is'
+        value: 'Female'
+      }
+      theme {
+
+      }
+      values: [
+        VizFieldFull {
+          label: 'Median Gmv'
+          ref: 'user_gmv'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+          uname: 'custom_user_gmv_1'
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'custom_user_gmv_1'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 1950
+    height: 2380
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -501,6 +567,10 @@ Dashboard sandbox_dashboard {
     block v_2uax {
       position: pos(20, 1510, 620, 420)
       layer: 4
+    }
+    block v_f04y {
+      position: pos(660, 1940, 620, 420)
+      layer: 5
     }
     mobile {
       mode: 'auto'
