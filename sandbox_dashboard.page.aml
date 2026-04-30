@@ -495,7 +495,6 @@ Dashboard sandbox_dashboard {
         value: 'Female'
       }
       theme {
-
       }
       values: [
         VizFieldFull {
@@ -526,11 +525,64 @@ Dashboard sandbox_dashboard {
       }
     }
   }
+  block v_f7an: VizBlock {
+    label: 'Platform Revenue by Quarter and Gender'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'United Kingdom'
+      }
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        label: 'Quarter'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ecommerce_users.gender)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Platform Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2563EB'
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_label: 'Quarter'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 2380
+    height: 2390
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -571,6 +623,10 @@ Dashboard sandbox_dashboard {
     block v_f04y {
       position: pos(660, 1940, 620, 420)
       layer: 5
+    }
+    block v_f7an {
+      position: pos(20, 1950, 620, 420)
+      layer: 6
     }
     mobile {
       mode: 'auto'
