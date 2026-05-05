@@ -7,7 +7,7 @@ Dashboard bicycle_transit_overview_dashboard {
     type: 'date'
     default {
       operator: 'matches'
-      value: 'this month'
+      value: '$H_NIL$'
     }
   }
 
@@ -271,11 +271,19 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
       rows: [
         VizFieldFull {
           ref: r(dim_pass.pass_family)
+          format {
+            type: 'text'
+          }
           uname: 'dim_pass_pass_family'
         }
       ]
       columns: [
-        r(dim_station_2.region)
+        VizFieldFull {
+          ref: r(dim_station_2.region)
+          format {
+            type: 'text'
+          }
+        }
       ]
       values: [
         VizFieldFull {
@@ -456,40 +464,40 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
     grid_size: 20
     auto_expand_vertically: true
     block title {
-      position: pos(20, 20, 1260, 160)
+      position: pos(20, 20, 1260, 120)
     }
     block f_date {
-      position: pos(20, 200, 300, 60)
+      position: pos(20, 160, 300, 60)
     }
     block f_city {
-      position: pos(340, 200, 300, 60)
+      position: pos(340, 160, 300, 60)
     }
     block narrative {
-      position: pos(20, 280, 1260, 160)
+      position: pos(20, 240, 1260, 160)
     }
     block kpi_trips {
-      position: pos(20, 460, 300, 120)
+      position: pos(20, 420, 300, 120)
     }
     block kpi_stations {
-      position: pos(340, 460, 300, 120)
+      position: pos(340, 420, 300, 120)
     }
     block kpi_bikes {
-      position: pos(660, 460, 300, 120)
+      position: pos(660, 420, 300, 120)
     }
     block kpi_revenue {
-      position: pos(980, 460, 300, 120)
+      position: pos(980, 420, 300, 120)
     }
     block pivot_passholder {
-      position: pos(20, 940, 1260, 280)
+      position: pos(20, 900, 1260, 360)
     }
     block pivot_fleet {
-      position: pos(20, 1240, 1260, 280)
+      position: pos(20, 1280, 1260, 240)
     }
     block trend_combo {
-      position: pos(20, 600, 820, 320)
+      position: pos(20, 560, 820, 320)
     }
     block station_map {
-      position: pos(860, 600, 420, 320)
+      position: pos(860, 560, 420, 320)
     }
 
     mobile {
@@ -498,4 +506,15 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
     default_zoom: 'fit_to_width'
   }
   theme: BICYCLE_TRANSIT_THEME
+  interactions: [
+    FilterInteraction {
+      from: 'f_date'
+      to: [
+        CustomMapping {
+          block: 'kpi_trips'
+          field: ref('fact_trips', 'started_date')
+        }
+      ]
+    }
+  ]
 }
