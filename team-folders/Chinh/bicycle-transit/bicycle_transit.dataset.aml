@@ -61,14 +61,14 @@ Dataset bicycle_transit {
   metric user_trips {
     label: 'User Trips'
     type: 'number'
-    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role = 'rider') ;;
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role == 'rider') ;;
     description: 'Trips by riders only (excludes maintenance/balancing).'
   }
 
   metric balancing_trips {
     label: 'Balancing Trips'
     type: 'number'
-    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role = 'maintenance') ;;
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role == 'maintenance') ;;
   }
 
   metric net_revenue {
@@ -81,13 +81,13 @@ Dataset bicycle_transit {
   metric active_stations {
     label: 'Active Stations'
     type: 'number'
-    definition: @aql count(dim_station_2.station_id) | where(dim_station_2.status = 'FullService') ;;
+    definition: @aql count(dim_station_2.station_id) | where(dim_station_2.status == 'FullService') ;;
   }
 
   metric active_bikes {
     label: 'Active Bikes'
     type: 'number'
-    definition: @aql count(dim_bike.bike_id) | where(is_null(dim_bike.retired_at)) ;;
+    definition: @aql count(dim_bike.bike_id) | where(dim_bike.retired_at is null) ;;
   }
 
   metric total_passholders {

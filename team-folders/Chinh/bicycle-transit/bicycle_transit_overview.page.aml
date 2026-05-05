@@ -2,20 +2,12 @@ Dashboard bicycle_transit_overview {
   title: 'Bicycle Transit — Overview'
   description: 'Hero demo replicating the Tableau Overview Dashboard. Trips, fleet, revenue + MoM, by region/passholder.'
   owner: 'chinh.dm@holistics.io'
-
-  // ----------------------------------------------------------------------
-  // Filters
-  // ----------------------------------------------------------------------
   block f_date: FilterBlock {
     label: 'Trip Date'
     type: 'date'
-    source: FieldFilterSource {
-      dataset: bicycle_transit
-      field: r(fact_trips.started_date)
-    }
-    default: Condition {
+    default {
       operator: 'matches'
-      value: '202603'
+      value: 'this month'
     }
   }
 
@@ -30,21 +22,13 @@ Dashboard bicycle_transit_overview {
       input_type: 'multiple'
     }
   }
-
-  // ----------------------------------------------------------------------
-  // Title + narrative
-  // ----------------------------------------------------------------------
   block title: TextBlock {
-    content: @md
-# Bicycle Transit — Overview
+    content: @md # Overview Dashboard
 
-Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, dynamic narrative, and map.
-    ;;
+Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, dynamic narrative, and map.;;
   }
-
   block narrative: VizBlock {
     label: 'Narrative'
-    settings { hide_label: true }
     viz: MarkdownViz {
       dataset: bicycle_transit
       calculation user_trips_now {
@@ -74,50 +58,74 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
       values: [
         VizFieldFull {
           ref: 'user_trips_now'
-          format { type: 'number' pattern: '#,###' }
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
         },
         VizFieldFull {
           ref: 'revenue_now'
-          format { type: 'number' pattern: '[$$]#,###0' }
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0'
+          }
         },
         VizFieldFull {
           ref: 'active_stations_now'
-          format { type: 'number' pattern: '#,###' }
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
         },
         VizFieldFull {
           ref: 'active_bikes_now'
-          format { type: 'number' pattern: '#,###' }
-        },
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
       ]
-      content: @md
-**Network performance for the selected period:** {{ user_trips_now }} user trips, {{ revenue_now }} in net revenue, across {{ active_stations_now }} active stations and {{ active_bikes_now }} active bikes.
-      ;;
+      content: @md **Network performance for the selected period:** {{ values.`User Trips (current period)` }} user trips, {{ values.`Net Revenue (current period)` }} in net revenue, across {{ values.`Active Stations` }} active stations and {{ values.`Active Bikes` }} active bikes. ;;
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
     }
   }
-
-  // ----------------------------------------------------------------------
-  // KPI tiles (with MoM compare via PoP)
-  // ----------------------------------------------------------------------
   block kpi_trips: VizBlock {
     label: 'User Trips'
     viz: MetricKpi {
       dataset: bicycle_transit
       value: VizFieldFull {
-        ref: 'user_trips'
-        format { type: 'number' pattern: '#,###' }
+        ref: r(bicycle_transit.user_trips)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
       }
       compare_value: VizPopSettings {
         field: r(fact_trips.started_date)
-        show_growth_rate: true
         value: RelativePopValue {
           duration: 1
           granularity: 'month'
         }
+        show_growth_rate: true
       }
       settings {
-        display_mode: 'compare_by_percent'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
         alignment: 'center'
       }
+    }
+    settings {
+      hide_label: true
     }
   }
 
@@ -127,12 +135,18 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
       dataset: bicycle_transit
       value: VizFieldFull {
         ref: 'active_stations'
-        format { type: 'number' pattern: '#,###' }
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
       }
       settings {
         display_mode: 'single'
         alignment: 'center'
       }
+    }
+    settings {
+      hide_label: true
     }
   }
 
@@ -142,12 +156,18 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
       dataset: bicycle_transit
       value: VizFieldFull {
         ref: 'active_bikes'
-        format { type: 'number' pattern: '#,###' }
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
       }
       settings {
         display_mode: 'single'
         alignment: 'center'
       }
+    }
+    settings {
+      hide_label: true
     }
   }
 
@@ -157,7 +177,10 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
       dataset: bicycle_transit
       value: VizFieldFull {
         ref: 'net_revenue'
-        format { type: 'number' pattern: '[$$]#,###0' }
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0'
+        }
       }
       compare_value: VizPopSettings {
         field: r(fact_trips.started_date)
@@ -172,63 +195,96 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
         alignment: 'center'
       }
     }
+    settings {
+      hide_label: true
+    }
   }
-
-  // ----------------------------------------------------------------------
-  // Pivot: Passholder by region × pass family
-  // ----------------------------------------------------------------------
   block pivot_passholder: VizBlock {
     label: 'Passholders by Region × Pass Family'
     viz: PivotTable {
       dataset: bicycle_transit
       rows: [
-        VizFieldFull { ref: r(dim_pass.pass_family) },
+        VizFieldFull {
+          ref: r(dim_pass.pass_family)
+          uname: 'dim_pass_pass_family'
+        }
       ]
       columns: [
-        VizFieldFull { ref: r(dim_station_2.region) },
+        r(dim_station_2.region)
       ]
       values: [
         VizFieldFull {
-          ref: 'user_trips'
-          format { type: 'number' pattern: '#,###' }
-        },
+          ref: r(bicycle_transit.user_trips)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          uname: 'custom_user_trips'
+        }
       ]
       settings {
         show_row_total: true
         show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'dim_pass_pass_family'
+            width: 156
+          },
+          ColumnStyle {
+            key: 'custom_user_trips'
+            width: 143
+          }
+        ]
       }
     }
   }
-
-  // ----------------------------------------------------------------------
-  // Pivot: Stations by region × bike model
-  // ----------------------------------------------------------------------
   block pivot_fleet: VizBlock {
     label: 'Fleet by Region × Bike Model'
     viz: PivotTable {
       dataset: bicycle_transit
       rows: [
-        VizFieldFull { ref: r(dim_bike.model) },
+        VizFieldFull {
+          ref: r(dim_bike.model)
+          uname: 'dim_bike_model'
+        }
       ]
       columns: [
-        VizFieldFull { ref: r(dim_station_2.region) },
+        r(dim_station_2.region)
       ]
       values: [
         VizFieldFull {
-          ref: 'active_bikes'
-          format { type: 'number' pattern: '#,###' }
-        },
+          ref: r(bicycle_transit.active_bikes)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          uname: 'custom_active_bikes'
+        }
       ]
       settings {
         show_row_total: true
         show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'dim_bike_model'
+            width: 120
+          },
+          ColumnStyle {
+            key: 'custom_active_bikes'
+            width: 143
+          }
+        ]
       }
     }
   }
-
-  // ----------------------------------------------------------------------
-  // Combination chart: User Trips (area) + Trips/Bike/Day (line) by month
-  // ----------------------------------------------------------------------
   block trend_combo: VizBlock {
     label: 'Monthly User Trips & Utilization'
     viz: CombinationChart {
@@ -237,36 +293,60 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
         label: 'Month'
         ref: r(fact_trips.started_date)
         transformation: 'datetrunc month'
-        format { type: 'date' pattern: 'LLL yyyy' }
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
       }
       y_axis {
         label: 'User Trips'
         series {
           mark_type: 'area'
           field: VizFieldFull {
-            ref: 'user_trips'
-            format { type: 'number' pattern: 'inherited' }
+            ref: r(bicycle_transit.user_trips)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
           }
         }
       }
       y_axis {
         label: 'Trips per Bike per Day'
+        settings {
+          alignment: 'right'
+        }
         series {
           mark_type: 'line'
           field: VizFieldFull {
-            ref: 'trips_per_bike_per_day'
-            format { type: 'number' pattern: 'inherited' }
+            ref: r(bicycle_transit.trips_per_bike_per_day)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        }
-        settings {
-          alignment: 'right'
+          settings {
+            line_interpolation: 'smooth'
+          }
         }
       }
       settings {
         show_data_points: true
-        legend_label: 'bottom'
-        sort: LineFamilySort { type: 'xaxis' direction: 'asc' }
         row_limit: 200
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        x_axis_label: 'Month'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
       }
     }
   }
@@ -278,12 +358,21 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
     label: 'Stations Map (User Trips by location)'
     viz: PointMap {
       dataset: bicycle_transit
-      lat: VizFieldFull { ref: r(dim_station_2.lat) }
-      lng: VizFieldFull { ref: r(dim_station_2.lng) }
-      legend: VizFieldFull { ref: r(dim_station_2.city) }
+      lat: VizFieldFull {
+        ref: r(dim_station_2.lat)
+      }
+      lng: VizFieldFull {
+        ref: r(dim_station_2.lng)
+      }
+      legend: VizFieldFull {
+        ref: r(dim_station_2.city)
+      }
       value: VizFieldFull {
         ref: 'user_trips'
-        format { type: 'number' pattern: '#,###' }
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
       }
       settings {
         map_background: 'light'
@@ -298,25 +387,49 @@ Replication of the **Tableau Overview Dashboard**. Demonstrates Holistics RLP, d
   view: CanvasLayout {
     label: 'Overview'
     width: 1300
-    height: 1100
+    height: 1160
     grid_size: 20
     auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1260, 160)
+    }
+    block f_date {
+      position: pos(20, 200, 300, 60)
+    }
+    block f_city {
+      position: pos(340, 200, 300, 60)
+    }
+    block narrative {
+      position: pos(20, 280, 1260, 80)
+    }
+    block kpi_trips {
+      position: pos(20, 380, 300, 120)
+    }
+    block kpi_stations {
+      position: pos(340, 380, 300, 120)
+    }
+    block kpi_bikes {
+      position: pos(660, 380, 300, 120)
+    }
+    block kpi_revenue {
+      position: pos(980, 380, 300, 120)
+    }
+    block pivot_passholder {
+      position: pos(20, 520, 620, 280)
+    }
+    block pivot_fleet {
+      position: pos(660, 520, 620, 280)
+    }
+    block trend_combo {
+      position: pos(20, 820, 820, 320)
+    }
+    block station_map {
+      position: pos(860, 820, 420, 320)
+    }
 
-    block title         { position: pos(20,  20,  1260, 60) }
-    block f_date        { position: pos(20,  100, 300,  60) }
-    block f_city        { position: pos(340, 100, 300,  60) }
-    block narrative     { position: pos(20,  180, 1260, 80) }
-    block kpi_trips     { position: pos(20,  280, 305,  120) }
-    block kpi_stations  { position: pos(335, 280, 305,  120) }
-    block kpi_bikes     { position: pos(650, 280, 305,  120) }
-    block kpi_revenue   { position: pos(965, 280, 305,  120) }
-    block pivot_passholder { position: pos(20,  420, 620,  280) }
-    block pivot_fleet      { position: pos(660, 420, 620,  280) }
-    block trend_combo      { position: pos(20,  720, 820,  320) }
-    block station_map      { position: pos(860, 720, 420,  320) }
-
-    mobile { mode: 'auto' }
+    mobile {
+      mode: 'auto'
+    }
   }
-
-  theme: H.themes.vanilla
+  theme: BICYCLE_TRANSIT_THEME
 }
