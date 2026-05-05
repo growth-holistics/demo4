@@ -24,7 +24,7 @@ Dataset bicycle_transit {
   models: [
     fact_trips,
     fact_station_inventory_daily,
-    dim_station,
+    dim_station_2,
     dim_bike,
     dim_pass,
     dim_passholder,
@@ -33,20 +33,20 @@ Dataset bicycle_transit {
   ]
 
   relationships: [
-    relationship(fact_trips.start_station_id > dim_station.station_id, true),
+    relationship(fact_trips.start_station_id > dim_station_2.station_id, true),
     relationship(fact_trips.bike_id > dim_bike.bike_id, true),
     relationship(fact_trips.pass_id > dim_pass.pass_id, true),
     relationship(fact_trips.passholder_id > dim_passholder.passholder_id, true),
     relationship(fact_trips.started_date > dim_date.date_key, true),
 
-    relationship(fact_station_inventory_daily.station_id > dim_station.station_id, true),
+    relationship(fact_station_inventory_daily.station_id > dim_station_2.station_id, true),
     relationship(fact_station_inventory_daily.snapshot_date > dim_date.date_key, false),
 
     relationship(dim_event.event_date > dim_date.date_key, false),
   ]
 
   permission city_access {
-    field: ref('dim_station', 'city')
+    field: ref('dim_station_2', 'city')
     operator: 'matches_user_attribute'
     value: 'city'
   }
@@ -81,7 +81,7 @@ Dataset bicycle_transit {
   metric active_stations {
     label: 'Active Stations'
     type: 'number'
-    definition: @aql count(dim_station.station_id) | where(dim_station.status = 'FullService') ;;
+    definition: @aql count(dim_station_2.station_id) | where(dim_station_2.status = 'FullService') ;;
   }
 
   metric active_bikes {
@@ -126,7 +126,7 @@ Dataset bicycle_transit {
     }
     model fact_station_inventory_daily {
     }
-    model dim_station {
+    model dim_station_2 {
     }
     model dim_bike {
     }
