@@ -1,0 +1,47 @@
+Model dim_bike {
+  type: 'table'
+  label: 'Bike'
+  description: 'Fleet of bikes. Models: BCycle 1.0, BCycle 2.0, BCycle Electric.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'dim_bike'
+
+  dimension bike_id {
+    label: 'Bike Id'
+    type: 'number'
+    primary_key: true
+    definition: @sql {{ #SOURCE.bike_id }};;
+  }
+  dimension model {
+    label: 'Model'
+    type: 'text'
+    definition: @sql {{ #SOURCE.model }};;
+  }
+  dimension city {
+    label: 'City'
+    type: 'text'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+  dimension in_service_since {
+    label: 'In Service Since'
+    type: 'date'
+    definition: @sql {{ #SOURCE.in_service_since }};;
+  }
+  dimension retired_at {
+    label: 'Retired At'
+    type: 'date'
+    definition: @sql {{ #SOURCE.retired_at }};;
+  }
+
+  measure total_bikes {
+    label: 'Total Bikes'
+    type: 'number'
+    definition: @sql {{ bike_id }};;
+    aggregation_type: 'count distinct'
+  }
+  measure active_bikes {
+    label: 'Active Bikes'
+    type: 'number'
+    description: 'Bikes not retired.'
+    definition: @aql count(dim_bike.bike_id) | where(is_null(dim_bike.retired_at)) ;;
+  }
+}

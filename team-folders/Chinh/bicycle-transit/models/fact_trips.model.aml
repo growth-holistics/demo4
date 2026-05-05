@@ -1,0 +1,114 @@
+Model fact_trips {
+  type: 'table'
+  label: 'Trips'
+  description: 'One row per bike trip. Includes rider trips and maintenance (balancing) trips.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'fact_trips'
+
+  dimension trip_id {
+    label: 'Trip Id'
+    type: 'number'
+    primary_key: true
+    definition: @sql {{ #SOURCE.trip_id }};;
+  }
+  dimension started_at {
+    label: 'Started At'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.started_at }};;
+  }
+  dimension ended_at {
+    label: 'Ended At'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.ended_at }};;
+  }
+  dimension started_date {
+    label: 'Started Date'
+    type: 'date'
+    definition: @sql cast({{ #SOURCE.started_at }} as date);;
+  }
+  dimension duration_min {
+    label: 'Duration (min)'
+    type: 'number'
+    definition: @sql {{ #SOURCE.duration_min }};;
+  }
+  dimension start_station_id {
+    label: 'Start Station Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.start_station_id }};;
+  }
+  dimension end_station_id {
+    label: 'End Station Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.end_station_id }};;
+  }
+  dimension bike_id {
+    label: 'Bike Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.bike_id }};;
+  }
+  dimension pass_id {
+    label: 'Pass Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.pass_id }};;
+  }
+  dimension passholder_id {
+    label: 'Passholder Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.passholder_id }};;
+  }
+  dimension user_role {
+    label: 'User Role'
+    type: 'text'
+    description: "rider | maintenance. Use to isolate balancing trips."
+    definition: @sql {{ #SOURCE.user_role }};;
+  }
+  dimension revenue_usd {
+    label: 'Revenue USD'
+    type: 'number'
+    definition: @sql {{ #SOURCE.revenue_usd }};;
+    format: '[$$]#,###0.00'
+  }
+  dimension region {
+    label: 'Trip Region'
+    type: 'text'
+    description: 'Denormalised start-station region for fast cuts.'
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension city {
+    label: 'Trip City'
+    type: 'text'
+    description: 'Denormalised start-station city. Used for RLP.'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+
+  measure total_trips {
+    label: 'Total Trips'
+    type: 'number'
+    definition: @sql {{ trip_id }};;
+    aggregation_type: 'count'
+  }
+  measure user_trips {
+    label: 'User Trips'
+    type: 'number'
+    description: 'Trips by riders (excludes maintenance).'
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role = 'rider') ;;
+  }
+  measure balancing_trips {
+    label: 'Balancing Trips'
+    type: 'number'
+    description: 'Maintenance trips moving bikes between stations.'
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role = 'maintenance') ;;
+  }
+  measure net_revenue {
+    label: 'Net Revenue'
+    type: 'number'
+    definition: @sql {{ revenue_usd }};;
+    aggregation_type: 'sum'
+    format: '[$$]#,###0'
+  }
+}

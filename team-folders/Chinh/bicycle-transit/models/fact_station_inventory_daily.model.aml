@@ -1,0 +1,47 @@
+Model fact_station_inventory_daily {
+  type: 'table'
+  label: 'Station Inventory'
+  description: 'Monthly snapshot of bikes-available and dock capacity per station.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'fact_station_inventory_daily'
+
+  dimension snapshot_date {
+    label: 'Snapshot Date'
+    type: 'date'
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension station_id {
+    label: 'Station Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.station_id }};;
+  }
+  dimension bikes_available {
+    label: 'Bikes Available'
+    type: 'number'
+    definition: @sql {{ #SOURCE.bikes_available }};;
+  }
+  dimension docks_total {
+    label: 'Docks Total'
+    type: 'number'
+    definition: @sql {{ #SOURCE.docks_total }};;
+  }
+  dimension status {
+    label: 'Snapshot Status'
+    type: 'text'
+    definition: @sql {{ #SOURCE.status }};;
+  }
+
+  measure total_bikes_available {
+    label: 'Total Bikes Available'
+    type: 'number'
+    definition: @sql {{ bikes_available }};;
+    aggregation_type: 'sum'
+  }
+  measure total_docks {
+    label: 'Total Docks'
+    type: 'number'
+    definition: @sql {{ docks_total }};;
+    aggregation_type: 'sum'
+  }
+}
