@@ -259,11 +259,330 @@ Dashboard sandbox_dashboard {
       }
     }
   }
+  block v_tk9v: VizBlock {
+    label: 'Id'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(ecommerce_orders.id)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xq6y: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      theme {
+      }
+      value: VizFieldFull {
+        ref: r(demo_ecommerce_version_2.total_users)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_vyqy: VizBlock {
+    label: 'GMV (Gross Merchandise Value) and GMV (Gross Merchandise Value) (Prev. 3m) by Quarter Created At'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_users.gender)
+        operator: 'is'
+        value: 'Female'
+      }
+      filter {
+        field: r(ecommerce_orders.status)
+        operator: 'is'
+        value: 'delivered'
+      }
+      theme {
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#05264C'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        pop {
+          field: r(ecommerce_orders.created_at)
+          value: RelativePopValue {
+            duration: 3
+            granularity: 'month'
+          }
+          show_growth_rate: true
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_2uax: VizBlock {
+    label: 'GMV (Gross Merchandise Value), Id and 5 more'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'United States'
+      }
+      filter {
+        field: r(ecommerce_cities.name)
+        operator: 'is'
+        value: 'Chicago'
+      }
+      filter {
+        field: r(ecommerce_users.gender)
+        operator: 'is'
+        value: 'Female'
+      }
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'last 24 months'
+      }
+      filter {
+        field: r(map_categories.parent_category)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      filter {
+        field: r(map_categories.category)
+        operator: 'is'
+        value: '$H_NIL$'
+      }
+      filter {
+        field: r(param_model_demo.metric_selections_currency)
+        operator: 'is'
+        value: 'platform revenue'
+      }
+      filter {
+        field: r(ecommerce_users.age_group)
+        operator: 'is'
+        value: '2. From 20 to 29'
+      }
+      theme {
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(demo_ecommerce_version_2.gmv)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(ecommerce_users.id)
+          format {
+            type: 'number'
+          }
+        },
+        r(ecommerce_users.full_name),
+        r(ecommerce_users.gender),
+        r(ecommerce_cities.name),
+        r(ecommerce_products.name),
+        VizFieldFull {
+          ref: r(ecommerce_products.price)
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_f04y: VizBlock {
+    label: 'Median Gmv'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation user_gmv {
+        label: 'User Gmv'
+        formula: @aql unique(ecommerce_users.id) | select(v: gmv) | median(v);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(ecommerce_cities.name)
+        operator: 'is'
+        value: 'Chennai'
+      }
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'India'
+      }
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'last 24 months'
+      }
+      filter {
+        field: r(ecommerce_users.age_group)
+        operator: 'is'
+        value: '3. 30 and above'
+      }
+      filter {
+        field: r(ecommerce_users.gender)
+        operator: 'is'
+        value: 'Female'
+      }
+      theme {
+      }
+      values: [
+        VizFieldFull {
+          label: 'Median Gmv'
+          ref: 'user_gmv'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+          uname: 'custom_user_gmv_1'
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'custom_user_gmv_1'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_f7an: VizBlock {
+    label: 'Platform Revenue by Quarter and Gender'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_countries.name)
+        operator: 'is'
+        value: 'United Kingdom'
+      }
+      theme {
+
+      }
+      x_axis: VizFieldFull {
+        label: 'Quarter'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ecommerce_users.gender)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Platform Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2563EB'
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_label: 'Quarter'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: []
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 1510
+    height: 2390
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -284,6 +603,30 @@ Dashboard sandbox_dashboard {
     block v_id77 {
       position: pos(20, 1070, 620, 420)
       layer: 2
+    }
+    block v_tk9v {
+      position: pos(660, 1060, 620, 420)
+      layer: 2
+    }
+    block v_xq6y {
+      position: pos(80, 160, 260, 180)
+      layer: 1
+    }
+    block v_vyqy {
+      position: pos(660, 1500, 620, 420)
+      layer: 3
+    }
+    block v_2uax {
+      position: pos(20, 1510, 620, 420)
+      layer: 4
+    }
+    block v_f04y {
+      position: pos(660, 1940, 620, 420)
+      layer: 5
+    }
+    block v_f7an {
+      position: pos(20, 1950, 620, 420)
+      layer: 6
     }
     mobile {
       mode: 'auto'

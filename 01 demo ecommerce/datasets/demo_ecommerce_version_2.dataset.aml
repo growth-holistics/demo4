@@ -19,10 +19,9 @@ const products_detail = [
   r(ecommerce_products.name),
   r(ecommerce_products.price),
 ]
-
-@tag('1️⃣ Trust/Endorsed')
+@tag('Endorsed')
 Dataset demo_ecommerce_version_2 {
-  label: '[Demo] Ecommerce Official (2025)'
+  label: 'Ecommerce Dataset'
   description: '''
 # Dataset Capabilities
 
@@ -412,7 +411,7 @@ Note: Sensitive to how `total_orders` includes all statuses; compare consistentl
   }
 
   metric total_repeated_buyers {
-    label: "Total Repeated Buyers"
+    label: "Total Repeat Buyers"
     type: "number"
     hidden: false
     definition: @aql count(ecommerce_users.id) | where(ecommerce_users.is_repeated_buyer is true);;
@@ -553,65 +552,38 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
   // ═══════════════════════════════════════════════════════════════════════════
 
   view {
-    // Core Volume Metrics
-    group volume_metrics {
+
+    // Key Metrics
+    group basic_metrics {
+      metric revenue
       metric total_orders
-      metric total_delivered_orders
-      metric total_cancelled_orders
-      metric total_refunded_orders
-      metric running_total_orders
-      metric total_orders_across_all
+      metric total_users
     }
 
-    // User & Customer Metrics
-    group user_metrics {
-      metric total_users
+    // Advanced Metrics
+    group advanced_metrics {
       metric total_buyers
       metric total_repeated_buyers
-      metric retention
-    }
-
-    // Revenue & Value Metrics
-    group revenue_metrics {
       metric gmv
       metric nmv
-      metric revenue
       metric aov
-      metric total_discount
-      metric revenue_commission
     }
 
-    // Order Value by Status
-    group order_value_metrics {
-      metric delivered_value
-      metric cancelled_value
-      metric refunded_value
-    }
-
-    // Performance & Ratio Metrics
-    group performance_metrics {
-      metric percent_of_total
-      metric cancelled_order_ratio
-      metric cancelled_value_ratio
-    }
-
-    model ecommerce_products {
-    }
-    model ecommerce_merchants {
-    }
-    model ecommerce_countries {
-    }
     model ecommerce_orders {
     }
-    model ecommerce_users {
-    }
-    model ecommerce_order_items {
+    model ecommerce_countries {
     }
     model ecommerce_cities {
     }
     model map_categories {
     }
-    model dim_dates {
+    model ecommerce_products {
+    }
+    model ecommerce_merchants {
+    }
+    model ecommerce_users {
+    }
+    model ecommerce_order_items {
     }
     model ecommerce_employees {
     }
@@ -693,7 +665,7 @@ Note: this can pair with `total_buyers` or `total_users` for a ratio.
           label: 'User demographics'
           fields: [
             r(ecommerce_users.gender),
-            r(ecommerce_users.age),
+            r(ecommerce_users.age_group),
           ]
         }
       }

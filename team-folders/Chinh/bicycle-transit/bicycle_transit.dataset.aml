@@ -1,0 +1,143 @@
+@tag('Endorsed')
+Dataset bicycle_transit {
+  label: 'Bicycle Transit - Dataset'
+  description: '''
+# Dataset Capabilities
+
+## What this dataset can answer
+- Trip volume by region, station, pass type, time period.
+- Net revenue and MoM growth.
+- Active fleet & station counts (status-aware).
+- Operational efficiency: balancing trips vs user trips, trips per bike per day.
+- Geographic breakdown (LA + Philly) with map-ready lat/lng.
+- Event-annotated long-run ridership history.
+
+## What this dataset cannot answer
+- Real-time station fill/empty SLA (snapshot is monthly, not minute-level).
+- Customer LTV / acquisition cost (no CAC data).
+- Bike maintenance cost detail.
+
+## Row-level permission
+- `city_access` permission scopes all queries to the user's `city` attribute (Los Angeles or Philadelphia).
+'''
+  data_source_name: 'md_bicycle_transit'
+
+  models: [
+    fact_trips,
+    fact_station_inventory_daily,
+    dim_station_2,
+    dim_bike,
+    dim_pass,
+    dim_passholder,
+    dim_event,
+    dim_date,
+  ]
+
+  relationships: [
+    relationship(fact_trips.start_station_id > dim_station_2.station_id, true),
+    relationship(fact_trips.bike_id > dim_bike.bike_id, true),
+    relationship(fact_trips.pass_id > dim_pass.pass_id, true),
+    relationship(fact_trips.passholder_id > dim_passholder.passholder_id, true),
+    relationship(fact_trips.started_date > dim_date.date_key, true),
+
+    relationship(fact_station_inventory_daily.station_id > dim_station_2.station_id, true),
+    relationship(fact_station_inventory_daily.snapshot_date > dim_date.date_key, false),
+
+    relationship(dim_event.event_date > dim_date.date_key, false),
+  ]
+
+  permission city_access {
+    field: ref('dim_station_2', 'city')
+    operator: 'matches_user_attribute'
+    value: 'city'
+  }
+
+  metric total_trips {
+    label: 'Total Trips'
+    type: 'number'
+    definition: @aql count(fact_trips.trip_id) ;;
+    description: 'All trips including maintenance.'
+  }
+
+  metric user_trips {
+    label: 'User Trips'
+    type: 'number'
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role == 'rider') ;;
+    description: 'Trips by riders only (excludes maintenance/balancing).'
+  }
+
+  metric balancing_trips {
+    label: 'Balancing Trips'
+    type: 'number'
+    definition: @aql count(fact_trips.trip_id) | where(fact_trips.user_role == 'maintenance') ;;
+  }
+
+  metric net_revenue {
+    label: 'Net Revenue'
+    type: 'number'
+    definition: @aql sum(fact_trips.revenue_usd) ;;
+    format: '[$$]#,###0'
+  }
+
+  metric active_stations {
+    label: 'Active Stations'
+    type: 'number'
+    definition: @aql count(dim_station_2.station_id) | where(dim_station_2.status == 'FullService') ;;
+  }
+
+  metric active_bikes {
+    label: 'Active Bikes'
+    type: 'number'
+    definition: @aql count(dim_bike.bike_id) | where(dim_bike.retired_at is null) ;;
+  }
+
+  metric total_passholders {
+    label: 'Total Passholders'
+    type: 'number'
+    definition: @aql count(dim_passholder.passholder_id) ;;
+  }
+
+  metric trips_per_bike_per_day {
+    label: 'Trips per Bike per Day'
+    type: 'number'
+    definition: @aql user_trips / active_bikes / 30 ;;
+    format: '#,###0.00'
+    description: 'User trips ÷ active bikes ÷ 30 (rough monthly utilization).'
+  }
+
+  view {
+    group volume_metrics {
+      metric total_trips
+      metric user_trips
+      metric balancing_trips
+      metric trips_per_bike_per_day
+    }
+
+    group revenue_metrics {
+      metric net_revenue
+    }
+
+    group fleet_metrics {
+      metric active_stations
+      metric active_bikes
+      metric total_passholders
+    }
+
+    model fact_trips {
+    }
+    model fact_station_inventory_daily {
+    }
+    model dim_station_2 {
+    }
+    model dim_bike {
+    }
+    model dim_pass {
+    }
+    model dim_passholder {
+    }
+    model dim_event {
+    }
+    model dim_date {
+    }
+  }
+}

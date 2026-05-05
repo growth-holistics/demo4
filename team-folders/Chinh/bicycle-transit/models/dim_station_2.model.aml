@@ -1,0 +1,75 @@
+Model dim_station_2 {
+  type: 'table'
+  label: 'Station'
+  description: 'Bike-share docking stations. LA + Philly. Geo-enabled.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'dim_station'
+
+  dimension station_id {
+    label: 'Station Id'
+    type: 'number'
+    primary_key: true
+    definition: @sql {{ #SOURCE.station_id }};;
+  }
+  dimension station_name {
+    label: 'Station Name'
+    type: 'text'
+    definition: @sql {{ #SOURCE.station_name }};;
+  }
+  dimension kiosk_id {
+    label: 'Kiosk Id'
+    type: 'text'
+    definition: @sql {{ #SOURCE.kiosk_id }};;
+  }
+  dimension region {
+    label: 'Region'
+    type: 'text'
+    description: 'Central LA, Westside, North Hollywood, Pasadena, Port of LA, Free Bikes, or Philly cluster.'
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension city {
+    label: 'City'
+    type: 'text'
+    description: 'Los Angeles or Philadelphia. Used for RLP.'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+  dimension lat {
+    label: 'Latitude'
+    type: 'number'
+    definition: @sql {{ #SOURCE.lat }};;
+  }
+  dimension lng {
+    label: 'Longitude'
+    type: 'number'
+    definition: @sql {{ #SOURCE.lng }};;
+  }
+  dimension docks {
+    label: 'Docks'
+    type: 'number'
+    definition: @sql {{ #SOURCE.docks }};;
+  }
+  dimension launch_date {
+    label: 'Launch Date'
+    type: 'date'
+    definition: @sql {{ #SOURCE.launch_date }};;
+  }
+  dimension status {
+    label: 'Status'
+    type: 'text'
+    description: 'FullService, ComingSoon, OutOfService.'
+    definition: @sql {{ #SOURCE.status }};;
+  }
+
+  measure total_stations {
+    label: 'Total Stations'
+    type: 'number'
+    definition: @sql {{ station_id }};;
+    aggregation_type: 'count distinct'
+  }
+  measure active_stations {
+    label: 'Active Stations'
+    type: 'number'
+    description: "Count of stations with status = 'FullService'."
+    definition: @aql count(dim_station_2.station_id) | where(dim_station_2.status = 'FullService') ;;
+  }
+}

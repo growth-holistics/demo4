@@ -31,9 +31,9 @@ BlockTheme holistics_ant_card_blocktheme {
   }
   padding: 18
 }
-@tag('1️⃣ Trust/Endorsed', 'Status/WIP')
+@tag('Endorsed')
 Dashboard company_dashboard_v2 {
-  title: '[Demo] Ecommerce Dashboard - v2.202510'
+  title: 'Ecommerce Dashboard'
   owner: 'thong.do@holistics.io'
   description: ''''''
   block v34: VizBlock {
@@ -331,31 +331,8 @@ Dashboard company_dashboard_v2 {
       value: []
     }
   }
-  block t21: TextBlock {
-    content: @md ### 🧠 Defining GMV, NMV, Discounts, and Revenue
-
-To ensure consistent interpretation of financial metrics, here’s how value flows through the order lifecycle and how each metric is defined:
-
-1. **GMV (Gross Merchandise Value)**  
-   The total value of all orders before any discounts or fulfillment status is applied.  
-   _Formula: Quantity × Price (all orders)_
-
-2. **Total Discount**  
-   The monetary value of all discounts offered. It reflects the difference between what customers could have paid (GMV) and what they actually paid for fulfilled orders.  
-   _Formula: GMV – NMV_
-
-3. **NMV (Net Merchandise Value – Post-Discount & Fulfillment)**  
-   The actual amount paid by customers for orders that were **fulfilled** and **not cancelled or refunded**, adjusted for any applied discounts.  
-   This is the true revenue base — the value realized by the platform before commission.  
-   _Formula: Quantity × Price × (1 – Discount), only for fulfilled orders_
-
-4. **Revenue (Platform)**  
-   The amount our platform earns by applying a commission rate to NMV.  
-   In this demo, a **50% commission margin** is assumed.  
-   _Formula: NMV × revenue_commission_;;
-  }
   block v44: VizBlock {
-    label: 'GMV and NMV over time'
+    label: 'Revenue over time'
     viz: LineChart {
       dataset: demo_ecommerce_version_2
       x_axis: VizFieldFull {
@@ -373,27 +350,11 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
         }
         series {
           field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.gmv)
+            ref: r(demo_ecommerce_version_2.revenue)
             format {
               type: 'number'
               pattern: 'inherited'
             }
-          }
-          settings {
-            color: '#05264C'
-            line_interpolation: 'smooth'
-          }
-        }
-        series {
-          field: VizFieldFull {
-            ref: r(demo_ecommerce_version_2.nmv)
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-          settings {
-            color: '#259B6C'
           }
         }
       }
@@ -410,20 +371,6 @@ To ensure consistent interpretation of financial metrics, here’s how value flo
   }
   block t22: TextBlock {
     content: @md <hr>;;
-  }
-  block t25: TextBlock {
-    content: @md ### 🧠 Order Fulfillment & Value Realization
-
-This section highlights how efficiently the platform is turning customer orders into actual fulfilled value.
-
-- **Total Orders** are grouped into two simplified delivery outcomes:
-  - ✅ **Success** = Delivered orders  
-  - ❌ **Failed** = Cancelled or Refunded orders  
-
-> 📌 **Want to go deeper?**  
-Use the **[Drill Down]** or **[View Underlying Data]** features to explore breakdowns by:
-- Refund vs cancellation volumes  
-- Order categories, vendors, or regions driving leakage;;
   }
   block v52a: VizBlock {
     label: 'NMV Realized from GMV'
@@ -682,34 +629,6 @@ Use the **[Drill Down]** or **[View Underlying Data]** features to explore break
   block t30: TextBlock {
     content: @md The **% of GMV Realized** gauge reflects the portion of gross customer value (GMV) that was actually fulfilled and paid — our **NMV realization rate**. A healthy benchmark is **85–95%**. Currently, we’re at **~70%**, highlighting a gap worth investigating.
 ;;
-  }
-  block t31: TextBlock {
-    content: @md ### 📚 Data Exploration Mini Tutorial
-
-Explore beyond static charts. Holistics empowers you to ask and answer your own questions with just a few clicks. Use the tutorials below to customize visualizations and unlock deeper insights from the same dataset — no SQL required.
-;;
-  }
-  block t32: TextBlock {
-    content: @md #### 📊 Tutorial 1: Add an Additional Metric (NMV)
-
-Overlay **Net Merchandise Value (NMV)** on top of the GMV chart to compare intended vs realized order value.
-
-1. Click **Explore Data** on the top-right of the GMV chart.
-2. Search and add the `NMV` field alongside `GMV`.
-3. Change the visualization from **Column Chart** to **Combination Chart** (Column + Line).
-4. Click **Save As** and store it to your **Private Workspace** folder for future use.
-5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
-  }
-  block t33: TextBlock {
-    content: @md #### 🔁 Tutorial 2: Add a Period-over-Period Comparison
-
-Uncover trends by comparing current performance against a previous period.
-
-1. Open *Explore Data** and go to **Visual Settings**.
-2. Under **Quick Period Comparison**, choose the time field: `ecommerce_orders.created_at`.
-3. Select a comparison window — e.g., **Previous 1 Year**.
-4. Use **Save As** to create and keep a version in your **Private Workspace** library.
-5. Share your new chart with the BI team — show off what you’ve learned! 🎉;;
   }
   block t_ra2i: TextBlock {
     content: @md
@@ -1003,7 +922,6 @@ Uncover trends by comparing current performance against a previous period.
     viz: BarChart {
       dataset: demo_ecommerce_version_2
       theme {
-
       }
       x_axis: VizFieldFull {
         ref: r(ecommerce_countries.name)
@@ -2680,15 +2598,92 @@ background: #EFF6FF;
   block t_4wpv: TextBlock {
     content: @md <img style="margin-left: -8px" src="https://cdn.holistics.io/logos/holistics-logo-white.svg" />;;
   }
-  block t_sgr9: block_ha_page_header(
-    'Ecommerce Metrics Tree',
-    'An overview of our metrics and their correlation '
-  )
+  block t_sgr9: block_ha_page_header('Ecommerce Metrics Tree', 'An overview of our metrics and their correlation ')
   block t_853s: block_ha_page_header_bg()
   view: TabLayout {
     label: 'View 1'
+    tab tab_dstw: CanvasLayout {
+      label: 'Key Metrics'
+      width: 1260
+      height: 1640
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_hrkv {
+        position: pos(20, 240, 1220, 960)
+      }
+      block t_4wpv {
+        position: pos(40, 20, 140, 40)
+        layer: 1
+      }
+      block t_sgr9 {
+        position: pos(40, 80, 600, 100)
+        layer: 16
+      }
+      block t_853s {
+        position: pos(0, 0, 1260, 220)
+      }
+    }
+    tab tab4: CanvasLayout {
+      label: 'Products'
+      width: 1260
+      height: 1490
+      block t_9x1p {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_718y {
+        position: pos(40, 80, 590, 100)
+        layer: 16
+      }
+      block t_2ne6 {
+        position: pos(0, 0, 1260, 220)
+      }
+      block v_su0w {
+        position: pos(50, 280, 1120, 1140)
+        layer: 1013
+      }
+      block t_p4ru {
+        position: pos(30, 260, 1190, 1200)
+        layer: 1012
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+    }
+    tab tab_5wmu: CanvasLayout {
+      label: 'Catalog'
+      width: 1260
+      height: 1150
+      auto_expand_vertically: true
+      block t_2xgb {
+        position: pos(40, 30, 140, 40)
+        layer: 1
+      }
+      block t_b5zn {
+        position: pos(0, 0, 1260, 220)
+      }
+      block t_pkgy {
+        position: pos(40, 80, 580, 100)
+        layer: 3
+      }
+      block t_2q74 {
+        position: pos(1290, 280, 250, 180)
+        layer: 1
+      }
+      block t_block_dictionary_ecommerce_metrics {
+        position: pos(40, 240, 1180, 860)
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.9
+    }
     tab tab_5dpo: CanvasLayout {
-      label: 'Overview'
+      label: 'Business'
       width: 1260
       height: 2090
       auto_expand_vertically: true
@@ -2908,38 +2903,10 @@ background: #EFF6FF;
       }
       default_zoom: 0.9
     }
-    tab tab4: CanvasLayout {
-      label: 'Products'
-      width: 1260
-      height: 1490
-      block t_9x1p {
-        position: pos(40, 30, 140, 40)
-        layer: 1
-      }
-      block t_718y {
-        position: pos(40, 80, 590, 100)
-        layer: 16
-      }
-      block t_2ne6 {
-        position: pos(0, 0, 1260, 220)
-      }
-      block v_su0w {
-        position: pos(50, 280, 1120, 1140)
-        layer: 1013
-      }
-      block t_p4ru {
-        position: pos(30, 260, 1190, 1200)
-        layer: 1012
-      }
-      mobile {
-        mode: 'auto'
-      }
-      default_zoom: 0.9
-    }
     tab tab6: CanvasLayout {
-      label: 'Sales & Orders'
+      label: 'Sales'
       width: 1260
-      height: 2220
+      height: 2600
       block f3 {
         position: pos(40, 240, 300, 60)
         layer: 2
@@ -2948,44 +2915,24 @@ background: #EFF6FF;
         position: pos(360, 240, 320, 60)
         layer: 6
       }
-      block t21 {
-        position: pos(1400, 320, 680, 440)
-        layer: 8
-      }
       block t22 {
-        position: pos(0, 1530, 1280, 20)
+        position: pos(0, 1950, 1280, 20)
         layer: 1
       }
-      block t25 {
-        position: pos(1390, 1490, 880, 280)
-        layer: 11
-      }
       block t30 {
-        position: pos(1410, 2110, 360, 180)
+        position: pos(1410, 2530, 360, 180)
         layer: 14
-      }
-      block t31 {
-        position: pos(1420, 820, 680, 140)
-        layer: 15
-      }
-      block t32 {
-        position: pos(1420, 970, 680, 220)
-        layer: 16
-      }
-      block t33 {
-        position: pos(1520, 1230, 580, 220)
-        layer: 17
       }
       block v44 {
         position: pos(40, 360, 740, 370)
         layer: 9
       }
       block v52 {
-        position: pos(1410, 1790, 360, 280)
+        position: pos(1410, 2210, 360, 280)
         layer: 13
       }
       block v53 {
-        position: pos(1810, 1810, 880, 300)
+        position: pos(1810, 2230, 880, 300)
         layer: 12
       }
       block t_k657 {
@@ -3008,93 +2955,41 @@ background: #EFF6FF;
         layer: 1
       }
       block f_lmkf {
-        position: pos(60, 1660, 300, 60)
+        position: pos(40, 1630, 300, 60)
         layer: 30
       }
       block f_ua94 {
-        position: pos(380, 1660, 300, 60)
+        position: pos(370, 1630, 300, 60)
         layer: 29
       }
       block t_9qh4 {
-        position: pos(60, 1600, 360, 40)
+        position: pos(40, 1570, 370, 40)
         layer: 127
       }
       block t_a63g {
-        position: pos(40, 1640, 1180, 20)
+        position: pos(20, 1610, 1200, 20)
         layer: 128
       }
       block t_t9m9 {
-        position: pos(1090, 1750, 100, 40)
+        position: pos(1090, 2170, 100, 40)
         layer: 1033
       }
       block t_wysj {
-        position: pos(40, 1580, 1180, 600)
+        position: pos(20, 1550, 1200, 600)
         layer: 21
       }
       block v_530w {
-        position: pos(40, 750, 1180, 760)
+        position: pos(40, 770, 1180, 760)
         layer: 20
       }
       block v_kp1e {
-        position: pos(60, 1740, 1140, 420)
+        position: pos(40, 1710, 1160, 420)
         layer: 25
       }
       mobile {
         mode: 'auto'
       }
       default_zoom: 0.9
-    }
-    tab tab_5wmu: CanvasLayout {
-      label: 'Dictionary'
-      width: 1260
-      height: 1150
-      auto_expand_vertically: true
-      block t_2xgb {
-        position: pos(40, 30, 140, 40)
-        layer: 1
-      }
-      block t_b5zn {
-        position: pos(0, 0, 1260, 220)
-      }
-      block t_pkgy {
-        position: pos(40, 80, 580, 100)
-        layer: 3
-      }
-      block t_2q74 {
-        position: pos(1290, 280, 250, 180)
-        layer: 1
-      }
-      block t_block_dictionary_ecommerce_metrics {
-        position: pos(40, 240, 1180, 860)
-      }
-      mobile {
-        mode: 'auto'
-      }
-      default_zoom: 0.9
-    }
-    tab tab_dstw: CanvasLayout {
-      label: 'Metrics Tree'
-      width: 1260
-      height: 1220
-      grid_size: 20
-      auto_expand_vertically: true
-      mobile {
-        mode: 'auto'
-      }
-      block v_hrkv {
-        position: pos(20, 240, 1220, 960)
-      }
-      block t_4wpv {
-        position: pos(40, 20, 140, 40)
-        layer: 1
-      }
-      block t_sgr9 {
-        position: pos(40, 80, 600, 100)
-        layer: 16
-      }
-      block t_853s {
-        position: pos(0, 0, 1260, 220)
-      }
     }
   }
   interactions: [
@@ -3400,7 +3295,7 @@ background: #EFF6FF;
             'v37',
             'v_xvgb'
           ]
-          field: r(ecommerce_users.sign_up_at)
+          field: ref('ecommerce_users', 'sign_up_at')
         }
       ]
     }
