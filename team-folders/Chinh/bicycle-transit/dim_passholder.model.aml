@@ -1,0 +1,37 @@
+Model dim_passholder {
+  type: 'table'
+  label: 'Passholder'
+  description: 'Subscribed riders. City attribute used for RLP.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'dim_passholder'
+
+  dimension passholder_id {
+    label: 'Passholder Id'
+    type: 'number'
+    primary_key: true
+    definition: @sql {{ #SOURCE.passholder_id }};;
+  }
+  dimension signup_date {
+    label: 'Signup Date'
+    type: 'date'
+    definition: @sql {{ #SOURCE.signup_date }};;
+  }
+  dimension home_region {
+    label: 'Home Region'
+    type: 'text'
+    definition: @sql {{ #SOURCE.home_region }};;
+  }
+  dimension city {
+    label: 'City'
+    type: 'text'
+    description: 'For RLP.'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+
+  measure total_passholders {
+    label: 'Total Passholders'
+    type: 'number'
+    definition: @sql {{ passholder_id }};;
+    aggregation_type: 'count distinct'
+  }
+}
