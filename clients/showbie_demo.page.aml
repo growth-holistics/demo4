@@ -1,0 +1,735 @@
+// Colors imported from showbie-light.theme.aml via shared module scope
+// Use sl("color_name") to reference theme colors
+
+Dashboard showbie_embed_demo_landing_page {
+  title: 'Showbie Demo Dashboard'
+  owner: 'hung.dd@holistics.io'
+  description: ''''''
+  theme: showbie
+  block v2: VizBlock {
+    label: 'Product Performance'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      theme {
+
+      }
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_products', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t2: TextBlock {
+    content: @md ### Sales Performance;;
+  }
+  block v3: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Orders'
+          ref: ref('ecommerce_orders', 'total_orders_count')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'GMV'
+          ref: 'gmv'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          label: 'AOV'
+          ref: 'aov'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+
+      ]
+      settings {
+        show_row_number: true
+        conditional_formats: [
+          ConditionalFormat {
+            ref: 'aov'
+            format: SingleFormat {
+              condition {
+                operator: 'greater_than_equal'
+                value: 700
+              }
+              text_color: sl("deep_blue")
+              background_color: sl("mint")
+              apply_to_row: true
+            }
+          }
+        ]
+        row_limit: 5000
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v4: VizBlock {
+    label: 'Total Users'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: r(ecommerce_users.total_users)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(ecommerce_users.sign_up_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: sl("showbie_blue")
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sl("showbie_blue")
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: sl_block_white
+  }
+  block v5: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'Total Orders'
+        ref: ref('ecommerce_orders', 'total_orders_count')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sl("showbie_blue")
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sl("showbie_blue")
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: sl_block_white
+  }
+  block v6: VizBlock {
+    label: 'Total GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'GMV'
+        ref: 'gmv'
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sl("showbie_blue")
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sl("showbie_blue")
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: sl_block_white
+  }
+  block v7: VizBlock {
+    label: 'Metric AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        label: 'AOV'
+        ref: 'aov'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'month'
+      }
+      settings {
+        label {
+          font_color: sl("showbie_blue")
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sl("showbie_blue")
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: sl_block_white
+  }
+  block v8: VizBlock {
+    label: 'User Growth'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      calculation f_3f16a1c {
+        label: 'Running Total'
+        formula: @aql running_total!(
+ecommerce_users.id | count() ,
+ecommerce_users.sign_up_date
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(ecommerce_users.sign_up_date)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(ecommerce_users.total_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: sl("sienna")
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: 'f_3f16a1c'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: sl("showbie_blue")
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        pop {
+          field: r(ecommerce_users.sign_up_date)
+          value: RelativePopValue {
+            duration: 3
+            granularity: 'month'
+          }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f2: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'matches'
+      value: 'last 2 years to today'
+    }
+  }
+  block t5: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" width="148" height="31" viewBox="0 0 148 31" fill="none">
+<path d="M8.31724 15.4451C8.7054 15.2235 9.37082 15.1127 10.3689 15.1127C11.2562 15.1127 12.1988 15.2235 13.1415 15.3897C14.0842 15.6114 14.916 15.8884 15.6368 16.3316C16.3023 16.11 16.7459 15.7222 17.0231 15.2235C17.3004 14.7249 17.4113 14.2262 17.4113 13.7276C17.4113 12.7303 16.8568 11.8992 15.7477 11.2897C14.6387 10.6802 12.9197 10.4032 10.6462 10.4032C9.20447 10.4032 7.92908 10.5694 6.8755 10.9573C5.76647 11.2897 4.87925 11.7884 4.10293 12.3978C3.32661 12.8965 2.77209 13.6167 2.38393 14.3924C1.99577 15.1681 1.82942 16.0546 1.82942 16.9411C1.82942 18.4925 2.32848 19.7114 3.27116 20.5979C4.21383 21.429 5.71102 22.0384 7.81818 22.3155C8.5945 22.4263 9.25992 22.4817 9.70353 22.5925C10.1471 22.7033 10.4798 22.7587 10.7571 22.9249C10.9789 23.0357 11.1453 23.1465 11.2007 23.3128C11.2562 23.4236 11.3116 23.5898 11.3116 23.8114C11.3116 24.0884 11.1453 24.3655 10.868 24.5871C10.5353 24.8087 9.86988 24.8641 8.76085 24.8641C8.31724 24.8641 7.81818 24.8087 7.26366 24.7533C6.70915 24.6425 6.21008 24.5317 5.65557 24.3655C5.10105 24.1993 4.60199 24.033 4.15838 23.8114C3.65932 23.6452 3.27116 23.4236 2.9939 23.202C2.38393 23.4236 1.94032 23.756 1.66306 24.1993C1.38581 24.6425 1.2749 25.1412 1.2749 25.6952C1.2749 26.3601 1.44126 26.9141 1.82942 27.4128C2.21758 27.856 2.71664 28.2439 3.43751 28.4655C4.10293 28.7425 4.87925 28.9088 5.82192 29.0196C6.7646 29.1304 7.76273 29.1858 8.87176 29.1858C10.3689 29.1858 11.6998 29.0196 12.7534 28.6871C13.8069 28.3547 14.6942 27.9114 15.3596 27.3574C16.025 26.8033 16.5241 26.1385 16.8568 25.3628C17.1895 24.5871 17.3558 23.8114 17.3558 22.9249C17.3558 22.2046 17.2449 21.5398 17.0231 20.9303C16.8013 20.3763 16.4132 19.8776 15.9141 19.4344C15.415 18.9911 14.6942 18.6587 13.8624 18.3816C13.0306 18.1046 11.977 17.883 10.7017 17.7168C9.48172 17.5506 8.7054 17.4397 8.37269 17.2181C8.03998 17.0519 7.87363 16.7749 7.87363 16.3316C7.76273 15.9438 7.92908 15.6668 8.31724 15.4451ZM40.8118 25.0303L38.7047 24.9749C38.7047 24.3655 38.7601 23.6452 38.7601 22.8695C38.7601 22.0384 38.7601 21.2073 38.8156 20.3209C38.8156 19.4344 38.8156 18.6587 38.8156 17.9384C38.8156 17.2181 38.8156 16.6087 38.8156 16.2208C38.8156 14.06 38.3165 12.564 37.2629 11.7329C36.2093 10.9019 34.7121 10.4586 32.7159 10.4586C30.9969 10.4586 29.6661 10.7356 28.7788 11.2897C27.8916 11.8438 27.1707 12.564 26.6717 13.4505V2.25855C26.2835 2.09234 25.7845 1.98153 25.2299 1.92612C24.62 1.87071 24.0655 1.81531 23.6218 1.81531C21.5701 1.81531 20.4611 2.53558 20.3502 3.97613C20.3502 4.30857 20.3502 4.75182 20.3502 5.30587C20.3502 5.91534 20.3502 6.63561 20.2948 7.52211C20.2948 8.4086 20.2948 9.51672 20.2393 10.7356C20.2393 12.01 20.2393 13.4505 20.2393 15.1681C20.2393 17.3843 20.2393 19.379 20.2393 21.3182C20.2393 23.2574 20.2393 25.1966 20.2948 27.302C20.3502 27.9669 20.6275 28.4655 21.182 28.7425C21.7365 29.0196 22.5128 29.1304 23.5664 29.1304C24.1764 29.1304 24.7309 29.075 25.2854 29.0196C25.8399 28.9642 26.339 28.8533 26.7271 28.6317V16.7195C27.1153 16.11 27.5589 15.6668 28.058 15.2789C28.557 14.8911 29.167 14.7249 29.9433 14.7249C31.0523 14.7249 31.7732 14.9465 32.0505 15.4451C32.3832 15.9438 32.4941 16.6087 32.4941 17.4952C32.4941 17.8276 32.4941 18.3816 32.4941 19.1019C32.4941 19.8222 32.4941 20.6533 32.4941 21.4844C32.4941 22.3155 32.4941 23.0911 32.4941 23.8668C32.4941 24.6425 32.4941 25.1966 32.4941 25.529C32.4941 26.3047 32.5495 26.9141 32.605 27.3574C32.7159 27.8006 32.8822 28.1885 33.215 28.4101C33.4922 28.6871 33.9913 28.8533 34.5458 28.9642C35.1558 29.075 35.9321 29.1304 36.8748 29.1304C39.8137 29.1304 41.2554 28.2439 41.2554 26.5263C41.2554 26.3047 41.2554 26.0276 41.1445 25.7506C41.0336 25.4736 40.9227 25.252 40.8118 25.0303ZM59.7208 12.3978C58.1681 11.0127 55.9501 10.2924 52.9557 10.2924C51.3476 10.2924 49.9613 10.514 48.6305 11.0127C47.3551 11.4559 46.2461 12.1208 45.3034 13.0073C44.3607 13.8384 43.6398 14.9465 43.1408 16.2208C42.6417 17.4952 42.3644 18.9357 42.3644 20.5425C42.3644 23.5898 43.1408 25.8614 44.7489 27.1912C46.357 28.5209 48.575 29.2412 51.5694 29.2412C53.0666 29.2412 54.4529 29.0196 55.7283 28.6317C57.0036 28.1885 58.1127 27.579 59.0553 26.7479C59.998 25.9168 60.7189 24.8641 61.2734 23.5898C61.8279 22.3155 62.1052 20.8195 62.1052 19.1019C61.9943 16.0546 61.2734 13.783 59.7208 12.3978ZM54.7856 23.8668C54.1756 24.6979 53.3438 25.0857 52.1794 25.0857C51.5139 25.0857 50.9594 25.0303 50.5158 24.8641C50.0722 24.6979 49.7395 24.4209 49.5177 24.033C49.2404 23.6452 49.0741 23.1465 49.0186 22.4817C48.9077 21.8168 48.8523 21.0411 48.8523 20.0438C48.8523 18.1046 49.1295 16.7195 49.684 15.8884C50.2386 15.0019 51.1812 14.6141 52.5121 14.6141C53.8429 14.6141 54.6747 15.0573 55.0628 15.8884C55.451 16.7195 55.6728 17.9938 55.6728 19.656C55.6728 21.6506 55.3401 23.0911 54.7856 23.8668ZM90.829 10.514C90.5518 10.514 90.2191 10.514 89.9418 10.5694C89.6646 10.5694 89.3873 10.6802 89.11 10.7356L85.173 22.8141L82.5668 12.4532C82.4559 12.0654 82.2895 11.6775 82.1786 11.4005C82.0123 11.1235 81.7905 10.9573 81.5132 10.791C81.2359 10.6248 80.9032 10.514 80.4596 10.514C80.016 10.4586 79.4615 10.4586 78.7961 10.4586C78.4079 10.4586 77.8534 10.6248 77.1325 10.8465L73.4173 22.8141L70.3674 12.4532C70.2565 12.0654 70.0902 11.7329 69.9793 11.4559C69.8129 11.2343 69.6466 11.0127 69.4248 10.8465C69.203 10.7356 68.8703 10.6248 68.4821 10.514C68.0939 10.4586 67.5394 10.4586 66.9295 10.4586C65.3768 10.4586 64.3232 10.6802 63.7687 11.1789C63.2142 11.6775 62.937 12.2316 62.937 12.8965C62.937 13.2289 62.9924 13.5613 63.0479 13.8384C63.1033 14.1708 63.2142 14.4478 63.3251 14.6695L64.4896 14.7803L68.6485 26.6371C68.8148 27.1358 68.9812 27.5236 69.203 27.856C69.4248 28.1885 69.6466 28.4101 69.9793 28.6317C70.312 28.7979 70.7002 28.9642 71.1438 29.0196C71.6428 29.075 72.1973 29.1304 72.9182 29.1304C73.6391 29.1304 74.1382 29.075 74.4709 29.0196C74.8036 28.9642 75.1917 28.8533 75.6908 28.6871L78.7406 19.1019L80.626 26.4709C80.7369 26.9695 80.8478 27.4128 81.0141 27.7452C81.1805 28.0777 81.3468 28.3547 81.6241 28.5763C81.9014 28.7979 82.2895 28.9642 82.7331 29.0196C83.1767 29.1304 83.7867 29.1858 84.4521 29.1858C85.1175 29.1858 85.783 29.1304 86.4484 29.0196C87.1138 28.9088 87.6683 28.7425 88.001 28.5763C88.5001 27.5236 88.9991 26.4155 89.4982 25.252C89.9973 24.0884 90.5518 22.7587 91.1618 21.2627C91.6608 19.933 92.049 18.8249 92.3817 17.9938C92.7144 17.1073 92.9362 16.387 93.158 15.7776C93.3244 15.1681 93.4353 14.6695 93.4907 14.2816C93.5462 13.8384 93.5462 13.4505 93.5462 13.0073C93.5462 12.287 93.3244 11.6775 92.8808 11.2343C92.4371 10.6802 91.7717 10.514 90.829 10.514ZM107.908 10.4032C106.466 10.4032 105.246 10.6802 104.359 11.2343C103.472 11.7884 102.751 12.4532 102.308 13.3397V2.25855C101.919 2.09234 101.42 1.98153 100.866 1.92612C100.256 1.87071 99.7567 1.81531 99.2577 1.81531C98.315 1.81531 97.5387 1.98153 96.9842 2.36937C96.4296 2.75721 96.0969 3.25586 96.0415 3.97613C96.0415 4.30857 96.0415 4.75182 96.0415 5.25047C96.0415 5.80453 95.986 6.4694 95.986 7.30048C95.986 8.13157 95.9306 9.12888 95.9306 10.3478C95.9306 11.5667 95.8751 13.0073 95.8751 14.6695C95.8751 16.4424 95.8751 17.9938 95.8751 19.3235C95.8751 20.6533 95.8751 21.7614 95.8751 22.7033C95.8751 23.6452 95.8751 24.4209 95.9306 25.0303C95.9306 25.6398 95.986 26.1385 96.0415 26.5263C96.0969 26.9695 96.2633 27.3574 96.596 27.6898C96.9287 28.0223 97.4278 28.2993 98.0932 28.5209C98.7586 28.7425 99.6458 28.9088 100.755 29.0196C101.864 29.1304 103.195 29.1858 104.858 29.1858C106.3 29.1858 107.686 28.9642 108.962 28.5763C110.237 28.1331 111.346 27.5236 112.233 26.6925C113.176 25.8614 113.897 24.8087 114.396 23.5344C114.95 22.2601 115.172 20.8195 115.172 19.1019C115.172 16.11 114.562 13.8938 113.398 12.5086C112.178 11.1235 110.348 10.4032 107.908 10.4032ZM108.13 23.6452C107.52 24.4763 106.466 24.8641 105.025 24.8641C104.47 24.8641 103.971 24.8641 103.583 24.8087C103.195 24.7533 102.751 24.6979 102.308 24.6425V16.5533C102.696 15.9992 103.139 15.556 103.638 15.2235C104.137 14.8911 104.747 14.7249 105.524 14.7249C106.91 14.7249 107.853 15.1127 108.352 15.9438C108.795 16.7195 109.073 17.9938 109.073 19.656C109.073 21.4844 108.74 22.8141 108.13 23.6452ZM124.377 10.9019C123.712 10.6248 122.658 10.4586 121.106 10.4586C119.276 10.4586 117.945 10.6802 117.169 11.0681C116.392 11.4559 116.004 12.0654 116.004 12.8965C116.004 13.2289 116.059 13.5613 116.115 13.8384C116.17 14.1708 116.281 14.4478 116.448 14.6695L118.887 14.7803C118.832 16.8857 118.832 18.8249 118.832 20.6533C118.832 22.3155 118.832 23.7006 118.887 24.7533C118.887 25.806 118.887 26.6371 118.943 27.302C118.998 28.0223 119.331 28.5209 119.886 28.7425C120.44 29.0196 121.216 29.1304 122.215 29.1304C122.825 29.1304 123.435 29.075 123.989 29.0196C124.544 28.9642 124.987 28.8533 125.375 28.6317V12.1762C125.375 11.6221 125.043 11.1789 124.377 10.9019ZM122.436 1.81531C121.216 1.81531 120.329 2.09234 119.719 2.7018C119.109 3.31126 118.832 4.03154 118.832 4.97344C118.832 6.02615 119.109 6.74642 119.608 7.18967C120.163 7.63292 120.939 7.85454 122.048 7.85454C123.379 7.85454 124.266 7.57751 124.765 6.96805C125.264 6.35858 125.542 5.63831 125.542 4.75182C125.542 3.92073 125.32 3.25586 124.821 2.7018C124.377 2.09234 123.545 1.81531 122.436 1.81531ZM145.671 20.6533C145.892 20.5425 146.059 20.3208 146.225 19.9884C146.391 19.656 146.502 19.2681 146.613 18.7141C146.724 18.2154 146.78 17.5506 146.78 16.7195C146.78 14.7803 146.059 13.2289 144.672 12.0654C143.286 10.9019 141.401 10.3478 139.016 10.3478C137.353 10.3478 135.856 10.5694 134.525 11.0681C133.194 11.5667 132.029 12.2316 131.142 13.1181C130.2 14.0046 129.534 15.1127 129.035 16.3316C128.536 17.606 128.259 19.0465 128.259 20.5425C128.259 23.5898 129.035 25.806 130.588 27.1358C132.14 28.4655 134.358 29.1304 137.297 29.1304C140.125 29.1304 142.343 28.8533 143.952 28.2439C145.56 27.6344 146.391 26.6925 146.391 25.4736C146.391 25.0303 146.281 24.6425 146.059 24.1993C145.837 23.756 145.504 23.479 145.061 23.3128C144.118 23.8114 143.064 24.1439 141.9 24.3655C140.735 24.5871 139.682 24.6979 138.795 24.6979C137.963 24.6979 137.297 24.5871 136.798 24.4209C136.299 24.1993 135.911 23.9776 135.634 23.6452C135.357 23.3128 135.19 22.8695 135.079 22.4263C134.968 21.9276 134.913 21.3736 134.913 20.8195H145.005C145.227 20.8195 145.449 20.7641 145.671 20.6533ZM140.458 17.8276H135.024C135.19 16.6641 135.523 15.833 136.077 15.3343C136.632 14.8357 137.408 14.5586 138.351 14.5586C139.294 14.5586 139.904 14.7803 140.125 15.2789C140.347 15.7776 140.514 16.387 140.514 17.1627C140.514 17.4397 140.458 17.6614 140.458 17.8276Z" fill="white"/>
+</svg>;;
+  }
+  block t9: TextBlock {
+    content: @md ### User Growth;;
+  }
+  block v11: VizBlock {
+    label: 'Product Performance (dup)'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: r(dim_dates.date_key)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Total Orders'
+            ref: r(ecommerce_orders.total_orders_count)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: sl("sienna")
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'GMV'
+            ref: r(demo_ecommerce_version_2.gmv)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: sl("showbie_blue")
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'AOV'
+            ref: r(demo_ecommerce_version_2.aov)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: sl("brick")
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v12: VizBlock {
+    label: 'Total Products'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('ecommerce_products', 'total_products')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        label {
+          font_color: sl("showbie_blue")
+        }
+        alignment: 'center'
+        metric_value {
+          font_color: sl("showbie_blue")
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: sl_block_white
+  }
+  block f3: FilterBlock {
+    label: 'Product'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_products', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block v13: VizBlock {
+    label: 'Users'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'first_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'last_name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'email')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v14: VizBlock {
+    label: 'Companies (For Illustrative Purposes)'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'id')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block d1: DateDrillBlock {
+    label: 'Date Drill'
+  }
+  block p1: PopBlock {
+    label: 'PoP'
+    default {
+      type: 'relative'
+      duration: 1
+      granularity: 'year'
+    }
+  }
+  // Header bar - cream background for dark logo
+  block t_header: TextBlock {
+    content: @md <div class="sl-header"></div>;;
+  }
+  // Section backgrounds - white cards on cream canvas
+  block t_section_left: TextBlock {
+    content: @md <div class="sl-card"></div>;;
+  }
+  block t_section_right: TextBlock {
+    content: @md <div class="sl-card"></div>;;
+  }
+  block t_bottom_left: TextBlock {
+    content: @md <div class="sl-card"></div>;;
+  }
+  block t_bottom_right: TextBlock {
+    content: @md <div class="sl-card"></div>;;
+  }
+  block t_title: TextBlock {
+    content: @md <h1 class="sl-title">The K-12 Learning Platform for iPad®</h1>;;
+  }
+  // Filter backgrounds - cream
+  block t_filter_left: TextBlock {
+    content: @md <div class="sl-filter"></div>;;
+  }
+  block t_filter_right: TextBlock {
+    content: @md <div class="sl-filter"></div>;;
+  }
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1440
+    height: 1600
+    block f2 {
+      position: pos(760, 140, 620, 60)
+    }
+    block f3 {
+      position: pos(50, 140, 630, 60)
+    }
+    block t2 {
+      position: pos(750, 410, 650, 40)
+    }
+    block t5 {
+      position: pos(50, 50, 170, 40)
+      layer: 1
+    }
+    block t9 {
+      position: pos(40, 410, 650, 40)
+      layer: -4
+    }
+    block v2 {
+      position: pos(750, 850, 650, 240)
+    }
+    block v3 {
+      position: pos(40, 850, 650, 240)
+    }
+    block v4 {
+      position: pos(20, 220, 260, 150)
+    }
+    block v5 {
+      position: pos(550, 220, 250, 150)
+    }
+    block v6 {
+      position: pos(810, 220, 340, 150)
+    }
+    block v7 {
+      position: pos(1160, 220, 260, 150)
+    }
+    block v8 {
+      position: pos(50, 460, 660, 370)
+    }
+    block v11 {
+      position: pos(750, 460, 650, 370)
+    }
+    block v12 {
+      position: pos(290, 220, 250, 150)
+    }
+    block v13 {
+      position: pos(750, 1140, 650, 440)
+    }
+    block v14 {
+      position: pos(40, 1140, 650, 440)
+    }
+    block d1 {
+      position: pos(510, 400, 180, 60)
+      layer: -3
+    }
+    block p1 {
+      position: pos(1190, 400, 210, 80)
+    }
+    block t_header {
+      position: pos(20, 30, 1400, 80)
+      layer: -1
+    }
+    block t_section_left {
+      position: pos(20, 380, 700, 730)
+      layer: -5
+    }
+    block t_section_right {
+      position: pos(730, 380, 690, 730)
+      layer: -1
+    }
+    block t_bottom_left {
+      position: pos(20, 1120, 700, 480)
+      layer: -1
+    }
+    block t_bottom_right {
+      position: pos(730, 1120, 690, 480)
+      layer: -1
+    }
+    block t_title {
+      position: pos(230, 50, 500, 40)
+      layer: 2
+    }
+    block t_filter_left {
+      position: pos(20, 120, 700, 90)
+      layer: -1
+    }
+    block t_filter_right {
+      position: pos(730, 120, 690, 90)
+      layer: -1
+    }
+    default_zoom: 'fit_to_page'
+  }
+  interactions: [
+    DateDrillInteraction {
+      from: 'd1'
+      to: [
+        CustomMapping {
+          block: 'v8'
+          field: r(ecommerce_users.sign_up_date)
+        },
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        }
+      ]
+    },
+    PopInteraction {
+      from: 'p1'
+      to: [
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        },
+        CustomMapping {
+          block: 'v8'
+          field: r(ecommerce_users.sign_up_date)
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f2'
+      to: [
+        CustomMapping {
+          block: [
+            'v3',
+            'v4',
+            'v8',
+            'v12'
+          ]
+          field: r(ecommerce_users.sign_up_date)
+        },
+        CustomMapping {
+          block: [
+            'v5',
+            'v6',
+            'v7'
+          ]
+          field: r(ecommerce_orders.created_at)
+        },
+        CustomMapping {
+          block: 'v11'
+          field: r(dim_dates.date_key)
+        }
+      ]
+    }
+  ]
+}
