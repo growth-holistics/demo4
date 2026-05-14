@@ -1,0 +1,54 @@
+Model public_participant_units {
+  type: 'table'
+  label: 'Participant Units'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension participant_id {
+    label: 'Participant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.participant_id }};;
+  }
+  dimension character_id {
+    label: 'Character Id'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.character_id }};;
+  }
+  dimension tier {
+    label: 'Tier'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.tier }};;
+  }
+  dimension rarity {
+    label: 'Rarity'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.rarity }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+    primary_key: true
+  }
+
+  dimension champion_name {
+    label: 'Champion'
+    type: 'text'
+    hidden: true
+    definition: @aql regexp_replace(public_participant_units.character_id, '^TFT\\\\d+_', '') ;;
+  }
+
+  dimension star_display {
+    label: 'Stars'
+    type: 'text'
+    hidden: false
+    definition: @aql concat(cast(public_participant_units.tier, 'text'), '★') ;;
+  }
+
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."participant_units"'
+}

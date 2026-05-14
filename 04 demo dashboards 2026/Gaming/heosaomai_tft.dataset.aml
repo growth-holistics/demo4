@@ -1,0 +1,189 @@
+Dataset heosaomai_tft {
+  __engine__: 'aql'
+  label: 'Heo Sao Mai TFT'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  models: [
+    public_match_participants,
+    public_participant_units,
+    public_matches,
+    public_ddragon_champions,
+    public_participant_traits,
+    public_ddragon_items,
+    public_ddragon_traits,
+    public_league_entries,
+    public_unit_items
+  ]
+  relationships: [
+    relationship(public_match_participants.match_id > public_matches.match_id, true),
+    relationship(public_participant_units.participant_id > public_match_participants.id, true),
+    relationship(public_participant_traits.participant_id > public_match_participants.id, true),
+    relationship(public_unit_items.unit_id > public_participant_units.id, true),
+    relationship(public_match_participants.puuid > public_league_entries.puuid, true),
+    relationship(public_participant_units.character_id > public_ddragon_champions.character_id, true),
+    relationship(public_unit_items.item_name > public_ddragon_items.item_id, true),
+    relationship(public_participant_traits.trait_name > public_ddragon_traits.trait_id, true)
+  ]
+  metric champion_avg_placement {
+    label: "Champion Avg Placement"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(public_match_participants.placement);;
+  }
+  metric champion_pick_rate {
+    label: "Champion Pick Rate"
+    type: "number"
+    description: ""
+    definition: @aql safe_divide(count(public_participant_units.id), count(public_match_participants.id) | of_all(public_ddragon_champions));;
+  }
+  metric champion_win_rate {
+    label: "Champion Win Rate"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement == 1),
+      count(public_participant_units.id)
+    );;
+  }
+  metric champion_top_4_rate {
+    label: "Champion Top 4 Rate"
+    type: "number"
+    description: ""
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement <= 4),
+      count(public_participant_units.id)
+    );;
+  }
+  metric champion_play_count {
+    label: "Champion Play Count"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(public_participant_units.id);;
+  }
+  metric item_avg_placement {
+    label: 'Item Avg Placement'
+    type: 'number'
+    definition: @aql average(public_match_participants.placement) ;;
+  }
+  metric item_pick_rate {
+    label: 'Item Pick Rate'
+    type: 'number'
+    definition: @aql safe_divide(
+      count(public_unit_items.id),
+      count(public_match_participants.id) | of_all(public_ddragon_items)
+    ) ;;
+  }
+  metric item_win_rate {
+    label: 'Item Win Rate (1st)'
+    type: 'number'
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement == 1),
+      count(public_unit_items.id)
+    ) ;;
+  }
+  metric item_play_count {
+    label: 'Item Play Count'
+    type: 'number'
+    definition: @aql count(public_unit_items.id) ;;
+  }
+  metric trait_avg_placement {
+    label: 'Trait Avg Placement'
+    type: 'number'
+    definition: @aql average(public_match_participants.placement) ;;
+  }
+  metric trait_pick_rate {
+    label: 'Trait Pick Rate'
+    type: 'number'
+    definition: @aql safe_divide(
+      count(public_participant_traits.id),
+      count(public_match_participants.id) | of_all(public_ddragon_traits)
+    ) ;;
+  }
+  metric trait_top4_rate {
+    label: 'Trait Top 4 Rate'
+    type: 'number'
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement <= 4),
+      count(public_participant_traits.id)
+    ) ;;
+  }
+  metric trait_play_count {
+    label: 'Trait Play Count'
+    type: 'number'
+    definition: @aql count(public_participant_traits.id) ;;
+  }
+  metric item_placement_delta {
+    label: 'Item Placement Delta'
+    type: 'number'
+    description: 'How much this item shifts avg placement (negative = better)'
+    definition: @aql
+      average(public_match_participants.placement)
+      -
+      (average(public_match_participants.placement) | of_all(public_ddragon_items))
+    ;;
+  }
+  metric item_top4_delta {
+    label: 'Item Top 4 Delta'
+    type: 'number'
+    description: 'How much this item shifts top 4 rate (positive = better)'
+    definition: @aql
+      safe_divide(count_if(public_match_participants.placement <= 4), count(public_unit_items.id))
+      -
+      (safe_divide(count_if(public_match_participants.placement <= 4), count(public_participant_units.id)) | of_all(public_ddragon_items))
+    ;;
+  }
+  metric star_placement_delta {
+    label: 'Star Placement Delta'
+    type: 'number'
+    description: 'How much star level shifts avg placement (negative = better)'
+    definition: @aql
+      average(public_match_participants.placement)
+      -
+      (average(public_match_participants.placement) | of_all(public_participant_units.star_display))
+    ;;
+  }
+  metric star_top4_delta {
+    label: 'Star Top 4 Delta'
+    type: 'number'
+    description: 'How much star level shifts top 4 rate (positive = better)'
+    definition: @aql
+      safe_divide(count_if(public_match_participants.placement <= 4), count(public_participant_units.id))
+      -
+      (safe_divide(count_if(public_match_participants.placement <= 4), count(public_participant_units.id)) 
+      | of_all(public_participant_units.star_display))
+    ;;
+  }
+  metric trait_placement_delta {
+    label: 'Trait Placement Delta'
+    type: 'number'
+    description: 'How much this trait shifts avg placement (negative = better)'
+    definition: @aql
+      average(public_match_participants.placement)
+      -
+      (average(public_match_participants.placement) | of_all(public_ddragon_traits))
+    ;;
+  }
+  metric trait_top4_delta {
+    label: 'Trait Top 4 Delta'
+    type: 'number'
+    description: 'How much this trait shifts top 4 rate (positive = better)'
+    definition: @aql
+      safe_divide(count_if(public_match_participants.placement <= 4), count(public_participant_traits.id))
+      -
+      (safe_divide(count_if(public_match_participants.placement <= 4), count(public_participant_traits.id)) | of_all(public_ddragon_traits))
+    ;;
+  }
+  metric trait_win_rate {
+    label: "Trait Win Rate"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement == 1),
+      count(public_participant_traits.id)
+    ) ;;
+  }
+}

@@ -1,0 +1,101 @@
+Model public_matches {
+  type: 'table'
+  label: 'Matches'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension match_id {
+    label: 'Match Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.match_id }};;
+    primary_key: true
+  }
+  dimension data_version {
+    label: 'Data Version'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.data_version }};;
+  }
+  dimension game_datetime {
+    label: 'Game Datetime'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.game_datetime }};;
+  }
+  dimension game_length {
+    label: 'Game Length'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.game_length }};;
+  }
+  dimension queue_id {
+    label: 'Queue Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.queue_id }};;
+  }
+  dimension tft_game_type {
+    label: 'Tft Game Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.tft_game_type }};;
+  }
+  dimension tft_set_number {
+    label: 'Tft Set Number'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.tft_set_number }};;
+  }
+  dimension region {
+    label: 'Region'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension game_version {
+    label: 'Game Version'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.game_version }};;
+  }
+  dimension ingested_at {
+    label: 'Ingested At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.ingested_at }};;
+  }
+  dimension tft_set_core_name {
+    label: 'Tft Set Core Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.tft_set_core_name }};;
+  }
+  dimension patch {
+    label: 'Patch'
+    type: 'text'
+    definition: @aql regexp_extract(public_matches.game_version, 'Version (\\\\d+\\\\.\\\\d+)', 1, group: 1) ;;
+  }
+  dimension platform {
+    label: 'Platform'
+    type: 'text'
+    definition: @aql regexp_extract(public_matches.match_id, '^([^_]+)_', 1, group: 1) ;;
+  }
+  dimension game_date {
+    label: 'Game Date'
+    type: 'datetime'
+    definition: @aql from_unixtime(public_matches.game_datetime / 1000) ;;
+  }
+  dimension game_length_minutes {
+    label: "Game Length (Min)"
+    type: "number"
+    description: ""
+    definition: @aql public_matches.game_length/60;;
+  }
+  measure total_matches {
+    label: 'Total Matches'
+    type: 'number'
+    definition: @aql count(public_matches.match_id) ;;
+  }
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."matches"'
+}

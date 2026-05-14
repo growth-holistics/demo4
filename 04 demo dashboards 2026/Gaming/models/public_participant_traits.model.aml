@@ -1,0 +1,80 @@
+Model public_participant_traits {
+  type: 'table'
+  label: 'Participant Traits'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension participant_id {
+    label: 'Participant Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.participant_id }};;
+  }
+  dimension trait_name {
+    label: 'Trait Name'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.trait_name }};;
+  }
+  dimension num_units {
+    label: 'Num Units'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.num_units }};;
+  }
+  dimension tier_current {
+    label: 'Tier Current'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.tier_current }};;
+  }
+  dimension tier_total {
+    label: 'Tier Total'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.tier_total }};;
+  }
+  dimension style {
+    label: 'Style'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.style }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+    primary_key: true
+  }
+
+  dimension trait_display_name {
+    label: 'Trait'
+    type: 'text'
+    hidden: false
+    definition: @aql regexp_replace(public_participant_traits.trait_name, '^TFT\\\\d+_', '') ;;
+  }
+
+  dimension style_label {
+    label: 'Tier Label'
+    type: 'text'
+    hidden: false
+    definition: @aql case(
+      when: public_participant_traits.style == 0, then: 'Inactive',
+      when: public_participant_traits.style == 1, then: 'Bronze',
+      when: public_participant_traits.style == 2, then: 'Silver',
+      when: public_participant_traits.style == 3, then: 'Gold',
+      when: public_participant_traits.style == 4, then: 'Prismatic',
+      else: 'Unknown'
+    ) ;;
+  }
+
+  dimension is_active {
+    label: 'Is Active'
+    type: 'truefalse'
+    hidden: false
+    definition: @aql public_participant_traits.style > 0 ;;
+  }
+
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."participant_traits"'
+}

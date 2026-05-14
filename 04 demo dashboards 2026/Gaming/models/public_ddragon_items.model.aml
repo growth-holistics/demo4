@@ -1,0 +1,37 @@
+Model public_ddragon_items {
+  type: 'table'
+  label: 'Ddragon Items'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension item_id {
+    label: 'Item Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.item_id }};;
+    primary_key: true
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension image_filename {
+    label: 'Image Filename'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.image_filename }};;
+  }
+
+  dimension image_html {
+    label: 'Item Icon'
+    type: 'text'
+    description: 'Set column format to HTML to render'
+    hidden: false
+    definition: @aql concat('<img src="https://ddragon.leagueoflegends.com/cdn/16.4.1/img/tft-item/', public_ddragon_items.image_filename, ' "width=48" "height="48" />') ;;
+    primary_key: false
+  }
+
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."ddragon_items"'
+}

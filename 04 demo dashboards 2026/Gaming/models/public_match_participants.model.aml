@@ -1,0 +1,140 @@
+Model public_match_participants {
+  type: 'table'
+  label: 'Match Participants'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension match_id {
+    label: 'Match Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.match_id }};;
+  }
+  dimension puuid {
+    label: 'Puuid'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.puuid }};;
+  }
+  dimension placement {
+    label: 'Placement'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.placement }};;
+  }
+  dimension level {
+    label: 'Level'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.level }};;
+  }
+  dimension gold_left {
+    label: 'Gold Left'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.gold_left }};;
+  }
+  dimension last_round {
+    label: 'Last Round'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.last_round }};;
+  }
+  dimension players_eliminated {
+    label: 'Players Eliminated'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.players_eliminated }};;
+  }
+  dimension time_eliminated {
+    label: 'Time Eliminated'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.time_eliminated }};;
+  }
+  dimension total_damage_to_players {
+    label: 'Total Damage To Players'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_damage_to_players }};;
+  }
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+    primary_key: true
+  }
+  dimension riot_id_game_name {
+    label: 'Riot Id Game Name'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.riot_id_game_name }};;
+  }
+  dimension riot_id_tagline {
+    label: 'Riot Id Tagline'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.riot_id_tagline }};;
+  }
+  dimension win {
+    label: 'Win'
+    type: 'truefalse'
+    hidden: true
+    definition: @sql {{ #SOURCE.win }};;
+  }
+
+  // Derived dimensions
+
+  dimension player_display_name {
+    label: 'Player'
+    type: 'text'
+    definition: @aql concat(public_match_participants.riot_id_game_name, '#', public_match_participants.riot_id_tagline) ;;
+  }
+
+  dimension is_top_4 {
+    label: 'Is Top 4'
+    type: 'truefalse'
+    definition: @aql public_match_participants.placement <= 4 ;;
+  }
+
+  // Measures
+
+  measure games_played {
+    label: 'Games Played'
+    type: 'number'
+    definition: @aql count(public_match_participants.id) ;;
+  }
+
+  measure avg_placement {
+    label: 'Avg Placement'
+    type: 'number'
+    definition: @aql average(public_match_participants.placement) ;;
+  }
+
+  measure win_rate {
+    label: 'Win Rate (1st)'
+    type: 'number'
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement == 1),
+      count(public_match_participants.id)
+    ) ;;
+  }
+
+  measure top_4_rate {
+    label: 'Top 4 Rate'
+    type: 'number'
+    definition: @aql safe_divide(
+      count_if(public_match_participants.placement <= 4),
+      count(public_match_participants.id)
+    ) ;;
+  }
+
+  measure unique_players {
+    label: 'Unique Players'
+    type: 'number'
+    definition: @aql count_distinct(public_match_participants.puuid) ;;
+  }
+
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."match_participants"'
+}

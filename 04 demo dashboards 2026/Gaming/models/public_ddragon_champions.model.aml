@@ -1,0 +1,41 @@
+Model public_ddragon_champions {
+  type: 'table'
+  label: 'Ddragon Champions'
+  description: ''
+  data_source_name: 'heo_sao_mai_tft'
+  dimension character_id {
+    label: 'Character Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.character_id }};;
+    primary_key: true
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension cost {
+    label: 'Cost'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cost }};;
+  }
+  dimension image_filename {
+    label: 'Image Filename'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.image_filename }};;
+  }
+  dimension image_html {
+    label: 'Champion Icon'
+    type: 'text'
+    description: 'Set column format to HTML to render'
+    hidden: false
+    definition: @aql concat('<div style="width:80px;height:80px;background-image:url(https://ddragon.leagueoflegends.com/cdn/16.4.1/img/tft-champion/', public_ddragon_champions.image_filename, ');background-size:cover;background-position:right -8px center;border-radius:8px;"></div>') ;;
+    primary_key: false
+  }
+  owner: 'hung.dd@holistics.io'
+  table_name: '"public"."ddragon_champions"'
+}
