@@ -1,0 +1,106 @@
+Dataset reporting_project_management {
+  label: 'reporting_project_management'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    reporting_team,
+    reporting_project,
+    reporting_issues,
+    reporting_issues_log,
+    reporting_burnup,
+    reporting_stage_duration
+  ]
+  relationships: [
+    relationship(reporting_issues.project_id > reporting_project.id, true),
+    relationship(reporting_issues.assignee_id > reporting_team.id, true),
+    relationship(reporting_issues.creator_id > reporting_team.id, true),
+    relationship(reporting_issues_log.issue_id > reporting_issues.id, true),
+    relationship(reporting_stage_duration.issue_id > reporting_issues.id, true),
+  ]
+  metric completed_issue {
+    label: "Completed issue"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(reporting_issues.id) | where(reporting_issues.status == "Deployed");;
+  }
+
+  metric percent_lm_completed_issue {
+    label: "%LM - Completed issue"
+    type: "number"
+    hidden: false
+    definition: @aql safe_divide(completed_issue, completed_issue | relative_period(reporting_issues.completed_at, interval(-1 month), strict: true)) - 1;;
+  }
+
+  metric percent_lm_avg_cycle_time {
+    label: "%LM - Avg Cycle Time"
+    type: "number"
+    hidden: false
+    definition: @aql safe_divide(avg(reporting_issues, reporting_issues.cycle_time_hours), avg(reporting_issues, reporting_issues.cycle_time_hours) | relative_period(reporting_issues.completed_at, interval(-1 month), strict: true)) - 1;;
+  }
+
+  metric percent_lm_avg_pr_review {
+    label: "%LM - Avg PR Review"
+    type: "number"
+    hidden: false
+    definition: @aql safe_divide(avg(reporting_issue_duration, reporting_issue_duration.duration_hours), avg(reporting_issue_duration, reporting_issue_duration.duration_hours) | relative_period(reporting_issues.completed_at, interval(-1 month), strict: true)) - 1;;
+  }
+
+  metric percent_completion {
+    label: "Percent Issue Completed"
+    type: "number"
+    hidden: false
+    definition: @aql completed_issue / count(reporting_issues.id);;
+  }
+
+  metric l2w_issue_completed {
+    label: "L2W - % Issue Completed"
+    type: "number"
+    hidden: false
+    definition: @aql percent_completion | relative_period(reporting_issues.completed_at, interval(-2 week), strict: true);;
+  }
+
+  metric percent_delta_completion {
+    label: "Delta - % Issue Completed"
+    type: "number"
+    hidden: false
+    definition: @aql percent_completion - l2w_issue_completed;;
+  }
+  metric duration_day {
+    label: "Duration Day"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(reporting_stage_duration.duration_hours) / 24;;
+  }
+  metric number_of_bug {
+    label: "Number of Bug"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(reporting_issues.id) | where(reporting_issues.label == "Bug");;
+  }
+  metric bug_ratio {
+    label: "Bug Ratio"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql number_of_bug / count(reporting_issues.id);;
+  }
+  metric metric_43b65e2 {
+    label: "Count of Reporting issues Id (filtered)"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(reporting_issues.id)
+| where(reporting_issues.status == "Deployed");;
+    format: ""
+  }
+  dimension duration_day {
+    label: "Duration Day"
+    type: "number"
+    description: ""
+    definition: @aql reporting_stage_duration.duration_hours / 24;;
+    model: reporting_stage_duration
+  }
+}

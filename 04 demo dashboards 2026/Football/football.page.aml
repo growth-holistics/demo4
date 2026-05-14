@@ -1,0 +1,2517 @@
+Dashboard champions_league {
+  title: 'Uefa Champions League'
+  description: @md A UEFA Champions League analytics dashboard that lets you explore competition-wide trends and team performance from 2016–2022
+
+Reference:
+- Data: https://www.kaggle.com/datasets/cbxkgl/uefa-champions-league-2016-2022-data/data
+- Logo: https://football-logos.cc/
+- Image: Bioscopes+, beIN SPORTS;;
+  owner: 'son.hoang@holistics.io'
+  block v_m532: VizBlock {
+    label: 'Matches Played'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        label: 'Matches'
+        ref: r(football_data.total_match)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_w4nr: VizBlock {
+    label: 'Results'
+    viz: DataTable {
+      dataset: football_data
+      calculation dim_home_team_with_logo {
+        label: 'Home'
+        formula: @aql concat(
+          '<span style="margin:8px 0;display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap;"><img src="',
+            home_team.logo_html,
+            '" style="height:24px;border-radius:4px;"> ',
+            home_team.team_name,
+          '</span>'
+        );;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dim_result_text {
+        label: 'Result'
+        formula: @aql concat(
+           '<div style="margin:20px auto;display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap;font-size:24px;">',cast(matches_csv.home_team_score, 'text'),
+          ' - ',
+          cast(matches_csv.away_team_score, 'text'),
+          '</div>'
+        );;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dim_away_team_with_logo {
+        label: 'Away'
+        formula: @aql concat(
+  '<span style="margin:8px 0;display:flex;flex-direction:column;    align-items:center;gap:8px;white-space:nowrap;"><img src="',
+    away_team.logo_html,
+    '" style="height:24px;border-radius:4px;"> ',
+    away_team.team_name,
+  '</span>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dimension_74b8919 {
+        label: 'Result (Home - Away)'
+        formula: @aql concat(
+  '<div style="margin:6px;display:flex;align-items:center;justify-content:center;gap:20px;width:100%;">',
+
+    '<span style="display:flex;flex-direction:column;align-items:center;gap:8px;width:33.33%;text-align:center;white-space:normal;word-wrap:break-word;font-weight:600;">',
+      '<img src="', home_team.logo_html, '" style="height:28px;border-radius:4px;">',
+      home_team.team_name,
+    '</span>',
+
+    '<span style="display:inline-flex;font-size:28px;font-weight:600;width:33.33%;justify-content:center;align-items:center;gap:6px;">',
+      cast(matches_csv.home_team_score, 'text'),
+      '<span style="opacity:70%"> - </span>',
+      cast(matches_csv.away_team_score, 'text'),
+    '</span>',
+
+    '<span style="display:flex;flex-direction:column;align-items:center;gap:8px;width:33.33%;text-align:center;white-space:normal;word-wrap:break-word;font-weight:600;">',
+      '<img src="', away_team.logo_html, '" style="height:28px;border-radius:4px;">',
+      away_team.team_name,
+    '</span>',
+
+  '</div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(matches_csv.date_time)
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+          uname: 'matches_csv_date_time_1'
+        },
+        VizFieldFull {
+          ref: ref('matches_csv', 'dimension_74b8919')
+          format {
+            type: 'html'
+          }
+          uname: 'matches_csv_dimension_74b8919'
+        },
+        VizFieldFull {
+          ref: r(matches_csv.attendance)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          uname: 'matches_csv_attendance'
+        },
+        VizFieldFull {
+          label: 'Stadium'
+          ref: r(stadiums_csv.name)
+          format {
+            type: 'text'
+          }
+          uname: 'stadiums_csv_name'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'matches_csv_date_time_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'matches_csv_date_time_1'
+            width: 157
+          },
+          ColumnStyle {
+            key: 'matches_csv_dimension_74b8919'
+            width: 745
+          },
+          ColumnStyle {
+            key: 'matches_csv_attendance'
+            width: 124.5
+          },
+          ColumnStyle {
+            key: 'stadiums_csv_name'
+            width: 235.5
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_px72: TextBlock {
+    content: @md <img style="width:100%;margin-bottom:0 !important;overflow:hidden;" src="https://i.ibb.co/ymRP2CrD/players2.png" alt="players" border="0"></a>;;
+  }
+  block v_isf6: VizBlock {
+    label: 'Total Attendance'
+    viz: MetricKpi {
+      dataset: football_data
+      calculation total_attendance2 {
+        label: 'Total Attendance'
+        formula: @aql matches_csv | sum(matches_csv.attendance);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Total Attendance'
+        ref: r(football_data.total_attendance)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_le6e: VizBlock {
+    label: 'Total Goals'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        label: 'Goals'
+        ref: r(football_data.total_goals_score)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_season: FilterBlock {
+    label: 'Season'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: football_data
+      field: r(matches_csv.season)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block v_8m7w: VizBlock {
+    label: 'Top scorers'
+    viz: BarChart {
+      dataset: football_data
+      calculation total_goals {
+        label: 'Total Goals'
+        formula: @aql goals_csv | count(goals_csv.goal_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_goals_by_player {
+        label: 'Total Goals By Player'
+        formula: @aql total_goals | exclude_grains(goals_csv.goal_desc);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation top_10_players {
+        label: 'Top 10 Players'
+        formula: @aql top(10, players_csv.player_full_name, by: total_goals_by_player, logic: 'dense');;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      filter {
+        field: r(players_csv.player_full_name)
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: r(goals_csv.goal_desc)
+        operator: 'not_null'
+        value: []
+      }
+      x_axis: VizFieldFull {
+        label: 'Player Name'
+        ref: r(players_csv.player_full_name)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        label: 'Goal Category'
+        ref: r(goals_csv.goal_desc)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Goals'
+        settings {
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'total_goals'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 22
+            point {
+              value: ''
+              color: '#1F5E8F'
+            }
+            point {
+              value: 'back heel'
+              color: '#3A81D4'
+            }
+            point {
+              value: 'bicycle kick'
+              color: '#73C9F0'
+            }
+            point {
+              value: 'free kick'
+              color: '#B0E8FC'
+            }
+            point {
+              value: 'header'
+              color: '#A8442A'
+            }
+            point {
+              value: 'ind. free kick'
+              color: '#E57D34'
+            }
+            point {
+              value: 'left-footed shot'
+              color: '#FFA669'
+            }
+            point {
+              value: 'own goal'
+              color: '#F6C88A'
+            }
+            point {
+              value: 'penalty'
+              color: '#1F5E8F'
+            }
+            point {
+              value: 'right-footed shot'
+              color: '#3A81D4'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        x_axis_label: 'Player Name'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_akem: VizBlock {
+    label: 'Stadium and attendance'
+    viz: ScatterChart {
+      dataset: football_data
+      calculation dimension_c32bfd5 {
+        label: 'Team'
+        formula: @aql concat('<img src="', home_team.logo_html, '" style="display:inline-block;margin-left:16px;margin-top:8px;width:80px;border-radius:4px;" />');;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: home_team
+      }
+      x_col: VizFieldFull {
+        ref: r(stadiums_csv.capacity)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_col: VizFieldFull {
+        label: 'Total Attendance'
+        ref: r(football_data.total_attendance)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      group_col: VizFieldFull {
+        ref: r(home_team.country)
+        format {
+          type: 'text'
+        }
+      }
+      label_col: VizFieldFull {
+        label: 'Stadium Name'
+        ref: r(stadiums_csv.name)
+        format {
+          type: 'text'
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            ref: ref('home_team', 'dimension_c32bfd5')
+            aggregation: 'min'
+            format {
+              type: 'html'
+            }
+          }
+        }
+      ]
+      settings {
+        row_limit: 100
+      }
+    }
+  }
+  block f_match_teams_team: FilterBlock {
+    label: 'Team'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: football_data
+      field: r(match_teams.team_name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    settings {
+      input_type: 'multiple'
+    }
+  }
+  block t_xk5z: TextBlock {
+    content: @md <img style="margin-bottom:0 !important;overflow:hidden;" src="https://i.ibb.co/ymRP2CrD/players2.png" alt="demo">;;
+  }
+  block t_hblocksiframe: H.blocks.iframe(
+    'https://www.youtube.com/embed/KQGpdWvNCjs?si=hsoALKX6kFGtCVP4'
+  )
+  block t_17y4: TextBlock {
+    content: @md <h1 style="color:#a8d7ff">UEFA Champions League | Fixtures & Results</h1>;;
+  }
+  block v_62xz: VizBlock {
+    label: 'Top assists'
+    viz: BarChart {
+      dataset: football_data
+      filter {
+        field: r(goals_csv.assist_pid)
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: r(assist_players.assist_player_name)
+        operator: 'not_null'
+        value: []
+      }
+      x_axis: VizFieldFull {
+        ref: r(assist_players.assist_player_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(football_data.metric_defd8a5)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F7863DFF'
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        x_axis_label: 'Player Name'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xiis: VizBlock {
+    label: 'Goal category'
+    viz: PieChart {
+      dataset: football_data
+      calculation goal_count {
+        label: 'Goal Count'
+        formula: @aql goals_csv | count(goals_csv.goal_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(goals_csv.goal_desc)
+        operator: 'is_not'
+        value: ''
+      }
+      filter {
+        field: r(goals_csv.goal_desc)
+        operator: 'not_null'
+        value: []
+      }
+      legend: VizFieldFull {
+        label: 'Goal Description'
+        ref: r(goals_csv.goal_desc)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          ref: 'goal_count'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+        settings {
+          color_palette: 22
+          point {
+            value: 'back heel'
+            color: '#1F5E8F'
+          }
+          point {
+            value: 'bicycle kick'
+            color: '#3A81D4'
+          }
+          point {
+            value: 'free kick'
+            color: '#73C9F0'
+          }
+          point {
+            value: 'header'
+            color: '#B0E8FC'
+          }
+          point {
+            value: 'ind. free kick'
+            color: '#A8442A'
+          }
+          point {
+            value: 'left-footed shot'
+            color: '#E57D34'
+          }
+          point {
+            value: 'own goal'
+            color: '#FFA669'
+          }
+          point {
+            value: 'penalty'
+            color: '#F6C88A'
+          }
+          point {
+            value: 'right-footed shot'
+            color: '#1F5E8F'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 10
+        sort: 'desc'
+        show_data_label: true
+        group_values_into: 5
+        data_label_position: 'inside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_0j6e: TextBlock {
+    content: @md <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/4RmSuRMlr17amYP0bKlxaf?utm_source=generator" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>;;
+  }
+  block v_b4ib: VizBlock {
+    label: 'Team Logo '
+    viz: DataTable {
+      dataset: football_data
+      fields: [
+        VizFieldFull {
+          label: 'Team Logo'
+          ref: r(football_data, match_teams.selected_team_logo_html)
+          format {
+            type: 'html'
+          }
+          uname: 'match_teams_selected_team_logo_html'
+        }
+      ]
+      settings {
+        row_limit: 100
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'match_teams_selected_team_logo_html'
+            width: 127
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_5vbc: VizBlock {
+    label: 'Appearance Count by Country'
+    viz: WordCloud {
+      dataset: football_data
+      calculation country {
+        label: 'Country'
+        formula: @aql case(
+  when: match_teams.team_role == 'home', then: home_team.country,
+  when: match_teams.team_role == 'away', then: away_team.country,
+  else: null
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: match_teams
+      }
+      calculation appearance_count {
+        label: 'Appearance Count'
+        formula: @aql match_teams | count(matches_csv.match_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      words: VizFieldFull {
+        label: 'Country'
+        ref: ref('match_teams', 'country')
+        format {
+          type: 'text'
+        }
+      }
+      weight: VizFieldFull {
+        label: 'Appearance Count'
+        ref: 'appearance_count'
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_h5ig: VizBlock {
+    label: 'Win/Draw/Loss'
+    viz: ColumnChart {
+      dataset: football_data
+      calculation result_category {
+        label: 'Result Category'
+        formula: @aql case(
+  when: match_teams.team_role == 'home', then: case(
+    when: matches_csv.home_team_score > matches_csv.away_team_score, then: '1. Win',
+    when: matches_csv.home_team_score < matches_csv.away_team_score, then: '3. Loss',
+    else: '2. Draw'
+  ),
+  when: match_teams.team_role == 'away', then: case(
+    when: matches_csv.away_team_score > matches_csv.home_team_score, then: '1. Win',
+    when: matches_csv.away_team_score < matches_csv.home_team_score, then: '3. Loss',
+    else: '2. Draw'
+  ),
+  else: '2. Draw'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: match_teams
+      }
+      calculation match_count {
+        label: 'Match Count'
+        formula: @aql matches_csv | count(matches_csv.match_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation win_match_count {
+        label: 'Win Match Count'
+        formula: @aql match_count | where(match_teams.result_category == '1. Win');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation top_10_teams_by_win_match_count {
+        label: 'Top 10 Teams By Win Match Count'
+        formula: @aql top(10, match_teams.team_name, by: win_match_count, logic: 'dense');;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      x_axis: VizFieldFull {
+        label: 'Team Name'
+        ref: r(match_teams.team_name)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        label: 'Result Category'
+        ref: ref('match_teams', 'result_category')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Matches'
+        settings {
+          axis_min: 0
+          show_total_in_tooltip: true
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Match Count'
+            ref: 'match_count'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            point {
+              value: '1. Win'
+              color: '#3A81D4'
+            }
+            point {
+              value: '2. Draw'
+              color: '#F6C88A'
+            }
+            point {
+              value: '3. Loss'
+              color: '#A8442A'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        x_axis_label: 'Team Name'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_f1ot: VizBlock {
+    label: 'Goals per match'
+    viz: MetricKpi {
+      dataset: football_data
+      calculation metric_36cff2b {
+        label: 'Goals per match'
+        formula: @aql safe_divide(total_goals_score, total_match);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'metric_36cff2b'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_dy8c: VizBlock {
+    label: 'Matches Played'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        label: 'Matches'
+        ref: r(football_data.total_match)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_0bnz: FilterBlock {
+    label: 'Season'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: football_data
+      field: r(matches_csv.season)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block f_g7nf: FilterBlock {
+    label: 'Team'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: football_data
+      field: r(match_teams.team_name)
+    }
+    default {
+      operator: 'is'
+      value: 'Bayern Munchen'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block t_8w4r: TextBlock {
+    content: @md <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/track/4RmSuRMlr17amYP0bKlxaf?utm_source=generator" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>;;
+  }
+  block v_aorb: VizBlock {
+    label: 'Team Logo '
+    viz: DataTable {
+      dataset: football_data
+      fields: [
+        VizFieldFull {
+          label: 'Team Logo'
+          ref: r(football_data, match_teams.selected_team_logo_html)
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      settings {
+        row_limit: 100
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_afv5: VizBlock {
+    label: 'Goals per match'
+    viz: MetricKpi {
+      dataset: football_data
+      calculation metric_36cff2b {
+        label: 'Goals per match'
+        formula: @aql safe_divide(total_goals_score, total_match);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'metric_36cff2b'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_mw2f: VizBlock {
+    label: 'Total Attendance'
+    viz: MetricKpi {
+      dataset: football_data
+      calculation total_attendance2 {
+        label: 'Total Attendance'
+        formula: @aql matches_csv | sum(matches_csv.attendance);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Total Attendance'
+        ref: r(football_data.total_attendance)
+        format {
+          type: 'number'
+          pattern: '#,###'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_2dj6: VizBlock {
+    label: 'Goals Scored'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        ref: r(football_data.goals_scored)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_de8y: VizBlock {
+    label: 'Goals Conceded'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        ref: r(football_data.goals_conceded)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_q4ma: VizBlock {
+    label: 'Team Win Rate'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        ref: r(football_data.team_win_rate)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_ujun: VizBlock {
+    label: 'Results'
+    viz: DataTable {
+      dataset: football_data
+      calculation dim_home_team_with_logo {
+        label: 'Home'
+        formula: @aql concat(
+          '<span style="margin:8px 0;display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap;"><img src="',
+            home_team.logo_html,
+            '" style="height:24px;border-radius:4px;"> ',
+            home_team.team_name,
+          '</span>'
+        );;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dim_result_text {
+        label: 'Result'
+        formula: @aql concat(
+           '<div style="margin:20px auto;display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap;font-size:24px;">',cast(matches_csv.home_team_score, 'text'),
+          ' - ',
+          cast(matches_csv.away_team_score, 'text'),
+          '</div>'
+        );;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dim_away_team_with_logo {
+        label: 'Away'
+        formula: @aql concat(
+  '<span style="margin:8px 0;display:flex;flex-direction:column;    align-items:center;gap:8px;white-space:nowrap;"><img src="',
+    away_team.logo_html,
+    '" style="height:24px;border-radius:4px;"> ',
+    away_team.team_name,
+  '</span>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      calculation dimension_74b8919 {
+        label: 'Result (Home - Away)'
+        formula: @aql concat(
+  '<div style="margin:6px;display:flex;align-items:center;justify-content:center;gap:20px;width:100%;">',
+
+    '<span style="display:flex;flex-direction:column;align-items:center;gap:8px;width:33.33%;text-align:center;white-space:normal;word-wrap:break-word;font-weight:600;">',
+      '<img src="', home_team.logo_html, '" style="height:28px;border-radius:4px;">',
+      home_team.team_name,
+    '</span>',
+
+    '<span style="display:inline-flex;font-size:28px;font-weight:600;width:33.33%;justify-content:center;align-items:center;gap:6px;">',
+      cast(matches_csv.home_team_score, 'text'),
+      '<span style="opacity:70%"> - </span>',
+      cast(matches_csv.away_team_score, 'text'),
+    '</span>',
+
+    '<span style="display:flex;flex-direction:column;align-items:center;gap:8px;width:33.33%;text-align:center;white-space:normal;word-wrap:break-word;font-weight:600;">',
+      '<img src="', away_team.logo_html, '" style="height:28px;border-radius:4px;">',
+      away_team.team_name,
+    '</span>',
+
+  '</div>'
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: matches_csv
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(matches_csv.date_time)
+          format {
+            type: 'date'
+            pattern: 'LLL dd, yyyy'
+          }
+          uname: 'matches_csv_date_time_1'
+        },
+        VizFieldFull {
+          ref: ref('matches_csv', 'dimension_74b8919')
+          format {
+            type: 'html'
+          }
+          uname: 'matches_csv_dimension_74b8919'
+        },
+        VizFieldFull {
+          ref: r(matches_csv.attendance)
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          uname: 'matches_csv_attendance'
+        },
+        VizFieldFull {
+          label: 'Stadium'
+          ref: r(stadiums_csv.name)
+          format {
+            type: 'text'
+          }
+          uname: 'stadiums_csv_name'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'matches_csv_date_time_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'matches_csv_date_time_1'
+            width: 157
+          },
+          ColumnStyle {
+            key: 'matches_csv_dimension_74b8919'
+            width: 745
+          },
+          ColumnStyle {
+            key: 'matches_csv_attendance'
+            width: 124.5
+          },
+          ColumnStyle {
+            key: 'stadiums_csv_name'
+            width: 205.5
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_b0ic: VizBlock {
+    label: 'Clean Sheet Count'
+    viz: MetricKpi {
+      dataset: football_data
+      value: VizFieldFull {
+        ref: r(football_data.clean_sheet_count)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_team_role: FilterBlock {
+    label: 'Team Role'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: football_data
+      field: r(match_teams.team_role)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block v_uu3g: VizBlock {
+    label: 'Top scorers of these matches (not just selected team)'
+    viz: BarChart {
+      dataset: football_data
+      calculation total_goals {
+        label: 'Total Goals'
+        formula: @aql goals_csv | count(goals_csv.goal_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_goals_by_player {
+        label: 'Total Goals By Player'
+        formula: @aql total_goals | exclude_grains(goals_csv.goal_desc);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation top_10_players {
+        label: 'Top 10 Players'
+        formula: @aql top(10, players_csv.player_full_name, by: total_goals_by_player, logic: 'dense');;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      filter {
+        field: r(players_csv.player_full_name)
+        operator: 'not_null'
+        value: []
+      }
+      filter {
+        field: r(goals_csv.goal_desc)
+        operator: 'not_null'
+        value: []
+      }
+      x_axis: VizFieldFull {
+        label: 'Player Name'
+        ref: r(players_csv.player_full_name)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        label: 'Goal Category'
+        ref: r(goals_csv.goal_desc)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Goals'
+        settings {
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(football_data.team_goals_by_scorer)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        x_axis_label: 'Player Name'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_49rl: VizBlock {
+    label: 'Performance overview'
+    viz: DataTable {
+      dataset: football_data
+      calculation team_draws {
+        label: 'Draws'
+        formula: @aql count(
+  match_teams,
+  case(
+    when: match_teams.team_role == "home" and matches_csv.home_team_score == matches_csv.away_team_score, then: matches_csv.match_id,
+    when: match_teams.team_role == "away" and matches_csv.away_team_score == matches_csv.home_team_score, then: matches_csv.match_id,
+    else: null
+  )
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation team_losses {
+        label: 'Losses'
+        formula: @aql team_matches_played - team_wins - team_draws;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation goal_difference {
+        label: 'Goal Difference'
+        formula: @aql goals_scored - goals_conceded;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Team'
+          ref: r(match_teams.team_name)
+          format {
+            type: 'text'
+          }
+          uname: 'team_name'
+        },
+        VizFieldFull {
+          label: 'Matches'
+          ref: r(football_data.team_matches_played)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'matches_played'
+        },
+        VizFieldFull {
+          label: 'Wins'
+          ref: r(football_data.team_wins)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'wins'
+        },
+        VizFieldFull {
+          label: 'Draws'
+          ref: 'team_draws'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'draws'
+        },
+        VizFieldFull {
+          label: 'Losses'
+          ref: 'team_losses'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'losses'
+        },
+        VizFieldFull {
+          label: 'Win rate'
+          ref: r(football_data.team_win_rate)
+          format {
+            type: 'number'
+            pattern: '#,###0.0%'
+          }
+          uname: 'win_rate'
+        },
+        VizFieldFull {
+          label: 'Goals scored'
+          ref: r(football_data.goals_scored)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'goals_scored'
+        },
+        VizFieldFull {
+          label: 'Goals conceded'
+          ref: r(football_data.goals_conceded)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'goals_conceded'
+        },
+        VizFieldFull {
+          label: 'Goal difference'
+          ref: 'goal_difference'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'goal_difference'
+        }
+      ]
+      settings {
+        pagination_size: 100
+        wrap_header_text: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'wins'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'goal_difference'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'team_name'
+            direction: 'asc'
+          }
+        ]
+        conditional_formats: [
+          ConditionalFormat {
+            key: 'win_rate'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#1F5E8F'
+              }
+              mid {
+                value: 0.5
+                color: '#F6C88A'
+              }
+              max {
+                value: 0.8
+                color: '#E57D34'
+              }
+            }
+          },
+          ConditionalFormat {
+            key: 'goals_scored'
+            format: ScaleFormat {
+              min {
+                value: 0
+                color: '#1F5E8F'
+              }
+              max {
+                value: 100
+                color: '#E57D34'
+              }
+            }
+          },
+          ConditionalFormat {
+            key: 'goal_difference'
+            format: ScaleFormat {
+              min {
+                value: -40
+                color: '#1F5E8F'
+              }
+              max {
+                value: 150
+                color: '#E57D34'
+              }
+            }
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        single_cell_display: 'normal'
+        column_styles: [
+          ColumnStyle {
+            key: 'team_name'
+            width: 182.3699999999999
+          },
+          ColumnStyle {
+            key: 'matches_played'
+            width: 125
+          },
+          ColumnStyle {
+            key: 'wins'
+            width: 113
+          },
+          ColumnStyle {
+            key: 'draws'
+            width: 113
+          },
+          ColumnStyle {
+            key: 'losses'
+            width: 114
+          },
+          ColumnStyle {
+            key: 'win_rate'
+            width: 123
+          },
+          ColumnStyle {
+            key: 'goals_scored'
+            width: 159
+          },
+          ColumnStyle {
+            key: 'goals_conceded'
+            width: 173.5
+          },
+          ColumnStyle {
+            key: 'goal_difference'
+            width: 184
+          }
+        ]
+      }
+    }
+  }
+  block v_9im6: VizBlock {
+    label: 'Goals vs Matches'
+    viz: LineChart {
+      dataset: football_data
+      x_axis: VizFieldFull {
+        label: 'Season'
+        ref: r(matches_csv.season)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Goals & Matches'
+        series {
+          field: VizFieldFull {
+            label: 'Total Goals'
+            ref: r(football_data.total_goals_score)
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+          settings {
+            color: '#3A81D4'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Total Matches'
+            ref: r(football_data.total_match)
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+          settings {
+            color: '#F6C88A'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        connect_discontinuous_points: false
+        row_limit: 100
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        x_axis_label: 'Season'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_fgm9: VizBlock {
+    label: 'Avg Home Attendance'
+    viz: MetricKpi {
+      dataset: football_data
+      calculation metric_4e51492 {
+        label: 'Avg Home Attendance'
+        formula: @aql safe_divide(
+  total_attendance | where(match_teams.team_role == "home"),
+  team_matches_played | where(match_teams.team_role == "home")
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: 'metric_4e51492'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_hblocksiframe_848u: H.blocks.iframe(
+    'https://www.youtube.com/embed/JoH86TRpL78?si=11FZ_oPmdr82HN-3'
+  )
+  block t_hblocksiframe_jmvq: H.blocks.iframe(
+    'https://www.youtube.com/embed/G8W5fxDwwNw?si=YKgUtTt2fInmc0PQ'
+  )
+  block t_hblocksiframe_27kt: H.blocks.iframe(
+    'https://www.youtube.com/embed/Si1v2HEmkvQ?si=Z7W1sNI5C1b4Dhqf'
+  )
+  block t_hblocksiframe_0otq: H.blocks.iframe(
+    'https://www.youtube.com/embed/bz7BB32H4cc?si=8qiss_E1QKons9eg'
+  )
+  block t_hblocksiframe_0t71: H.blocks.iframe(
+    'https://www.youtube.com/embed/OqTkyWVBCxQ'
+  )
+  view: TabLayout {
+    label: 'View 1'
+    tab view_1: CanvasLayout {
+      label: '⚽ Overview'
+      width: 2760
+      height: 2180
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_m532 {
+        position: pos(640, 380, 180, 100)
+      }
+      block v_w4nr {
+        position: pos(80, 620, 1400, 980)
+      }
+      block t_px72 {
+        position: pos(920, 160, 500, 760)
+        layer: -3
+      }
+      block v_isf6 {
+        position: pos(300, 500, 320, 100)
+        layer: 1
+      }
+      block v_le6e {
+        position: pos(300, 380, 320, 100)
+        layer: 2
+      }
+      block f_season {
+        position: pos(80, 180, 740, 80)
+      }
+      block v_8m7w {
+        position: pos(1500, 80, 640, 460)
+      }
+      block v_akem {
+        position: pos(1500, 1040, 1180, 560)
+      }
+      block f_match_teams_team {
+        position: pos(80, 280, 740, 80)
+      }
+      block t_17y4 {
+        position: pos(80, 80, 740, 60)
+        layer: 2
+      }
+      block v_62xz {
+        position: pos(1500, 560, 640, 460)
+        layer: 3
+      }
+      block v_xiis {
+        position: pos(2160, 80, 520, 460)
+        layer: 3
+      }
+      block t_0j6e {
+        position: pos(880, 80, 600, 100)
+        layer: -2
+      }
+      block v_b4ib {
+        position: pos(80, 380, 200, 200)
+        layer: -1
+      }
+      block v_5vbc {
+        position: pos(2160, 560, 520, 460)
+        layer: 2
+      }
+      block v_h5ig {
+        position: pos(1500, 1620, 1180, 500)
+        layer: 3
+      }
+      block v_f1ot {
+        position: pos(640, 500, 180, 100)
+        layer: 3
+      }
+      block v_49rl {
+        position: pos(80, 1620, 1400, 500)
+        layer: 4
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_5qkp: CanvasLayout {
+      label: '🎮 Team Analysis'
+      width: 1420
+      height: 2240
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_dy8c {
+        position: pos(40, 140, 260, 100)
+        layer: 1
+      }
+      block f_0bnz {
+        position: pos(40, 40, 300, 80)
+        layer: 3
+      }
+      block f_g7nf {
+        position: pos(680, 40, 300, 80)
+        layer: 3
+      }
+      block t_8w4r {
+        position: pos(1000, 20, 380, 100)
+        layer: 1
+      }
+      block v_aorb {
+        position: pos(580, 140, 280, 220)
+        layer: 2
+      }
+      block v_afv5 {
+        position: pos(320, 140, 240, 100)
+        layer: 2
+      }
+      block v_mw2f {
+        position: pos(40, 260, 260, 100)
+        layer: 4
+      }
+      block v_2dj6 {
+        position: pos(880, 139, 220, 100)
+        layer: 3
+      }
+      block v_de8y {
+        position: pos(1120, 140, 260, 100)
+        layer: 4
+      }
+      block v_q4ma {
+        position: pos(880, 259, 220, 100)
+        layer: 6
+      }
+      block v_ujun {
+        position: pos(40, 380, 1340, 700)
+        layer: 7
+      }
+      block v_b0ic {
+        position: pos(1120, 260, 260, 100)
+        layer: 5
+      }
+      block f_team_role {
+        position: pos(359, 40, 300, 80)
+        layer: 7
+      }
+      block v_uu3g {
+        position: pos(40, 1100, 1340, 560)
+        layer: 8
+      }
+      block v_9im6 {
+        position: pos(40, 1680, 1340, 520)
+        layer: 2
+      }
+      block v_fgm9 {
+        position: pos(320, 260, 240, 100)
+        layer: 9
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_ww6p: CanvasLayout {
+      label: '▶️ Moments'
+      width: 1300
+      height: 1000
+      grid_size: 20
+      auto_expand_vertically: true
+      block t_xk5z {
+        position: pos(20, 20, 320, 480)
+        layer: 1
+      }
+      block t_hblocksiframe {
+        position: pos(340, 20, 600, 480)
+        layer: 1
+      }
+      block t_hblocksiframe_848u {
+        position: pos(20, 500, 260, 480)
+        layer: 1
+      }
+      block t_hblocksiframe_jmvq {
+        position: pos(620, 500, 320, 480)
+        layer: 1
+      }
+      block t_hblocksiframe_27kt {
+        position: pos(280, 500, 340, 480)
+        layer: 1
+      }
+      block t_hblocksiframe_0otq {
+        position: pos(940, 20, 340, 480)
+        layer: 1
+      }
+      block t_hblocksiframe_0t71 {
+        position: pos(940, 500, 340, 480)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+  }
+  theme: champions_night
+  interactions: [
+    FilterInteraction {
+      from: 'v_m532'
+      to: [
+        CustomMapping {
+          block: [
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_w4nr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_isf6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_le6e'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_8m7w',
+            'v_akem',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_season'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9',
+            'f_0bnz',
+            'f_g7nf',
+            'f_team_role'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_8m7w'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_akem',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_akem'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_match_teams_team'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_49rl',
+            'v_9im6',
+            'v_fgm9',
+            'f_0bnz',
+            'f_g7nf',
+            'f_team_role'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_62xz'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xiis'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_b4ib'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_5vbc',
+            'v_h5ig',
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_5vbc'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_h5ig'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_f1ot'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_dy8c'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_0bnz'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl',
+            'v_9im6',
+            'f_season',
+            'f_match_teams_team',
+            'f_g7nf',
+            'f_team_role'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_g7nf'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl',
+            'f_season',
+            'f_match_teams_team',
+            'f_0bnz',
+            'f_team_role'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_aorb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_afv5'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_mw2f'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_2dj6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_de8y'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_q4ma'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ujun'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_b0ic'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_team_role'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl',
+            'v_fgm9',
+            'f_season',
+            'f_match_teams_team',
+            'f_0bnz',
+            'f_g7nf'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_uu3g'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_49rl'
+      to: [
+        CustomMapping {
+          block: [
+            'v_dy8c',
+            'v_aorb',
+            'v_afv5',
+            'v_mw2f',
+            'v_2dj6',
+            'v_de8y',
+            'v_q4ma',
+            'v_ujun',
+            'v_b0ic',
+            'v_uu3g',
+            'v_9im6',
+            'v_fgm9'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9im6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_fgm9'
+      to: [
+        CustomMapping {
+          block: [
+            'v_m532',
+            'v_w4nr',
+            'v_isf6',
+            'v_le6e',
+            'v_8m7w',
+            'v_akem',
+            'v_62xz',
+            'v_xiis',
+            'v_b4ib',
+            'v_5vbc',
+            'v_h5ig',
+            'v_f1ot',
+            'v_49rl'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  settings {
+    timezone: 'Etc/UTC'
+    cache_duration: 1440
+  }
+}

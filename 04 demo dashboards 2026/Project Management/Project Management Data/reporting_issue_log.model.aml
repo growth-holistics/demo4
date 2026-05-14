@@ -1,0 +1,65 @@
+Model reporting_issues_log {
+  type: 'table'
+  label: 'Reporting issues log'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension issue_id {
+    label: 'Issue'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.issue_id }};;
+  }
+  dimension from_status {
+    label: 'From status'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.from_status }};;
+  }
+  dimension to_status {
+    label: 'To status'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.to_status }};;
+  }
+  dimension transitioned_at {
+    label: 'Transitioned at'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.transitioned_at }};;
+  }
+  dimension transitioned_by {
+    label: 'Transitioned by'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transitioned_by }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'issue_status_transitions_complete_iso8601.csv'
+    uploaded_at: '2026-03-07 16:47:53'
+    hash: 'd129f72a4df5876ac06498ff57293e4e2deb31a6d8c3e87a94d8a743d912230a'
+    column_configs: [
+      H.imports.column_config("id", "id", "number"),
+      H.imports.column_config("issue_id", "issue_id", "number"),
+      H.imports.column_config("from_status", "from_status", "text"),
+      H.imports.column_config("to_status", "to_status", "text"),
+      H.imports.column_config("transitioned_at", "transitioned_at", "date"),
+      H.imports.column_config("transitioned_by", "transitioned_by", "number")
+    ]
+  }
+  owner: 'vy.ht@holistics.io'
+  table_name: '"dbt_khai"."holistics_reporting_iss_1d114_202603070832"'
+}

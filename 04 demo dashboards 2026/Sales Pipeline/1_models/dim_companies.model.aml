@@ -1,0 +1,115 @@
+Model dim_companies {
+  type: 'table'
+  label: 'Companies'
+  description: ''
+  data_source_name: 'amyra_holistics'
+  dimension id {
+    label: 'Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+    primary_key: true
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension type {
+    label: 'Type'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.type }};;
+  }
+  dimension industry {
+    label: 'Industry'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.industry }};;
+  }
+  dimension country {
+    label: 'Country'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country }};;
+  }
+  dimension employee_count {
+    label: 'Employee Count'
+    type: 'number'
+    description: ""
+    hidden: false
+    definition: @sql {{ #SOURCE.employee_count }};;
+    primary_key: false
+    format: "#,###0.00 [\$\$]"
+  }
+  dimension website {
+    label: 'Website'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.website }};;
+  }
+  dimension logo_url {
+    label: 'Logo Url'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.logo_url }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  dimension company_size {
+    label: 'Company Size Segment'
+    type: 'text'
+    definition: @sql
+      case
+        when {{ #SOURCE.employee_count }} < 50   then 'SMB'
+        when {{ #SOURCE.employee_count }} < 500  then 'Mid-Market'
+        when {{ #SOURCE.employee_count }} is null then 'Unknown'
+        else 'Enterprise'
+      end;;
+  }
+
+  dimension latitude {
+    label: 'Latitude'
+    type: 'number'
+    definition: @sql
+      case {{ #SOURCE.country }}
+        when 'Singapore'   then 1.3521
+        when 'Indonesia'   then -0.7893
+        when 'India'       then 20.5937
+        when 'Vietnam'     then 14.0583
+        when 'Thailand'    then 15.8700
+        when 'Philippines' then 12.8797
+        when 'Australia'   then -25.2744
+        when 'Germany'     then 51.1657
+        when 'South Korea' then 35.9078
+        else null
+      end;;
+  }
+
+  dimension longitude {
+    label: 'Longitude'
+    type: 'number'
+    definition: @sql
+      case {{ #SOURCE.country }}
+        when 'Singapore'   then 103.8198
+        when 'Indonesia'   then 113.9213
+        when 'India'       then 78.9629
+        when 'Vietnam'     then 108.2772
+        when 'Thailand'    then 100.9925
+        when 'Philippines' then 121.7740
+        when 'Australia'   then 133.7751
+        when 'Germany'     then 10.4515
+        when 'South Korea' then 127.7669
+        else null
+      end;;
+  }
+
+  owner: 'hien.nt@holistics.io'
+  table_name: '"public"."companies"'
+}

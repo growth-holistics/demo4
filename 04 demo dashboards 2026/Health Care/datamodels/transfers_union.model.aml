@@ -1,0 +1,51 @@
+Model transfers_union {
+  type: 'query'
+  label: 'Transfers Union'
+  description: ''
+  data_source_name: 'demodb'
+  dimension transfer_id {
+    label: 'Transfer Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transfer_id }};;
+  }
+  dimension department {
+    label: 'Department'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.department }};;
+  }
+  dimension transfer_in {
+    label: 'Transfer In'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transfer_in }};;
+  }
+  dimension transfer_out {
+    label: 'Transfer Out'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transfer_out }};;
+  }
+
+  owner: 'giang.nv@holistics.io'
+  query: @sql
+    SELECT
+      transfer_id,
+      to_department AS department,
+      1 AS transfer_in,
+      0 AS transfer_out
+    FROM {{ #transfers }}
+
+    UNION ALL
+
+    SELECT
+      transfer_id,
+      from_department AS department,
+      0 AS transfer_in,
+      1 AS transfer_out
+    FROM {{ #transfers }};;
+  models: [
+    transfers
+  ]
+}

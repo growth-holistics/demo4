@@ -1,0 +1,229 @@
+Dataset sales_pipeline {
+  __engine__: 'aql'
+  label: 'sales_pipeline',
+  description: ''
+  data_source_name: 'amyra_holistics'
+  models: [
+    dim_product_taxonomy,
+    fct_satisfaction_scores,
+    fct_deal_stage_history,
+    dim_improvements,
+    dim_contacts,
+    fct_raw_inputs,
+    fct_call_attendees,
+    fct_subscriptions,
+    fct_calls,
+    dim_companies,
+    dim_competitors,
+    dim_reps,
+    fct_deals
+  ]
+    relationships: [
+    // fct_deals → dimensions
+    relationship(fct_deals.company_id > dim_companies.id, true),
+    relationship(fct_deals.owner_id > dim_reps.id, true),
+
+    // fct_deal_stage_history → fct_deals
+    relationship(fct_deal_stage_history.deal_id > fct_deals.id, true),
+
+    // fct_calls → company (direct only — omit transitive via fct_deals)
+    relationship(fct_calls.company_id > dim_companies.id, true),
+    relationship(fct_calls.deal_id > fct_deals.id, true),
+
+    // fct_call_attendees → calls + contacts
+    relationship(fct_call_attendees.call_id > fct_calls.id, true),
+    relationship(fct_call_attendees.person_id > dim_contacts.id, true),
+
+    // fct_subscriptions → company (direct only — omit transitive via fct_deals)
+    relationship(fct_subscriptions.company_id > dim_companies.id, true),
+    relationship(fct_subscriptions.deal_id > fct_deals.id, true),
+
+    // fct_raw_inputs → company (direct only — omit transitive via fct_calls)
+    relationship(fct_raw_inputs.company_id > dim_companies.id, true),
+    relationship(fct_raw_inputs.call_id > fct_calls.id, true),
+    relationship(fct_raw_inputs.improvement_id > dim_improvements.id, true),
+    // Role-playing: competitor FK → dim_competitors (separate model from dim_companies)
+    relationship(fct_raw_inputs.competitor_id > dim_competitors.id, true),
+
+    // fct_satisfaction_scores → company
+    relationship(fct_satisfaction_scores.company_id > dim_companies.id, true),
+
+    // dim_improvements → product taxonomy
+    relationship(dim_improvements.feature_id > dim_product_taxonomy.id, true)
+  ]
+
+  // FILL
+  metric active_pipeline_value {
+    label: 'Active Pipeline Value (USD)'
+    type: 'number'
+    definition: @aql sum(fct_deals, fct_deals.deal_value_usd) | where(fct_deals.status == 'in_progress');;
+  }
+  metric active_deal_count {
+    label: 'Active Deals'
+    type: 'number'
+    definition: @aql count(fct_deals.id) | where(fct_deals.status == 'in_progress');;
+  }
+  metric ghost_deal_count {
+    label: 'Ghost Deals'
+    type: 'number'
+    definition: @aql count(fct_deals.id) | where(fct_deals.status == 'ghost');;
+  }
+  metric ghost_rate {
+    label: 'Ghost Rate (%)'
+    type: 'number'
+    definition: @aql safe_divide(ghost_deal_count * 100.0, active_deal_count + ghost_deal_count);;
+  }
+  metric new_pipeline_value {
+    label: 'New Pipeline Value (USD)'
+    type: 'number'
+    definition: @aql sum(fct_deals, fct_deals.deal_value_usd);;
+  }
+
+  // CONVERT
+  metric won_deals {
+    label: 'Won Deals'
+    type: 'number'
+    definition: @aql count(fct_deals.id) | where(fct_deals.status == 'won');;
+  }
+  metric lost_deals {
+    label: 'Lost Deals'
+    type: 'number'
+    definition: @aql count(fct_deals.id) | where(fct_deals.status == 'lost');;
+  }
+  metric win_rate {
+    label: 'Win Rate (%)'
+    type: 'number'
+    definition: @aql safe_divide(won_deals * 100.0, won_deals + lost_deals);;
+  }
+  metric won_revenue {
+    label: 'Won Revenue (USD)'
+    type: 'number'
+    definition: @aql sum(fct_deals, fct_deals.deal_value_usd) | where(fct_deals.status == 'won');;
+  }
+  metric avg_deal_value {
+    label: 'Avg Deal Value (USD)'
+    type: 'number'
+    definition: @aql safe_divide(won_revenue, won_deals);;
+  }
+  metric avg_sales_cycle_won {
+    label: 'Avg Sales Cycle — Won (Days)'
+    type: 'number'
+    definition: @aql avg(fct_deals, fct_deals.days_to_close) | where(fct_deals.status == 'won');;
+  }
+  metric avg_sales_cycle_lost {
+    label: 'Avg Sales Cycle — Lost (Days)'
+    type: 'number'
+    definition: @aql avg(fct_deals, fct_deals.days_to_close) | where(fct_deals.status == 'lost');;
+  }
+  metric avg_time_in_stage {
+    label: 'Avg Time in Stage (Days)'
+    type: 'number'
+    definition: @aql avg(fct_deal_stage_history, fct_deal_stage_history.days_in_stage);;
+  }
+  metric stage_entries {
+    label: 'Stage Entries'
+    type: 'number'
+    definition: @aql count_distinct(fct_deal_stage_history.deal_id);;
+  }
+
+  // TEAM
+  metric total_calls {
+    label: 'Total Calls'
+    type: 'number'
+    definition: @aql count(fct_calls.id);;
+  }
+  metric calls_per_week {
+    label: 'Calls per Week'
+    type: 'number'
+    definition: @aql
+      fct_calls
+      | group(fct_calls.call_date | week())
+      | select(weekly: count(fct_calls.id))
+      | avg(weekly);;
+  }
+  metric rep_win_rate {
+    label: 'Rep Win Rate (%)'
+    type: 'number'
+    description: 'Use with dim_reps.name as dimension.'
+    definition: @aql safe_divide(won_deals * 100.0, won_deals + lost_deals);;
+  }
+
+  // RETAIN
+  metric active_mrr {
+    label: 'Active MRR (USD)'
+    type: 'number'
+    definition: @aql sum(fct_subscriptions, fct_subscriptions.mrr_usd) | where(fct_subscriptions.is_active == true);;
+  }
+  metric active_customer_count {
+    label: 'Active Customers'
+    type: 'number'
+    definition: @aql count_distinct(fct_subscriptions.company_id) | where(fct_subscriptions.is_active == true);;
+  }
+  metric avg_mrr_per_customer {
+    label: 'Avg MRR per Customer (USD)'
+    type: 'number'
+    definition: @aql safe_divide(active_mrr, active_customer_count);;
+  }
+  metric churned_mrr {
+    label: 'Churned MRR (USD)'
+    type: 'number'
+    definition: @aql sum(fct_subscriptions, fct_subscriptions.mrr_usd) | where(fct_subscriptions.is_active == false);;
+  }
+  metric mrr_churn_rate {
+    label: 'MRR Churn Rate (%)'
+    type: 'number'
+    definition: @aql safe_divide(churned_mrr * 100.0, active_mrr + churned_mrr);;
+  }
+  metric avg_satisfaction_score {
+    label: 'Avg Satisfaction Score'
+    type: 'number'
+    definition: @aql avg(fct_satisfaction_scores, fct_satisfaction_scores.score);;
+  }
+  metric post_sale_calls {
+    label: 'Post-Sale Calls'
+    type: 'number'
+    definition: @aql count(fct_calls.id) | where(fct_calls.phase == 'post_sale');;
+  }
+  metric open_issues {
+    label: 'Open Issues'
+    type: 'number'
+    definition: @aql count(fct_raw_inputs.id) | where(fct_raw_inputs.is_open == true);;
+  }
+
+  // MARKET SIGNALS
+  metric competitor_mentions {
+    label: 'Competitor Mentions'
+    type: 'number'
+    definition: @aql count(fct_raw_inputs.id) | where(fct_raw_inputs.is_competitor_mention == true);;
+  }
+  metric blocking_improvements {
+    label: 'Blocking Improvements'
+    type: 'number'
+    definition: @aql count(dim_improvements.id) | where(dim_improvements.is_blocking == true);;
+  }
+  metric companies_affected {
+    label: 'Companies Affected'
+    type: 'number'
+    definition: @aql count_distinct(fct_raw_inputs.company_id);;
+  }
+
+  // DATASET DIMENSIONS
+  dimension acquisition_cohort {
+    model: dim_companies
+    type: 'date'
+    label: 'Acquisition Cohort'
+    definition: @aql min(fct_subscriptions.started_at | month()) | dimensionalize(dim_companies.id);;
+  }
+  dimension days_since_last_call {
+    model: dim_companies
+    type: 'number'
+    label: 'Days Since Last Post-Sale Call'
+    definition: @aql
+      date_diff('day',
+        max(fct_calls.call_date) | where(fct_calls.phase == 'post_sale'),
+        @today
+      ) | dimensionalize(dim_companies.id);;
+  }
+
+  
+}

@@ -1,0 +1,139 @@
+Dataset pawductive_customer_support_data {
+  __engine__: 'aql'
+  label: '[Pawductive] Customer support'
+  description: 'Support performance, customer feedback, and satisfaction trends'
+  data_source_name: 'demodb'
+  models: [
+    support_categories,
+    support_surveys,
+    support_tickets,
+    support_users,
+    support_agents
+  ]
+  relationships: [
+    relationship(support_tickets.user_id > support_users.user_id, true),
+    relationship(support_surveys.ticket_id > support_tickets.id, true),
+    relationship(support_tickets.category_id > support_categories.id, true),
+    relationship(support_tickets.agent_id > support_agents.agent_id, true)
+  ]
+  metric total_csat_response {
+    label: "Total Csat Response"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(support_surveys.id);;
+  }
+  metric survey_to_ticket_ratio {
+    label: "Survey / ticket ratio"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql total_csat_response * 1.0 / total_tickets;;
+  }
+  metric count_of_satisfied_csat {
+    label: "Count of satisfied CSAT"
+    type: "number"
+    hidden: false
+    description: "Satisfied score = 4 or 5"
+    definition: @aql count(support_surveys.csat_score)
+| where(support_surveys.csat_score >= 4);;
+  }
+  metric csat {
+    label: "CSAT"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count_of_satisfied_csat * 1.0 / total_csat_response;;
+  }
+  metric avg_day_to_first_response {
+    label: "Avg Day To First Response"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(support_tickets.days_to_first_response);;
+  }
+  metric avg_day_to_resolution {
+    label: "Avg Day To Resolution"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(support_tickets.days_to_resolution);;
+  }
+  metric count_of_unsatisfied_csat {
+    label: "Count of unsatisfied CSAT"
+    type: "number"
+    hidden: false
+    description: "Unsatisfied score < 4"
+    definition: @aql count(support_surveys.csat_score)
+| where(support_surveys.csat_score < 4);;
+  }
+  metric total_csat_answers {
+    label: "Total survey answers"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(support_surveys.id);;
+    format: ""
+  }
+  metric avg_week_to_resolution {
+    label: "Avg Week To Resolution"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg_day_to_resolution / 7;;
+  }
+  metric avg_csat_score {
+    label: "Avg CSAT"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql avg(support_surveys.csat_score);;
+    format: ""
+  }
+  metric total_tickets {
+    label: "Total Tickets"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(support_tickets.id);;
+  }
+  metric csat_target {
+    label: "CSAT Target"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql 0.8;;
+  }
+  dimension days_to_first_response {
+    label: "Days to first response"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql date_diff('day', support_tickets.created_at, support_tickets.first_response_at);;
+    model: support_tickets
+  }
+  dimension days_to_resolution {
+    label: "Days to resolution"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql date_diff('day', support_tickets.created_at, support_tickets.resolved_at);;
+    model: support_tickets
+  }
+  dimension week_to_resolution {
+    label: "Week To Resolution"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql support_tickets.days_to_resolution/7;;
+    model: support_tickets
+  }
+  dimension rounded_week_to_resolution {
+    label: "Rounded Week To Resolution"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql round(cast(support_tickets.week_to_resolution, 'number'), 0);;
+    model: support_tickets
+  }
+}

@@ -1,0 +1,1884 @@
+const W = 1440
+const G = 16
+const C4 = 348
+const C3 = 469
+const C2 = 712
+const U = 352
+const U21 = 475
+@tag('Endorsed', 'Owner/Finance', 'Status/Active')
+Dashboard sales_dashboard {
+  title: 'Sales Pipeline & Performance'
+  theme: neon_dark
+  block filter_date: FilterBlock {
+    label: 'Date Range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: sales_pipeline
+      field: r(fct_deals.created_at)
+    }
+    default {
+      operator: 'matches'
+      value: 'this year'
+    }
+  }
+  block hero: TextBlock {
+    theme: BlockTheme {
+      background {
+        bg_color: "#12182E"
+      }
+      border {
+        border_color: "#1A1E30"
+        border_radius: 16
+      }
+      padding: 24
+    }
+    content: @md <span class="t-lime t-label">Q1 2026 · Sales Snapshot</span>
+
+## Hi team, here's what's <span class="t-lime">happening</span> this quarter.
+
+<span class="t-muted">Key metrics for the quarter are shown below. Watch ghost rate and pipeline coverage for next cycle.</span>;;
+  }
+  block hero_kpi_revenue: VizBlock {
+    label: 'Revenue'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.won_revenue)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      border {
+        border_radius: 12
+        border_color: '#1A1E30'
+      }
+      background {
+        bg_color: '#12182E'
+      }
+      padding: 16
+    }
+  }
+  block hero_kpi_deals_won: VizBlock {
+    label: 'Deals Won'
+    theme: BlockTheme {
+      background {
+        bg_color: "#12182E"
+      }
+      border {
+        border_color: "#1A1E30"
+        border_radius: 12
+      }
+      padding: 16
+    }
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.won_deals)
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block hero_kpi_win_rate: VizBlock {
+    label: 'Win Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.win_rate)
+        format {
+          type: 'number'
+          pattern: '#,###\\%'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      border {
+        border_radius: 12
+        border_color: '#1A1E30'
+      }
+      background {
+        bg_color: '#12182E'
+      }
+      padding: 16
+    }
+  }
+  block hero_kpi_nrr: VizBlock {
+    label: 'NRR'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.mrr_churn_rate)
+        format {
+          type: 'number'
+          pattern: '#,###\\%'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      border {
+        border_radius: 12
+        border_color: '#1A1E30'
+      }
+      background {
+        bg_color: '#12182E'
+      }
+      padding: 16
+    }
+  }
+  block kpi_closed_revenue: VizBlock {
+    label: 'Closed Revenue Q1'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.won_revenue)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0,,"M"'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#0A0C15'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#0A0C15'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      label {
+        font_color: '#0A0C15'
+      }
+      text {
+        font_color: '#0A0C15'
+      }
+      border {
+        border_radius: 16
+        border_color: '#CAFF00'
+      }
+      background {
+        bg_color: '#CAFF00'
+      }
+    }
+  }
+  block kpi_pipeline: VizBlock {
+    label: 'Active Pipeline'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_pipeline_value)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.0,,"M"'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#E8ECFFFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      border {
+        border_radius: 16
+        border_color: '#4F6EF5'
+      }
+      background {
+        bg_color: '#4F6EF5'
+      }
+    }
+  }
+  block chart_revenue_trend: VizBlock {
+    label: 'Won Revenue by Month'
+    viz: CombinationChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        ref: r(fct_deals.closed_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'MMM yy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(sales_pipeline.won_revenue)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0,"K"'
+            }
+          }
+          settings {
+            color: '#E8ECFFFF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(sales_pipeline.win_rate)
+            format {
+              type: 'number'
+              pattern: '#0\\%'
+            }
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        legend_label: 'top'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block kpi_win_rate: VizBlock {
+    label: 'Win Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.win_rate)
+        format {
+          type: 'number'
+          pattern: '#0.0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_avg_deal: VizBlock {
+    label: 'Avg Deal Size'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.avg_deal_value)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.0,"K"'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_sales_cycle: VizBlock {
+    label: 'Avg Sales Cycle'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.avg_sales_cycle_won)
+        format {
+          type: 'number'
+          pattern: '#,###0"d"'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_ghost_rate: VizBlock {
+    label: 'Ghost Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.ghost_rate)
+        format {
+          type: 'number'
+          pattern: '#0.0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block table_recent_closes: VizBlock {
+    label: 'Recent Closes'
+    viz: DataTable {
+      dataset: sales_pipeline
+      fields: [
+        VizFieldFull {
+          label: 'Company'
+          ref: r(dim_companies.name)
+          uname: 'dim_companies_name'
+        },
+        VizFieldFull {
+          label: 'Owner'
+          ref: r(dim_reps.name)
+          uname: 'dim_reps_name'
+        },
+        VizFieldFull {
+          label: 'Value'
+          ref: r(fct_deals.deal_value_usd)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0'
+          }
+          uname: 'fct_deals_deal_value_usd'
+        },
+        VizFieldFull {
+          label: 'Outcome'
+          ref: r(fct_deals.status)
+          uname: 'fct_deals_status'
+        },
+        VizFieldFull {
+          label: 'Win Reason'
+          ref: r(fct_deals.win_reason)
+          uname: 'fct_deals_win_reason'
+        },
+        VizFieldFull {
+          label: 'Lost Reason'
+          ref: r(fct_deals.lost_reason)
+          uname: 'fct_deals_lost_reason'
+        },
+        VizFieldFull {
+          label: 'Days to Close'
+          ref: r(fct_deals.days_to_close)
+          format {
+            type: 'number'
+            pattern: '#,###0"d"'
+          }
+          uname: 'fct_deals_days_to_close'
+        }
+      ]
+      settings {
+        row_limit: 50
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'dim_companies_name'
+            width: 230
+          },
+          ColumnStyle {
+            key: 'dim_reps_name'
+            width: 171
+          },
+          ColumnStyle {
+            key: 'fct_deals_deal_value_usd'
+            width: 167
+          },
+          ColumnStyle {
+            key: 'fct_deals_status'
+            width: 167
+          },
+          ColumnStyle {
+            key: 'fct_deals_win_reason'
+            width: 221
+          },
+          ColumnStyle {
+            key: 'fct_deals_lost_reason'
+            width: 196
+          },
+          ColumnStyle {
+            key: 'fct_deals_days_to_close'
+            width: 199
+          }
+        ]
+      }
+    }
+  }
+  block kpi_total_pipeline: VizBlock {
+    label: 'Total Pipeline'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_pipeline_value)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.0,,"M"'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_at_risk: VizBlock {
+    label: 'At Risk Deals'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_deal_count)
+      }
+      filter {
+        field: r(fct_deals.sub_status)
+        operator: 'is'
+        value: 'at_risk'
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_avg_deal_age: VizBlock {
+    label: 'Avg Deal Age'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.avg_sales_cycle_won)
+        format {
+          type: 'number'
+          pattern: '#,###0"d"'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_forecast_close: VizBlock {
+    label: 'Forecast Close'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_pipeline_value)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0,"K"'
+        }
+      }
+      filter {
+        field: r(fct_deals.stage)
+        operator: 'is'
+        value: 'focus'
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block table_top_deals: VizBlock {
+    label: 'Top Open Deals'
+    viz: DataTable {
+      dataset: sales_pipeline
+      filter {
+        field: r(fct_deals.status)
+        operator: 'is'
+        value: 'in_progress'
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Stage'
+          ref: r(fct_deals.stage)
+          uname: 'fct_deals_stage'
+        },
+        VizFieldFull {
+          label: 'Owner'
+          ref: r(dim_reps.name)
+          uname: 'dim_reps_name'
+        },
+        VizFieldFull {
+          label: 'Company'
+          ref: r(dim_companies.name)
+          uname: 'dim_companies_name'
+        },
+        VizFieldFull {
+          ref: r(dim_companies.country)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(dim_companies.industry)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Value'
+          ref: r(fct_deals.deal_value_usd)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0'
+          }
+          uname: 'fct_deals_deal_value_usd'
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'fct_deals_stage'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 50
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'dim_companies_name'
+            width: 342
+          },
+          ColumnStyle {
+            key: 'fct_deals_deal_value_usd'
+            width: 251
+          },
+          ColumnStyle {
+            key: 'fct_deals_stage'
+            width: 251
+          },
+          ColumnStyle {
+            key: 'dim_reps_name'
+            width: 256
+          }
+        ]
+      }
+    }
+  }
+  block kpi_team_revenue: VizBlock {
+    label: 'Q1 Revenue'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.won_revenue)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0,"K"'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_team_win_rate: VizBlock {
+    label: 'Team Win Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.win_rate)
+        format {
+          type: 'number'
+          pattern: '#0.0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_team_ghost: VizBlock {
+    label: 'Ghost Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.ghost_rate)
+        format {
+          type: 'number'
+          pattern: '#0.0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_team_calls: VizBlock {
+    label: 'Avg Calls / Week'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.calls_per_week)
+        format {
+          type: 'number'
+          pattern: '#,###0.0'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+  }
+  block table_rep_performance: VizBlock {
+    label: 'Rep Performance'
+    viz: DataTable {
+      dataset: sales_pipeline
+      fields: [
+        VizFieldFull {
+          label: 'Rep'
+          ref: r(dim_reps.name)
+          uname: 'dim_reps_name'
+        },
+        VizFieldFull {
+          label: 'Win Rate'
+          ref: r(sales_pipeline.rep_win_rate)
+          format {
+            type: 'number'
+            pattern: '#0.0\\%'
+          }
+          uname: 'custom_rep_win_rate'
+        },
+        VizFieldFull {
+          label: 'Open Pipeline'
+          ref: r(sales_pipeline.active_pipeline_value)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0,"K"'
+          }
+          uname: 'custom_active_pipeline_value'
+        },
+        VizFieldFull {
+          label: 'Open Deals'
+          ref: r(sales_pipeline.active_deal_count)
+          uname: 'custom_active_deal_count'
+        },
+        VizFieldFull {
+          label: 'Calls / Wk'
+          ref: r(sales_pipeline.calls_per_week)
+          format {
+            type: 'number'
+            pattern: '#,###0.0'
+          }
+          uname: 'custom_calls_per_week'
+        },
+        VizFieldFull {
+          label: 'Ghost Rate'
+          ref: r(sales_pipeline.ghost_rate)
+          format {
+            type: 'number'
+            pattern: '#0.0\\%'
+          }
+          uname: 'custom_ghost_rate'
+        }
+      ]
+      settings {
+        row_limit: 20
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'dim_reps_name'
+            width: 217
+          },
+          ColumnStyle {
+            key: 'custom_rep_win_rate'
+            width: 213
+          },
+          ColumnStyle {
+            key: 'custom_active_pipeline_value'
+            width: 254
+          },
+          ColumnStyle {
+            key: 'custom_active_deal_count'
+            width: 228
+          },
+          ColumnStyle {
+            key: 'custom_calls_per_week'
+            width: 213
+          },
+          ColumnStyle {
+            key: 'custom_ghost_rate'
+            width: 226
+          }
+        ]
+      }
+    }
+  }
+  block chart_rep_won_lost: VizBlock {
+    label: 'Deals Won vs Lost — All Time by Rep'
+    viz: ColumnChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        label: 'Rep'
+        ref: r(dim_reps.name)
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Won'
+            ref: r(sales_pipeline.won_deals)
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Lost'
+            ref: r(sales_pipeline.lost_deals)
+          }
+          settings {
+            color: '#6E7C9E'
+          }
+        }
+      }
+      settings {
+        row_limit: 20
+        legend_label: 'top'
+        x_axis_label: 'Rep'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block kpi_active_accounts: VizBlock {
+    label: 'Active Accounts'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_customer_count)
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_active_mrr: VizBlock {
+    label: 'Active MRR'
+    theme: BlockTheme {
+      background {
+        bg_color: "#CAFF00"
+      }
+      border {
+        border_color: "#CAFF00"
+        border_radius: 16
+      }
+    }
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.active_mrr)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.0,"K"'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_nrr: VizBlock {
+    label: 'NRR — TODO: add metric'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.mrr_churn_rate)
+        format {
+          type: 'number'
+          pattern: '#0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_mrr_churn: VizBlock {
+    label: 'MRR Churn Rate'
+    viz: MetricKpi {
+      dataset: sales_pipeline
+      value: VizFieldFull {
+        ref: r(sales_pipeline.mrr_churn_rate)
+        format {
+          type: 'number'
+          pattern: '#0.0\\%'
+        }
+      }
+      settings {
+        alignment: 'left'
+        metric_value {
+          font_color: '#E8ECFFFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block chart_mrr_growth: VizBlock {
+    label: 'MRR Growth'
+    viz: LineChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        ref: r(fct_subscriptions.started_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'MMM yy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Active MRR'
+            ref: r(sales_pipeline.active_mrr)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0,"K"'
+            }
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_plan_distribution: VizBlock {
+    label: 'Plan Distribution'
+    viz: BarChart {
+      dataset: sales_pipeline
+      filter {
+        field: r(fct_subscriptions.is_active)
+        operator: 'is'
+        value: 'true'
+      }
+      x_axis: VizFieldFull {
+        label: 'Plan'
+        ref: r(fct_subscriptions.plan_name)
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Accounts'
+            ref: r(sales_pipeline.active_customer_count)
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 20
+        legend_label: 'right'
+        x_axis_label: 'Plan'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_version_distribution: VizBlock {
+    label: 'Version Distribution'
+    viz: BarChart {
+      dataset: sales_pipeline
+      filter {
+        field: r(fct_subscriptions.is_active)
+        operator: 'is'
+        value: 'true'
+      }
+      x_axis: VizFieldFull {
+        label: 'Version'
+        ref: r(fct_subscriptions.product_version)
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Accounts'
+            ref: r(sales_pipeline.active_customer_count)
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 20
+        legend_label: 'right'
+        x_axis_label: 'Version'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_regional: VizBlock {
+    label: 'Regional Breakdown'
+    viz: ColumnChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        label: 'Country'
+        ref: r(dim_companies.country)
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Accounts'
+            ref: r(sales_pipeline.active_customer_count)
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 50
+        x_axis_label: 'Country'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_nxxy: VizBlock {
+    label: 'Customer Distribution by Country'
+    viz: Heatmap {
+      dataset: sales_pipeline
+      lng: VizFieldFull {
+        ref: r(dim_companies.longitude)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      lat: VizFieldFull {
+        ref: r(dim_companies.latitude)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      value: VizFieldFull {
+        ref: r(dim_companies.id)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        default_view {
+          zoom_level: 3
+          center {
+            lat: 10
+            lng: 110
+          }
+        }
+        value_colors {
+          min {
+            value: 1
+            color: '#4F6EF5'
+          }
+          mid {
+            color: '#6E7C9E'
+          }
+          max {
+            value: 65
+            color: '#CAFF00'
+          }
+        }
+      }
+    }
+  }
+  block v_hoyo: VizBlock {
+    label: 'Active Deals by Stage'
+    viz: BarChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        ref: r(fct_deal_stage_history.stage)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(sales_pipeline.active_deal_count)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'right'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_yh55: VizBlock {
+    label: 'Deals Won vs Lost — All Time by Rep copy'
+    viz: CombinationChart {
+      dataset: sales_pipeline
+      x_axis: VizFieldFull {
+        ref: r(fct_deals.closed_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Won'
+            ref: r(sales_pipeline.won_deals)
+          }
+          settings {
+            color: '#CAFF00FF'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Lost'
+            ref: r(sales_pipeline.lost_deals)
+          }
+          settings {
+            color: '#6E7C9E'
+          }
+        }
+      }
+      settings {
+        row_limit: 20
+        legend_label: 'top'
+        x_axis_label: 'Rep'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  settings {
+    timezone: 'Asia/Singapore'
+    cache_duration: 360
+    autorun: true
+  }
+  view: TabLayout {
+    tab overview: CanvasLayout {
+      label: 'Overview'
+      width: 1450
+      height: 930
+      block hero {
+        position: pos(10, 10, 720, 240)
+      }
+      block hero_kpi_revenue {
+        position: pos(10, 140, 170, 100)
+        layer: 1
+      }
+      block hero_kpi_deals_won {
+        position: pos(190, 140, 170, 100)
+        layer: 2
+      }
+      block hero_kpi_win_rate {
+        position: pos(370, 140, 170, 100)
+        layer: 3
+      }
+      block hero_kpi_nrr {
+        position: pos(550, 140, 170, 100)
+        layer: 4
+      }
+      block kpi_closed_revenue {
+        position: pos(740, 120, 350, 130)
+      }
+      block kpi_pipeline {
+        position: pos(1100, 120, 340, 130)
+      }
+      block chart_revenue_trend {
+        position: pos(10, 260, 950, 300)
+      }
+      block kpi_win_rate {
+        position: pos(970, 260, 230, 140)
+      }
+      block kpi_avg_deal {
+        position: pos(1210, 260, 230, 140)
+      }
+      block kpi_sales_cycle {
+        position: pos(970, 420, 230, 140)
+      }
+      block kpi_ghost_rate {
+        position: pos(1210, 420, 230, 140)
+      }
+      block table_recent_closes {
+        position: pos(10, 570, 1430, 350)
+      }
+      block filter_date {
+        position: pos(740, 10, 700, 100)
+      }
+    }
+    tab pipeline: CanvasLayout {
+      label: 'Pipeline'
+      width: 1450
+      height: 1300
+      block kpi_total_pipeline {
+        position: pos(10, 10, 350, 150)
+        layer: 1
+      }
+      block kpi_at_risk {
+        position: pos(370, 10, 350, 150)
+        layer: 2
+      }
+      block kpi_avg_deal_age {
+        position: pos(730, 10, 350, 150)
+        layer: 3
+      }
+      block kpi_forecast_close {
+        position: pos(1090, 10, 350, 150)
+        layer: 4
+      }
+      block table_top_deals {
+        position: pos(10, 600, 1430, 690)
+      }
+      block v_hoyo {
+        position: pos(10, 170, 560, 420)
+        layer: 3
+      }
+      block v_yh55 {
+        position: pos(580, 170, 860, 420)
+        layer: 3
+      }
+    }
+    tab team: CanvasLayout {
+      label: 'Team'
+      width: 1440
+      height: 900
+      block kpi_team_revenue {
+        position: pos(10, 10, 350, 150)
+        layer: 1
+      }
+      block kpi_team_win_rate {
+        position: pos(370, 10, 350, 150)
+        layer: 2
+      }
+      block kpi_team_ghost {
+        position: pos(730, 10, 350, 150)
+        layer: 3
+      }
+      block kpi_team_calls {
+        position: pos(1090, 10, 340, 150)
+        layer: 4
+      }
+      block table_rep_performance {
+        position: pos(10, 170, 1420, 340)
+      }
+      block chart_rep_won_lost {
+        position: pos(10, 510, 1420, 380)
+      }
+    }
+    tab customers: CanvasLayout {
+      label: 'Customers'
+      width: 1460
+      height: 1350
+      block kpi_active_accounts {
+        position: pos(10, 10, 350, 170)
+      }
+      block kpi_active_mrr {
+        position: pos(380, 10, 350, 170)
+      }
+      block kpi_nrr {
+        position: pos(750, 10, 350, 170)
+      }
+      block kpi_mrr_churn {
+        position: pos(1100, 10, 350, 170)
+      }
+      block chart_mrr_growth {
+        position: pos(10, 580, 470, 310)
+      }
+      block chart_plan_distribution {
+        position: pos(10, 910, 470, 180)
+      }
+      block chart_version_distribution {
+        position: pos(10, 1110, 470, 200)
+      }
+      block chart_regional {
+        position: pos(10, 190, 1440, 380)
+      }
+      block table_enterprise_accounts {
+        position: pos(0, 1024, 1440, 320)
+      }
+      block v_nxxy {
+        position: pos(500, 580, 950, 730)
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'filter_date'
+      to: [
+        CustomMapping {
+          block: 'kpi_pipeline'
+          field: ref('fct_deals', 'created_at')
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'hero_kpi_revenue'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'hero_kpi_deals_won'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'hero_kpi_win_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'hero_kpi_nrr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_closed_revenue'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_pipeline'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_revenue_trend'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_win_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_avg_deal'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_sales_cycle'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_ghost_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'table_recent_closes'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_total_pipeline'
+      to: [
+        CustomMapping {
+          block: 'v_nxxy'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_at_risk'
+      to: [
+        CustomMapping {
+          block: 'v_nxxy'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_avg_deal_age'
+      to: [
+        CustomMapping {
+          block: 'v_nxxy'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_forecast_close'
+      to: [
+        CustomMapping {
+          block: 'v_nxxy'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'table_top_deals'
+      to: [
+        CustomMapping {
+          block: 'v_nxxy'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_team_revenue'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_team_win_rate'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_team_ghost'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_team_calls'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'table_rep_performance'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_rep_won_lost'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nxxy',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_active_accounts'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_active_mrr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_nrr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'kpi_mrr_churn'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_mrr_growth'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_plan_distribution'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_version_distribution'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'chart_regional'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_nxxy'
+      to: [
+        CustomMapping {
+          block: [
+            'hero_kpi_revenue',
+            'hero_kpi_deals_won',
+            'hero_kpi_win_rate',
+            'hero_kpi_nrr',
+            'kpi_closed_revenue',
+            'kpi_pipeline',
+            'chart_revenue_trend',
+            'kpi_win_rate',
+            'kpi_avg_deal',
+            'kpi_sales_cycle',
+            'kpi_ghost_rate',
+            'table_recent_closes',
+            'kpi_total_pipeline',
+            'kpi_at_risk',
+            'kpi_avg_deal_age',
+            'kpi_forecast_close',
+            'table_top_deals',
+            'kpi_team_revenue',
+            'kpi_team_win_rate',
+            'kpi_team_ghost',
+            'kpi_team_calls',
+            'table_rep_performance',
+            'chart_rep_won_lost',
+            'v_hoyo',
+            'v_yh55'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hoyo'
+      to: [
+        CustomMapping {
+          block: [
+            'hero_kpi_revenue',
+            'hero_kpi_deals_won',
+            'hero_kpi_win_rate',
+            'hero_kpi_nrr',
+            'kpi_closed_revenue',
+            'kpi_pipeline',
+            'chart_revenue_trend',
+            'kpi_win_rate',
+            'kpi_avg_deal',
+            'kpi_sales_cycle',
+            'kpi_ghost_rate',
+            'table_recent_closes',
+            'kpi_team_revenue',
+            'kpi_team_win_rate',
+            'kpi_team_ghost',
+            'kpi_team_calls',
+            'table_rep_performance',
+            'chart_rep_won_lost',
+            'kpi_active_accounts',
+            'kpi_active_mrr',
+            'kpi_nrr',
+            'kpi_mrr_churn',
+            'chart_mrr_growth',
+            'chart_plan_distribution',
+            'chart_version_distribution',
+            'chart_regional',
+            'v_nxxy'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_yh55'
+      to: [
+        CustomMapping {
+          block: [
+            'hero_kpi_revenue',
+            'hero_kpi_deals_won',
+            'hero_kpi_win_rate',
+            'hero_kpi_nrr',
+            'kpi_closed_revenue',
+            'kpi_pipeline',
+            'chart_revenue_trend',
+            'kpi_win_rate',
+            'kpi_avg_deal',
+            'kpi_sales_cycle',
+            'kpi_ghost_rate',
+            'table_recent_closes',
+            'kpi_team_revenue',
+            'kpi_team_win_rate',
+            'kpi_team_ghost',
+            'kpi_team_calls',
+            'table_rep_performance',
+            'chart_rep_won_lost',
+            'kpi_active_accounts',
+            'kpi_active_mrr',
+            'kpi_nrr',
+            'kpi_mrr_churn',
+            'chart_mrr_growth',
+            'chart_plan_distribution',
+            'chart_version_distribution',
+            'chart_regional',
+            'v_nxxy'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

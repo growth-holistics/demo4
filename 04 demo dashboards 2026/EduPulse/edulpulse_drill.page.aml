@@ -1,0 +1,76 @@
+Dashboard edulpulse_drill {
+  title: 'edulpulse_drill'
+  description: ''
+  owner: 'minh.ntn@holistics.io'
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    mobile {
+      mode: 'auto'
+    }
+    block f_courses_category {
+      position: pos(80, 60, 300, 80)
+    }
+    block v_gdgs {
+      position: pos(80, 180, 620, 420)
+    }
+  }
+
+  theme: H.themes.vanilla
+  block f_courses_category: FilterBlock {
+    label: 'Courses Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: minh_edu
+      field: r(courses_csv.category)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+  }
+  block v_gdgs: VizBlock {
+    label: 'Completion Rate by Category'
+    viz: AreaChart {
+      dataset: minh_edu
+      x_axis: VizFieldFull {
+        ref: r(courses_csv.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(minh_edu.completion_rate)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+}

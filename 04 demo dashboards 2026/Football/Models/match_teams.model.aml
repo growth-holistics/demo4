@@ -1,0 +1,69 @@
+Model match_teams {
+  type: 'query'
+  label: 'Match Teams'
+  description: 'Bridge model with one row per match-team so team filters can match both home and away appearances.'
+  owner: 'son.hoang@holistics.io'
+  data_source_name: 'demodb'
+
+  models: [matches_csv, teams_csv]
+
+  query: @sql
+    select
+      {{ #matches_csv.match_id }} as match_team_id,
+      {{ #matches_csv.match_id }} as match_id,
+      {{ #matches_csv.home_team_id }} as team_id,
+      {{ #teams_csv.team_name }} as team_name,
+      'home' as team_role
+    from {{ #matches_csv }}
+    left join {{ #teams_csv }}
+      on {{ #matches_csv.home_team_id }} = {{ #teams_csv.id }}
+
+    union all
+
+    select
+      {{ #matches_csv.match_id }} || '-away' as match_team_id,
+      {{ #matches_csv.match_id }} as match_id,
+      {{ #matches_csv.away_team_id }} as team_id,
+      {{ #teams_csv.team_name }} as team_name,
+      'away' as team_role
+    from {{ #matches_csv }}
+    left join {{ #teams_csv }}
+      on {{ #matches_csv.away_team_id }} = {{ #teams_csv.id }}
+  ;;
+
+  dimension match_team_id {
+    label: 'Match Team Id'
+    type: 'text'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.match_team_id }};;
+  }
+
+  dimension match_id {
+    label: 'Match'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.match_id }};;
+  }
+
+  dimension team_id {
+    label: 'Team Id'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.team_id }};;
+  }
+
+  dimension team_name {
+    label: 'Team Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.team_name }};;
+  }
+
+  dimension team_role {
+    label: 'Team Role'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.team_role }};;
+  }
+}

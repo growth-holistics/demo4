@@ -15,9 +15,9 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_1n2l: VizBlock {
     label: 'Total Revenue'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.total_revenue)
+        ref: r(demo_finance_di.total_revenue)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -50,9 +50,9 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_ki4y: VizBlock {
     label: 'Gross Profit'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.gross_profit)
+        ref: r(demo_finance_di.gross_profit)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -85,9 +85,9 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_9396: VizBlock {
     label: 'EBITDA'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.ebitda)
+        ref: r(demo_finance_di.ebitda)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -120,9 +120,9 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_v7u3: VizBlock {
     label: 'Cash Balance'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.cash_balance)
+        ref: r(demo_finance_di.cash_balance)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -155,9 +155,9 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_8vn3: VizBlock {
     label: 'Net Income'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.net_income)
+        ref: r(demo_finance_di.net_income)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -191,7 +191,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
     label: 'Date Range'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_finance
+      dataset: demo_finance_di
       field: r(fact_gl_entries.date)
     }
     default {
@@ -202,7 +202,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_bcw6: VizBlock {
     label: 'Revenue vs. Operating Expenses'
     viz: CombinationChart {
-      dataset: demo_finance
+      dataset: demo_finance_di
       calculation abs_expenses {
         label: 'Abs Expenses'
         formula: @aql abs(expenses);;
@@ -222,7 +222,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
           mark_type: 'column'
           field: VizFieldFull {
             label: 'Revenue'
-            ref: r(demo_finance.total_revenue)
+            ref: r(demo_finance_di.total_revenue)
             format {
               type: 'number'
               pattern: '#,###,"K"'
@@ -256,7 +256,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
           mark_type: 'line'
           field: VizFieldFull {
             label: 'Net'
-            ref: r(demo_finance.ebitda)
+            ref: r(demo_finance_di.ebitda)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -281,7 +281,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_1hht: VizBlock {
     label: 'Revenue Breakdown'
     viz: PieChart {
-      dataset: demo_finance
+      dataset: demo_finance_di
       legend: VizFieldFull {
         ref: r(fact_gl_entries.breakdown_dim)
         format {
@@ -291,7 +291,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
       series {
         field: VizFieldFull {
           label: ' '
-          ref: r(demo_finance.total_revenue)
+          ref: r(demo_finance_di.total_revenue)
           format {
             type: 'number'
             pattern: '#,###0.00,,"M" [$$]'
@@ -338,7 +338,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_s49h: VizBlock {
     label: 'P&L Waterfall — Revenue to Net Income'
     viz: CustomChart {
-      dataset: demo_finance
+      dataset: demo_finance_di
       custom_chart_id: 33129
       field amount: VizFieldFull {
         ref: r(pl_waterfall.sum_amount)
@@ -355,7 +355,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
         }
       }
       field sort_order: VizFieldFull {
-        ref: r(demo_finance, pl_waterfall.label_sort_order)
+        ref: r(demo_finance_di, pl_waterfall.label_sort_order)
         format {
           type: 'text'
         }
@@ -383,7 +383,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_p7pm: VizBlock {
     label: 'P&L Statement'
     viz: MetricSheet {
-      dataset: demo_finance
+      dataset: demo_finance_di
       calculation saas_rev {
         label: 'SaaS Subscriptions'
         formula: @aql total_revenue
@@ -476,7 +476,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
       rows: [
         MetricSeries {
           field: VizFieldFull {
-            ref: r(demo_finance.total_revenue)
+            ref: r(demo_finance_di.total_revenue)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -543,7 +543,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: r(demo_finance.gross_profit)
+            ref: r(demo_finance_di.gross_profit)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -554,7 +554,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: r(demo_finance.expenses)
+            ref: r(demo_finance_di.expenses)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -625,7 +625,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: r(demo_finance.ebitda)
+            ref: r(demo_finance_di.ebitda)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -666,7 +666,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
         },
         MetricSeries {
           field: VizFieldFull {
-            ref: r(demo_finance.net_income)
+            ref: r(demo_finance_di.net_income)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00,"K"'
@@ -693,7 +693,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_87kg: VizBlock {
     label: 'Cash Flow by Category'
     viz: CombinationChart {
-      dataset: demo_finance
+      dataset: demo_finance_di
       calculation operating_cf {
         label: 'Operating'
         formula: @aql sum(fact_cashflow_entries.amount)
@@ -809,7 +809,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
   block v_xa1q: VizBlock {
     label: 'Cash Runway'
     viz: MarkdownViz {
-      dataset: demo_finance
+      dataset: demo_finance_di
       rows: [
         VizFieldFull {
           ref: r(cash_runway.operating)
@@ -986,7 +986,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
     label: 'Breakdown'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_finance
+      dataset: demo_finance_di
       field: r(fact_gl_entries.dim_choice)
     }
     default {
@@ -1009,7 +1009,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
     label: 'Scenario'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_finance
+      dataset: demo_finance_di
       field: r(fact_gl_entries.filter_choice)
     }
     default {
@@ -1024,7 +1024,7 @@ This dashboard is for finance leads, executives, and anyone who needs a quick re
     label: 'Segment'
     type: 'field'
     source: FieldFilterSource {
-      dataset: demo_finance
+      dataset: demo_finance_di
       field: r(fact_gl_entries.segment)
     }
     default {
@@ -1082,9 +1082,9 @@ Vote to unlock the new tab :)));;
   block v_2w8b: VizBlock {
     label: 'Gross Profit copy'
     viz: MetricKpi {
-      dataset: demo_finance
+      dataset: demo_finance_di
       value: VizFieldFull {
-        ref: r(demo_finance.gross_profit)
+        ref: r(demo_finance_di.gross_profit)
         format {
           type: 'number'
           pattern: '[$$]#,###0.00,,"M"'
@@ -1117,7 +1117,7 @@ Vote to unlock the new tab :)));;
   block v_rt1y: VizBlock {
     label: 'Gross Profit copy copy'
     viz: AreaChart {
-      dataset: demo_finance
+      dataset: demo_finance_di
       x_axis: VizFieldFull {
         ref: r(fact_gl_entries.date)
         transformation: 'datetrunc month'
@@ -1132,7 +1132,7 @@ Vote to unlock the new tab :)));;
         }
         series {
           field: VizFieldFull {
-            ref: r(demo_finance.gross_profit)
+            ref: r(demo_finance_di.gross_profit)
             format {
               type: 'number'
               pattern: '[$$]#,###0.00'

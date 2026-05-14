@@ -1,0 +1,144 @@
+Model reporting_issues {
+  type: 'table'
+  label: 'Reporting issues'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension title {
+    label: 'Title'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.title }};;
+  }
+  dimension identifier {
+    label: 'Identifier'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.identifier }};;
+  }
+  dimension project_id {
+    label: 'Project'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.project_id }};;
+  }
+  dimension assignee_id {
+    label: 'Assignee'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.assignee_id }};;
+  }
+  dimension creator_id {
+    label: 'Creator'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.creator_id }};;
+  }
+  dimension status {
+  label: 'Status'
+  description: ''
+  type: 'text'
+  hidden: false
+  definition: @sql CASE
+      WHEN {{ #SOURCE.status }} = 'in_progress' THEN 'In Progress'
+      WHEN {{ #SOURCE.status }} = 'pr_review' THEN 'PR Review'
+      WHEN {{ #SOURCE.status }} = 'merged' THEN 'Merged'
+      WHEN {{ #SOURCE.status }} = 'deployed_to_staging' THEN 'Deployed to Staging'
+      WHEN {{ #SOURCE.status }} = 'tested_on_staging' THEN 'Tested on Staging'
+      WHEN {{ #SOURCE.status }} = 'deployed' THEN 'Deployed'
+    ELSE 'Other'
+  END;;
+}
+  dimension priority {
+    label: 'Priority'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.priority }};;
+  }
+  dimension label {
+    label: 'Label'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql CASE
+    WHEN {{ #SOURCE.label }} ='bug' THEN 'Bug'
+    WHEN {{ #SOURCE.label }} ='tech_debt' THEN 'Tech Debt'
+    WHEN {{ #SOURCE.label }} ='improvement' THEN 'Improvement'
+    WHEN {{ #SOURCE.label }} ='feature' THEN 'Feature'
+    WHEN {{ #SOURCE.label }} ='chore' THEN 'Chore'
+    ELSE 'Other'
+  END;;
+  }
+  dimension estimate {
+    label: 'Estimate'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.estimate }};;
+  }
+  dimension created_at {
+    label: 'Created at'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension started_at {
+    label: 'Started at'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.started_at }};;
+  }
+  dimension completed_at {
+    label: 'Completed at'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.completed_at }};;
+  }
+  dimension cycle_time_hours {
+    label: 'Cycle time hours'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cycle_time_hours }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'issues.csv'
+    uploaded_at: '2026-03-07 03:49:36'
+    hash: 'a16492e35106d89f985607bc226c6cfbe5fa46666d20c188c47c89852a5e48ce'
+    column_configs: [
+      H.imports.column_config("id", "id", "number"),
+      H.imports.column_config("title", "title", "text"),
+      H.imports.column_config("identifier", "identifier", "text"),
+      H.imports.column_config("project_id", "project_id", "number"),
+      H.imports.column_config("assignee_id", "assignee_id", "number"),
+      H.imports.column_config("creator_id", "creator_id", "number"),
+      H.imports.column_config("status", "status", "text"),
+      H.imports.column_config("priority", "priority", "text"),
+      H.imports.column_config("label", "label", "text"),
+      H.imports.column_config("estimate", "estimate", "number"),
+      H.imports.column_config("created_at", "created_at", "date"),
+      H.imports.column_config("started_at", "started_at", "date"),
+      H.imports.column_config("completed_at", "completed_at", "date"),
+      H.imports.column_config("cycle_time_hours", "cycle_time_hours", "number")
+    ]
+  }
+  owner: 'vy.ht@holistics.io'
+  table_name: '"dbt_khai"."holistics_reporting_iss_614ea_202603050350"'
+}

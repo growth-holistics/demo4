@@ -1,0 +1,167 @@
+Dataset football_data {
+  __engine__: 'aql'
+  label: 'football_data'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    stadiums_csv,
+    matches_csv,
+    home_team,
+    away_team,
+    goals_csv,
+    players_csv,
+    assist_players,
+    match_teams
+  ]
+  relationships: [
+    relationship(matches_csv.home_team_id > home_team.id, true),
+    relationship(matches_csv.away_team_id > away_team.id, true),
+    relationship(matches_csv.stadium_id > stadiums_csv.id, true),
+    relationship(goals_csv.scorer_pid > players_csv.player_id, true),
+    relationship(goals_csv.assist_pid > assist_players.player_id, true),
+    relationship(goals_csv.match_id > matches_csv.match_id, true),
+    relationship(match_teams.match_id > matches_csv.match_id, true)
+  ]
+  metric total_match {
+    label: "Total Matches Played"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(matches_csv.match_id);;
+    format: ""
+  }
+
+  metric total_attendance {
+    label: "Total Attendance"
+    type: "number"
+    hidden: false
+    description: "Sum of attendance across all matches"
+    definition: @aql matches_csv | sum(matches_csv.attendance);;
+    format: "#,###"
+  }
+
+  metric total_goals_score {
+    label: "Total Goals Score"
+    type: "number"
+    hidden: false
+    description: "Sum of home team score and away team score across all matches"
+    definition: @aql matches_csv | sum(matches_csv.home_team_score + matches_csv.away_team_score);;
+    format: "#,###"
+  }
+  metric metric_defd8a5 {
+    label: "Total Assist"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql goals_csv | count(goals_csv.assist_pid);;
+  }
+
+  metric goals_scored {
+    label: 'Goals Scored'
+    type: 'number'
+    description: 'Goals scored by each team'
+    definition: @aql
+      sum(
+        match_teams,
+        case(
+          when: match_teams.team_role == "home", then: matches_csv.home_team_score,
+          when: match_teams.team_role == "away", then: matches_csv.away_team_score,
+          else: null
+        )
+      )
+    ;;
+    format: '#,###'
+  }
+
+  metric goals_conceded {
+    label: 'Goals Conceded'
+    type: 'number'
+    description: 'Goals conceded by each team'
+    definition: @aql
+      sum(
+        match_teams,
+        case(
+          when: match_teams.team_role == "home", then: matches_csv.away_team_score,
+          when: match_teams.team_role == "away", then: matches_csv.home_team_score,
+          else: null
+        )
+      )
+    ;;
+    format: '#,###'
+  }
+  metric team_wins {
+    label: 'Team Wins'
+    type: 'number'
+    description: 'Number of matches won by each team'
+    definition: @aql
+    count(
+      match_teams,
+      case(
+        when: match_teams.team_role == "home" and matches_csv.home_team_score > matches_csv.away_team_score, then: matches_csv.match_id,
+        when: match_teams.team_role == "away" and matches_csv.away_team_score > matches_csv.home_team_score, then: matches_csv.match_id,
+        else: null
+      )
+    )
+  ;;
+    format: '#,###'
+  }
+  metric team_matches_played {
+    label: 'Team Matches Played'
+    type: 'number'
+    description: 'Number of matches played by each team'
+    definition: @aql count(match_teams.match_id) ;;
+    format: '#,###'
+  }
+  metric team_win_rate {
+    label: 'Team Win Rate'
+    type: 'number'
+    description: 'Win rate of each team'
+    definition: @aql safe_divide(team_wins, team_matches_played) ;;
+    format: '#,###0.0%'
+  }
+  metric clean_sheet_count {
+    label: "Clean Sheet Count"
+    type: "number"
+    hidden: false
+    description: "Number of matches where a team conceded 0 goals"
+    definition: @aql count(
+      match_teams,
+      case(
+        when: match_teams.team_role == "home" and matches_csv.away_team_score == 0, then: matches_csv.match_id,
+        when: match_teams.team_role == "away" and matches_csv.home_team_score == 0, then: matches_csv.match_id,
+        else: null
+      )
+);;
+  }
+  metric team_goals_by_scorer {
+    label: 'Team Goals by scorer'
+    type: 'number'
+      description: 'Goals scored by players belonging to the selected team context'
+    definition: @aql
+      count(goals_csv.goal_id)
+    ;;
+  }
+
+  dimension result {
+    label: "Result"
+    type: "text"
+    hidden: false
+    description: ""
+    definition: @aql concat(cast(matches_csv.home_team_score, 'text'), " - ", cast(matches_csv.away_team_score, 'text'));;
+    model: matches_csv
+  }
+  dimension selected_team_logo_html {
+    model: match_teams
+    label: 'Selected team logo html'
+    type: 'text'
+    definition: @aql case(
+      when: match_teams.team_role == "home", then: concat(
+        '<img src="', home_team.logo_html, '" style="height:100%;width:100%;border-radius:4px;" />'
+      ),
+      when: match_teams.team_role == "away", then: concat(
+        '<img src="', away_team.logo_html, '" style="height:100%;width:100%;border-radius:4px;" />'
+      ),
+      else: '<img style="margin-bottom:0 !important;overflow:hidden;" src="https://www.icons.com/media/catalog/product/cache/15cebca97e59bef64f61d5558d86d273/i/2/i2685_-_uefa_champions_league_trophy_replica_100mm_-_icons_1.png" alt="demo" />'
+    ) ;;
+  }
+}

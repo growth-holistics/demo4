@@ -1,0 +1,110 @@
+Model courses_csv {
+  type: 'table'
+  label: 'Courses'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension title {
+    label: 'Title'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.title }};;
+  }
+  dimension category {
+    label: 'Category'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension instructor_name {
+    label: 'Instructor name'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.instructor_name }};;
+  }
+  dimension price {
+    label: 'Price'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.price }};;
+  }
+  
+ dimension course_image_url {
+  label: 'Course Image'
+  type: 'text'
+  definition: @aql concat(
+    '<div><img src="',
+    case(
+      when: courses_csv.category == 'programming', then: 'https://media.geeksforgeeks.org/wp-content/uploads/20230629123647/Best-C-Programming-Courses-For-Beginners.png',
+      when: courses_csv.category == 'data_science', then: 'https://www.srceducation.in/wp-content/uploads/2019/12/Data-science-courses-in-Delhi-NCR-768x568.jpg',
+      when: courses_csv.category == 'business', then: 'https://cdn.dribbble.com/userupload/10453378/file/original-1a166a4d71d768676ecf2ddf44972d03.png?format=webp&resize=400x300&vertical=center',
+      when: courses_csv.category == 'design', then: 'https://i0.wp.com/dessign.net/wp-content/uploads/what-is-web-design.jpg?fit=1500%2C742&ssl=1',
+      when: courses_csv.category == 'marketing', then: 'https://www.znadostudio.com/uploads/blog/oaMbnDqC1lXVgBq0wJvCLeYJk7JoscmeIipc6SUZ.jpg',
+      when: courses_csv.category == 'personal_development', then: 'https://peopledevelopmentmagazine.com/wp-content/uploads/2020/12/The-Importance-of-Personal-Development-Training-People-Development-Magazine.jpg',
+      else: 'https://ito-group.com/wp-content/uploads/2025/04/no-image.jpg'
+    ),
+    '" style="float:left; height:100px; object-fit:cover; margin:12px; border:1px solid #e5e7eb; border-radius:4px" /></div>'
+  ) ;;
+}
+  
+  dimension instructor_photo_image {
+    label: 'Instructor Photo IMG'
+    type: 'text'
+    definition: @aql concat(
+      '<img src="', 
+      'https://i.pravatar.cc/128?u=', courses_csv.instructor_name,'" />'
+    ) ;;
+  }
+        // '" style="float:left; height:60px; width:60px; object-fit:cover; margin:8px; border:1px solid #e5e7eb; border-radius:50%" /> </div>'
+
+  dimension instructor_photo_url {
+    label: 'Instructor Photo URL'
+    type: 'text'
+    definition: @aql concat( 
+      'https://i.pravatar.cc/128?u=', courses_csv.instructor_name,
+    ) ;;
+  }
+  dimension description {
+    label: 'Description'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.description }};;
+  }
+  dimension created_at {
+    label: 'Created at'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'courses.csv'
+    uploaded_at: '2026-02-27 10:15:38'
+    hash: '60d1343cefadc3a6a7acd284ffe91acba999f158d8a78249842f55351238b103'
+    column_configs: [
+      H.imports.column_config("id", "id", "text"),
+      H.imports.column_config("title", "title", "text"),
+      H.imports.column_config("category", "category", "text"),
+      H.imports.column_config("instructor_name", "instructor_name", "text"),
+      H.imports.column_config("price", "price", "number"),
+      H.imports.column_config("description", "description", "text"),
+      H.imports.column_config("created_at", "created_at", "datetime")
+    ]
+  }
+  owner: 'minh.ntn@holistics.io'
+  table_name: '"persisted"."holistics_courses_csv_81fa6_202602271015"'
+}
+

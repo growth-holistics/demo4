@@ -1,0 +1,104 @@
+Model admissions {
+  type: 'table'
+  label: 'Admissions'
+  description: ''
+  data_source_name: 'demodb'
+  dimension admission_id {
+    label: 'Admission'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.admission_id }};;
+  }
+  dimension patient_id {
+    label: 'Patient'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.patient_id }};;
+  }
+  dimension department {
+    label: 'Department'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.department }};;
+  }
+  dimension diagnosis_category {
+    label: 'Diagnosis category'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.diagnosis_category }};;
+  }
+  dimension admission_type {
+    label: 'Admission type'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.admission_type }};;
+  }
+  dimension admission_date {
+    label: 'Admission date'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.admission_date }};;
+  }
+  dimension discharge_date {
+    label: 'Discharge date'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.discharge_date }};;
+  }
+  dimension discharge_disposition {
+    label: 'Discharge disposition'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.discharge_disposition }};;
+  }
+  dimension is_readmission {
+    label: 'Is readmission'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_readmission }};;
+  }
+  dimension created_at {
+    label: 'Created at'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'admissions_realistic_4.csv'
+    uploaded_at: '2026-03-07 09:41:17'
+    hash: '0b345f7064e41c9f649d998cd409c46c3e9467b9c20cd5c55efdeacfa04a647a'
+    column_configs: [
+      H.imports.column_config("admission_id", "admission_id", "number"),
+      H.imports.column_config("patient_id", "patient_id", "number"),
+      H.imports.column_config("department", "department", "text"),
+      H.imports.column_config("diagnosis_category", "diagnosis_category", "text"),
+      H.imports.column_config("admission_type", "admission_type", "text"),
+      H.imports.column_config("admission_date", "admission_date", "datetime"),
+      H.imports.column_config("discharge_date", "discharge_date", "datetime"),
+      H.imports.column_config("discharge_disposition", "discharge_disposition", "text"),
+      H.imports.column_config("is_readmission", "is_readmission", "number"),
+      H.imports.column_config("created_at", "created_at", "datetime")
+    ]
+  }
+  owner: 'giang.nv@holistics.io'
+  table_name: '"persisted"."holistics_admissions_68944_202603060514"'
+  measure measure_e95771d {
+    label: "Total Admissions"
+    type: "number"
+    hidden: false
+    definition: @aql sum(admissions.admission_id);;
+    aggregation_type: "custom"
+  }
+}

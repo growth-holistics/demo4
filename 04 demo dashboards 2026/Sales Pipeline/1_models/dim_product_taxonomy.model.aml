@@ -1,0 +1,95 @@
+Model dim_product_taxonomy {
+  type: 'query'
+  label: 'Dim Product Taxonomy'
+  description: ''
+  data_source_name: 'amyra_holistics'
+  dimension id {
+    label: 'Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension use_case_id {
+    label: 'Use Case Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.use_case_id }};;
+  }
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension feature_description {
+    label: 'Feature Description'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_description }};;
+  }
+  dimension feature_status {
+    label: 'Feature Status'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_status }};;
+  }
+  dimension feature_shipped_at {
+    label: 'Feature Shipped At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_shipped_at }};;
+  }
+  dimension use_case_name {
+    label: 'Use Case Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.use_case_name }};;
+  }
+  dimension use_case_description {
+    label: 'Use Case Description'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.use_case_description }};;
+  }
+  dimension theme_id {
+    label: 'Theme Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.theme_id }};;
+  }
+  dimension theme_name {
+    label: 'Theme Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.theme_name }};;
+  }
+  dimension theme_description {
+    label: 'Theme Description'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.theme_description }};;
+  }
+
+  owner: 'hien.nt@holistics.io'
+  query: @sql
+    select
+      f.id               as id,
+      f.use_case_id      as use_case_id,
+      f.name             as feature_name,
+      f.description      as feature_description,
+      f.status           as feature_status,
+      f.shipped_at       as feature_shipped_at,
+      uc.name            as use_case_name,
+      uc.description     as use_case_description,
+      t.id               as theme_id,
+      t.name             as theme_name,
+      t.description      as theme_description
+    from {{ #table_features as f }}
+    join {{ #table_use_cases as uc }} on f.use_case_id = uc.id
+    join {{ #table_themes as t }}     on uc.theme_id   = t.id;;
+  models: [
+    table_themes,
+    table_features,
+    table_use_cases
+  ]
+}

@@ -1,0 +1,3228 @@
+@tag('Endorsed')
+Dashboard pawductive_customer_support {
+  title: 'Customer support & CSAT [Pawductive]'
+  description: 'Customer support dashboard for tracking support ticket metrics & CSAT data'
+  owner: 'my.nguyen@holistics.io'
+  theme: pawductive_purple
+  block v_1xop: VizBlock {
+    label: 'What is CSAT score distribution?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_surveys.csat_score)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.total_csat_response)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_i0lt: VizBlock {
+    label: 'What is the CSAT by channel?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.channel)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.csat)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+          }
+        }
+        series {
+          field: ConstantVizField {
+            label: 'Target: 80%'
+            value: 0.8
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#80E4D1FF'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'yaxis'
+        }
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_kj4u: TextBlock {
+    content: @md ## 1. Monthly ticket snapshot;;
+    theme: text_transparent
+  }
+  block v_pluq: VizBlock {
+    label: 'CSAT compared with CSAT Target'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      value: VizFieldFull {
+        ref: r(pawductive_customer_support_data.csat)
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: r(pawductive_customer_support_data.csat_target)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_primary
+  }
+  block v_siky: VizBlock {
+    label: 'Total survey answers compared with surveys sent'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      filter {
+        field: r(support_tickets.status)
+        operator: 'is'
+        value: [
+          'closed',
+          'resolved'
+        ]
+      }
+      value: VizFieldFull {
+        ref: r(pawductive_customer_support_data.total_csat_answers)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        label: 'surveys sent'
+        ref: r(pawductive_customer_support_data.total_tickets)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        display_mode: 'progress'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'center'
+        metric_value {
+          font_size: 64
+        }
+        progress {
+          bar {
+            color: '#B497F5FF'
+          }
+          text {
+            font_color: '#8A8AAAFF'
+          }
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_primary
+  }
+  block v_sxbu: VizBlock {
+    label: 'What is the CSAT by ticket category?'
+    viz: CombinationChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_categories.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.csat)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Target: 80%'
+            ref: r(pawductive_customer_support_data.csat_target)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#80E4D1FF'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'yaxis'
+        }
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_sue1: VizBlock {
+    label: 'Avg CSAT score'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      value: VizFieldFull {
+        label: 'Avg CSAT score'
+        ref: r(pawductive_customer_support_data.avg_csat_score)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_accent
+  }
+  block v_y98t: VizBlock {
+    label: 'What are the lowest CSAT feedbacks?'
+    viz: DataTable {
+      dataset: pawductive_customer_support_data
+      filter {
+        field: r(support_surveys.feedback_text)
+        operator: 'is_not'
+        value: ''
+      }
+      filter {
+        field: r(support_surveys.csat_score)
+        operator: 'less_than'
+        value: '4'
+      }
+      theme {
+        table {
+          general {
+            borders {
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(support_users.full_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_users_full_name'
+        },
+        VizFieldFull {
+          label: 'CSAT'
+          ref: r(support_surveys.csat_score)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'support_surveys_csat_score'
+        },
+        VizFieldFull {
+          ref: r(support_surveys.feedback_text)
+          format {
+            type: 'text'
+          }
+          uname: 'support_surveys_feedback_text'
+        },
+        VizFieldFull {
+          label: 'Category'
+          ref: r(support_categories.name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_categories_name'
+        },
+        VizFieldFull {
+          ref: r(support_surveys.created_at)
+          format {
+            type: 'date'
+          }
+          uname: 'support_surveys_created_at_1'
+        },
+        VizFieldFull {
+          ref: r(support_agents.agent_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_agents_agent_name'
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'support_surveys_csat_score'
+            direction: 'asc'
+          },
+          SortSetting {
+            key: 'support_categories_name'
+            direction: 'asc'
+          },
+          SortSetting {
+            key: 'support_surveys_created_at_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: 'support_categories_name'
+            width: 193
+          },
+          ColumnStyle {
+            key: 'support_users_full_name'
+            width: 144
+          },
+          ColumnStyle {
+            key: 'support_agents_agent_name'
+            width: 151
+          },
+          ColumnStyle {
+            key: 'support_surveys_csat_score'
+            width: 75.3046875
+          },
+          ColumnStyle {
+            key: 'support_surveys_created_at_1'
+            width: 110.828125
+          },
+          ColumnStyle {
+            key: 'support_surveys_feedback_text'
+            width: 228.4765625
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_2iwp: VizBlock {
+    label: 'CSAT distribution by resolution time'
+    theme: kpi_accent
+    viz: CombinationChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(pawductive_customer_support_data, support_tickets.rounded_week_to_resolution)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_axis {
+        settings {
+          hidden: true
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.csat)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Target: 80%'
+            ref: r(pawductive_customer_support_data.csat_target)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#80E4D1FF'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_vntb: VizBlock {
+    label: 'Total tickets per month'
+    viz: AreaChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+            line_interpolation: 'smooth'
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_bqgn: VizBlock {
+    label: 'Ticket status by month'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(support_tickets.status)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            point {
+              value: 'open'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'pending'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'resolved'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'Free'
+              color: '#FDCF8BFF'
+            }
+            point {
+              value: 'Pro'
+              color: '#B497F5FF'
+            }
+            point {
+              value: 'Standard'
+              color: '#8A79ABFF'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_vimo: VizBlock {
+    label: 'Average days to first response'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      calculation response_target {
+        label: 'Response Target'
+        formula: @aql 0.5;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Avg day to 1st response'
+        ref: r(pawductive_customer_support_data.avg_day_to_first_response)
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'response_target'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        reverse_color: true
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 60
+        }
+        compare_value {
+          reverse_color: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_accent
+  }
+  block v_vhjx: VizBlock {
+    label: 'Avg Resolution Day'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      calculation resolution_target {
+        label: 'Resolution Target'
+        formula: @aql 2;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Avg day to resolution'
+        ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'resolution_target'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        reverse_color: true
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 60
+        }
+        compare_value {
+          reverse_color: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_green
+  }
+  block v_k9t8: VizBlock {
+    label: 'Total tickets by Plan tier'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_users.plan_type)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'percentage'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+            point {
+              value: 'Free'
+              color: '#A8BEEE'
+            }
+            point {
+              value: 'Pro'
+              color: '#F2B602'
+            }
+            point {
+              value: 'Standard'
+              color: '#18A59E'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_12z0: VizBlock {
+    label: 'Total tickets compared with Total tickets (Prev. 1m)'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      value: VizFieldFull {
+        label: 'Total tickets'
+        ref: r(pawductive_customer_support_data.total_tickets)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(support_tickets.created_at)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+      }
+      settings {
+        reverse_color: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+          font_color: '#8A79ABFF'
+        }
+        compare_value {
+          reverse_color: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_primary
+  }
+  block v_lu2i: VizBlock {
+    label: 'What are the main causes of tickets per month?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(support_categories.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 40809
+            point {
+              value: 'Account management'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'Calendar & task'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'Others'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'Subscription & cancellation'
+              color: '#FDCF8BFF'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_wnt8: VizBlock {
+    label: 'CSAT by week'
+    viz: AreaChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_surveys.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.csat)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#B497F5FF'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          field: ConstantVizField {
+            label: 'Target: 80%'
+            value: 0.8
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#80E4D1FF'
+            line_style: 'dashed'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_igh9: VizBlock {
+    label: 'Open tickets'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      filter {
+        field: r(support_tickets.status)
+        operator: 'is'
+        value: 'open'
+      }
+      value: VizFieldFull {
+        label: 'Open tickets'
+        ref: r(pawductive_customer_support_data.total_tickets)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+          font_color: '#E6A5B8FF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_accent
+  }
+  block v_yld9: VizBlock {
+    label: 'Pending tickets'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      filter {
+        field: r(support_tickets.status)
+        operator: 'is'
+        value: 'pending'
+      }
+      value: VizFieldFull {
+        label: 'Pending tickets'
+        ref: r(pawductive_customer_support_data.total_tickets)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+          font_color: '#E6A5B8FF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_accent
+  }
+  block v_snu2: VizBlock {
+    label: 'Solved & closed tickets'
+    viz: MetricKpi {
+      dataset: pawductive_customer_support_data
+      filter {
+        field: r(support_tickets.status)
+        operator: 'is'
+        value: [
+          'closed',
+          'resolved'
+        ]
+      }
+      value: VizFieldFull {
+        label: 'Solved & closed tickets'
+        ref: r(pawductive_customer_support_data.total_tickets)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 18
+          font_color: '#8A8AAAFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 64
+          font_color: '#E6A5B8FF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: kpi_accent
+  }
+  block f_time_range: FilterBlock {
+    label: 'View by Time range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: pawductive_customer_support_data
+      field: r(support_tickets.created_at)
+    }
+    default {
+      operator: 'matches'
+      value: 'february'
+    }
+    theme: viz_transparent
+  }
+  block v_6wl8: VizBlock {
+    label: 'What is the Avg day to resolution of each plan type?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_users.plan_type)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_paq2: VizBlock {
+    label: 'What is the resolution time distribution?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      calculation resolution_bucket {
+        label: 'Resolution Bucket'
+        formula: @aql case(
+  when: support_tickets.days_to_resolution > 0, then: case(
+    when: support_tickets.days_to_resolution < 8, then: '01-07 days',
+    when: support_tickets.days_to_resolution < 15, then: '08-14 days',
+    when: support_tickets.days_to_resolution < 22, then: '15-21 days',
+    when: support_tickets.days_to_resolution < 29, then: '22-28 days',
+    else: '29+ days'
+  )
+);;
+        calc_type: 'dimension'
+        data_type: 'text'
+        model: support_tickets
+      }
+      calculation resolution_bucket_order {
+        label: 'Resolution Bucket Order'
+        formula: @aql case(
+  when: support_tickets.days_to_resolution > 0, then: case(
+    when: support_tickets.days_to_resolution < 8, then: 1,
+    when: support_tickets.days_to_resolution < 15, then: 2,
+    when: support_tickets.days_to_resolution < 22, then: 3,
+    when: support_tickets.days_to_resolution < 29, then: 4,
+    else: 5
+  )
+);;
+        calc_type: 'dimension'
+        data_type: 'number'
+        model: support_tickets
+      }
+      calculation ticket_ratio_over_all {
+        label: 'Ticket Ratio Over All'
+        formula: @aql total_tickets * 1.0 / (total_tickets | exclude_grains(support_tickets.resolution_bucket, support_tickets.resolution_bucket_order));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      conditions: [
+        'support_tickets.days_to_resolution > 0'
+      ]
+      x_axis: VizFieldFull {
+        label: 'Resolution time'
+        ref: ref('support_tickets', 'resolution_bucket')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          axis_min: 0
+        }
+        series {
+          field: VizFieldFull {
+            label: '% of ticket'
+            ref: 'ticket_ratio_over_all'
+            format {
+              type: 'number'
+              pattern: '#,###%'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_c1wm: TextBlock {
+    content: @md ## 2. Tickets trend & pattern;;
+    theme: text_transparent
+  }
+  block v_y3gt: VizBlock {
+    label: 'Ticket by priority'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(support_tickets.priority)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'percentage'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 40809
+            point {
+              value: 'critical'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'high'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'low'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'medium'
+              color: '#FDCF8BFF'
+            }
+            point {
+              value: 'open'
+              color: '#B497F5FF'
+            }
+            point {
+              value: 'pending'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'resolved'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'Free'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'Pro'
+              color: '#FDCF8BFF'
+            }
+            point {
+              value: 'Standard'
+              color: '#B497F5FF'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_62ft: VizBlock {
+    label: 'Which users sent the most support tickets?'
+    viz: DataTable {
+      dataset: pawductive_customer_support_data
+      theme {
+        table {
+          general {
+            borders {
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(support_users.full_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_users_full_name'
+        },
+        VizFieldFull {
+          label: 'Total tickets'
+          ref: r(pawductive_customer_support_data.total_tickets)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_total_tickets_1'
+        },
+        VizFieldFull {
+          label: 'MRR'
+          ref: r(support_users.mrr)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'support_users_mrr'
+        },
+        VizFieldFull {
+          ref: r(support_users.plan_type)
+          format {
+            type: 'text'
+          }
+          uname: 'support_users_plan_type'
+        }
+      ]
+      settings {
+        pagination_size: 1000
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_total_tickets_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: 'support_users_mrr'
+            width: 87
+          },
+          ColumnStyle {
+            key: 'custom_total_tickets_1'
+            width: 109.111114501953
+          },
+          ColumnStyle {
+            key: 'support_users_full_name'
+            width: 170.788927001953
+          }
+        ]
+      }
+    }
+  }
+  block v_vkym: VizBlock {
+    label: 'New tickets this month'
+    viz: DataTable {
+      dataset: pawductive_customer_support_data
+      calculation f_ee4aa2f {
+        label: 'Open ticket'
+        formula: @aql "https://docs.holistics.io/docs/actions";;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      theme {
+        table {
+          general {
+            borders {
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Ticket subject'
+          ref: r(support_tickets.title)
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Open ticket'
+            url: 'f_ee4aa2f'
+          }
+          uname: 'support_tickets_title'
+        },
+        VizFieldFull {
+          ref: r(support_users.full_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_users_full_name'
+        },
+        VizFieldFull {
+          ref: r(support_tickets.priority)
+          format {
+            type: 'text'
+          }
+          uname: 'support_tickets_priority'
+        },
+        VizFieldFull {
+          ref: r(support_tickets.created_at)
+          uname: 'support_tickets_created_at'
+          hidden: true
+        },
+        VizFieldFull {
+          ref: r(support_tickets.status)
+          format {
+            type: 'text'
+          }
+          uname: 'support_tickets_status'
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'support_tickets_created_at'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: 'support_tickets_title'
+            width: 271
+          },
+          ColumnStyle {
+            key: 'support_tickets_status'
+            width: 91
+          },
+          ColumnStyle {
+            key: 'support_users_full_name'
+            width: 141
+          },
+          ColumnStyle {
+            key: 'support_tickets_priority'
+            width: 79.41796875
+          },
+          ColumnStyle {
+            key: 'support_tickets_created_at'
+            width: 113
+          }
+        ]
+      }
+    }
+    theme: viz_transparent
+  }
+  block t_ewjn: TextBlock {
+    content: @md ## 3. Resolution time performance;;
+    theme: text_transparent
+  }
+  block t_chop: TextBlock {
+    content: @md ### What's happening this month?
+
+Track ticket volume and review recent tickets;;
+    theme: text_transparent
+  }
+  block v_0kpp: VizBlock {
+    label: 'Oldest open tickets'
+    viz: DataTable {
+      dataset: pawductive_customer_support_data
+      calculation f_ee4aa2f {
+        label: 'Open ticket'
+        formula: @aql "https://docs.holistics.io/docs/actions";;
+        calc_type: 'measure'
+        data_type: 'text'
+        hidden: true
+      }
+      filter {
+        field: r(support_tickets.status)
+        operator: 'is'
+        value: 'open'
+      }
+      theme {
+        table {
+          general {
+            borders {
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Ticket subject'
+          ref: r(support_tickets.title)
+          format {
+            type: 'text'
+          }
+          action a_1: VizAction {
+            type: 'GoToUrl'
+            label: 'Open ticket'
+            url: 'f_ee4aa2f'
+          }
+          uname: 'support_tickets_title'
+        },
+        VizFieldFull {
+          ref: r(support_tickets.created_at)
+          format {
+            type: 'date'
+            pattern: 'LLL dd'
+          }
+          uname: 'support_tickets_created_at'
+        },
+        VizFieldFull {
+          ref: r(support_tickets.priority)
+          format {
+            type: 'text'
+          }
+          uname: 'support_tickets_priority'
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'support_tickets_created_at'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: 'support_tickets_title'
+            width: 261
+          },
+          ColumnStyle {
+            key: 'support_tickets_priority'
+            width: 83.14453125
+          },
+          ColumnStyle {
+            key: 'support_tickets_created_at'
+            width: 101.1484375
+          }
+        ]
+      }
+    }
+    theme: viz_transparent
+  }
+  block t_hm99: TextBlock {
+    content: @md ### Ticket lookup ;;
+    theme: text_transparent
+  }
+  block t_10rt: TextBlock {
+    content: @md vs. last month;;
+    theme: text_transparent
+  }
+  block v_yqhm: VizBlock {
+    label: 'What is the Avg resolution time trend by month?'
+    viz: AreaChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+            line_interpolation: 'smooth'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Trend line of Avg Day To Resolution'
+            ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+            analytic: RegressionLine {
+              type: 'linear'
+            }
+          }
+          settings {
+            color: '#FDCF8BFF'
+            line_style: 'dashed'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_pvzz: TextBlock {
+    content: @md **Open**: Need to actively work on this;;
+    theme: text_transparent
+  }
+  block t_7ldx: TextBlock {
+    content: @md **Pending**: waiting for user's response;;
+    theme: text_transparent
+  }
+  block t_gyk4: TextBlock {
+    content: @md **Solved**: Ticket is resolved/logged.
+**Closed**: Tickets solved for 90 days.;;
+    theme: text_transparent
+  }
+  block v_ui5w: VizBlock {
+    label: 'Ticket Trends Summary'
+    viz: MarkdownViz {
+      dataset: pawductive_customer_support_data
+      rows: [
+        VizFieldFull {
+          label: 'Category'
+          ref: r(support_categories.name)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Tickets'
+          ref: r(pawductive_customer_support_data.total_tickets)
+          format {
+            type: 'number'
+          }
+          uname: 'custom_total_tickets_1'
+        }
+      ]
+      content: @md <style>
+  .insights-container { 
+    padding: 4px; 
+  }
+  .insights-badge { 
+    display: inline-block; padding: 4px 12px; border-radius: 16px; 
+    font-weight: 600; margin: 0 4px;
+  }
+  .insights-badge.purple { background: #8A79AB; color: #ffffff; }
+  .insights-badge.pink { background: #E6A5B8; color: #8D5364; }
+</style>
+
+<div class="insights-container">
+  <p>
+    By category:<span class="insights-badge purple">{{ rows[0].`Category` }}</span> 
+    with <span class="insights-badge pink">{{ rows[0].values.`Total Tickets` }}</span> tickets. Consider reviewing product backlog, bug & feature request.
+  </p>
+</div>     ;;
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'custom_total_tickets_1'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_plan_insight: VizBlock {
+    label: 'Plan Insight'
+    viz: MarkdownViz {
+      dataset: pawductive_customer_support_data
+      rows: [
+        VizFieldFull {
+          label: 'Plan'
+          ref: r(support_users.plan_type)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Tickets'
+          ref: r(pawductive_customer_support_data.total_tickets)
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      content: @md <style>
+  .plan-insight { 
+    padding: 12px 4px;
+  }
+  .plan-badge { 
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    background: #A3E6D9; color: #065f46; font-weight: 600;
+  }
+  .insights-badge.pink { background: #E6A5B8; color: #8D5364; }
+
+</style>
+
+<div class="plan-insight">
+ By plan type: <span class="plan-badge">{{ rows[0].`Plan` }}</span> tier with <span class="insights-badge pink">{{ rows[0].values.`Total Tickets` }}</span> tickets. Recommendation: public docs & community help for common issues.
+</div> 
+
+ ;;
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block t_vmrx: TextBlock {
+    content: @md ⚡   **Click** on a Ticket subject ⚡︎ to view details
+
+
+🔎   **Right-click** on any Priority or Status -> "Keep only" or "Exclude" for quick filter;;
+    theme: text_transparent
+  }
+  block f_time_range_copy: FilterBlock {
+    label: 'View by Ticket category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: pawductive_customer_support_data
+      field: r(support_categories.name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    theme: viz_transparent
+  }
+  block t_ni3h: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #e6a5b8; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_w6fl: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_ygek: TextBlock {
+    content: @md <div style="width: 3px; height: 100%; background: #8a79ab; border-radius: 2px;"></div>;;
+    theme: viz_transparent
+  }
+  block t_h8xm: TextBlock {
+    content: @md <svg width="64" height="64" viewBox="0 0 512 512" fill="#dcd9e3" xmlns="http://www.w3.org/2000/svg"><path d="m465.4545 144.4076h-69.8182v-93.0908c0-25.7072-20.841-46.5453-46.5455-46.5453h-302.5453c-25.7045 0-46.5455 20.8381-46.5455 46.5453v209.4545c0 25.7045 20.841 46.5455 46.5455 46.5455h69.8182v93.0908c0 25.5993 20.9459 46.5455 46.5455 46.5455h23.2726v37.0027c0 13.9632 11.4034 23.2726 23.5057 23.2726 5.5853 0 11.4034-2.0937 16.2899-6.9801l53.2953-53.2953h186.1818c25.5993 0 46.5455-20.9462 46.5455-46.5455v-209.4545c0-25.6023-20.9462-46.5455-46.5455-46.5455zm-418.909 139.6366c-12.8323 0-23.2726-10.4403-23.2726-23.2729v-209.4545c0-12.8323 10.4403-23.2726 23.2726-23.2726h302.5453c12.8326 0 23.2729 10.4403 23.2729 23.2726v209.4545c0 12.8326-10.4403 23.2729-23.2729 23.2729h-46.5453v23.2726l.0027 36.9063-53.3634-53.3637-6.8182-6.8152zm442.1816 116.3634c0 12.8011-10.4715 23.2726-23.2726 23.2726h-195.7214l-6.983 6.75-53.2955 53.5256v-60.2756h-46.5453c-12.8011 0-23.2729-10.4715-23.2729-23.2726v-93.0908h93.0911l53.3634 53.3637c4.7386 4.7386 10.5682 6.8608 16.2869 6.8608 11.9632 0 23.4404-9.2898 23.4404-23.3211v-36.9034h23.2726c25.7045 0 46.5455-20.841 46.5455-46.5455v-93.0908h69.8182c12.8011 0 23.2726 10.4715 23.2726 23.2726z"></path><circle cx="197.818" cy="156.044" r="23.273" transform="matrix(.707 -.707 .707 .707 -52.4 185.583)"></circle><circle cx="290.909" cy="156.044" r="23.273"></circle><circle cx="104.727" cy="156.044" r="23.273" transform="matrix(.973 -.23 .23 .973 -33.05 28.236)"></circle></svg>;;
+    theme: text_transparent
+  }
+  block t_etky: TextBlock {
+    content: @md <svg width="64" height="64" viewBox="0 0 512 512" fill="#c5ebdd" xmlns="http://www.w3.org/2000/svg"><path d="M223.718,124.76c-48.027,11.198-86.688,49.285-98.494,97.031c-11.843,47.899,1.711,96.722,36.259,130.601 C173.703,364.377,181,383.586,181,403.777V407c0,13.296,5.801,25.26,15,33.505V467c0,24.813,20.187,45,45,45h30 c24.813,0,45-20.187,45-45v-26.495c9.199-8.245,15-20.208,15-33.505v-3.282c0-19.884,7.687-39.458,20.563-52.361 C376.994,325.87,391,292.005,391,256C391,169.921,311.231,104.362,223.718,124.76z M286,467c0,8.271-6.729,15-15,15h-30 c-8.271,0-15-6.729-15-15v-15h60V467z M330.326,330.166C311.689,348.843,301,375.651,301,403.718V407c0,8.271-6.729,15-15,15h-60 c-8.271,0-15-6.729-15-15v-3.223c0-28.499-10.393-55.035-28.513-72.804c-26.89-26.37-37.409-64.493-28.141-101.981 c9.125-36.907,39.029-66.353,76.184-75.015C299.202,137.964,361,189.228,361,256C361,284.004,350.106,310.343,330.326,330.166z"></path><path d="M139.327,118.114L96.9,75.688c-5.857-5.858-15.355-5.858-21.213,0c-5.858,5.858-5.858,15.355,0,21.213l42.427,42.426 c5.857,5.858,15.356,5.858,21.213,0C145.185,133.469,145.185,123.972,139.327,118.114z"></path><path d="M76,241H15c-8.284,0-15,6.716-15,15s6.716,15,15,15h61c8.284,0,15-6.716,15-15S84.284,241,76,241z"></path><path d="M497,241h-61c-8.284,0-15,6.716-15,15s6.716,15,15,15h61c8.284,0,15-6.716,15-15S505.284,241,497,241z"></path><path d="M436.313,75.688c-5.856-5.858-15.354-5.858-21.213,0l-42.427,42.426c-5.858,5.857-5.858,15.355,0,21.213 c5.857,5.858,15.355,5.858,21.213,0l42.427-42.426C442.171,91.044,442.171,81.546,436.313,75.688z"></path><path d="M256,0c-8.284,0-15,6.716-15,15v61c0,8.284,6.716,15,15,15s15-6.716,15-15V15C271,6.716,264.284,0,256,0z"></path><path d="M256,181c-6.166,0-12.447,0.739-18.658,2.194c-25.865,6.037-47.518,27.328-53.879,52.979 c-1.994,8.041,2.907,16.175,10.947,18.17c8.042,1.994,16.176-2.909,18.17-10.948c3.661-14.758,16.647-27.5,31.593-30.989 C248.155,211.473,252.135,211,256,211c8.284,0,15-6.716,15-15S264.284,181,256,181z"></path></svg>;;
+    theme: text_transparent
+  }
+  block v_ghgo: VizBlock {
+    theme: viz_transparent
+    label: "What are the tickets' priority?"
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.priority)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(pawductive_customer_support_data.total_tickets)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+            color_palette: 40809
+            point {
+              value: 'critical'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'high'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'low'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'medium'
+              color: '#FDCF8BFF'
+            }
+            point {
+              value: 'open'
+              color: '#B497F5FF'
+            }
+            point {
+              value: 'pending'
+              color: '#8A79ABFF'
+            }
+            point {
+              value: 'resolved'
+              color: '#E6A5B8FF'
+            }
+            point {
+              value: 'Free'
+              color: '#80E4D1FF'
+            }
+            point {
+              value: 'Pro'
+              color: '#FDCF8BFF'
+            }
+            point {
+              value: 'Standard'
+              color: '#B497F5FF'
+            }
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_pawductive_header: pawductive_header('Ticket tracking')
+  block t_pawductive_header_uvln: pawductive_header('CSAT overview')
+  block t_pawductive_header_muy3: pawductive_header('Support ops & efficiency')
+  block t_paw_logomark: paw_logomark('#423262')
+  block t_pawductive_logo: pawductive_logo('#8A79AB')
+  block f_time_range_copy_7djz: FilterBlock {
+    label: 'View by time range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: pawductive_customer_support_data
+      field: r(support_surveys.created_at)
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+    theme: viz_transparent
+  }
+  block t_nxfh: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block f_ticket_category_copy: FilterBlock {
+    label: 'View by Ticket category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: pawductive_customer_support_data
+      field: r(support_categories.name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+    theme: viz_transparent
+  }
+  block t_gbjn: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #e6a5b8; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_xkvk: TextBlock {
+    content: @md <div style="
+  display: inline-block;
+  background-color: #A3E6D9;
+  color: #1B4D3E;
+  padding: 6px 12px;
+  border-radius: 100px;
+  line-height: 1;
+  font-weight: 400;
+  font-size: 13px;
+">
+  Target: 80%
+</div>;;
+    theme: text_transparent
+  }
+  block t_oirz: TextBlock {
+    content: @md 💡 **Click** on a CSAT score to cross-filter other charts;;
+    theme: text_transparent
+  }
+  block t_pqw0: TextBlock {
+    content: @md ## 1. Key CSAT metrics;;
+    theme: text_transparent
+  }
+  block f_ticket_category_copy_qy48: FilterBlock {
+    label: 'View by Plan tier'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: pawductive_customer_support_data
+      field: r(support_users.plan_type)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          AutoDrillthroughSource {
+          }
+        ]
+      }
+    }
+    theme: viz_transparent
+  }
+  block t_jnml: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #77b8a1; border-radius: 2px;"></div>;;
+    theme: viz_transparent
+  }
+  block t_pawductive_logo_7oho: pawductive_logo('#8A79AB')
+  block t_qa8v: paw_trail('#DCD9E3')
+  block t_z98j: TextBlock {
+    content: @md # Coming soon
+### We're brewing some stuffs.
+### Sit back and check out [Holistics](https://holistics.io) while waiting.;;
+    theme: text_transparent
+  }
+  block v_3td0: VizBlock {
+    label: 'Avg resolution time by channel'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.channel)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.avg_day_to_first_response)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#E6A5B8FF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_vhdv: VizBlock {
+    label: 'Avg resolution time by channel copy'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_tickets.channel)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#80E4D1FF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block t_6096: TextBlock {
+    content: @md ### Quarter target;;
+    theme: text_transparent
+  }
+  block v_5i9p: VizBlock {
+    label: 'Ticket Trends Summary copy'
+    viz: MarkdownViz {
+      dataset: pawductive_customer_support_data
+      rows: [
+        VizFieldFull {
+          ref: r(support_tickets.channel)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(pawductive_customer_support_data.avg_day_to_first_response)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+          uname: 'custom_avg_day_to_first_response_1'
+        }
+      ]
+      content: @md <style>
+  .insights-container { 
+    padding: 4px; 
+  }
+  .insights-badge { 
+    display: inline-block; padding: 4px 12px; border-radius: 16px; 
+    font-weight: 600; margin: 0 4px;
+  }
+  .insights-badge.purple { background: #dfd9ec; color: #3d3c4f; }
+  .insights-badge.pink { background: #e6a5b8; color: #4b2e36; }
+</style>
+
+<div class="insights-container">
+  <p>
+    Reduce <span class="insights-badge purple">{{ rows[0].`Channel` }}</span>
+    from <span class="insights-badge pink">{{ rows[0].values.`Avg Day To First Response` }}</span> days to under 4 hours
+  </p>
+</div>        ;;
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'custom_avg_day_to_first_response_1'
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block t_1gdz: TextBlock {
+    content: @md ### Quarter target;;
+    theme: text_transparent
+  }
+  block v_4ru3: VizBlock {
+    label: 'Ticket Trends Summary copy copy'
+    viz: MarkdownViz {
+      dataset: pawductive_customer_support_data
+      values: [
+        VizFieldFull {
+          ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      content: @md <style>
+  .insights-container { 
+    padding: 4px; 
+  }
+  .insights-badge { 
+    display: inline-block; padding: 4px 12px; border-radius: 16px; 
+    font-weight: 600; margin: 0 4px;
+  }
+  .insights-badge.green { background: #77b8a1; color: #ffffff; }
+</style>
+
+<div class="insights-container">
+  <p>
+    Reduce the time to resolution
+    from <span class="insights-badge green">{{ rows[0].values.`Avg Day To Resolution` }}</span> days to under 2 days
+  </p>
+</div>        ;;
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block v_cjy7: VizBlock {
+    label: 'What is the Avg day to resolution of each category?'
+    viz: ColumnChart {
+      dataset: pawductive_customer_support_data
+      x_axis: VizFieldFull {
+        ref: r(support_categories.name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(pawductive_customer_support_data.avg_day_to_resolution)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#8A79ABFF'
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_wbep: VizBlock {
+    label: 'What are the top CSAT feedback?'
+    viz: DataTable {
+      dataset: pawductive_customer_support_data
+      theme {
+        table {
+          general {
+            borders {
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(support_users.full_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_users_full_name'
+        },
+        VizFieldFull {
+          label: 'CSAT'
+          ref: r(support_surveys.csat_score)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'support_surveys_csat_score'
+        },
+        VizFieldFull {
+          ref: r(support_surveys.feedback_text)
+          format {
+            type: 'text'
+          }
+          uname: 'support_surveys_feedback_text'
+        },
+        VizFieldFull {
+          ref: r(support_surveys.created_at)
+          format {
+            type: 'date'
+          }
+          uname: 'support_surveys_created_at'
+        },
+        VizFieldFull {
+          ref: r(support_agents.agent_name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_agents_agent_name'
+        },
+        VizFieldFull {
+          ref: r(support_categories.name)
+          format {
+            type: 'text'
+          }
+          uname: 'support_categories_name'
+        }
+      ]
+      settings {
+        sorts: [
+          SortSetting {
+            key: 'support_surveys_csat_score'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'support_surveys_created_at'
+            direction: 'desc'
+          },
+          SortSetting {
+            key: 'support_surveys_feedback_text'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'support_categories_name'
+            width: 204.90625
+          },
+          ColumnStyle {
+            key: 'support_users_full_name'
+            width: 133
+          },
+          ColumnStyle {
+            key: 'support_agents_agent_name'
+            width: 129
+          },
+          ColumnStyle {
+            key: 'support_surveys_created_at'
+            width: 105.10546875
+          },
+          ColumnStyle {
+            key: 'support_surveys_csat_score'
+            width: 86
+          },
+          ColumnStyle {
+            key: 'support_surveys_feedback_text'
+            width: 227
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: viz_transparent
+  }
+  block t_vzhn: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_m53c: TextBlock {
+    content: @md ### What are the top CSAT feedback?;;
+    theme: text_transparent
+  }
+  block t_yyxg: TextBlock {
+    content: @md ### What are the lowest CSAT feedback?;;
+    theme: text_transparent
+  }
+  block t_sqcu: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_c0gn: TextBlock {
+    content: @md ## 2. Feedback details;;
+    theme: text_transparent
+  }
+  block t_l237: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_2tzj: TextBlock {
+    content: @md ### Top ticket contributor;;
+    theme: text_transparent
+  }
+  block t_m9ej: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dcd9e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-plus-icon lucide-bell-plus"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M15 8h6"/><path d="M18 5v6"/><path d="M20.002 14.464a9 9 0 0 0 .738.863A1 1 0 0 1 20 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 8.75-5.332"/></svg>;;
+    theme: text_transparent
+  }
+  block t_2txb: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dcd9e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-icon lucide-loader"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>;;
+    theme: text_transparent
+  }
+  block t_wkp9: TextBlock {
+    content: @md <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#dcd9e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-check-icon lucide-message-circle-check"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="m9 12 2 2 4-4"/></svg>;;
+    theme: text_transparent
+  }
+  block t_pozu: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #e6a5b8; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_a7bk: TextBlock {
+    content: @md ### About us
+Pawductive is a  B2C productivity app that allows individuals and small teams to manage complex projects. 
+
+We pride ourselves on being human-first. We use support not just to fix bugs, but as a primary driver for product development.;;
+    theme: text_transparent
+  }
+  block t_ziu5: TextBlock {
+    content: @md <div style="width: 3px; height: 56px; background: #8a79ab; border-radius: 2px;"></div>
+;;
+    theme: viz_transparent
+  }
+  block t_dtp2: TextBlock {
+    content: @md ### 💡 To interact with this dashboard
+– **Filter** by time range, category from the filter controls
+
+– **Cross-filtering** from a data point to other charts 
+
+–  **Date drill** to change time granularity from the calendar when hovering on a chart.
+;;
+    theme: text_transparent
+  }
+  block t_xi96: TextBlock {
+    content: @md <div style="width: 3px; height: 100%; background: #8a79ab; border-radius: 2px;"></div>;;
+    theme: viz_transparent
+  }
+  block t_rfl5: TextBlock {
+    content: @md <div style="text-align: center; display: flex; align-items: center; justify-content: center;">
+  <span margin-right: 4px;">
+    CSAT
+  </span>
+  <span style="margin-right: 10px;">=</span>
+  <div style="display: inline-block; vertical-align: middle;">
+    <div style="border-bottom: 1px solid #cec9d9; padding: 2px 2px;">
+      Total positive responses
+    </div>
+    <div style="padding: 4px 4px;">
+      Total responses
+    </div>
+  </div>
+</div>;;
+    theme: text_transparent
+  }
+  block t_ubtw: TextBlock {
+    content: @md <div style="width: 3px; height: 100%; background: #8a79ab; border-radius: 2px;"></div>;;
+    theme: viz_transparent
+  }
+  block t_8r1z: TextBlock {
+    content: @md ### Quarterly target
+1. Time to 1st response: response within 12 hours on average, under 4 hours on in-app chart.
+2. Time to resolution: solve within 2 days.;;
+    theme: text_transparent
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab tab_p56v: CanvasLayout {
+      label: 'Ticket tracking'
+      width: 1300
+      height: 4324
+      grid_size: 20
+      auto_expand_vertically: true
+      block t_kj4u {
+        position: pos(60, 240, 540, 60)
+      }
+      block v_vntb {
+        position: pos(60, 1660, 560, 360)
+      }
+      block v_bqgn {
+        position: pos(60, 2060, 560, 300)
+        layer: 3
+      }
+      block v_vimo {
+        position: pos(60, 2980, 560, 400)
+        layer: 1
+      }
+      block v_vhjx {
+        position: pos(660, 2980, 580, 400)
+        layer: 2
+      }
+      block v_k9t8 {
+        position: pos(660, 2060, 580, 300)
+        layer: 3
+      }
+      block v_12z0 {
+        position: pos(60, 400, 767, 220)
+      }
+      block v_lu2i {
+        position: pos(660, 1660, 580, 360)
+      }
+      block v_igh9 {
+        position: pos(59, 661, 351, 220)
+      }
+      block v_yld9 {
+        position: pos(450, 663, 377, 220)
+      }
+      block v_snu2 {
+        position: pos(871, 661, 379, 220)
+      }
+      block f_time_range {
+        position: pos(880, 420, 380, 80)
+        layer: 2
+      }
+      block v_6wl8 {
+        position: pos(660, 3767, 580, 300)
+        layer: 3
+      }
+      block v_paq2 {
+        position: pos(60, 3420, 560, 300)
+        layer: 3
+      }
+      block t_c1wm {
+        position: pos(60, 1480, 540, 40)
+      }
+      block v_y3gt {
+        position: pos(60, 2400, 560, 320)
+        layer: 3
+      }
+      block v_62ft {
+        position: pos(660, 2400, 580, 320)
+        layer: 4
+      }
+      block v_vkym {
+        position: pos(40, 1040, 680, 400)
+      }
+      block t_ewjn {
+        position: pos(60, 2800, 580, 40)
+        layer: 3
+      }
+      block t_chop {
+        position: pos(80, 320, 760, 60)
+      }
+      block v_0kpp {
+        position: pos(760, 1040, 480, 400)
+      }
+      block t_hm99 {
+        position: pos(60, 940, 200, 40)
+      }
+      block t_10rt {
+        position: pos(83, 576, 100, 40)
+      }
+      block v_yqhm {
+        position: pos(660, 3420, 580, 300)
+        layer: 3
+      }
+      block t_pvzz {
+        position: pos(77, 828, 240, 40)
+      }
+      block t_7ldx {
+        position: pos(469, 824, 240, 40)
+      }
+      block t_gyk4 {
+        position: pos(888, 807, 240, 60)
+      }
+      block v_ui5w {
+        position: pos(60, 1560, 1200, 80)
+        layer: -1
+      }
+      block v_plan_insight {
+        position: pos(60, 1588, 1180, 100)
+      }
+      block t_vmrx {
+        position: pos(80, 980, 920, 60)
+      }
+      block f_time_range_copy {
+        position: pos(880, 520, 380, 80)
+        layer: 2
+      }
+      block t_ni3h {
+        position: pos(860, 520, 60, 100)
+      }
+      block t_w77w {
+        position: pos(220, 740, 240, 40)
+      }
+      block t_w6fl {
+        position: pos(40, 960, 60, 100)
+      }
+      block t_ygek {
+        position: pos(40, 1520, 60, 140)
+      }
+      block t_h8xm {
+        position: pos(540, 3280, 80, 80)
+        layer: 3
+      }
+      block t_etky {
+        position: pos(1152, 3275, 80, 80)
+        layer: 3
+      }
+      block v_ghgo {
+        position: pos(268, 406, 545, 208)
+        layer: 3
+      }
+      block t_pawductive_header {
+        position: pos(0, 0, 1300, 200)
+      }
+      block t_6uhn {
+        position: pos(40, 140, 540, 60)
+      }
+      block t_paw_logomark {
+        position: pos(1140, 60, 120, 120)
+        layer: 3
+      }
+      block t_pawductive_logo {
+        position: pos(740, 4127, 500, 140)
+        layer: 3
+      }
+      block v_3td0 {
+        position: pos(220, 2980, 400, 260)
+        layer: 3
+      }
+      block v_vhdv {
+        position: pos(820, 2980, 420, 260)
+        layer: 3
+      }
+      block t_6096 {
+        position: pos(80, 3280, 380, 40)
+        layer: 3
+      }
+      block v_5i9p {
+        position: pos(60, 3299, 560, 80)
+        layer: 4
+      }
+      block t_1gdz {
+        position: pos(680, 3280, 380, 40)
+        layer: 3
+      }
+      block v_4ru3 {
+        position: pos(660, 3300, 560, 80)
+        layer: 4
+      }
+      block v_cjy7 {
+        position: pos(60, 3767, 560, 300)
+        layer: 3
+      }
+      block t_l237 {
+        position: pos(45, 299, 60, 100)
+      }
+      block t_2tzj {
+        position: pos(80, 1540, 540, 60)
+      }
+      block t_m9ej {
+        position: pos(320, 680, 80, 80)
+      }
+      block t_2txb {
+        position: pos(740, 680, 80, 80)
+      }
+      block t_wkp9 {
+        position: pos(1160, 680, 80, 80)
+      }
+      block t_a7bk {
+        position: pos(64, 4140, 440, 120)
+        layer: 3
+      }
+      block t_ziu5 {
+        position: pos(860, 420, 60, 100)
+      }
+      block t_dtp2 {
+        position: pos(900, 248, 360, 143)
+      }
+      block t_xi96 {
+        position: pos(860, 220, 60, 180)
+        layer: 3
+      }
+      block t_ubtw {
+        position: pos(55, 2840, 43, 117)
+        layer: 3
+      }
+      block t_8r1z {
+        position: pos(93, 2860, 644, 82)
+        layer: 3
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.96
+    }
+    tab view_1: CanvasLayout {
+      label: 'CSAT overview'
+      width: 1300
+      height: 2297
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_1xop {
+        position: pos(299, 680, 521, 220)
+        layer: 7
+      }
+      block v_i0lt {
+        position: pos(60, 960, 580, 340)
+        layer: 5
+      }
+      block v_pluq {
+        position: pos(60, 402, 760, 240)
+        layer: 5
+      }
+      block v_siky {
+        position: pos(860, 400, 360, 240)
+        layer: 6
+      }
+      block v_sxbu {
+        position: pos(680, 960, 540, 340)
+        layer: 5
+      }
+      block v_sue1 {
+        position: pos(60, 680, 760, 240)
+        layer: 6
+      }
+      block v_y98t {
+        position: pos(320, 1777, 920, 300)
+        layer: 6
+      }
+      block v_2iwp {
+        position: pos(860, 680, 360, 240)
+        layer: 6
+      }
+      block v_wnt8 {
+        position: pos(299, 400, 521, 241)
+        layer: 5
+      }
+      block t_pawductive_header_uvln {
+        position: pos(0, 0, 1300, 200)
+        layer: 4
+      }
+      block t_paw_logomark {
+        position: pos(1140, 60, 120, 120)
+        layer: 5
+      }
+      block f_time_range_copy_7djz {
+        position: pos(60, 220, 380, 80)
+        layer: 6
+      }
+      block t_nxfh {
+        position: pos(40, 220, 60, 100)
+        layer: 4
+      }
+      block f_ticket_category_copy {
+        position: pos(460, 220, 380, 80)
+        layer: 6
+      }
+      block t_gbjn {
+        position: pos(440, 220, 60, 100)
+        layer: 4
+      }
+      block t_xkvk {
+        position: pos(325, 437, 109, 30)
+        layer: 6
+      }
+      block t_oirz {
+        position: pos(100, 840, 180, 60)
+        layer: 7
+      }
+      block t_pqw0 {
+        position: pos(60, 340, 540, 60)
+        layer: 7
+      }
+      block f_ticket_category_copy_qy48 {
+        position: pos(861, 220, 379, 80)
+        layer: 6
+      }
+      block t_jnml {
+        position: pos(840, 220, 60, 100)
+        layer: 4
+      }
+      block v_wbep {
+        position: pos(320, 1417, 920, 340)
+        layer: 7
+      }
+      block t_vzhn {
+        position: pos(40, 1417, 60, 100)
+        layer: 7
+      }
+      block t_m53c {
+        position: pos(80, 1437, 200, 60)
+        layer: 7
+      }
+      block t_yyxg {
+        position: pos(100, 1797, 200, 60)
+        layer: 7
+      }
+      block t_sqcu {
+        position: pos(60, 1777, 60, 100)
+        layer: 7
+      }
+      block t_c0gn {
+        position: pos(60, 1357, 280, 60)
+        layer: 7
+      }
+      block t_pozu {
+        position: pos(68, 819, 60, 100)
+        layer: 7
+      }
+      block t_pawductive_logo {
+        position: pos(739, 2105, 500, 140)
+        layer: 7
+      }
+      block t_a7bk {
+        position: pos(64, 2120, 440, 120)
+        layer: 7
+      }
+      block t_rfl5 {
+        position: pos(75, 569, 226, 55)
+        layer: 5
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.96
+    }
+    tab tab_00ll: CanvasLayout {
+      label: 'Support Ops & Efficiency'
+      width: 1300
+      height: 965
+      grid_size: 20
+      auto_expand_vertically: true
+      block v_ll9w {
+        position: pos(420, 300, 820, 520)
+      }
+      block t_pawductive_header_muy3 {
+        position: pos(0, 0, 1300, 200)
+      }
+      block t_pawductive_logo_7oho {
+        position: pos(117, 794, 400, 140)
+        layer: 1
+      }
+      block t_qa8v {
+        position: pos(-2, 412, 240, 520)
+      }
+      block t_z98j {
+        position: pos(53, 276, 540, 140)
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.96
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v_vntb'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_bqgn'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vimo'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vhjx'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_k9t8'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_12z0'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_lu2i'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_igh9'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_yld9'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_snu2'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_time_range'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1xop',
+            'v_i0lt',
+            'v_pluq',
+            'v_siky',
+            'v_sxbu',
+            'v_sue1',
+            'v_y98t',
+            'v_2iwp',
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_lu2i',
+            'v_wnt8',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7',
+            'v_wbep',
+            'f_time_range_copy',
+            'f_time_range_copy_7djz',
+            'f_ticket_category_copy',
+            'f_ticket_category_copy_qy48'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_6wl8'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_paq2'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_y3gt'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_62ft'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vkym'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_0kpp'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_yqhm'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ui5w'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_plan_insight'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_time_range_copy'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1xop',
+            'v_i0lt',
+            'v_pluq',
+            'v_siky',
+            'v_sxbu',
+            'v_sue1',
+            'v_y98t',
+            'v_2iwp',
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_lu2i',
+            'v_wnt8',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_vkym',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7',
+            'v_wbep',
+            'f_time_range',
+            'f_time_range_copy_7djz',
+            'f_ticket_category_copy',
+            'f_ticket_category_copy_qy48'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ghgo'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_time_range_copy_7djz'
+      to: [
+        CustomMapping {
+          block: [
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_12z0',
+            'v_lu2i',
+            'v_igh9',
+            'v_yld9',
+            'v_snu2',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_vkym',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_ghgo',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7',
+            'f_time_range',
+            'f_time_range_copy',
+            'f_ticket_category_copy',
+            'f_ticket_category_copy_qy48'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_ticket_category_copy'
+      to: [
+        CustomMapping {
+          block: [
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_12z0',
+            'v_lu2i',
+            'v_igh9',
+            'v_yld9',
+            'v_snu2',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_vkym',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_ghgo',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7',
+            'f_time_range',
+            'f_time_range_copy',
+            'f_time_range_copy_7djz',
+            'f_ticket_category_copy_qy48'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_ticket_category_copy_qy48'
+      to: [
+        CustomMapping {
+          block: [
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_12z0',
+            'v_lu2i',
+            'v_igh9',
+            'v_yld9',
+            'v_snu2',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_vkym',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_ghgo',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7',
+            'f_time_range',
+            'f_time_range_copy',
+            'f_time_range_copy_7djz',
+            'f_ticket_category_copy'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3td0'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vhdv'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_5i9p'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_4ru3'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_cjy7'
+      to: [
+        CustomMapping {
+          block: 'v_wbep'
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_wbep'
+      to: [
+        CustomMapping {
+          block: [
+            'v_vntb',
+            'v_bqgn',
+            'v_vimo',
+            'v_vhjx',
+            'v_k9t8',
+            'v_12z0',
+            'v_lu2i',
+            'v_igh9',
+            'v_yld9',
+            'v_snu2',
+            'v_6wl8',
+            'v_paq2',
+            'v_y3gt',
+            'v_62ft',
+            'v_vkym',
+            'v_0kpp',
+            'v_yqhm',
+            'v_ui5w',
+            'v_plan_insight',
+            'v_ghgo',
+            'v_3td0',
+            'v_vhdv',
+            'v_5i9p',
+            'v_4ru3',
+            'v_cjy7'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

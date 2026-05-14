@@ -1,0 +1,63 @@
+Model reporting_burnup {
+  type: 'query'
+  label: 'Reporting Burnup'
+  description: ''
+  data_source_name: 'demodb'
+  dimension week {
+    label: 'Week'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.week }};;
+  }
+  dimension created {
+    label: 'Created'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.created }};;
+  }
+  dimension completed {
+    label: 'Completed'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.completed }};;
+  }
+  dimension cum_created {
+    label: 'Cum Created'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cum_created }};;
+  }
+  dimension cum_completed {
+    label: 'Cum Completed'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cum_completed }};;
+  }
+
+  owner: 'vy.ht@holistics.io'
+  query: @sql
+    WITH created_weekly AS (
+      SELECT DATE_TRUNC('week', created_at) AS week, COUNT(*) AS created
+      FROM {{ #reporting_issues }} GROUP BY 1
+    ),
+    completed_weekly AS (
+      SELECT DATE_TRUNC('week', completed_at) AS week, COUNT(*) AS completed
+      FROM {{ #reporting_issues }} WHERE completed_at IS NOT NULL GROUP BY 1
+    ),
+    combined AS (
+      SELECT
+        COALESCE(c.week, d.week) AS week,
+        COALESCE(c.created, 0) AS created,
+        COALESCE(d.completed, 0) AS completed
+      FROM created_weekly c
+      FULL OUTER JOIN completed_weekly d ON c.week = d.week
+    )
+    SELECT
+      week, created, completed,
+      SUM(created) OVER (ORDER BY week) AS cum_created,
+      SUM(completed) OVER (ORDER BY week) AS cum_completed
+    FROM combined ORDER BY week;;
+  models: [
+    reporting_issues
+  ]
+}

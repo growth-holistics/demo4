@@ -1,0 +1,2719 @@
+Dashboard edupulse_content_performance_analytics {
+  theme: edu_pulse
+  title: 'EduPulse Analytics'
+  description: ''
+  owner: 'minh.ntn@holistics.io'
+  block v_qrr6: VizBlock {
+    label: 'Completion Rate by Course'
+    viz: BarChart {
+      dataset: minh_edu
+      x_axis: VizFieldFull {
+        ref: r(courses_csv.title)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(minh_edu.completion_rate)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#0A85A7FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_g7no: VizBlock {
+    label: 'Total courses'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation metric_1e3c66e {
+        label: 'Count distinct of Courses Id'
+        formula: @aql count_distinct(courses_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Total courses'
+        ref: 'metric_1e3c66e'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#0F647BFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#0F647BFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_2r7p: VizBlock {
+    label: 'Overall Completion Rate compared with Overall Completion Rate Last 3 Months'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation overall_completion_rate_last_3_months {
+        label: 'Overall Completion Rate Last 3 Months'
+        formula: @aql (count(enrollments_csv.id) | where(enrollments_csv.status == 'completed', enrollments_csv.enrolled_at matches @(3 months ago))) 
+/ 
+(count(enrollments_csv.id) | where(enrollments_csv.enrolled_at matches @(3 months ago)));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        ref: r(minh_edu.overall_completion_rate)
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'overall_completion_rate_last_3_months'
+        format {
+          type: 'number'
+          pattern: 'none'
+        }
+      }
+      settings {
+        display_mode: 'compare_by_number'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#0F647BFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#0F647BFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_6c2s: VizBlock {
+    label: 'Avg Rating compared with Avg Rating Last 3 Months'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation metric_1e3c66e {
+        label: 'Count distinct of Courses Id'
+        formula: @aql count_distinct(courses_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8a3bff6 {
+        label: 'Average of Course reviews Rating'
+        formula: @aql avg(course_reviews_csv.rating);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation avg_rating_last_3_months {
+        label: 'Avg Rating Last 3 Months'
+        formula: @aql avg(course_reviews_csv.rating) | where(course_reviews_csv.reviewed_at matches @(3 months ago));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Avg Rating'
+        ref: 'metric_8a3bff6'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizFieldFull {
+        ref: 'avg_rating_last_3_months'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#0F647BFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#0F647BFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_hbuv: VizBlock {
+    label: 'Course League Table'
+    viz: DataTable {
+      dataset: minh_edu
+      calculation metric_2c6b485 {
+        label: 'Count of Enrollments Id'
+        formula: @aql count(enrollments_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation enrollment_completion {
+        label: 'Enrollment Completion'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'completed');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation avg_rating {
+        label: 'Average of Course reviews Rating'
+        formula: @aql avg(course_reviews_csv.rating);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation avg_days_to_complete {
+        label: 'Avg Days To Complete'
+        formula: @aql avg(date_diff('day', enrollments_csv.enrolled_at, enrollments_csv.completed_at)) 
+| where(enrollments_csv.status == 'completed', enrollments_csv.completed_at > enrollments_csv.enrolled_at);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(courses_csv.title)
+          format {
+            type: 'text'
+          }
+          uname: 'courses_csv_title'
+        },
+        VizFieldFull {
+          ref: r(courses_csv.category)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Enrollments'
+          ref: 'metric_2c6b485'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_metric_2c6b485_1'
+        },
+        VizFieldFull {
+          label: 'Completions'
+          ref: 'enrollment_completion'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Completion Rate'
+          ref: r(minh_edu.overall_completion_rate)
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg rating'
+          ref: 'avg_rating'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          ref: 'avg_days_to_complete'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_metric_2c6b485_1'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'courses_csv_title'
+            width: 233.93359375
+          }
+        ]
+      }
+    }
+  }
+  block v_qijb: VizBlock {
+    label: 'Total enrolled'
+    viz: MetricKpi {
+      dataset: minh_edu
+      value: VizFieldFull {
+        label: 'Total enrolled'
+        ref: r(enrollments_csv.id)
+        aggregation: 'count'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_1ulj: VizBlock {
+    label: 'Total enrolled copy'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation metric_e6df75a {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'completed');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Completed'
+        ref: 'metric_e6df75a'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_hfnn: VizBlock {
+    label: 'Total enrolled copy copy'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation metric_e6df75a {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'completed');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_abb9c53 {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'dropped');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Dropped'
+        ref: 'metric_abb9c53'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_8gpb: VizBlock {
+    label: 'Average quiz score'
+    viz: MetricKpi {
+      dataset: minh_edu
+      calculation metric_e6df75a {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'completed');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_abb9c53 {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'dropped');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_91ab1ac {
+        label: 'Concat field'
+        formula: @aql concat(cast(metric_b4d6dbe, 'text'), " ", "/10");;
+        calc_type: 'measure'
+        data_type: 'text'
+      }
+      value: VizFieldFull {
+        label: 'Average Quiz Score'
+        ref: r(minh_edu.avg_quiz_result)
+        format {
+          type: 'number'
+          pattern: '#,###0.0'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_xqjb: VizBlock {
+    label: 'Enrollment funnel'
+    viz: ConversionFunnel {
+      dataset: minh_edu
+      calculation enrollment_in_progress {
+        label: 'I'
+        formula: @aql count(enrollments_csv.id) -35 | where(enrollments_csv.status == 'in_progress');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation enrollments_completed {
+        label: 'Enrollments Completed'
+        formula: @aql count(enrollments_csv.id) -40 | where(enrollments_csv.status == 'completed');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation enrollments_dropped {
+        label: 'Enrollments Dropped'
+        formula: @aql count(enrollments_csv.id) -40 | where(enrollments_csv.status == 'dropped');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_8388ba4 {
+        label: 'Untitled Metric'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'enrolled');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      values: [
+        VizFieldFull {
+          label: 'enrolled'
+          ref: 'metric_8388ba4'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'in progress'
+          ref: 'enrollment_in_progress'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'completed'
+          ref: 'enrollments_completed'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'dropped'
+          ref: 'enrollments_dropped'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        circle_color: '#BED829FF'
+        columns_color: '#0A85A7FF'
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_jumc: VizBlock {
+    label: 'Completion Rate by Module'
+    viz: BarChart {
+      dataset: minh_edu
+      calculation module_completion_rate {
+        label: 'Module Completion Rate'
+        formula: @aql (count(module_progress_csv.id) | where(enrollments_csv.status == 'completed')) 
+/ 
+count(module_progress_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(courses_csv.title)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'module_completion_rate'
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#0A85A7FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'series'
+        }
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_3rio: VizBlock {
+    label: 'Avg Time Spent per Module'
+    viz: LineChart {
+      dataset: minh_edu
+      calculation avg_time_spent {
+        label: 'Avg Time Spent'
+        formula: @aql avg(module_progress_csv.time_spent_minutes);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(modules_csv.title)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'avg_time_spent'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#0A85A7FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_nijs: VizBlock {
+    label: 'Monthly Enrollments by Course'
+    viz: LineChart {
+      dataset: minh_edu
+      x_axis: VizFieldFull {
+        ref: r(enrollments_csv.enrolled_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(minh_edu.metric_ab585c7)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#0A85A7FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_s51s: VizBlock {
+    label: 'Completion Rate Over Monthly Enrollment Cohorts'
+    viz: LineChart {
+      dataset: minh_edu
+      x_axis: VizFieldFull {
+        ref: r(enrollments_csv.enrolled_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(minh_edu.overall_completion_rate)
+            format {
+              type: 'number'
+              pattern: '#,###%'
+            }
+          }
+          settings {
+            color: '#49992BFF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_fpz9: VizBlock {
+    label: 'New vs. Returning Learners per Month'
+    viz: ColumnChart {
+      dataset: minh_edu
+      calculation new_learners {
+        label: 'New Learners'
+        formula: @aql count_distinct(students_csv.id) | where(
+  enrollments_csv.enrolled_at | month() == students_csv.signup_at | month()
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation returning_learners {
+        label: 'Returning Learners'
+        formula: @aql count_distinct(students_csv.id) | where(
+  enrollments_csv.enrolled_at | month() != students_csv.signup_at | month()
+);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(enrollments_csv.enrolled_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'new_learners'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#BED829FF'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'returning_learners'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#0A85A7FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_p8iu: sticky_note_lined('💡 Insight: Courses with completion', ' rates  above 20% tend to have ', ' higher learner satisfaction scores. ', ' Focus on replicating successful ', 'course structures and engagement ', 'strategies from top performers.', '', '', '')
+  block v_srai: VizBlock {
+    label: 'Top 3 instructors'
+    viz: MarkdownViz {
+      dataset: minh_edu
+      calculation metric_d0fd5af {
+        label: 'Count distinct of Courses Id'
+        formula: @aql count_distinct(courses_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      filter {
+        field: r(courses_csv.instructor_name)
+        operator: 'top'
+        value: 3
+        options {
+          rank_by {
+            field: 'metric_a0a766f'
+            aggregation: 'custom'
+            logic: 'standard'
+          }
+        }
+      }
+      rows: [
+        VizFieldFull {
+          ref: r(courses_csv.instructor_name)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(courses_csv.instructor_photo_url)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(courses_csv.instructor_photo_image)
+          format {
+            type: 'html'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Total Enrollments'
+          ref: r(minh_edu.metric_a0a766f)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Courses taught'
+          ref: 'metric_d0fd5af'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(minh_edu.completion_rate)
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        },
+        VizFieldFull {
+          label: 'Rating'
+          ref: r(minh_edu.avg_quiz_result)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .instructors-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5rem;
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .instructor-card {
+    position: relative;
+    border-radius: 1.5rem;
+    border: 2px solid #C5E5E8;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FA 100%);
+    padding: 2rem 1.5rem;
+  }
+  
+  .vine-decoration {
+    position: absolute;
+    top: -24px;
+    right: -14px;
+    width: 150px;
+    height: 150px;
+  }
+  
+  .instructor-photo-container {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .instructor-photo {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    background-color: #5F9EA0;
+    display: block;
+    margin: 10px auto;
+    border: 2px solid #C5E5E8;
+  }
+  
+  .rank-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+  }
+  
+  .instructor-name {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2F6F71;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .metric-item {
+    text-align: center;
+  }
+  
+  .metric-value {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    background-color: #C5E5E8;
+    color: #2F6F71;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .metric-label {
+    font-size: 0.875rem;
+    color: #5F9EA0;
+    font-weight: 500;
+  }
+  
+  .rating-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    background-color: transparent !important;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2F6F71;
+  }
+  
+  .star-icon {
+    color: #9BD9E5;
+    font-size: 1.5rem;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+  }
+</style>
+
+<div class="instructors-container">
+  
+  <!-- Card 1 -->
+  <div class="instructor-card">
+    <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774330499/vine_nhohpl.png" 
+         class="vine-decoration" 
+         alt="decoration">    
+    <div class="instructor-photo-container">
+      <img src="{{ rows[0].`Instructor Photo URL`.raw }}" 
+           class="instructor-photo" 
+           alt="{{ rows[0].`Instructor name`.raw }}">
+      <div class="rank-badge" style="background-color: #D4AF37;">1</div>
+    </div>
+    <h3 class="instructor-name">{{ rows[0].`Instructor name` }}</h3>
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[0].values.`Total Enrollments` }}</div>
+        <div class="metric-label">Total enrollments</div>
+      </div>      
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[0].values.`Courses taught` }}</div>
+        <div class="metric-label">Courses taught</div>
+      </div>      
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[0].values.`Completion Rate` }}</div>
+        <div class="metric-label">Completion rate</div>
+      </div>      
+      <div class="metric-item">
+        <div class="metric-value rating-value">
+          <span class="star-icon">★</span>
+          <span>{{ rows[0].values.`Rating` }}</span>
+        </div>
+        <div class="metric-label">Rating</div>
+      </div>
+    </div>
+  </div>  
+  <!-- Card 2 -->
+  <div class="instructor-card">
+    <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774330499/vine_nhohpl.png" 
+         class="vine-decoration" 
+         alt="decoration">    
+    <div class="instructor-photo-container">
+      <img src="{{ rows[1].`Instructor Photo URL`.raw }}" 
+           class="instructor-photo" 
+           alt="{{ rows[1].`Instructor name`.raw }}">
+      <div class="rank-badge" style="background-color: #6FB556;">2</div>
+    </div>  
+    <h3 class="instructor-name">{{ rows[1].`Instructor name` }}</h3>   
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[1].values.`Total Enrollments` }}</div>
+        <div class="metric-label">Total enrollments</div>
+      </div>     
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[1].values.`Courses taught` }}</div>
+        <div class="metric-label">Courses taught</div>
+      </div>      
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[1].values.`Completion Rate` }}</div>
+        <div class="metric-label">Completion rate</div>
+      </div> 
+      <div class="metric-item">
+        <div class="metric-value rating-value">
+          <span class="star-icon">★</span>
+          <span>{{ rows[1].values.`Rating` }}</span>
+        </div>
+        <div class="metric-label">Rating</div>
+      </div>
+    </div>
+  </div> 
+  <!-- Card 3 -->
+  <div class="instructor-card">
+    <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774330499/vine_nhohpl.png" 
+         class="vine-decoration" 
+         alt="decoration">
+    <div class="instructor-photo-container">
+      <img src="{{ rows[2].`Instructor Photo URL`.raw }}" 
+           class="instructor-photo" 
+           alt="{{ rows[2].`Instructor name`.raw }}">
+      <div class="rank-badge" style="background-color: #6FB556;">3</div>
+    </div>   
+    <h3 class="instructor-name">{{ rows[2].`Instructor name` }}</h3>    
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[2].values.`Total Enrollments` }}</div>
+        <div class="metric-label">Total enrollments</div>
+      </div>      
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[2].values.`Courses taught` }}</div>
+        <div class="metric-label">Courses taught</div>
+      </div>    
+      <div class="metric-item">
+        <div class="metric-value">{{ rows[2].values.`Completion Rate` }}</div>
+        <div class="metric-label">Completion rate</div>
+      </div>   
+      <div class="metric-item">
+        <div class="metric-value rating-value">
+          <span class="star-icon">★</span>
+          <span>{{ rows[2].values.`Rating` }}</span>
+        </div>
+        <div class="metric-label">Rating</div>
+      </div>
+    </div>
+  </div>
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme {
+      border {
+        border_width: 0
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      padding: 0
+    }
+  }
+  block v_wvux: VizBlock {
+    label: 'Enrollments by Category'
+    viz: CustomChart {
+      dataset: minh_edu
+      custom_chart_id: 33549
+      field measure: VizFieldFull {
+        ref: r(minh_edu.completion_rate)
+        format {
+          type: 'number'
+          pattern: '#,###0.00'
+        }
+      }
+      field dimension: VizFieldFull {
+        ref: r(courses_csv.category)
+        format {
+          type: 'text'
+        }
+      }
+      setting color_1: '#5F9EA0'
+      setting color_2: '#9BD9E5'
+      setting color_3: '#C5E5E8'
+      setting color_4: '#D4AF37'
+      setting color_5: '#2F6F71'
+      setting color_6: '#A8D5BA'
+      setting color_7: '#E8A87C'
+      setting color_8: '#C27BA0'
+      setting inner_radius: 50
+      settings {
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_nzv3: VizBlock {
+    label: 'Enrollment vs. Completion rate'
+    viz: CustomChart {
+      dataset: minh_edu
+      custom_chart_id: 33552
+      field label: VizFieldFull {
+        ref: r(courses_csv.title)
+        format {
+          type: 'text'
+        }
+      }
+      field x_axis: VizFieldFull {
+        label: 'Total Enrollments'
+        ref: r(minh_edu.metric_a0a766f)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field y_axis: VizFieldFull {
+        ref: r(minh_edu.completion_rate)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field category: VizFieldFull {
+        ref: r(courses_csv.category)
+        format {
+          type: 'text'
+        }
+      }
+      field bubble_size: VizFieldFull {
+        ref: r(course_reviews_csv.rating)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      setting color_1: '#5F9EA0'
+      setting color_2: '#27CAE9'
+      setting color_3: '#C5E5E8'
+      setting color_4: '#D4AF37'
+      setting color_5: '#2F6F71'
+      setting color_6: '#A8D5BA'
+      settings {
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_0w9c: TextBlock {
+    theme: clear_block_theme
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774858838/logo_m31pix.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+  }
+  block t_qgn7: TextBlock {
+    content: @md <style>
+  .nav-item:hover { background: #FFFFFF; border-radius: 999px; }
+</style>
+<div style="background:#E4F5FB;border-radius:999px;padding:8px 8px;display:inline-flex;align-items:center;gap:8px;">
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=view_1" style="background:#0F647B;color:#fff;border-radius:999px;padding:12px 20px;font-size:18px;font-weight:400;text-decoration:none;">Performance Overview</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_o874" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Course Deep Dive</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_dshd" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Growth Trends</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_qdmv" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Top Instructors</a>
+</div>;;
+    theme: clear_block_theme
+  }
+  block v_gnyb: VizBlock {
+    label: 'Total Courses, Total Enrollments and 2 more'
+    viz: MarkdownViz {
+      dataset: minh_edu
+      values: [
+        VizFieldFull {
+          label: 'Total Courses'
+          ref: r(courses_csv.id)
+          aggregation: 'count'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Total Enrollments'
+          ref: r(minh_edu.metric_a0a766f)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(minh_edu.completion_rate)
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+        },
+        VizFieldFull {
+          label: 'Avg Rating'
+          ref: r(minh_edu.avg_quiz_result)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .overview-summary h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .overview-summary p {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  .overview-summary-highlight {
+    font-weight: 700;
+    color: #6FB556;
+  }
+</style>
+
+<div class="overview-summary">
+  <h3>📊 Quick Overview</h3>
+  <p>
+    Currently tracking <span class="overview-summary-highlight">{{ rows[0].values.`Total Courses` }} courses</span>
+    with <span class="overview-summary-highlight">{{ rows[0].values.`Total Enrollments` }} total enrollments</span>.
+    Our overall completion rate stands at <span class="overview-summary-highlight">{{ rows[0].values.`Completion Rate` }}</span>,
+    and learners have rated our courses an average of <span class="overview-summary-highlight">{{ rows[0].values.`Avg Rating` }}/10 stars</span>.
+  </p>
+</div>  ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+    theme: clear_block_theme
+  }
+  block t_dqin: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;padding:16px 16px;box-sizing:border-box;border-left:4px solid #A5DBE3;">
+  <div>
+    <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#09495A;line-height:1.4;">
+      Track <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">course performance</span>, 
+      <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">learner engagement</span>, 
+      and <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">content quality</span> across our online learning platform.
+    </p>
+    <p style="margin:0;font-size:13px;color:#4a6370;line-height:1.6;">
+      Identify <strong style="color:#09495A;">top-performing courses</strong>, spot areas for improvement, and monitor 
+      <strong style="color:#09495A;">growth trends</strong> — all in one place.
+    </p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_fi2d: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_s0ge: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:20px 24px;box-sizing:border-box;">
+  <p style="margin:0 0 12px 0;font-size:15px;font-weight:600;color:#09495A;">Use this dashboard to:</p>
+  <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;">
+    <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#1a1a1a;line-height:1.5;">
+      <span style="margin-top:2px;width:18px;height:18px;min-width:18px;background:#A5DBE3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#09495A;">✓</span>
+      Monitor enrollment and completion metrics
+    </li>
+    <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#1a1a1a;line-height:1.5;">
+      <span style="margin-top:2px;width:18px;height:18px;min-width:18px;background:#A5DBE3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#09495A;">✓</span>
+      Identify high-performing content and instructors
+    </li>
+    <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#1a1a1a;line-height:1.5;">
+      <span style="margin-top:2px;width:18px;height:18px;min-width:18px;background:#A5DBE3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#09495A;">✓</span>
+      Track learner engagement patterns
+    </li>
+    <li style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#1a1a1a;line-height:1.5;">
+      <span style="margin-top:2px;width:18px;height:18px;min-width:18px;background:#A5DBE3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#09495A;">✓</span>
+      Make data-driven decisions about course development
+    </li>
+  </ul>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_xlhn: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_ytls: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_kjwo: TextBlock {
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774883520/2leaves_lao4sh.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_pfet: TextBlock {
+    theme: clear_block_theme
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774858838/logo_m31pix.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+  }
+  block t_xvjh: TextBlock {
+    content: @md <style>
+  .nav-item:hover { background: #FFFFFF; border-radius: 999px; }
+</style>
+<div style="background:#E4F5FB;border-radius:999px;padding:8px 8px;display:inline-flex;align-items:center;gap:8px;">
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=view_1" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Performance Overview</a>
+<a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_o874" style="background:#0F647B;color:#fff;border-radius:999px;padding:12px 20px;font-size:18px;font-weight:400;text-decoration:none;">Course Deep Dive</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_dshd" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Growth Trends</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_qdmv" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Top Instructors</a>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_0ozn: TextBlock {
+    theme: clear_block_theme
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774858838/logo_m31pix.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+  }
+  block t_1uaw: TextBlock {
+    content: @md <style>
+  .nav-item:hover { background: #FFFFFF; border-radius: 999px; }
+</style>
+<div style="background:#E4F5FB;border-radius:999px;padding:8px 8px;display:inline-flex;align-items:center;gap:8px;">
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=view_1" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Performance Overview</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_o874" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Course Deep Dive</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_dshd" style="background:#0F647B;color:#fff;border-radius:999px;padding:12px 20px;font-size:18px;font-weight:400;text-decoration:none;">Growth Trends</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_qdmv" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Top Instructors</a>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_fwy7: TextBlock {
+    theme: clear_block_theme
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774858838/logo_m31pix.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+  }
+  block t_caoq: TextBlock {
+    content: @md <style>
+  .nav-item:hover { background: #FFFFFF; border-radius: 999px; }
+</style>
+<div style="background:#E4F5FB;border-radius:999px;padding:8px 8px;display:inline-flex;align-items:center;gap:8px;">
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=view_1" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Performance Overview</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_o874" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Course Deep Dive</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_dshd" class="nav-item" style="color:#09495A;padding:6px 18px;font-size:18px;font-weight:400;text-decoration:none;">Growth Trends</a>
+  <a href="https://staging.holistics.io/dashboards/v4/45276?_t=tab_qdmv" style="background:#0F647B;color:#fff;border-radius:999px;padding:12px 20px;font-size:18px;font-weight:400;text-decoration:none;">Top Instructors</a>
+</div>;;
+    theme: clear_block_theme
+  }
+  block v_ups4: VizBlock {
+    label: 'Category'
+    viz: MarkdownViz {
+      dataset: minh_edu
+      rows: [
+        VizFieldFull {
+          ref: r(courses_csv.category)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .category-filters {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2F6F71;
+  }
+  
+  .category-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFB 100%);
+    border: 2px solid #C5E5E8;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #2F6F71;
+    text-transform: capitalize;
+  }
+  
+  .category-button:hover {
+    border-color: #5F9EA0;
+    background: linear-gradient(135deg, #F0F9FA 0%, #E8F4F5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(95, 158, 160, 0.2);
+  }
+  
+  .h-drill-selected.category-button {
+    border-color: #2F6F71;
+    background: linear-gradient(135deg, #5F9EA0 0%, #2F6F71 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(47, 111, 113, 0.3);
+  }
+</style>
+
+<div class="category-filters">
+  <div class="filter-title">👉 Pick course category to filter</div>
+  {% map(rows) %}
+  <h-drill row="0" value="{{ `Category`.raw }}">
+      <div class="category-button">{{ `Category`.formatted }}</div>
+    </h-drill>
+  {% end %}
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+    theme: clear_block_theme
+  }
+  block v_eep0: VizBlock {
+    label: 'Category copy'
+    viz: MarkdownViz {
+      dataset: minh_edu
+      rows: [
+        VizFieldFull {
+          ref: r(courses_csv.category)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .category-filters {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2F6F71;
+  }
+  
+  .category-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFB 100%);
+    border: 2px solid #C5E5E8;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #2F6F71;
+    text-transform: capitalize;
+  }
+  
+  .category-button:hover {
+    border-color: #5F9EA0;
+    background: linear-gradient(135deg, #F0F9FA 0%, #E8F4F5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(95, 158, 160, 0.2);
+  }
+  
+  .h-drill-selected.category-button {
+    border-color: #2F6F71;
+    background: linear-gradient(135deg, #5F9EA0 0%, #2F6F71 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(47, 111, 113, 0.3);
+  }
+</style>
+
+<div class="category-filters">
+  <div class="filter-title">👉 Pick course category to filter</div>
+  {% map(rows) %}
+  <h-drill row="0" value="{{ `Category`.raw }}">
+      <div class="category-button">{{ `Category`.formatted }}</div>
+    </h-drill>
+  {% end %}
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+    theme: clear_block_theme
+  }
+  block t_vglp: TextBlock {
+    content: @md <div style="width:100%;background:#FFFFFF;border-top:1px solid #E5E7EB;padding:2rem 1.5rem;box-sizing:border-box;margin-top:3rem;">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;">
+    <p style="margin:0 0 0.5rem 0;font-size:0.875rem;color:#2F6F71;font-weight:600;">© 2026 EduPulse</p>
+    <p style="margin:0;font-size:0.8125rem;color:#9CA3AF;">Built with ❤️ for educators</p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_0w0o: TextBlock {
+    content: @md <div style="width:100%;background:#FFFFFF;border-top:1px solid #E5E7EB;padding:2rem 1.5rem;box-sizing:border-box;margin-top:3rem;">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;">
+    <p style="margin:0 0 0.5rem 0;font-size:0.875rem;color:#2F6F71;font-weight:600;">© 2026 EduPulse</p>
+    <p style="margin:0;font-size:0.8125rem;color:#9CA3AF;">Built with ❤️ for educators</p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block v_fqhl: VizBlock {
+    label: 'Category copy copy'
+    viz: MarkdownViz {
+      dataset: minh_edu
+      rows: [
+        VizFieldFull {
+          ref: r(courses_csv.category)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      content: @md <style>
+  .category-filters {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filter-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2F6F71;
+  }
+  
+  .category-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFB 100%);
+    border: 2px solid #C5E5E8;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #2F6F71;
+    text-transform: capitalize;
+  }
+  
+  .category-button:hover {
+    border-color: #5F9EA0;
+    background: linear-gradient(135deg, #F0F9FA 0%, #E8F4F5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(95, 158, 160, 0.2);
+  }
+  
+  .h-drill-selected.category-button {
+    border-color: #2F6F71;
+    background: linear-gradient(135deg, #5F9EA0 0%, #2F6F71 100%);
+    color: #FFFFFF;
+    box-shadow: 0 4px 16px rgba(47, 111, 113, 0.3);
+  }
+</style>
+
+<div class="category-filters">
+  <div class="filter-title">👉 Pick course category to filter</div>
+  {% map(rows) %}
+  <h-drill row="0" value="{{ `Category`.raw }}">
+      <div class="category-button">{{ `Category`.formatted }}</div>
+    </h-drill>
+  {% end %}
+</div> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+    theme: clear_block_theme
+  }
+  block t_tpmq: TextBlock {
+    content: @md <div style="width:100%;background:#FFFFFF;border-top:1px solid #E5E7EB;padding:2rem 1.5rem;box-sizing:border-box;margin-top:3rem;">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;">
+    <p style="margin:0 0 0.5rem 0;font-size:0.875rem;color:#2F6F71;font-weight:600;">© 2026 EduPulse</p>
+    <p style="margin:0;font-size:0.8125rem;color:#9CA3AF;">Built with ❤️ for educators</p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_m3vh: TextBlock {
+    content: @md <div style="width:100%;background:#FFFFFF;border-top:1px solid #E5E7EB;padding:2rem 1.5rem;box-sizing:border-box;margin-top:3rem;">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;">
+    <p style="margin:0 0 0.5rem 0;font-size:0.875rem;color:#2F6F71;font-weight:600;">© 2026 EduPulse</p>
+    <p style="margin:0;font-size:0.8125rem;color:#9CA3AF;">Built with ❤️ for educators</p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_dyag: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block v_4qfr: VizBlock {
+    label: 'instructors table'
+    viz: DataTable {
+      dataset: minh_edu
+      calculation metric_abcf2a7 {
+        label: 'Count distinct of Courses Id'
+        formula: @aql count_distinct(courses_csv.id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation avg_days_to_complete {
+        label: 'Avg Days To Complete'
+        formula: @aql avg(date_diff('day', enrollments_csv.enrolled_at, enrollments_csv.completed_at)) | where(enrollments_csv.status == 'completed', enrollments_csv.completed_at > enrollments_csv.enrolled_at);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation active_learners {
+        label: 'Active Learners'
+        formula: @aql count(enrollments_csv.id) | where(enrollments_csv.status == 'enrolled' or enrollments_csv.status == 'in_progress');;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      fields: [
+        VizFieldFull {
+          label: 'Instructor Photo'
+          ref: r(courses_csv.instructor_photo_image)
+          format {
+            type: 'html'
+          }
+          uname: 'courses_csv_instructor_photo_image'
+        },
+        VizFieldFull {
+          ref: r(courses_csv.instructor_name)
+          format {
+            type: 'text'
+          }
+          uname: 'courses_csv_instructor_name'
+        },
+        VizFieldFull {
+          label: 'Total Enrollments'
+          ref: r(minh_edu.metric_a0a766f)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_metric_a0a766f'
+        },
+        VizFieldFull {
+          ref: r(minh_edu.completion_rate)
+          format {
+            type: 'number'
+            pattern: '#,###%'
+          }
+          uname: 'custom_completion_rate'
+        },
+        VizFieldFull {
+          ref: 'avg_days_to_complete'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+          uname: 'custom_avg_days_to_complete'
+        },
+        VizFieldFull {
+          label: 'AVG of Quiz Score'
+          ref: r(minh_edu.avg_quiz_result)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+          uname: 'custom_avg_quiz_result'
+        },
+        VizFieldFull {
+          ref: 'active_learners'
+          format {
+            type: 'number'
+            pattern: '#,###'
+          }
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        show_row_number: true
+        sorts: [
+          SortSetting {
+            key: 'custom_metric_a0a766f'
+            direction: 'desc'
+          }
+        ]
+        row_limit: 10000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 0
+        column_styles: [
+          ColumnStyle {
+            key: 'courses_csv_instructor_photo_image'
+            width: 103.64453125
+          },
+          ColumnStyle {
+            key: 'courses_csv_instructor_name'
+            width: 135
+          },
+          ColumnStyle {
+            key: 'custom_metric_a0a766f'
+            width: 102.9140625
+          },
+          ColumnStyle {
+            key: 'custom_completion_rate'
+            width: 104.21875
+          },
+          ColumnStyle {
+            key: 'custom_avg_quiz_result'
+            width: 98.46875
+          },
+          ColumnStyle {
+            key: 'custom_avg_days_to_complete'
+            width: 89.0703125
+          }
+        ]
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block t_52xu: TextBlock {
+    content: @md <div style="width:100%;display:flex;align-items:center;padding:16px 16px;box-sizing:border-box;border-left:4px solid #A5DBE3;margin:1.5rem 0 2rem 0;">
+  <div>
+    <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#09495A;line-height:1.4;">
+      🌟 Our <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">top-performing instructors</span> 
+      maintain completion rates above <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">20%</span> 
+      while achieving ratings of <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">5.0+</span>.
+    </p>
+    <p style="margin:0;font-size:13px;color:#4a6370;line-height:1.6;">
+      They engage learners through <strong style="color:#09495A;">clear course structure</strong>, timely support, and 
+      <strong style="color:#09495A;">practical examples</strong>. Focus on replicating their teaching approaches to improve overall platform performance.
+    </p>
+  </div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_lqyb: TextBlock {
+    theme: clear_block_theme
+    content: @md <div style="width:100%;display:flex;align-items:center;padding:16px 16px;box-sizing:border-box;border-left:4px solid #A5DBE3;margin:1.5rem 0 2rem 0;">
+  <div>
+    <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#09495A;line-height:1.4;">
+      💡 Understanding <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">growth patterns</span> 
+      helps predict future demand and allocate resources to <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">high-performing periods</span>.
+    </p>
+    <p style="margin:0;font-size:13px;color:#4a6370;line-height:1.6;">
+      Strong <strong style="color:#09495A;">returning learner rates</strong> indicate platform stickiness, while 
+      <strong style="color:#09495A;">consistent enrollment growth</strong> signals effective marketing and course quality.
+    </p>
+  </div>
+</div>;;
+  }
+  block t_mtn4: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_kbcr: TextBlock {
+    theme: clear_block_theme
+    content: @md <div style="width:100%;display:flex;align-items:center;padding:16px 16px;box-sizing:border-box;border-left:4px solid #A5DBE3;margin:1.5rem 0 2rem 0;">
+  <div>
+    <p style="margin:0 0 8px 0;font-size:14px;font-weight:600;color:#09495A;line-height:1.4;">
+      🔎 Deep dive into <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">individual course performance</span> 
+      to identify exactly where learners <span style="color:#0F647B;text-decoration:underline;text-decoration-color:#A5DBE3;text-underline-offset:3px;">drop off</span> 
+      and which modules need improvement.
+    </p>
+    <p style="margin:0;font-size:13px;color:#4a6370;line-height:1.6;">
+      Modules with <strong style="color:#09495A;">completion rates below 30%</strong> or significantly longer time-spent may indicate 
+      content complexity issues. Use these insights to <strong style="color:#09495A;">restructure course flow</strong> and improve learner outcomes.
+    </p>
+  </div>
+</div>;;
+  }
+  block t_xc1h: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_1pb5: TextBlock {
+    content: @md <div class="size-full flex items-center justify-center">
+  <img src="https://res.cloudinary.com/dzbtlnxb6/image/upload/v1774962564/branch01_uig64u.png" style="max-width:100%;max-height:100%;object-fit:contain;" />
+</div>;;
+    theme: clear_block_theme
+  }
+  block t_zb3n: sticky_note_lined('Shoutout to Claude (the AI,', 'not Claude West in row 1 🫢) for ', 'being my rubber duck debugging partner', 'the Holistics team for making as-code BI ', 'actually fun and powerful,', 'and YOU for taking the time ', 'to explore this dashboard 💚', '', '')
+  block t_gyxa: TextBlock {
+    content: @md <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+  <div style="
+    width:100%;
+    height:100%;
+    background-color:#fff;
+    background-image:
+      linear-gradient(to right, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to bottom, #d0e4f0 1px, transparent 1px),
+      linear-gradient(to right, #edf4fa 1px, transparent 1px),
+      linear-gradient(to bottom, #edf4fa 1px, transparent 1px);
+    background-size:
+      60px 60px,
+      60px 60px,
+      20px 20px,
+      20px 20px;
+    border: 1px solid #D5E5F1;
+    border-radius: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+  "></div>
+</div>;;
+    theme: clear_block_theme
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab view_1: CanvasLayout {
+      label: 'Performance Overview'
+      width: 1360
+      height: 2340
+      auto_expand_vertically: true
+      block v_qrr6 {
+        position: pos(60, 1190, 760, 400)
+        layer: 1
+      }
+      block v_g7no {
+        position: pos(400, 410, 240, 160)
+        layer: 1
+      }
+      block v_2r7p {
+        position: pos(680, 410, 280, 160)
+        layer: 1
+      }
+      block v_6c2s {
+        position: pos(1000, 410, 300, 160)
+        layer: 1
+      }
+      block v_hbuv {
+        position: pos(60, 1630, 1240, 480)
+        layer: 1
+      }
+      block t_p8iu {
+        position: pos(880, 1190, 320, 360)
+        layer: 1
+      }
+      block v_wvux {
+        position: pos(60, 720, 560, 420)
+        layer: 1
+      }
+      block v_nzv3 {
+        position: pos(660, 720, 640, 420)
+        layer: 1
+      }
+      block t_0w9c {
+        position: pos(60, 20, 220, 280)
+        layer: 1
+      }
+      block t_qgn7 {
+        position: pos(510, 50, 800, 80)
+        layer: 1
+      }
+      block v_gnyb {
+        position: pos(60, 410, 320, 200)
+        layer: 1
+      }
+      block t_dqin {
+        position: pos(420, 190, 410, 130)
+        layer: 2
+      }
+      block t_fi2d {
+        position: pos(400, 160, 440, 200)
+        layer: 1
+      }
+      block t_s0ge {
+        position: pos(890, 160, 410, 200)
+        layer: 2
+      }
+      block t_xlhn {
+        position: pos(860, 160, 440, 200)
+        layer: 1
+      }
+      block t_ytls {
+        position: pos(940, 1210, 290, 360)
+      }
+      block t_kjwo {
+        position: pos(1160, 1450, 90, 100)
+        layer: 2
+      }
+      block v_ups4 {
+        position: pos(40, 600, 1320, 100)
+        layer: 2
+      }
+      block t_0w0o {
+        position: pos(-10, 2120, 1380, 210)
+        layer: 1
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 0.8
+    }
+    tab tab_o874: CanvasLayout {
+      label: 'Course Deep Dive'
+      width: 1300
+      height: 1700
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_qijb {
+        position: pos(60, 330, 260, 180)
+      }
+      block v_1ulj {
+        position: pos(370, 330, 260, 180)
+      }
+      block v_hfnn {
+        position: pos(680, 330, 260, 180)
+      }
+      block v_8gpb {
+        position: pos(990, 330, 260, 180)
+      }
+      block v_xqjb {
+        position: pos(60, 650, 1190, 420)
+      }
+      block v_jumc {
+        position: pos(60, 1110, 570, 420)
+      }
+      block v_3rio {
+        position: pos(660, 1110, 580, 420)
+      }
+      block t_pfet {
+        position: pos(70, 0, 190, 240)
+      }
+      block t_xvjh {
+        position: pos(460, 40, 810, 80)
+      }
+      block v_eep0 {
+        position: pos(10, 530, 1320, 100)
+      }
+      block t_vglp {
+        position: pos(-6, 1529, 1310, 210)
+      }
+      block t_kbcr {
+        position: pos(590, 130, 650, 170)
+        layer: 1
+      }
+      block t_xc1h {
+        position: pos(570, 130, 680, 160)
+      }
+      default_zoom: 0.8
+    }
+    tab tab_dshd: CanvasLayout {
+      label: 'Growth Trends'
+      width: 1300
+      height: 1390
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_nijs {
+        position: pos(43, 390, 1220, 390)
+      }
+      block v_s51s {
+        position: pos(40, 810, 580, 420)
+      }
+      block v_fpz9 {
+        position: pos(660, 810, 600, 420)
+      }
+      block t_0ozn {
+        position: pos(35, 2, 200, 240)
+      }
+      block t_1uaw {
+        position: pos(460, 40, 800, 80)
+      }
+      block v_fqhl {
+        position: pos(10, 280, 1320, 100)
+      }
+      block t_tpmq {
+        position: pos(0, 1224, 1310, 210)
+      }
+      block t_lqyb {
+        position: pos(600, 120, 650, 150)
+        layer: 1
+      }
+      block t_mtn4 {
+        position: pos(570, 120, 680, 160)
+      }
+      default_zoom: 0.8
+    }
+    tab tab_qdmv: CanvasLayout {
+      label: 'Top Instructors'
+      width: 1300
+      height: 1540
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block t_x0td {
+        position: pos(390, 270, 140, 60)
+      }
+      block v_srai {
+        position: pos(40, 305, 1220, 520)
+      }
+      block t_fwy7 {
+        position: pos(60, 20, 200, 240)
+      }
+      block t_caoq {
+        position: pos(460, 40, 800, 80)
+      }
+      block t_m3vh {
+        position: pos(0, 1365, 1305, 210)
+      }
+      block t_dyag {
+        position: pos(530, 120, 720, 180)
+      }
+      block v_4qfr {
+        position: pos(40, 830, 870, 540)
+      }
+      block t_52xu {
+        position: pos(570, 120, 670, 190)
+      }
+      block t_1pb5 {
+        position: pos(840, 1200, 160, 220)
+      }
+      block t_zb3n {
+        position: pos(920, 890, 350, 370)
+        layer: 1
+      }
+      block t_gyxa {
+        position: pos(960, 1010, 320, 290)
+        layer: -1
+      }
+      default_zoom: 0.8
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v_qrr6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_g7no'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_2r7p'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_6c2s',
+            'v_hbuv',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_6c2s'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_hbuv',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hbuv'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_qijb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_1ulj'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hfnn'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_8gpb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xqjb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_jumc'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3rio'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_nijs'
+      to: [
+        CustomMapping {
+          block: [
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_s51s'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nijs',
+            'v_fpz9',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_fpz9'
+      to: [
+        CustomMapping {
+          block: [
+            'v_nijs',
+            'v_s51s',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_srai'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_fqhl'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_wvux'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_nzv3'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_gnyb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ups4'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_eep0',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_eep0'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_fqhl',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_fqhl'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_srai',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_4qfr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_4qfr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_qrr6',
+            'v_g7no',
+            'v_2r7p',
+            'v_6c2s',
+            'v_hbuv',
+            'v_qijb',
+            'v_1ulj',
+            'v_hfnn',
+            'v_8gpb',
+            'v_xqjb',
+            'v_jumc',
+            'v_3rio',
+            'v_nijs',
+            'v_s51s',
+            'v_fpz9',
+            'v_wvux',
+            'v_nzv3',
+            'v_gnyb',
+            'v_ups4',
+            'v_eep0',
+            'v_fqhl'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+}

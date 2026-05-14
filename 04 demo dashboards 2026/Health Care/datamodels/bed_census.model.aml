@@ -1,0 +1,57 @@
+Model bed_census {
+  type: 'table'
+  label: 'Bed census'
+  description: ''
+  data_source_name: 'demodb'
+  dimension census_id {
+    label: 'Census'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.census_id }};;
+  }
+  dimension census_date {
+    label: 'Census date'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.census_date }};;
+  }
+  dimension department {
+    label: 'Department'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.department }};;
+  }
+  dimension total_beds {
+    label: 'Total beds'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_beds }};;
+  }
+  dimension occupied_beds {
+    label: 'Occupied beds'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.occupied_beds }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'bed_census_realistic.csv'
+    uploaded_at: '2026-03-07 09:01:42'
+    hash: 'edb694b5c5679b738f6e7265a80a0e6500f17c8021f369c9700161cb24a6a6ca'
+    column_configs: [
+      H.imports.column_config("census_id", "census_id", "number"),
+      H.imports.column_config("census_date", "census_date", "date"),
+      H.imports.column_config("department", "department", "text"),
+      H.imports.column_config("total_beds", "total_beds", "number"),
+      H.imports.column_config("occupied_beds", "occupied_beds", "number")
+    ]
+  }
+  owner: 'giang.nv@holistics.io'
+  table_name: '"persisted"."holistics_bed_census_8473e_202602271744"'
+}

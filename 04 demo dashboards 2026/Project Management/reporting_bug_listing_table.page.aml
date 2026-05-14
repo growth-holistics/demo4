@@ -1,0 +1,170 @@
+Dashboard untitled_8_3 {
+  title: 'Bug Listing Table'
+  description: ''
+  owner: 'vy.ht@holistics.io'
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1160
+    height: 770
+    grid_size: 20
+    auto_expand_vertically: true
+    mobile {
+      mode: 'auto'
+    }
+    block t_k4d2 {
+      position: pos(60, 20, 740, 80)
+      layer: 1
+    }
+    block t_bmew {
+      position: pos(20, 20, 80, 80)
+    }
+    block t_yaj9 {
+      position: pos(20, 100, 740, 60)
+    }
+    block t_z987 {
+      position: pos(20, 140, 1120, 60)
+    }
+    block v_lhua {
+      position: pos(40, 280, 1080, 420)
+    }
+    block f_completed_at {
+      position: pos(40, 180, 300, 80)
+    }
+  }
+  theme: ai_1773979634521_3
+  block t_k4d2: TextBlock {
+    content: @md ## **Squad Reporting - Project Management**;;
+    theme: BlockTheme {
+      background {
+        bg_color: 'transparent'
+      }
+      text {
+        font_color: '#1e40af'
+      }
+      border {
+        border_width: 0
+        border_style: 'solid'
+        border_color: 'transparent'
+      }
+      shadow: 'none'
+    }
+  }
+  block t_bmew: TextBlock {
+    content: @md <div style="width: 8px; 
+      height: 8px; 
+      margin: 15px;
+      border-radius: 50%; 
+      background: rgb(52, 211, 153); 
+      box-shadow: rgba(52, 211, 153, 0.5) 0px 0px 10px 2px;"
+</div>;;
+    theme: BlockTheme {
+      border {
+        border_width: 0
+        border_style: 'none'
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      shadow: 'none'
+    }
+  }
+  block t_yaj9: TextBlock {
+    content: @md ### **🐞 Bug list**;;
+    theme {
+      text {
+        font_color: '#475569'
+      }
+      border {
+        border_width: 0
+        border_color: 'transparent'
+        border_style: 'none'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      shadow: 'none'
+    }
+  }
+  block t_z987: TextBlock {
+    content: @md <div style="font-family: Outfit; font-size: 16px; font-weight: 700; color: rgb(26, 29, 46); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid rgb(225, 228, 236);"></div>;;
+    theme {
+      text {
+        font_color: '#ffffff'
+      }
+      border {
+        border_width: 0
+        border_color: 'transparent'
+        border_style: 'none'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+      shadow: 'none'
+    }
+  }
+  block v_lhua: VizBlock {
+    label: 'Bug listing table'
+    viz: DataTable {
+      dataset: reporting_project_management
+      filter {
+        field: r(reporting_issues.label)
+        operator: 'is'
+        value: 'Bug'
+      }
+      fields: [
+        VizFieldFull {
+          ref: r(reporting_issues.completed_at)
+          format {
+            type: 'date'
+          }
+        },
+        VizFieldFull {
+          ref: r(reporting_issues.identifier)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(reporting_issues.title)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block f_completed_at: FilterBlock {
+    label: 'Completed at'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: reporting_project_management
+      field: r(reporting_issues.completed_at)
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+    settings {
+      drillthrough: Drillthrough {
+        enabled: true
+        sources: [
+          CustomDrillthroughSource {
+            sources: [
+              'squad_command_center'
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,644 @@
+Dataset healthcare_overview {
+  __engine__: 'aql'
+  label: 'Healthcare Overview'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    admissions,
+    bed_census,
+    patients,
+    ed_visits,
+    satisfaction_surveys,
+    transfers,
+    transfers_union
+  ]
+  relationships: [
+    relationship(admissions.patient_id > patients.patient_id, true),
+    relationship(admissions.admission_id - satisfaction_surveys.admission_id, true, 'one_way'),
+    relationship(ed_visits.patient_id > admissions.patient_id, true),
+    relationship(transfers.admission_id > admissions.admission_id, true, 'one_way')
+    ,
+    relationship(transfers.transfer_id - transfers_union.transfer_id, true)
+  ]
+
+  view {
+
+    // =========================================================================
+    // ADMISSIONS & INPATIENT
+    // Metrics: Volume, ALOS, Readmissions, Trends
+    // =========================================================================
+    group admissions_and_inpatient {
+      // Metrics - Volume
+      metric total_admissions
+      metric total_discharges
+      metric emergency_admissions
+      metric planned_admissions
+      metric avg_daily_admissions
+      metric admission_growth_rate
+      metric admissions_prev_month
+      metric unique_patients
+      metric admissions_per_patient
+
+      // Metrics - Length of Stay
+      metric avg_length_of_stay
+      metric median_length_of_stay
+      metric total_patient_days
+      metric alos_emergency
+      metric alos_planned
+
+      // Metrics - Readmissions
+      metric total_readmissions
+      metric readmission_rate
+      metric readmission_count
+      metric first_admission_rate
+      metric readmission_vs_target
+
+      // Metrics - Cumulative
+      metric ytd_admissions
+      metric mtd_admissions
+      metric running_total_admissions
+
+      // Dimensions
+      model admissions {
+        field admission_id
+        field admission_date
+        field discharge_date
+        field department
+        field diagnosis_category
+        field admission_type
+        field discharge_disposition
+        field is_readmission
+      }
+    }
+
+    // =========================================================================
+    // EMERGENCY DEPARTMENT
+    // Metrics: Volume, Wait Times, Throughput
+    // =========================================================================
+    group emergency_department {
+      // Metrics
+      metric total_ed_visits
+      metric avg_door_to_triage
+      metric avg_door_to_doctor
+      metric avg_ed_los
+      metric median_ed_los
+      metric ed_admission_rate
+      metric lwbs_rate
+      metric ed_visits_level_1
+      metric ed_visits_level_2
+      metric ed_visits_level_3
+      metric ed_visits_7day_avg
+
+      // Dimensions
+      model ed_visits {
+        field visit_id
+        field arrival_time
+        field triage_time
+        field seen_by_doctor_time
+        field discharge_time
+        field triage_level
+        field disposition
+        field chief_complaint
+      }
+    }
+
+    // =========================================================================
+    // BED CAPACITY
+    // Metrics: Occupancy, Utilization
+    // =========================================================================
+    group bed_capacity {
+      // Metrics
+      metric bed_occupancy_rate
+      metric avg_daily_occupancy_rate
+      metric total_beds
+      metric occupied_beds
+      metric available_beds
+
+      // Dimensions
+      model bed_census {
+        field census_id
+        field census_date
+        field department
+        field total_beds
+        field occupied_beds
+      }
+    }
+
+    // =========================================================================
+    // PATIENT SATISFACTION
+    // Metrics: Scores, NPS, Response Rate
+    // =========================================================================
+    group patient_satisfaction {
+      // Metrics
+      metric avg_satisfaction_score
+      metric avg_communication_score
+      metric avg_cleanliness_score
+      metric nps_score
+      metric would_recommend_rate
+      metric promoter_count
+      metric detractor_count
+      metric total_surveys
+      metric survey_response_rate
+      metric satisfaction_change
+      metric satisfaction_prev_month
+
+      // Dimensions
+      model satisfaction_surveys {
+        field survey_id
+        field survey_date
+        field overall_score
+        field communication_score
+        field cleanliness_score
+        field would_recommend
+      }
+    }
+
+    // =========================================================================
+    // TRANSFERS
+    // Metrics: Transfer volume
+    // =========================================================================
+    group transfers {
+      // Metrics
+      metric total_transfers
+      metric transfers_per_admission
+      metric net_transfer
+
+      // Dimensions
+      model transfers {
+        field transfer_id
+        field to_department
+        field from_department
+        field transfer_datetime
+      }
+      model transfers_union {
+        field department
+      }
+    }
+
+    // =========================================================================
+    // PATIENTS
+    // Demographics for slicing other metrics
+    // =========================================================================
+    group patients {
+      model patients {
+        field patient_id
+        field first_name
+        field last_name
+        field date_of_birth
+        field gender
+        field insurance_type
+      }
+    }
+  }
+
+  // ===========================================================================
+  // PATIENT VOLUME METRICS
+  // ===========================================================================
+
+  metric total_admissions {
+    label: 'Total Admissions'
+    type: 'number'
+    description: 'Total number of patient admissions to the hospital. Includes emergency, planned, and transfer admissions.'
+    definition: @aql count(admissions.admission_id) ;;
+  }
+
+  metric total_discharges {
+    label: 'Total Discharges'
+    type: 'number'
+    description: 'Total number of patients discharged from the hospital. Only counts admissions with a recorded discharge date.'
+    definition: @aql count(admissions.admission_id) 
+      | where(admissions.discharge_date is not null) ;;
+  }
+
+  metric total_transfers {
+    label: 'Total Transfers'
+    type: 'number'
+    description: 'Total number of internal transfers between departments during patient stays. High transfer rates may indicate complex cases or capacity issues.'
+    definition: @aql countd(transfers.transfer_id) ;;
+  }
+
+  metric emergency_admissions {
+    label: 'Emergency Admissions'
+    type: 'number'
+    description: 'Number of unplanned admissions through the emergency department. Typically higher acuity and less predictable than planned admissions.'
+    definition: @aql count(admissions.admission_id) 
+      | where(admissions.admission_type == 'Emergency') ;;
+  }
+
+  metric planned_admissions {
+    label: 'Planned Admissions'
+    type: 'number'
+    description: 'Number of scheduled admissions for elective procedures or treatments. Easier to manage from a capacity planning perspective.'
+    definition: @aql count(admissions.admission_id) 
+      | where(admissions.admission_type == 'Planned') ;;
+  }
+
+  metric avg_daily_admissions {
+    label: 'Avg Daily Admissions'
+    type: 'number'
+    description: 'Average number of patients admitted per day. Useful for staffing and capacity planning.'
+    definition: @aql 
+      unique(admissions.admission_date | day())
+      | select(daily_count: count(admissions.admission_id))
+      | average(daily_count) ;;
+  }
+
+  metric admissions_prev_month {
+    label: 'Admissions (Previous Month)'
+    type: 'number'
+    description: 'Total admissions from the previous month. Used for month-over-month trend analysis.'
+    definition: @aql total_admissions 
+      | relative_period(admissions.admission_date, interval(-1 month)) ;;
+  }
+
+  metric admission_growth_rate {
+    label: 'Admission Growth Rate (%)'
+    type: 'number'
+    description: 'Percentage change in admissions compared to previous month. Positive values indicate growth, negative values indicate decline.'
+    definition: @aql 
+      safe_divide((total_admissions - admissions_prev_month) * 100, admissions_prev_month) ;;
+  }
+
+  // ===========================================================================
+  // AVERAGE LENGTH OF STAY (ALOS) METRICS
+  // ===========================================================================
+
+  metric avg_length_of_stay {
+    label: 'Avg Length of Stay (Days)'
+    type: 'number'
+    description: 'Average number of days patients spend in hospital from admission to discharge. Key efficiency metric - lower ALOS generally indicates efficient care delivery.'
+    definition: @aql 
+      average(date_diff('day', admissions.admission_date, admissions.discharge_date))
+      | where(admissions.discharge_date is not null) ;;
+  }
+
+  metric median_length_of_stay {
+    label: 'Median Length of Stay (Days)'
+    type: 'number'
+    description: 'Median hospital stay duration. Less sensitive to outliers than average - better represents typical patient experience.'
+    definition: @aql 
+      median(date_diff('day', admissions.admission_date, admissions.discharge_date))
+      | where(admissions.discharge_date is not null) ;;
+  }
+
+  metric total_patient_days {
+    label: 'Total Patient Days'
+    type: 'number'
+    description: 'Sum of all days patients spent in hospital. Used for calculating bed utilization and revenue projections.'
+    definition: @aql 
+      sum(date_diff('day', admissions.admission_date, admissions.discharge_date))
+      | where(admissions.discharge_date is not null) ;;
+  }
+
+  metric alos_emergency {
+    label: 'ALOS - Emergency (Days)'
+    type: 'number'
+    description: 'Average length of stay for emergency admissions. Typically longer than planned admissions due to higher acuity.'
+    definition: @aql avg_length_of_stay 
+      | where(admissions.admission_type == 'Emergency') ;;
+  }
+
+  metric alos_planned {
+    label: 'ALOS - Planned (Days)'
+    type: 'number'
+    description: 'Average length of stay for planned/elective admissions. Generally shorter and more predictable than emergency stays.'
+    definition: @aql avg_length_of_stay 
+      | where(admissions.admission_type == 'Planned') ;;
+  }
+
+  // ===========================================================================
+  // BED OCCUPANCY METRICS
+  // ===========================================================================
+
+  metric bed_occupancy_rate {
+    label: 'Bed Occupancy Rate (%)'
+    type: 'number'
+    description: 'Percentage of available beds currently occupied. Target range is typically 80-85% - too low wastes resources, too high creates bottlenecks.'
+    definition: @aql 
+      safe_divide(sum(bed_census.occupied_beds) * 100, sum(bed_census.total_beds)) ;;
+  }
+
+  metric total_beds {
+    label: 'Total Beds'
+    type: 'number'
+    description: 'Total number of staffed beds available across all departments. Represents maximum patient capacity.'
+    definition: @aql sum(bed_census.total_beds) ;;
+  }
+
+  metric occupied_beds {
+    label: 'Occupied Beds'
+    type: 'number'
+    description: 'Number of beds currently in use by patients. Real-time indicator of hospital census.'
+    definition: @aql sum(bed_census.occupied_beds) ;;
+  }
+
+  metric available_beds {
+    label: 'Available Beds'
+    type: 'number'
+    description: 'Number of empty beds ready for new patients. Critical for emergency preparedness and admission planning.'
+    definition: @aql sum(bed_census.total_beds) - sum(bed_census.occupied_beds) ;;
+  }
+
+  metric avg_daily_occupancy_rate {
+    label: 'Avg Daily Occupancy Rate (%)'
+    type: 'number'
+    description: 'Average bed occupancy across all days in the period. Smooths out daily fluctuations for trend analysis.'
+    definition: @aql 
+      unique(bed_census.census_date)
+      | select(daily_rate: safe_divide(sum(bed_census.occupied_beds) * 100, sum(bed_census.total_beds)))
+      | average(daily_rate) ;;
+  }
+
+  // ===========================================================================
+  // EMERGENCY DEPARTMENT METRICS
+  // ===========================================================================
+
+  metric total_ed_visits {
+    label: 'Total ED Visits'
+    type: 'number'
+    description: 'Total number of emergency department visits. Includes all dispositions: admitted, discharged, transferred, and left without being seen.'
+    definition: @aql count(ed_visits.visit_id) ;;
+  }
+
+  metric ed_admission_rate {
+    label: 'ED Admission Rate (%)'
+    type: 'number'
+    description: 'Percentage of ED visits resulting in hospital admission. Higher rates may indicate sicker patient population or ED being used for primary care.'
+    definition: @aql 
+      safe_divide(
+        count_if(ed_visits.disposition == 'Admitted') * 100,
+        count(ed_visits.visit_id)
+      ) ;;
+  }
+
+  metric lwbs_rate {
+    label: 'LWBS Rate (%)'
+    type: 'number'
+    description: 'Left Without Being Seen rate - percentage of patients who left ED before receiving care. High rates signal long wait times and patient dissatisfaction. Target: <2%.'
+    definition: @aql 
+      safe_divide(
+        count_if(ed_visits.disposition == 'LWBS') * 100,
+        count(ed_visits.visit_id)
+      ) ;;
+  }
+
+  metric avg_door_to_triage {
+    label: 'Avg Door-to-Triage (min)'
+    type: 'number'
+    description: 'Average time from patient arrival to initial triage assessment. Target: <10 minutes. Longer times delay critical care identification.'
+    definition: @aql 
+      average(date_diff('minute', ed_visits.arrival_time, ed_visits.triage_time))
+      | where(ed_visits.triage_time is not null) ;;
+  }
+
+  metric avg_door_to_doctor {
+    label: 'Avg Door-to-Doctor (min)'
+    type: 'number'
+    description: 'Average time from arrival to being seen by a physician. Key patient experience metric. CMS benchmark: <30 minutes for high-acuity patients.'
+    definition: @aql 
+      average(date_diff('minute', ed_visits.arrival_time, ed_visits.seen_by_doctor_time))
+      | where(ed_visits.disposition != 'LWBS') ;;
+  }
+
+  metric avg_ed_los {
+    label: 'Avg ED Length of Stay (min)'
+    type: 'number'
+    description: 'Average total time patients spend in ED from arrival to discharge/admission. Industry benchmark: <240 minutes (4 hours).'
+    definition: @aql 
+      average(date_diff('minute', ed_visits.arrival_time, ed_visits.discharge_time))
+      | where(ed_visits.discharge_time is not null) ;;
+  }
+
+  metric median_ed_los {
+    label: 'Median ED Length of Stay (min)'
+    type: 'number'
+    description: 'Median ED visit duration. Better represents typical patient experience as it is not skewed by extremely long stays.'
+    definition: @aql 
+      median(date_diff('minute', ed_visits.arrival_time, ed_visits.discharge_time))
+      | where(ed_visits.discharge_time is not null) ;;
+  }
+
+  metric ed_visits_level_1 {
+    label: 'ED Visits - Level 1 (Resuscitation)'
+    type: 'number'
+    description: 'Most critical patients requiring immediate life-saving intervention. Typically <1% of ED volume.'
+    definition: @aql count(ed_visits.visit_id) 
+      | where(ed_visits.triage_level == 'Level_1_Resuscitation') ;;
+  }
+
+  metric ed_visits_level_2 {
+    label: 'ED Visits - Level 2 (Emergent)'
+    type: 'number'
+    description: 'High-risk patients needing rapid assessment. Should be seen within 10 minutes of triage.'
+    definition: @aql count(ed_visits.visit_id) 
+      | where(ed_visits.triage_level == 'Level_2_Emergent') ;;
+  }
+
+  metric ed_visits_level_3 {
+    label: 'ED Visits - Level 3 (Urgent)'
+    type: 'number'
+    description: 'Urgent but stable patients. Target: seen within 30 minutes. Often the largest volume category.'
+    definition: @aql count(ed_visits.visit_id) 
+      | where(ed_visits.triage_level == 'Level_3_Urgent') ;;
+  }
+
+  // ===========================================================================
+  // READMISSION METRICS
+  // ===========================================================================
+
+  metric total_readmissions {
+    label: 'Total Readmissions'
+    type: 'number'
+    description: 'Number of patients readmitted within 30 days of prior discharge. Flagged by is_readmission field in data.'
+    definition: @aql count(admissions.admission_id) 
+      | where(admissions.is_readmission == 1) ;;
+  }
+
+  metric readmission_rate {
+    label: 'Readmission Rate (%)'
+    type: 'number'
+    description: 'Percentage of admissions that are 30-day readmissions. CMS penalizes hospitals with rates above expected. National average: ~15%.'
+    definition: @aql 
+      safe_divide(total_readmissions * 100, total_admissions) ;;
+  }
+
+  metric readmission_count {
+    label: 'Readmission Count'
+    type: 'number'
+    description: 'Count of readmissions - alternative calculation using count_if. Useful for grouping by dimensions like department.'
+    definition: @aql count_if(admissions.is_readmission == true) ;;
+  }
+
+  metric first_admission_rate {
+    label: 'First Admission Rate (%)'
+    type: 'number'
+    description: 'Percentage of admissions that are NOT readmissions. Inverse of readmission rate - higher is better.'
+    definition: @aql 100 - readmission_rate ;;
+  }
+
+  metric readmission_vs_target {
+    label: 'Readmission vs Target (pp)'
+    type: 'number'
+    description: 'Variance from 15% readmission target in percentage points. Positive = above target (bad), Negative = below target (good).'
+    definition: @aql readmission_rate - 15 ;;
+  }
+
+  // ===========================================================================
+  // PATIENT SATISFACTION METRICS
+  // ===========================================================================
+
+  metric total_surveys {
+    label: 'Total Surveys'
+    type: 'number'
+    description: 'Total number of completed patient satisfaction surveys. Higher response rates provide more representative data.'
+    definition: @aql count(satisfaction_surveys.survey_id) ;;
+  }
+
+  metric survey_response_rate {
+    label: 'Survey Response Rate (%)'
+    type: 'number'
+    description: 'Percentage of discharged patients who completed satisfaction surveys. Target: >30% for statistical validity.'
+    definition: @aql 
+      safe_divide(count(satisfaction_surveys.survey_id) * 100, total_discharges) ;;
+  }
+
+  metric avg_satisfaction_score {
+    label: 'Avg Satisfaction Score'
+    type: 'number'
+    description: 'Average overall satisfaction rating (1-10 scale). Primary indicator of patient experience quality. Target: >8.0.'
+    definition: @aql average(satisfaction_surveys.overall_score) ;;
+  }
+
+  metric avg_communication_score {
+    label: 'Avg Communication Score'
+    type: 'number'
+    description: 'Average rating for staff communication (1-10). Measures how well staff explained conditions, treatments, and next steps.'
+    definition: @aql average(satisfaction_surveys.communication_score) ;;
+  }
+
+  metric avg_cleanliness_score {
+    label: 'Avg Cleanliness Score'
+    type: 'number'
+    description: 'Average rating for facility cleanliness (1-10). Impacts both patient perception and infection control.'
+    definition: @aql average(satisfaction_surveys.cleanliness_score) ;;
+  }
+
+  metric would_recommend_rate {
+    label: 'Would Recommend (%)'
+    type: 'number'
+    description: 'Percentage of patients who would recommend the hospital. Strong indicator of overall experience and loyalty.'
+    definition: @aql 
+      safe_divide(
+        count_if(satisfaction_surveys.would_recommend == true) * 100,
+        count(satisfaction_surveys.survey_id)
+      ) ;;
+  }
+
+  metric promoter_count {
+    label: 'Promoters (9-10)'
+    type: 'number'
+    description: 'Number of patients rating 9-10 (highly satisfied). These patients actively recommend the hospital to others.'
+    definition: @aql count(satisfaction_surveys.survey_id) 
+      | where(satisfaction_surveys.overall_score >= 9) ;;
+  }
+
+  metric detractor_count {
+    label: 'Detractors (1-6)'
+    type: 'number'
+    description: 'Number of patients rating 1-6 (dissatisfied). These patients may share negative experiences and avoid returning.'
+    definition: @aql count(satisfaction_surveys.survey_id) 
+      | where(satisfaction_surveys.overall_score <= 6) ;;
+  }
+
+  metric nps_score {
+    label: 'NPS Score'
+    type: 'number'
+    description: 'Net Promoter Score: % Promoters minus % Detractors. Ranges from -100 to +100. Healthcare benchmark: +50 is excellent, +70 is world-class.'
+    definition: @aql 
+      safe_divide(promoter_count * 100, total_surveys) - 
+      safe_divide(detractor_count * 100, total_surveys) ;;
+  }
+
+  metric satisfaction_prev_month {
+    label: 'Satisfaction Score (Prev Month)'
+    type: 'number'
+    description: 'Average satisfaction score from previous month. Used for trend analysis and identifying improvement or decline.'
+    definition: @aql avg_satisfaction_score 
+      | relative_period(satisfaction_surveys.survey_date, interval(-1 month)) ;;
+  }
+
+  metric satisfaction_change {
+    label: 'Satisfaction Change'
+    type: 'number'
+    description: 'Change in satisfaction score vs previous month. Positive = improvement, Negative = decline. Helps identify emerging issues quickly.'
+    definition: @aql avg_satisfaction_score - satisfaction_prev_month ;;
+  }
+
+  // ===========================================================================
+  // COMPOSITE / SUMMARY METRICS
+  // ===========================================================================
+
+  metric unique_patients {
+    label: 'Unique Patients'
+    type: 'number'
+    description: 'Count of distinct patients served. One patient with multiple admissions is counted once.'
+    definition: @aql count_distinct(admissions.patient_id) ;;
+  }
+
+  metric admissions_per_patient {
+    label: 'Admissions per Patient'
+    type: 'number'
+    description: 'Average number of admissions per unique patient. Higher values may indicate chronic conditions or readmission issues.'
+    definition: @aql safe_divide(total_admissions, unique_patients) ;;
+  }
+
+  metric transfers_per_admission {
+    label: 'Transfers per Admission'
+    type: 'number'
+    description: 'Average internal transfers per admission. High rates may indicate initial placement issues or complex multi-specialty cases.'
+    definition: @aql safe_divide(total_transfers, total_admissions) ;;
+  }
+
+  // ===========================================================================
+  // TIME-BASED RUNNING METRICS
+  // ===========================================================================
+
+  metric ytd_admissions {
+    label: 'YTD Admissions'
+    type: 'number'
+    description: 'Year-to-date cumulative admissions. Resets at the start of each calendar year for annual tracking.'
+    definition: @aql total_admissions 
+      | period_to_date('year', admissions.admission_date) ;;
+  }
+
+  metric mtd_admissions {
+    label: 'MTD Admissions'
+    type: 'number'
+    description: 'Month-to-date cumulative admissions. Resets at the start of each month for monthly goal tracking.'
+    definition: @aql total_admissions 
+      | period_to_date('month', admissions.admission_date) ;;
+  }
+
+  metric running_total_admissions {
+    label: 'Running Total Admissions'
+    type: 'number'
+    description: 'Cumulative sum of admissions over time. Useful for visualizing growth trends in line charts.'
+    definition: @aql total_admissions 
+      | running_total(admissions.admission_date) ;;
+  }
+
+  metric ed_visits_7day_avg {
+    label: 'ED Visits (7-Day Avg)'
+    type: 'number'
+    description: '7-day rolling average of daily ED visits. Smooths daily variation to reveal underlying trends and seasonality.'
+    definition: @aql total_ed_visits 
+      | trailing_period(ed_visits.arrival_time, interval(7 days)) / 7 ;;
+  }
+  metric net_transfer {
+    label: "Net Transfer"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(transfers_union.transfer_in-transfers_union.transfer_out);;
+  }
+}

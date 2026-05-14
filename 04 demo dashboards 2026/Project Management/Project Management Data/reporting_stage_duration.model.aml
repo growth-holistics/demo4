@@ -1,0 +1,118 @@
+Model reporting_stage_duration {
+  type: 'query'
+  label: 'Reporting Stage Duration'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension issue_id {
+    label: 'Issue Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.issue_id }};;
+  }
+  dimension stage {
+    label: 'Stage'
+    type: 'text'
+    hidden: false
+    definition: @sql {{#SOURCE.stage}};;
+  }
+  dimension entered_at {
+    label: 'Entered At'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.entered_at }};;
+  }
+  dimension exited_at {
+    label: 'Exited At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.exited_at }};;
+  }
+  dimension duration_hours {
+    label: "Duration Hours"
+    type: "number"
+    hidden: false
+    definition: @sql {{ #SOURCE.duration_hours }};;
+  }
+  dimension stage_priority {
+    label: "Stage Priority"
+    type: "number"
+    description: ""
+    hidden: false
+    definition: @aql case(
+  when: reporting_stage_duration.stage == "In Progress",
+  then: 1,
+  when: reporting_stage_duration.stage == "In PR Review",
+  then: 2,
+  when: reporting_stage_duration.stage == "Deploying to Staging",
+  then: 3,
+  when: reporting_stage_duration.stage == "Testing on Staging",
+  then: 4,
+  when: reporting_stage_duration.stage == "Waiting for Deployment",
+  then: 5,
+  else: 6
+);;
+  }
+
+  owner: 'vy.ht@holistics.io'
+  query: @sql WITH status_transitions AS (
+      SELECT 
+        issue_id,
+        to_status,
+        transitioned_at,
+        LAG(transitioned_at) OVER (
+          PARTITION BY issue_id 
+          ORDER BY transitioned_at
+        ) AS previous_transitioned_at
+      FROM {{ #reporting_issues_log }}
+      WHERE to_status IS NOT NULL
+    ),
+
+    stages_with_mapping AS (
+      SELECT 
+        st.issue_id,
+        CASE 
+          WHEN st.to_status = 'in_progress' THEN 'In Progress'
+          WHEN st.to_status = 'pr_review' THEN 'In PR Review'
+          WHEN st.to_status = 'merged' THEN 'Deploying to Staging'
+          WHEN st.to_status = 'deployed_to_staging' THEN 'Testing on Staging'
+          WHEN st.to_status = 'tested_on_staging' THEN 'Waiting for Deployment'
+        END AS stage,
+        st.transitioned_at AS entered_at,
+        LEAD(st.transitioned_at) OVER (
+          PARTITION BY st.issue_id 
+          ORDER BY st.transitioned_at
+        ) AS exited_at
+      FROM status_transitions st
+      WHERE st.to_status IN ('in_progress', 'pr_review', 'merged', 'deployed_to_staging', 'tested_on_staging', 'deployed')
+    )
+
+    SELECT 
+      ROW_NUMBER() OVER (ORDER BY issue_id, entered_at) AS id,
+      issue_id,
+      stage,
+      TO_CHAR(entered_at::timestamp, 'YYYY-MM-DD HH24:MI:SS') AS entered_at,
+      TO_CHAR(exited_at::timestamp, 'YYYY-MM-DD HH24:MI:SS') AS exited_at,
+      (EXTRACT(EPOCH FROM (exited_at::timestamp - entered_at::timestamp)) / 3600.0) AS duration_hours
+    FROM stages_with_mapping
+    WHERE exited_at IS NOT NULL
+      AND entered_at < exited_at
+      AND stage IS NOT NULL
+    ORDER BY 
+      issue_id, 
+      CASE stage
+        WHEN 'In Progress' THEN 1
+        WHEN 'In PR Review' THEN 2
+        WHEN 'Deploying to Staging' THEN 3
+        WHEN 'Testing on Staging' THEN 4
+        WHEN 'Waiting for Deployment' THEN 5
+      END;;
+  models: [
+    reporting_issues_log
+  ]
+}

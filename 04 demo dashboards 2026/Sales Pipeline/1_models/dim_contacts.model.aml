@@ -1,0 +1,59 @@
+Model dim_contacts {
+  type: 'query'
+  label: 'Dim Contacts'
+  description: ''
+  data_source_name: 'amyra_holistics'
+  dimension id {
+    label: 'Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension company_id {
+    label: 'Company Id'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.company_id }};;
+  }
+  dimension name {
+    label: 'Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension email {
+    label: 'Email'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.email }};;
+  }
+  dimension role {
+    label: 'Role'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.role }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+  dimension left_at {
+    label: 'Left At'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.left_at }};;
+  }
+
+  owner: 'hien.nt@holistics.io'
+  query: @sql
+    select p.*
+    from {{ #table_persons as p }}
+    join {{ #dim_companies as c }} on p.company_id = c.id
+    where c.type != 'internal';;
+  models: [
+    table_persons,
+    dim_companies
+  ]
+}

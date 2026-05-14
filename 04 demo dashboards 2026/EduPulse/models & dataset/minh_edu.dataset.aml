@@ -1,0 +1,69 @@
+Dataset minh_edu {
+  __engine__: 'aql'
+  label: 'minh_edu'
+  description: 'educated'
+  data_source_name: 'demodb'
+  models: [
+    courses_csv,
+    course_reviews_csv,
+    enrollments_csv,
+    module_progress_csv,
+    modules_csv,
+    quiz_results_csv,
+    students_csv
+  ]
+  relationships: [
+    relationship(modules_csv.course_id > courses_csv.id, true),
+    relationship(enrollments_csv.student_id > students_csv.id, true),
+    relationship(enrollments_csv.course_id > courses_csv.id, true),
+    relationship(module_progress_csv.enrollment_id > enrollments_csv.id, true),
+    relationship(quiz_results_csv.enrollment_id > enrollments_csv.id, true),
+    relationship(course_reviews_csv.course_id > courses_csv.id, true)
+  ]
+  metric completion_rate {
+    label: "Completion Rate"
+    type: "number"
+    description: ""
+    definition: @aql safe_divide(
+      enrollments_csv | count_if(enrollments_csv.status == 'completed'),
+      enrollments_csv | count(enrollments_csv.id)
+    );;
+  }
+  metric overall_completion_rate {
+    label: "Overall Completion Rate"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql (count(enrollments_csv.id) | where(enrollments_csv.status == 'completed')) 
+/ 
+count(enrollments_csv.id);;
+  }
+  metric metric_ab585c7 {
+    label: "Count distinct of Enrollments Id"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count_distinct(enrollments_csv.id);;
+  }
+  metric metric_a0a766f {
+    label: "Count of Enrollments Id"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql count(enrollments_csv.id);;
+  }
+  metric avg_quiz_result {
+    label: "Average of Quiz results Score"
+    type: "number"
+    hidden: false
+    format: FullNumberFormat {
+      pattern: "0.0"
+      decimalSeparator: "."
+    }
+    description: ""
+    definition: @aql avg(quiz_results_csv.score);;
+  }
+
+
+
+}

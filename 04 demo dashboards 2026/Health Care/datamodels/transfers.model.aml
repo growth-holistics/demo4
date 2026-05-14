@@ -1,0 +1,89 @@
+Model transfers {
+  type: 'table'
+  label: 'Transfers'
+  description: ''
+  data_source_name: 'demodb'
+  dimension transfer_id {
+    label: 'Transfer'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.transfer_id }};;
+  }
+  dimension admission_id {
+    label: 'Admission'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.admission_id }};;
+  }
+  dimension from_department {
+    label: 'From department'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.from_department }};;
+  }
+  dimension to_department {
+    label: 'To department'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.to_department }};;
+  }
+  dimension transfer_datetime {
+    label: 'Transfer datetime'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.transfer_datetime }};;
+  }
+  dimension top_sender {
+    label: "Top Sender"
+    type: "text"
+    description: ""
+    hidden: false
+    definition: @aql transfers | filter(rank(order: countd(transfers.transfer_id) | desc(), partition: transfers.to_department) == 1) | max(transfers.from_department) | dimensionalize(transfers.to_department);;
+    primary_key: false
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'transfers_wide.csv'
+    uploaded_at: '2026-03-11 04:08:31'
+    hash: 'cf306dc2228b6fb7b053653abadcb426a845c44d39f9c0875072e758befa91cf'
+    column_configs: [
+      H.imports.column_config("transfer_id", "transfer_id", "number"),
+      H.imports.column_config("admission_id", "admission_id", "number"),
+      H.imports.column_config("from_department", "from_department", "text"),
+      H.imports.column_config("to_department", "to_department", "text"),
+      H.imports.column_config("transfer_datetime", "transfer_datetime", "text")
+    ]
+  }
+  owner: 'giang.nv@holistics.io'
+  table_name: '"persisted"."holistics_transfers_cfa8b_202603060318"'
+  measure transfer_in {
+    label: "Transfer In"
+    type: "number"
+    description: ""
+    definition: @sql COUNT(
+  CASE 
+    WHEN {{ to_department }} IS NOT NULL 
+    THEN {{ transfer_id }}
+  END
+);;
+    aggregation_type: "custom"
+  }
+  measure transfer_out {
+    label: "Transfer Out"
+    type: "number"
+    description: ""
+    definition: @sql COUNT(
+  CASE 
+    WHEN {{ from_department }} IS NOT NULL 
+    THEN {{ transfer_id }}
+  END
+);;
+    aggregation_type: "custom"
+  }
+}
