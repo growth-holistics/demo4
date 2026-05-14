@@ -1,0 +1,81 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_companies.model.aml — Customer companies
+// Contains company profiles with industry, country, and region.
+// Linked to subscriptions via company_id FK.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_companies {
+  type: 'table'
+  label: 'Companies'
+  description: 'Customer company profiles. Each row is one company with industry, country, and region. Joined to subscriptions and subscription_events via company_id.'
+  data_source_name: 'saas_mrr'
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension id {
+    label: 'Company ID'
+    description: 'Unique company identifier. Example: "bcd3987d-e732-42c6-8287-b07eeaa1f117"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Company Name'
+    description: 'Human-readable company name. Example: "Meta", "Amazon", "Netflix"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension name_formatted {
+    label: 'Company Name Display'
+    description: 'Company name styled as bold text for table display'
+    type: 'text'
+    hidden: false
+    definition: @sql '<div style="display:flex;align-items:center;gap:8px;"><img src="https://www.google.com/s2/favicons?domain=' || LOWER(REPLACE({{ #SOURCE.name }}, ' ', '')) || '.com&sz=64" style="width:24px;height:24px;border-radius:4px;" onerror="this.style.display=''none''" /><span style="font-weight:600;color:#423935;">' || {{ #SOURCE.name }} || '</span></div>';;
+  }
+  dimension industry {
+    label: 'Industry'
+    description: 'Company industry vertical. Values: "retail", "consulting", "technology", "media", etc.'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.industry }};;
+  }
+  dimension country {
+    label: 'Country'
+    description: 'Country where the company is based. Example: "Mexico", "India", "United Arab Emirates"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.country }};;
+  }
+  dimension region {
+    label: 'Region'
+    description: 'Geographic region. Values: "north_america", "europe", "asia", "other"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension created_at {
+    label: 'Created At'
+    description: 'Date the company record was created (signup date).'
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.created_at }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'mou_companies.csv'
+    uploaded_at: '2026-03-10 05:03:59'
+    hash: ''
+    column_configs: [
+      H.imports.column_config("id", "id", "text"),
+      H.imports.column_config("name", "name", "text"),
+      H.imports.column_config("industry", "industry", "text"),
+      H.imports.column_config("country", "country", "text"),
+      H.imports.column_config("region", "region", "text"),
+      H.imports.column_config("created_at", "created_at", "datetime")
+    ]
+  }
+  owner: 'nhi.ty+staging@holistics.io'
+  table_name: '"public"."holistics_mou_companies_f75dd_202603100503"'
+}

@@ -1,0 +1,2314 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_monthly_mrr.model.aml — Pre-computed monthly MRR summary
+// THE central model for the entire dashboard. One row per month.
+// Provides: cumulative MRR, all 4 movement types, customer counts,
+// growth rates, churn rates, NRR, Quick Ratio, and sparkline/badge data.
+//
+// Used across ALL 4 dashboard tabs:
+//   Tab 1 (Overview): KPI cards + MRR trend line
+//   Tab 2 (Revenue Movements): Movement stacked bar + waterfall
+//   Tab 3 (Churn & Retention): Churn rate KPIs + dual line charts
+//   Tab 4 (Customers & Segments): Customer count + ARPA KPIs
+//
+// The SQL query computes everything in 3 layers:
+//   Inner (s): raw monthly aggregations from events + active subscriptions
+//   Middle (r): derived rates (churn, NRR, growth) + sparkline coordinates
+//   Outer: additional sparklines for churn rates + MoM deltas
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_monthly_mrr {
+  type: 'query'
+  label: 'Monthly MRR Summary'
+  description: 'Pre-computed monthly summary with MRR totals, movement breakdown (4 types: new_logo, expansion, contraction, churn), customer metrics, rates (churn, NRR, growth), and sparkline rendering data. One row per month.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    -- Outer: Tab 3 churn sparklines/deltas (need computed rate columns from r)
+    SELECT r.*,
+      -- ── Tab 3: Churn sparkline y-coordinates ──
+      ROUND((40.0 - CASE WHEN MAX(r.gross_churn_rate) OVER () - MIN(r.gross_churn_rate) OVER () > 0
+        THEN (r.gross_churn_rate - MIN(r.gross_churn_rate) OVER ())::NUMERIC
+             / (MAX(r.gross_churn_rate) OVER () - MIN(r.gross_churn_rate) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS gross_churn_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(r.net_churn_rate) OVER () - MIN(r.net_churn_rate) OVER () > 0
+        THEN (r.net_churn_rate - MIN(r.net_churn_rate) OVER ())::NUMERIC
+             / (MAX(r.net_churn_rate) OVER () - MIN(r.net_churn_rate) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS net_churn_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(r.nrr) OVER () - MIN(r.nrr) OVER () > 0
+        THEN (r.nrr - MIN(r.nrr) OVER ())::NUMERIC
+             / (MAX(r.nrr) OVER () - MIN(r.nrr) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS nrr_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(r.customer_churn_rate) OVER () - MIN(r.customer_churn_rate) OVER () > 0
+        THEN (r.customer_churn_rate - MIN(r.customer_churn_rate) OVER ())::NUMERIC
+             / (MAX(r.customer_churn_rate) OVER () - MIN(r.customer_churn_rate) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS cust_churn_spark_y,
+      -- ── Tab 6: Quick Ratio sparkline ──
+      ROUND((40.0 - CASE WHEN MAX(r.quick_ratio) OVER () - MIN(r.quick_ratio) OVER () > 0
+        THEN (r.quick_ratio - MIN(r.quick_ratio) OVER ())::NUMERIC
+             / (MAX(r.quick_ratio) OVER () - MIN(r.quick_ratio) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS qr_spark_y,
+      ROUND((r.quick_ratio - COALESCE(LAG(r.quick_ratio) OVER (ORDER BY r.report_month), 0))::NUMERIC, 2) AS qr_delta,
+      ABS(ROUND((r.quick_ratio - COALESCE(LAG(r.quick_ratio) OVER (ORDER BY r.report_month), 0))::NUMERIC, 2)) AS abs_qr_delta,
+      CASE WHEN (r.quick_ratio - COALESCE(LAG(r.quick_ratio) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '↑' ELSE '↓' END AS qr_sign,
+      CASE WHEN (r.quick_ratio - COALESCE(LAG(r.quick_ratio) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS qr_badge_color,
+      CASE WHEN (r.quick_ratio - COALESCE(LAG(r.quick_ratio) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS qr_badge_bg,
+      -- ── Tab 3: Churn MoM deltas (pp) ──
+      ROUND((r.gross_churn_rate - COALESCE(LAG(r.gross_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1) AS gross_churn_delta,
+      ROUND((r.net_churn_rate - COALESCE(LAG(r.net_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1) AS net_churn_delta,
+      ROUND((r.nrr - COALESCE(LAG(r.nrr) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1) AS nrr_delta,
+      ROUND((r.customer_churn_rate - COALESCE(LAG(r.customer_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1) AS cust_churn_delta,
+      -- ── Tab 3: Badge colors (churn: decrease=green, NRR: increase=green) ──
+      CASE WHEN (r.gross_churn_rate - COALESCE(LAG(r.gross_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#589442' ELSE '#CE5531' END AS gross_churn_badge_color,
+      CASE WHEN (r.net_churn_rate - COALESCE(LAG(r.net_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#589442' ELSE '#CE5531' END AS net_churn_badge_color,
+      CASE WHEN (r.nrr - COALESCE(LAG(r.nrr) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS nrr_badge_color,
+      CASE WHEN (r.customer_churn_rate - COALESCE(LAG(r.customer_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#589442' ELSE '#CE5531' END AS cust_churn_badge_color,
+      -- ── Tab 3: Badge backgrounds (lighter tint of badge color) ──
+      CASE WHEN (r.gross_churn_rate - COALESCE(LAG(r.gross_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS gross_churn_badge_bg,
+      CASE WHEN (r.net_churn_rate - COALESCE(LAG(r.net_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS net_churn_badge_bg,
+      CASE WHEN (r.nrr - COALESCE(LAG(r.nrr) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS nrr_badge_bg,
+      CASE WHEN (r.customer_churn_rate - COALESCE(LAG(r.customer_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS cust_churn_badge_bg,
+      -- ── Tab 3: Arrow signs (churn: decrease=↓ green, increase=↑ red; NRR: increase=↑ green) ──
+      CASE WHEN (r.gross_churn_rate - COALESCE(LAG(r.gross_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '↓' ELSE '↑' END AS gross_churn_sign,
+      CASE WHEN (r.net_churn_rate - COALESCE(LAG(r.net_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '↓' ELSE '↑' END AS net_churn_sign,
+      CASE WHEN (r.nrr - COALESCE(LAG(r.nrr) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '↑' ELSE '↓' END AS nrr_sign,
+      CASE WHEN (r.customer_churn_rate - COALESCE(LAG(r.customer_churn_rate) OVER (ORDER BY r.report_month), 0)) <= 0
+        THEN '↓' ELSE '↑' END AS cust_churn_sign,
+      -- ── Tab 3: Absolute deltas ──
+      ABS(ROUND((r.gross_churn_rate - COALESCE(LAG(r.gross_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1)) AS abs_gross_churn_delta,
+      ABS(ROUND((r.net_churn_rate - COALESCE(LAG(r.net_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1)) AS abs_net_churn_delta,
+      ABS(ROUND((r.nrr - COALESCE(LAG(r.nrr) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1)) AS abs_nrr_delta,
+      ABS(ROUND((r.customer_churn_rate - COALESCE(LAG(r.customer_churn_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 1)) AS abs_cust_churn_delta,
+      -- ── Tab 4: Customer & ARPA sparklines ──
+      (r.paid_customers - COALESCE(r.prev_customers, 0))::INT AS cust_delta_mom,
+      CASE WHEN (r.paid_customers - COALESCE(r.prev_customers, 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS cust_mom_color,
+      CASE WHEN (r.paid_customers - COALESCE(r.prev_customers, 0)) >= 0
+        THEN '↑' ELSE '↓' END AS cust_mom_sign,
+      ROUND((r.arpa - COALESCE(LAG(r.arpa) OVER (ORDER BY r.report_month), 0))::NUMERIC, 0) AS arpa_delta_mom,
+      CASE WHEN (r.arpa - COALESCE(LAG(r.arpa) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '↑' ELSE '↓' END AS arpa_sign,
+      CASE WHEN (r.arpa - COALESCE(LAG(r.arpa) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS arpa_badge_color,
+      CASE WHEN COALESCE(LAG(r.arpa) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.arpa - LAG(r.arpa) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.arpa) OVER (ORDER BY r.report_month) * 100), 2)
+        ELSE 0 END AS arpa_growth_pct,
+      ROUND((40.0 - CASE WHEN MAX(r.arpa) OVER () - MIN(r.arpa) OVER () > 0
+        THEN (r.arpa - MIN(r.arpa) OVER ())::NUMERIC
+             / (MAX(r.arpa) OVER () - MIN(r.arpa) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS arpa_spark_y,
+      CASE WHEN r.paid_customers > 0
+        THEN ROUND((r.high_value_customers::NUMERIC / r.paid_customers * 100)::NUMERIC, 1)
+        ELSE 0 END AS high_value_pct,
+      -- ── Tab 4: Top Customer % sparkline ──
+      ROUND((40.0 - CASE WHEN MAX(r.top_customer_pct) OVER () - MIN(r.top_customer_pct) OVER () > 0
+        THEN (r.top_customer_pct - MIN(r.top_customer_pct) OVER ())::NUMERIC
+             / (MAX(r.top_customer_pct) OVER () - MIN(r.top_customer_pct) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS top_cust_spark_y,
+      -- ── Tab 1: MRR Growth Rate % sparkline & badge ──
+      ROUND((40.0 - CASE WHEN MAX(r.mrr_growth_rate) OVER () - MIN(r.mrr_growth_rate) OVER () > 0
+        THEN (r.mrr_growth_rate - MIN(r.mrr_growth_rate) OVER ())::NUMERIC
+             / (MAX(r.mrr_growth_rate) OVER () - MIN(r.mrr_growth_rate) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS growth_spark_y,
+      ROUND((r.mrr_growth_rate - COALESCE(LAG(r.mrr_growth_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 2) AS growth_delta,
+      ABS(ROUND((r.mrr_growth_rate - COALESCE(LAG(r.mrr_growth_rate) OVER (ORDER BY r.report_month), 0))::NUMERIC, 2)) AS abs_growth_delta,
+      CASE WHEN (r.mrr_growth_rate - COALESCE(LAG(r.mrr_growth_rate) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '↑' ELSE '↓' END AS growth_sign,
+      CASE WHEN (r.mrr_growth_rate - COALESCE(LAG(r.mrr_growth_rate) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS growth_badge_color,
+      CASE WHEN (r.mrr_growth_rate - COALESCE(LAG(r.mrr_growth_rate) OVER (ORDER BY r.report_month), 0)) >= 0
+        THEN '#F2FAF0' ELSE '#FFF6F4' END AS growth_badge_bg,
+      -- ── Tab 6: YoY comparisons (LAG 12 months) ──
+      -- Net New MRR YoY
+      CASE WHEN COALESCE(LAG(r.net_new_mrr, 12) OVER (ORDER BY r.report_month), 0) != 0
+        THEN ROUND(ABS((r.net_new_mrr - LAG(r.net_new_mrr, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / ABS(LAG(r.net_new_mrr, 12) OVER (ORDER BY r.report_month)) * 100), 1)
+        ELSE 0 END AS net_new_yoy_pct,
+      CASE WHEN r.net_new_mrr >= COALESCE(LAG(r.net_new_mrr, 12) OVER (ORDER BY r.report_month), r.net_new_mrr)
+        THEN '↑' ELSE '↓' END AS net_new_yoy_sign,
+      CASE WHEN r.net_new_mrr >= COALESCE(LAG(r.net_new_mrr, 12) OVER (ORDER BY r.report_month), r.net_new_mrr)
+        THEN '#589442' ELSE '#CE5531' END AS net_new_yoy_color,
+      -- NRR YoY
+      CASE WHEN COALESCE(LAG(r.nrr, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.nrr - LAG(r.nrr, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.nrr, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS nrr_yoy_pct,
+      CASE WHEN r.nrr >= COALESCE(LAG(r.nrr, 12) OVER (ORDER BY r.report_month), r.nrr)
+        THEN '↑' ELSE '↓' END AS nrr_yoy_sign,
+      CASE WHEN r.nrr >= COALESCE(LAG(r.nrr, 12) OVER (ORDER BY r.report_month), r.nrr)
+        THEN '#589442' ELSE '#CE5531' END AS nrr_yoy_color,
+      -- ARPA YoY
+      CASE WHEN COALESCE(LAG(r.arpa, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.arpa - LAG(r.arpa, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.arpa, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS arpa_yoy_pct,
+      CASE WHEN r.arpa >= COALESCE(LAG(r.arpa, 12) OVER (ORDER BY r.report_month), r.arpa)
+        THEN '↑' ELSE '↓' END AS arpa_yoy_sign,
+      CASE WHEN r.arpa >= COALESCE(LAG(r.arpa, 12) OVER (ORDER BY r.report_month), r.arpa)
+        THEN '#589442' ELSE '#CE5531' END AS arpa_yoy_color,
+      -- New Logo MRR YoY
+      CASE WHEN COALESCE(LAG(r.new_logo_mrr, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.new_logo_mrr - LAG(r.new_logo_mrr, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.new_logo_mrr, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS new_logo_yoy_pct,
+      CASE WHEN r.new_logo_mrr >= COALESCE(LAG(r.new_logo_mrr, 12) OVER (ORDER BY r.report_month), r.new_logo_mrr)
+        THEN '↑' ELSE '↓' END AS new_logo_yoy_sign,
+      CASE WHEN r.new_logo_mrr >= COALESCE(LAG(r.new_logo_mrr, 12) OVER (ORDER BY r.report_month), r.new_logo_mrr)
+        THEN '#589442' ELSE '#CE5531' END AS new_logo_yoy_color,
+      -- Expansion MRR YoY
+      CASE WHEN COALESCE(LAG(r.expansion_mrr, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.expansion_mrr - LAG(r.expansion_mrr, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.expansion_mrr, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS exp_yoy_pct,
+      CASE WHEN r.expansion_mrr >= COALESCE(LAG(r.expansion_mrr, 12) OVER (ORDER BY r.report_month), r.expansion_mrr)
+        THEN '↑' ELSE '↓' END AS exp_yoy_sign,
+      CASE WHEN r.expansion_mrr >= COALESCE(LAG(r.expansion_mrr, 12) OVER (ORDER BY r.report_month), r.expansion_mrr)
+        THEN '#589442' ELSE '#CE5531' END AS exp_yoy_color,
+      -- Gross Churn Rate YoY (decrease = good)
+      CASE WHEN COALESCE(LAG(r.gross_churn_rate, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.gross_churn_rate - LAG(r.gross_churn_rate, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.gross_churn_rate, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS gross_churn_yoy_pct,
+      CASE WHEN r.gross_churn_rate <= COALESCE(LAG(r.gross_churn_rate, 12) OVER (ORDER BY r.report_month), r.gross_churn_rate)
+        THEN '↓' ELSE '↑' END AS gross_churn_yoy_sign,
+      CASE WHEN r.gross_churn_rate <= COALESCE(LAG(r.gross_churn_rate, 12) OVER (ORDER BY r.report_month), r.gross_churn_rate)
+        THEN '#589442' ELSE '#CE5531' END AS gross_churn_yoy_color,
+      -- Churned MRR YoY (churn_mrr is negative; less abs = good)
+      CASE WHEN ABS(COALESCE(LAG(r.churn_mrr, 12) OVER (ORDER BY r.report_month), 0)) > 0
+        THEN ROUND(ABS((ABS(r.churn_mrr) - ABS(LAG(r.churn_mrr, 12) OVER (ORDER BY r.report_month)))::NUMERIC
+             / ABS(LAG(r.churn_mrr, 12) OVER (ORDER BY r.report_month)) * 100), 1)
+        ELSE 0 END AS churn_yoy_pct,
+      CASE WHEN ABS(r.churn_mrr) <= ABS(COALESCE(LAG(r.churn_mrr, 12) OVER (ORDER BY r.report_month), r.churn_mrr))
+        THEN '↓' ELSE '↑' END AS churn_yoy_sign,
+      CASE WHEN ABS(r.churn_mrr) <= ABS(COALESCE(LAG(r.churn_mrr, 12) OVER (ORDER BY r.report_month), r.churn_mrr))
+        THEN '#589442' ELSE '#CE5531' END AS churn_yoy_color,
+      -- Contraction MRR YoY (contraction_mrr is negative; less abs = good)
+      CASE WHEN ABS(COALESCE(LAG(r.contraction_mrr, 12) OVER (ORDER BY r.report_month), 0)) > 0
+        THEN ROUND(ABS((ABS(r.contraction_mrr) - ABS(LAG(r.contraction_mrr, 12) OVER (ORDER BY r.report_month)))::NUMERIC
+             / ABS(LAG(r.contraction_mrr, 12) OVER (ORDER BY r.report_month)) * 100), 1)
+        ELSE 0 END AS contr_yoy_pct,
+      CASE WHEN ABS(r.contraction_mrr) <= ABS(COALESCE(LAG(r.contraction_mrr, 12) OVER (ORDER BY r.report_month), r.contraction_mrr))
+        THEN '↓' ELSE '↑' END AS contr_yoy_sign,
+      CASE WHEN ABS(r.contraction_mrr) <= ABS(COALESCE(LAG(r.contraction_mrr, 12) OVER (ORDER BY r.report_month), r.contraction_mrr))
+        THEN '#589442' ELSE '#CE5531' END AS contr_yoy_color,
+      -- Quick Ratio YoY
+      CASE WHEN COALESCE(LAG(r.quick_ratio, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.quick_ratio - LAG(r.quick_ratio, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.quick_ratio, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS qr_yoy_pct,
+      CASE WHEN r.quick_ratio >= COALESCE(LAG(r.quick_ratio, 12) OVER (ORDER BY r.report_month), r.quick_ratio)
+        THEN '↑' ELSE '↓' END AS qr_yoy_sign,
+      CASE WHEN r.quick_ratio >= COALESCE(LAG(r.quick_ratio, 12) OVER (ORDER BY r.report_month), r.quick_ratio)
+        THEN '#589442' ELSE '#CE5531' END AS qr_yoy_color,
+      -- Total MRR YoY
+      CASE WHEN COALESCE(LAG(r.total_mrr, 12) OVER (ORDER BY r.report_month), 0) > 0
+        THEN ROUND(ABS((r.total_mrr - LAG(r.total_mrr, 12) OVER (ORDER BY r.report_month))::NUMERIC
+             / LAG(r.total_mrr, 12) OVER (ORDER BY r.report_month) * 100), 1)
+        ELSE 0 END AS mrr_yoy_pct,
+      CASE WHEN r.total_mrr >= COALESCE(LAG(r.total_mrr, 12) OVER (ORDER BY r.report_month), r.total_mrr)
+        THEN '↑' ELSE '↓' END AS mrr_yoy_sign,
+      CASE WHEN r.total_mrr >= COALESCE(LAG(r.total_mrr, 12) OVER (ORDER BY r.report_month), r.total_mrr)
+        THEN '#589442' ELSE '#CE5531' END AS mrr_yoy_color,
+      -- ── Tab 4: NRR Insight (pre-computed interpretive text) ──
+      CASE
+        WHEN r.nrr >= 110 THEN 'Strong expansion — existing customers are growing revenue significantly faster than churn erodes it. The customer base alone would drive double-digit annual growth.'
+        WHEN r.nrr >= 100 THEN 'Healthy retention — expansion from upgrades outpaces churn and contraction. Existing customers generate net-positive revenue growth even without new logos.'
+        WHEN r.nrr >= 95  THEN 'Slight contraction — churn and downgrades slightly outpace expansion. Existing customer revenue is shrinking by ' || ROUND((100 - r.nrr)::NUMERIC, 1) || '% monthly, compounding to ~' || ROUND(((100 - r.nrr) * 12)::NUMERIC, 0) || '% annualized loss if unchecked.'
+        WHEN r.nrr >= 85  THEN 'Notable leakage — the business is losing ' || ROUND((100 - r.nrr)::NUMERIC, 1) || '% of existing revenue monthly. Without strong new-logo acquisition, MRR will trend downward. Investigate top churn drivers.'
+        ELSE 'Critical churn — existing customer revenue is contracting rapidly at ' || ROUND((100 - r.nrr)::NUMERIC, 1) || '% per month. Immediate action needed on retention and expansion levers.'
+      END AS nrr_insight_text,
+      CASE
+        WHEN r.nrr >= 110 THEN 'Excellent'
+        WHEN r.nrr >= 100 THEN 'Healthy'
+        WHEN r.nrr >= 95  THEN 'At Risk'
+        WHEN r.nrr >= 85  THEN 'Warning'
+        ELSE 'Critical'
+      END AS nrr_health_label,
+      CASE
+        WHEN r.nrr >= 110 THEN '#2E7D32'
+        WHEN r.nrr >= 100 THEN '#589442'
+        WHEN r.nrr >= 95  THEN '#E6A817'
+        WHEN r.nrr >= 85  THEN '#E87C3E'
+        ELSE '#CE5531'
+      END AS nrr_health_color
+    FROM (
+    -- Middle: rates, Tab 1/2 sparklines (from s raw data)
+    SELECT
+      s.report_month::DATE AS report_month,
+      TO_CHAR(s.report_month, 'Mon YYYY') AS month_label,
+      s.total_mrr,
+      s.total_mrr * 12 AS arr,
+      s.net_new_mrr,
+      s.new_logo_mrr,
+      s.expansion_mrr,
+      s.contraction_mrr,
+      s.churn_mrr,
+      s.churn_count,
+      s.paid_customers,
+      s.high_value_customers,
+      CASE WHEN s.paid_customers > 0
+        THEN ROUND((s.total_mrr / s.paid_customers)::NUMERIC, 2) ELSE 0 END AS arpa,
+      CASE WHEN s.total_mrr > 0
+        THEN ROUND((s.max_company_mrr / s.total_mrr * 100)::NUMERIC, 1) ELSE 0 END AS top_customer_pct,
+      LAG(s.total_mrr) OVER (ORDER BY s.report_month) AS prev_mrr,
+      LAG(s.paid_customers) OVER (ORDER BY s.report_month) AS prev_customers,
+      CASE WHEN LAG(s.total_mrr) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND(((s.total_mrr - LAG(s.total_mrr) OVER (ORDER BY s.report_month))
+             / LAG(s.total_mrr) OVER (ORDER BY s.report_month) * 100)::NUMERIC, 2)
+        ELSE 0 END AS mrr_growth_rate,
+      CASE WHEN LAG(s.total_mrr) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND((ABS(s.churn_mrr)
+             / LAG(s.total_mrr) OVER (ORDER BY s.report_month) * 100)::NUMERIC, 2)
+        ELSE 0 END AS gross_churn_rate,
+      CASE WHEN LAG(s.total_mrr) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND(((ABS(s.churn_mrr) + ABS(s.contraction_mrr) - s.expansion_mrr)
+             / LAG(s.total_mrr) OVER (ORDER BY s.report_month) * 100)::NUMERIC, 2)
+        ELSE 0 END AS net_churn_rate,
+      CASE WHEN LAG(s.total_mrr) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND(((LAG(s.total_mrr) OVER (ORDER BY s.report_month) + s.expansion_mrr + s.contraction_mrr + s.churn_mrr)
+             / LAG(s.total_mrr) OVER (ORDER BY s.report_month) * 100)::NUMERIC, 2)
+        ELSE 0 END AS nrr,
+      CASE WHEN LAG(s.paid_customers) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND(s.churn_count::NUMERIC
+             / LAG(s.paid_customers) OVER (ORDER BY s.report_month) * 100, 2)
+        ELSE 0 END AS customer_churn_rate,
+      CASE WHEN (ABS(s.contraction_mrr) + ABS(s.churn_mrr)) > 0
+        THEN ROUND(((s.new_logo_mrr + s.expansion_mrr)
+             / (ABS(s.contraction_mrr) + ABS(s.churn_mrr)))::NUMERIC, 2)
+        ELSE 0 END AS quick_ratio,
+      CASE WHEN LAG(s.paid_customers) OVER (ORDER BY s.report_month) > 0
+        THEN ROUND(((s.paid_customers - LAG(s.paid_customers) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.paid_customers) OVER (ORDER BY s.report_month) * 100), 2)
+        ELSE 0 END AS paid_customer_growth_rate,
+      -- ── KPI sparkline / badge fields ──────────────────────────
+      ROUND((s.total_mrr - COALESCE(LAG(s.total_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 2) AS mrr_delta_mom,
+      CASE WHEN (s.total_mrr - COALESCE(LAG(s.total_mrr) OVER (ORDER BY s.report_month), 0)) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS mrr_color,
+      CASE WHEN (s.total_mrr - COALESCE(LAG(s.total_mrr) OVER (ORDER BY s.report_month), 0)) >= 0
+        THEN '+' ELSE '' END AS mrr_amount_sign,
+      CASE WHEN (s.total_mrr - COALESCE(LAG(s.total_mrr) OVER (ORDER BY s.report_month), 0)) >= 0
+        THEN '↑' ELSE '↓' END AS mrr_sign,
+      MIN(s.total_mrr) OVER () AS total_mrr_min,
+      MAX(s.total_mrr) OVER () AS total_mrr_max,
+      ROUND(((ROW_NUMBER() OVER (ORDER BY s.report_month) - 1)::NUMERIC
+            * 600.0 / NULLIF(COUNT(*) OVER () - 1, 0))::NUMERIC, 1) AS mrr_spark_x,
+      ROUND((40.0 - CASE WHEN MAX(s.total_mrr) OVER () - MIN(s.total_mrr) OVER () > 0
+        THEN (s.total_mrr - MIN(s.total_mrr) OVER ())::NUMERIC
+             / (MAX(s.total_mrr) OVER () - MIN(s.total_mrr) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS mrr_spark_y,
+      ROUND((CASE WHEN MAX(s.total_mrr) OVER () - MIN(s.total_mrr) OVER () > 0
+        THEN (s.total_mrr - MIN(s.total_mrr) OVER ())::NUMERIC
+             / (MAX(s.total_mrr) OVER () - MIN(s.total_mrr) OVER ()) * 38 + 2
+        ELSE 20 END)::NUMERIC, 1) AS mrr_bar_height,
+      -- ── Paid Customers sparkline y ──
+      ROUND((40.0 - CASE WHEN MAX(s.paid_customers) OVER () - MIN(s.paid_customers) OVER () > 0
+        THEN (s.paid_customers - MIN(s.paid_customers) OVER ())::NUMERIC
+             / (MAX(s.paid_customers) OVER () - MIN(s.paid_customers) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS cust_spark_y,
+      -- ── Paid Customers 12mo comparison ──
+      COALESCE(s.paid_customers - LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month), 0) AS cust_delta_12mo,
+      CASE WHEN COALESCE(s.paid_customers - LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month), 0) >= 0
+        THEN '#589442' ELSE '#CE5531' END AS cust_color,
+      CASE WHEN COALESCE(s.paid_customers - LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month), 0) >= 0
+        THEN '↑' ELSE '↓' END AS cust_sign,
+      -- ── Paid Customers YoY % ──
+      CASE WHEN COALESCE(LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ROUND(ABS((s.paid_customers - LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.paid_customers, 12) OVER (ORDER BY s.report_month) * 100), 1)
+        ELSE 0 END AS cust_yoy_pct,
+      ABS(ROUND(CASE WHEN COALESCE(LAG(s.paid_customers) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ((s.paid_customers - LAG(s.paid_customers) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.paid_customers) OVER (ORDER BY s.report_month) * 100)
+        ELSE 0 END::NUMERIC, 1)) AS abs_cust_mom_pct,
+      -- ── Net New MRR color/sign ──
+      CASE WHEN s.net_new_mrr >= 0 THEN '#589442' ELSE '#CE5531' END AS net_new_color,
+      CASE WHEN s.net_new_mrr >= 0 THEN '+$' ELSE '-$' END AS net_new_sign,
+      CASE WHEN (s.net_new_mrr - COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '↑' ELSE '↓' END AS net_new_delta_sign,
+      CASE WHEN (s.net_new_mrr - COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#589442' ELSE '#CE5531' END AS net_new_badge_color,
+      CASE WHEN (s.net_new_mrr - COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#F2FAF0' ELSE '#FFF6F4' END AS net_new_badge_bg,
+      ABS(ROUND((s.net_new_mrr - COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0)) AS abs_net_new_delta,
+      ABS(CASE WHEN COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0) != 0
+        THEN ROUND(((s.net_new_mrr - LAG(s.net_new_mrr) OVER (ORDER BY s.report_month))::NUMERIC
+             / ABS(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month)) * 100), 2)
+        ELSE 0 END) AS abs_net_new_pct,
+      -- ── Tab 2: Movement sparkline y-coordinates ──
+      ROUND((40.0 - CASE WHEN MAX(s.new_logo_mrr) OVER () - MIN(s.new_logo_mrr) OVER () > 0
+        THEN (s.new_logo_mrr - MIN(s.new_logo_mrr) OVER ())::NUMERIC
+             / (MAX(s.new_logo_mrr) OVER () - MIN(s.new_logo_mrr) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS new_logo_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(s.expansion_mrr) OVER () - MIN(s.expansion_mrr) OVER () > 0
+        THEN (s.expansion_mrr - MIN(s.expansion_mrr) OVER ())::NUMERIC
+             / (MAX(s.expansion_mrr) OVER () - MIN(s.expansion_mrr) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS exp_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(ABS(s.churn_mrr)) OVER () - MIN(ABS(s.churn_mrr)) OVER () > 0
+        THEN (ABS(s.churn_mrr) - MIN(ABS(s.churn_mrr)) OVER ())::NUMERIC
+             / (MAX(ABS(s.churn_mrr)) OVER () - MIN(ABS(s.churn_mrr)) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS churn_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(ABS(s.contraction_mrr)) OVER () - MIN(ABS(s.contraction_mrr)) OVER () > 0
+        THEN (ABS(s.contraction_mrr) - MIN(ABS(s.contraction_mrr)) OVER ())::NUMERIC
+             / (MAX(ABS(s.contraction_mrr)) OVER () - MIN(ABS(s.contraction_mrr)) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS contr_spark_y,
+      ROUND((40.0 - CASE WHEN MAX(s.net_new_mrr) OVER () - MIN(s.net_new_mrr) OVER () > 0
+        THEN (s.net_new_mrr - MIN(s.net_new_mrr) OVER ())::NUMERIC
+             / (MAX(s.net_new_mrr) OVER () - MIN(s.net_new_mrr) OVER ()) * 38 + 1
+        ELSE 20 END)::NUMERIC, 1) AS net_new_spark_y,
+      -- ── Tab 2: MoM deltas ──
+      ROUND((s.new_logo_mrr - COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0) AS new_logo_delta,
+      ROUND((s.expansion_mrr - COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0) AS exp_delta,
+      ROUND((ABS(s.churn_mrr) - ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0)))::NUMERIC, 0) AS churn_delta,
+      ROUND((ABS(s.contraction_mrr) - ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0)))::NUMERIC, 0) AS contr_delta,
+      ROUND((s.net_new_mrr - COALESCE(LAG(s.net_new_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0) AS net_new_delta,
+      -- ── Tab 2: MoM percentage change ──
+      CASE WHEN COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ROUND(((s.new_logo_mrr - LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month) * 100), 2)
+        ELSE 0 END AS new_logo_pct,
+      CASE WHEN COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ROUND(((s.expansion_mrr - LAG(s.expansion_mrr) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.expansion_mrr) OVER (ORDER BY s.report_month) * 100), 2)
+        ELSE 0 END AS exp_pct,
+      CASE WHEN ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0)) > 0
+        THEN ROUND(((ABS(s.churn_mrr) - ABS(LAG(s.churn_mrr) OVER (ORDER BY s.report_month)))::NUMERIC
+             / ABS(LAG(s.churn_mrr) OVER (ORDER BY s.report_month)) * 100), 2)
+        ELSE 0 END AS churn_pct,
+      CASE WHEN ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0)) > 0
+        THEN ROUND(((ABS(s.contraction_mrr) - ABS(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month)))::NUMERIC
+             / ABS(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month)) * 100), 2)
+        ELSE 0 END AS contr_pct,
+      -- ── Tab 2: MoM sign & color ──
+      CASE WHEN (s.new_logo_mrr - COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '↑' ELSE '↓' END AS new_logo_sign,
+      CASE WHEN (s.new_logo_mrr - COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#589442' ELSE '#CE5531' END AS new_logo_badge_color,
+      CASE WHEN (s.new_logo_mrr - COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#F2FAF0' ELSE '#FFF6F4' END AS new_logo_badge_bg,
+      CASE WHEN (s.expansion_mrr - COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '↑' ELSE '↓' END AS exp_sign,
+      CASE WHEN (s.expansion_mrr - COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#589442' ELSE '#CE5531' END AS exp_badge_color,
+      CASE WHEN (s.expansion_mrr - COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0)) >= 0 THEN '#F2FAF0' ELSE '#FFF6F4' END AS exp_badge_bg,
+      CASE WHEN (ABS(s.churn_mrr) - ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '↓' ELSE '↑' END AS churn_sign,
+      CASE WHEN (ABS(s.churn_mrr) - ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '#589442' ELSE '#CE5531' END AS churn_badge_color,
+      CASE WHEN (ABS(s.churn_mrr) - ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '#F2FAF0' ELSE '#FFF6F4' END AS churn_badge_bg,
+      CASE WHEN (ABS(s.contraction_mrr) - ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '↓' ELSE '↑' END AS contr_sign,
+      CASE WHEN (ABS(s.contraction_mrr) - ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '#589442' ELSE '#CE5531' END AS contr_badge_color,
+      CASE WHEN (ABS(s.contraction_mrr) - ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0))) <= 0 THEN '#F2FAF0' ELSE '#FFF6F4' END AS contr_badge_bg,
+      ABS(ROUND((s.new_logo_mrr - COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0)) AS abs_new_logo_delta,
+      ABS(ROUND((s.expansion_mrr - COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0))::NUMERIC, 0)) AS abs_exp_delta,
+      ABS(ROUND((ABS(s.churn_mrr) - ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0)))::NUMERIC, 0)) AS abs_churn_delta,
+      ABS(ROUND((ABS(s.contraction_mrr) - ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0)))::NUMERIC, 0)) AS abs_contr_delta,
+      ABS(CASE WHEN COALESCE(LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ROUND(((s.new_logo_mrr - LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.new_logo_mrr) OVER (ORDER BY s.report_month) * 100), 2)
+        ELSE 0 END) AS abs_new_logo_pct,
+      ABS(CASE WHEN COALESCE(LAG(s.expansion_mrr) OVER (ORDER BY s.report_month), 0) > 0
+        THEN ROUND(((s.expansion_mrr - LAG(s.expansion_mrr) OVER (ORDER BY s.report_month))::NUMERIC
+             / LAG(s.expansion_mrr) OVER (ORDER BY s.report_month) * 100), 2)
+        ELSE 0 END) AS abs_exp_pct,
+      ABS(CASE WHEN ABS(COALESCE(LAG(s.churn_mrr) OVER (ORDER BY s.report_month), 0)) > 0
+        THEN ROUND(((ABS(s.churn_mrr) - ABS(LAG(s.churn_mrr) OVER (ORDER BY s.report_month)))::NUMERIC
+             / ABS(LAG(s.churn_mrr) OVER (ORDER BY s.report_month)) * 100), 2)
+        ELSE 0 END) AS abs_churn_pct,
+      ABS(CASE WHEN ABS(COALESCE(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month), 0)) > 0
+        THEN ROUND(((ABS(s.contraction_mrr) - ABS(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month)))::NUMERIC
+             / ABS(LAG(s.contraction_mrr) OVER (ORDER BY s.report_month)) * 100), 2)
+        ELSE 0 END) AS abs_contr_pct
+    FROM (
+      SELECT
+        me.report_month,
+        me.net_new_mrr,
+        me.new_logo_mrr,
+        me.expansion_mrr,
+        me.contraction_mrr,
+        me.churn_mrr,
+        me.churn_count,
+        SUM(me.net_new_mrr) OVER (ORDER BY me.report_month) AS total_mrr,
+        COALESCE(mc.paid_customers, 0) AS paid_customers,
+        COALESCE(mc.high_value_customers, 0) AS high_value_customers,
+        COALESCE(mc.max_company_mrr, 0) AS max_company_mrr
+      FROM (
+        SELECT
+          DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month,
+          SUM(CAST(mrr_delta AS NUMERIC)) AS net_new_mrr,
+          SUM(CASE WHEN event_type = 'new_logo' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS new_logo_mrr,
+          SUM(CASE WHEN event_type = 'expansion' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS expansion_mrr,
+          SUM(CASE WHEN event_type = 'reactivation' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS reactivation_mrr,
+          SUM(CASE WHEN event_type = 'contraction' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS contraction_mrr,
+          SUM(CASE WHEN event_type = 'churn' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS churn_mrr,
+          COUNT(CASE WHEN event_type = 'churn' THEN 1 END) AS churn_count
+        FROM "public"."holistics_mou_subscript_3936c_202603100503"
+        GROUP BY 1
+      ) me
+      LEFT JOIN (
+        SELECT
+          report_month,
+          COUNT(DISTINCT company_id) AS paid_customers,
+          COUNT(DISTINCT CASE WHEN company_mrr >= 1000 THEN company_id END) AS high_value_customers,
+          MAX(company_mrr) AS max_company_mrr,
+          SUM(company_mrr) AS total_active_mrr
+        FROM (
+          SELECT
+            m.report_month,
+            sub.company_id,
+            SUM(CAST(sub.mrr AS NUMERIC)) AS company_mrr
+          FROM (
+            SELECT DISTINCT DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month
+            FROM "public"."holistics_mou_subscript_3936c_202603100503"
+          ) m
+          JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+            ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+            AND (NULLIF(sub.churned_at, '') IS NULL
+                 OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+          GROUP BY 1, 2
+        ) company_level
+        GROUP BY 1
+      ) mc ON me.report_month = mc.report_month
+    ) s
+    ) r
+    ORDER BY r.report_month
+  ;;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DIMENSIONS — Pre-computed columns from the SQL query
+  // Each dimension maps to one column in the monthly summary.
+  // Grouped by business domain for readability.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── Time Dimensions ─────────────────────────────────────────────────────────
+
+  dimension month {
+    label: 'Month'
+    description: 'Report month as date. One row per month. Example: 2025-06-01'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.report_month }};;
+  }
+  dimension month_label {
+    label: 'Month Label'
+    description: 'Formatted month string for display. Example: "2025-06"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.month_label }};;
+  }
+
+  // ── Revenue Dimensions (Tab 1: Overview) ────────────────────────────────────
+
+  dimension total_mrr {
+    label: 'Total MRR'
+    description: 'Cumulative MRR from all active subscriptions at month end. Formula: SUM(mrr) of active subs. Example: $650,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.total_mrr }};;
+  }
+  dimension arr {
+    label: 'ARR'
+    description: 'Annual Run Rate. Formula: Total MRR × 12. Example: $7,800,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arr }};;
+  }
+  dimension net_new_mrr {
+    label: 'Net New MRR'
+    description: 'Net MRR change this month. Formula: New Logo + Expansion + Contraction + Churn. Positive = growth. Example: +$12,500'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_mrr }};;
+  }
+
+  // ── MRR Movement Dimensions (Tab 2: Revenue Movements) ─────────────────────
+
+  dimension new_logo_mrr {
+    label: 'New Logo MRR'
+    description: 'MRR from first-ever subscriptions this month. Always positive. Example: $18,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_mrr }};;
+  }
+  dimension expansion_mrr {
+    label: 'Expansion MRR'
+    description: 'MRR gained from plan upgrades this month. Always positive. Example: $8,500'
+    type: 'number'
+    definition: @sql {{ #SOURCE.expansion_mrr }};;
+  }
+  dimension contraction_mrr {
+    label: 'Contraction MRR'
+    description: 'MRR lost from plan downgrades this month. Always negative. Example: -$3,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contraction_mrr }};;
+  }
+  // Net Expansion split for conditional coloring
+  dimension net_expansion_pos {
+    label: 'Net Expansion (+)'
+    type: 'number'
+    definition: @sql CASE WHEN {{ #SOURCE.expansion_mrr }} + {{ #SOURCE.contraction_mrr }} >= 0 THEN {{ #SOURCE.expansion_mrr }} + {{ #SOURCE.contraction_mrr }} END;;
+  }
+  dimension net_expansion_neg {
+    label: 'Net Expansion (-)'
+    type: 'number'
+    definition: @sql CASE WHEN {{ #SOURCE.expansion_mrr }} + {{ #SOURCE.contraction_mrr }} < 0 THEN {{ #SOURCE.expansion_mrr }} + {{ #SOURCE.contraction_mrr }} END;;
+  }
+  dimension churn_mrr {
+    label: 'Churn MRR'
+    description: 'MRR lost from cancellations this month. Always negative. Example: -$13,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_mrr }};;
+  }
+  dimension churn_count {
+    label: 'Churn Count'
+    description: 'Number of churn events this month. Example: 15 subscriptions cancelled'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_count }};;
+  }
+
+  // ── Customer Dimensions (Tab 4: Customers & Segments) ───────────────────────
+
+  dimension paid_customers {
+    label: 'Paid Customers'
+    description: 'Count of unique companies with active subscriptions at month end. Example: 820'
+    type: 'number'
+    definition: @sql {{ #SOURCE.paid_customers }};;
+  }
+  dimension arpa {
+    label: 'ARPA'
+    description: 'Average Revenue Per Account. Formula: Total MRR / Paid Customers. Example: $793. Trend: rising from ~$665 to ~$851 over 18mo.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa }};;
+  }
+  dimension high_value_customers {
+    label: 'Customers >= $1K MRR'
+    description: 'Companies paying $1,000+/mo. High-value segment indicator. Example: 250'
+    type: 'number'
+    definition: @sql {{ #SOURCE.high_value_customers }};;
+  }
+
+  // ── Previous Period Dimensions (for comparison) ─────────────────────────────
+
+  dimension prev_mrr {
+    label: 'Previous Month MRR'
+    description: 'Total MRR from the prior month. Used as denominator for growth/churn rates. Example: $637,500'
+    type: 'number'
+    definition: @sql {{ #SOURCE.prev_mrr }};;
+  }
+  dimension prev_customers {
+    label: 'Previous Month Customers'
+    description: 'Paid customer count from the prior month. Used for customer churn rate. Example: 825'
+    type: 'number'
+    definition: @sql {{ #SOURCE.prev_customers }};;
+  }
+
+  // ── Rate Dimensions (Tab 1 + Tab 3) ─────────────────────────────────────────
+
+  dimension mrr_growth_rate {
+    label: 'MRR Growth Rate %'
+    description: 'Month-over-month MRR growth. Formula: (Current MRR - Prev MRR) / Prev MRR × 100. Example: 1.96%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_growth_rate }};;
+  }
+  dimension gross_churn_rate {
+    label: 'Gross MRR Churn Rate %'
+    description: 'Revenue lost to churn only. Formula: ABS(Churn MRR) / Prev MRR × 100. Lower is better. Example: 2.04%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.gross_churn_rate }};;
+  }
+  dimension net_churn_rate {
+    label: 'Net MRR Churn Rate %'
+    description: 'Net revenue lost after expansion offsets. Formula: (ABS(Churn) + ABS(Contraction) - Expansion) / Prev MRR × 100. Negative = net expansion. Example: -0.5%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_churn_rate }};;
+  }
+  dimension nrr {
+    label: 'NRR %'
+    description: 'Net Revenue Retention. Formula: (Prev MRR + Expansion + Contraction + Churn) / Prev MRR × 100. >100% = expansion outpaces churn. Example: 100.5%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.nrr }};;
+  }
+  dimension customer_churn_rate {
+    label: 'Customer Churn Rate %'
+    description: 'Logo churn rate. Formula: Churn Count / Prev Customers × 100. Example: 1.82%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.customer_churn_rate }};;
+  }
+  dimension quick_ratio {
+    label: 'Quick Ratio'
+    description: 'Revenue efficiency. Formula: (New + Expansion) / (ABS(Contraction) + ABS(Churn)). >4 = excellent, <1 = shrinking. Example: 1.78'
+    type: 'number'
+    definition: @sql {{ #SOURCE.quick_ratio }};;
+  }
+  dimension paid_customer_growth_rate {
+    label: 'Paid Customer Growth %'
+    description: 'MoM customer growth. Formula: (Customers - Prev Customers) / Prev Customers × 100. Example: -0.61%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.paid_customer_growth_rate }};;
+  }
+
+  // ── Tab 1: MRR KPI Sparkline Dimensions ─────────────────────────────────────
+  // These power the inline SVG sparklines in MarkdownViz KPI cards
+
+  dimension mrr_delta_mom {
+    label: 'MRR Delta MoM'
+    description: 'Absolute MRR change vs prior month ($). Shown as badge text. Example: +$12,500'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_delta_mom }};;
+  }
+  dimension mrr_color {
+    label: 'MRR Color'
+    description: 'Badge color: green (#589442) if MRR grew, red (#CE5531) if declined.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.mrr_color }};;
+  }
+  dimension mrr_amount_sign {
+    label: 'MRR Amount Sign'
+    description: 'Display prefix for MRR delta. "+" if positive, "" if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.mrr_amount_sign }};;
+  }
+  dimension mrr_sign {
+    label: 'MRR Sign'
+    description: 'Arrow indicator. "▲" if MRR grew, "▼" if declined.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.mrr_sign }};;
+  }
+  dimension mrr_spark_x {
+    label: 'MRR Spark X'
+    description: 'SVG x-coordinate for MRR sparkline. Evenly distributed across 600px width.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_spark_x }};;
+  }
+  dimension mrr_spark_y {
+    label: 'MRR Spark Y'
+    description: 'SVG y-coordinate for MRR sparkline. Normalized to 1-39 range (inverted: lower y = higher value).'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_spark_y }};;
+  }
+  dimension mrr_bar_height {
+    label: 'MRR Bar Height'
+    description: 'SVG bar height for MRR bar chart. Normalized to 2-40 range.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_bar_height }};;
+  }
+
+  // ── Tab 1: Paid Customers Sparkline Dimensions ──────────────────────────────
+
+  dimension cust_spark_y {
+    label: 'Cust Spark Y'
+    description: 'SVG y-coordinate for customer count sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_spark_y }};;
+  }
+  dimension cust_delta_12mo {
+    label: 'Cust Delta 12mo'
+    description: 'Customer count change vs 12 months ago. Example: -30 (declining customer base).'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_delta_12mo }};;
+  }
+  dimension cust_color {
+    label: 'Cust Color'
+    description: 'Badge color for customer count: green if 12mo delta >= 0, red if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_color }};;
+  }
+  dimension cust_sign {
+    label: 'Cust Sign'
+    description: 'Display prefix for customer delta. "+" if positive, "" if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_sign }};;
+  }
+
+  // ── Tab 2: Movement Sparkline Dimensions ────────────────────────────────────
+
+  dimension new_logo_spark_y {
+    label: 'New Logo Spark Y'
+    description: 'SVG y-coordinate for New Logo MRR sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_spark_y }};;
+  }
+  dimension exp_spark_y {
+    label: 'Exp Spark Y'
+    description: 'SVG y-coordinate for Expansion MRR sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.exp_spark_y }};;
+  }
+  dimension churn_spark_y {
+    label: 'Churn Spark Y'
+    description: 'SVG y-coordinate for Churn MRR sparkline (uses absolute value).'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_spark_y }};;
+  }
+  dimension net_new_spark_y {
+    label: 'Net New Spark Y'
+    description: 'SVG y-coordinate for Net New MRR sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_spark_y }};;
+  }
+  dimension new_logo_delta {
+    label: 'New Logo Delta'
+    description: 'MoM change in New Logo MRR ($). Example: +$2,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_delta }};;
+  }
+  dimension exp_delta {
+    label: 'Exp Delta'
+    description: 'MoM change in Expansion MRR ($). Example: -$500'
+    type: 'number'
+    definition: @sql {{ #SOURCE.exp_delta }};;
+  }
+  dimension churn_delta {
+    label: 'Churn Delta'
+    description: 'MoM change in absolute Churn MRR ($). Positive = more churn. Example: +$1,200'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_delta }};;
+  }
+  dimension contr_spark_y {
+    label: 'Contr Spark Y'
+    description: 'SVG y-coordinate for Contraction MRR sparkline (uses absolute value).'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contr_spark_y }};;
+  }
+  dimension contr_delta {
+    label: 'Contr Delta'
+    description: 'MoM change in absolute Contraction MRR ($). Positive = more contraction. Example: +$800'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contr_delta }};;
+  }
+  dimension net_new_delta {
+    label: 'Net New Delta'
+    description: 'MoM change in Net New MRR ($). Example: +$3,000'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_delta }};;
+  }
+
+  // ── Tab 2: MoM percentage, sign, color, abs deltas ────────────────────────
+  dimension new_logo_pct {
+    label: 'New Logo Pct'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_pct }};;
+  }
+  dimension exp_pct {
+    label: 'Exp Pct'
+    type: 'number'
+    definition: @sql {{ #SOURCE.exp_pct }};;
+  }
+  dimension churn_pct {
+    label: 'Churn Pct'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_pct }};;
+  }
+  dimension contr_pct {
+    label: 'Contr Pct'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contr_pct }};;
+  }
+  dimension new_logo_sign {
+    label: 'New Logo Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.new_logo_sign }};;
+  }
+  dimension new_logo_badge_color {
+    label: 'New Logo Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.new_logo_badge_color }};;
+  }
+  dimension exp_sign {
+    label: 'Exp Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.exp_sign }};;
+  }
+  dimension exp_badge_color {
+    label: 'Exp Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.exp_badge_color }};;
+  }
+  dimension churn_sign {
+    label: 'Churn Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.churn_sign }};;
+  }
+  dimension churn_badge_color {
+    label: 'Churn Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.churn_badge_color }};;
+  }
+  dimension contr_sign {
+    label: 'Contr Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.contr_sign }};;
+  }
+  dimension contr_badge_color {
+    label: 'Contr Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.contr_badge_color }};;
+  }
+  dimension new_logo_badge_bg {
+    label: 'New Logo Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.new_logo_badge_bg }};;
+  }
+  dimension exp_badge_bg {
+    label: 'Exp Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.exp_badge_bg }};;
+  }
+  dimension churn_badge_bg {
+    label: 'Churn Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.churn_badge_bg }};;
+  }
+  dimension contr_badge_bg {
+    label: 'Contr Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.contr_badge_bg }};;
+  }
+  dimension abs_new_logo_delta {
+    label: 'New Logo Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_new_logo_delta }};;
+  }
+  dimension abs_exp_delta {
+    label: 'Exp Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_exp_delta }};;
+  }
+  dimension abs_churn_delta {
+    label: 'Churn Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_churn_delta }};;
+  }
+  dimension abs_contr_delta {
+    label: 'Contr Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_contr_delta }};;
+  }
+  dimension abs_new_logo_pct {
+    label: 'New Logo Pct Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_new_logo_pct }};;
+  }
+  dimension abs_exp_pct {
+    label: 'Exp Pct Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_exp_pct }};;
+  }
+  dimension abs_churn_pct {
+    label: 'Churn Pct Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_churn_pct }};;
+  }
+  dimension abs_contr_pct {
+    label: 'Contr Pct Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_contr_pct }};;
+  }
+
+  // ── Tab 3: Churn Rate Sparkline Dimensions ──────────────────────────────────
+
+  dimension gross_churn_spark_y {
+    label: 'Gross Churn Spark Y'
+    description: 'SVG y-coordinate for Gross Churn Rate sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.gross_churn_spark_y }};;
+  }
+  dimension net_churn_spark_y {
+    label: 'Net Churn Spark Y'
+    description: 'SVG y-coordinate for Net Churn Rate sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_churn_spark_y }};;
+  }
+  dimension nrr_spark_y {
+    label: 'NRR Spark Y'
+    description: 'SVG y-coordinate for NRR sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.nrr_spark_y }};;
+  }
+  dimension cust_churn_spark_y {
+    label: 'Cust Churn Spark Y'
+    description: 'SVG y-coordinate for Customer Churn Rate sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_churn_spark_y }};;
+  }
+  dimension qr_spark_y {
+    label: 'QR Spark Y'
+    description: 'SVG y-coordinate for Quick Ratio sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.qr_spark_y }};;
+  }
+  dimension qr_delta {
+    label: 'QR Delta'
+    description: 'MoM change in Quick Ratio. Example: +0.15'
+    type: 'number'
+    definition: @sql {{ #SOURCE.qr_delta }};;
+  }
+  dimension abs_qr_delta {
+    label: 'QR Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_qr_delta }};;
+  }
+  dimension qr_sign {
+    label: 'QR Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.qr_sign }};;
+  }
+  dimension qr_badge_color {
+    label: 'QR Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.qr_badge_color }};;
+  }
+  dimension qr_badge_bg {
+    label: 'QR Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.qr_badge_bg }};;
+  }
+  dimension gross_churn_delta {
+    label: 'Gross Churn Delta (pp)'
+    description: 'MoM change in Gross Churn Rate (percentage points). Example: -0.3 pp'
+    type: 'number'
+    definition: @sql {{ #SOURCE.gross_churn_delta }};;
+  }
+  dimension net_churn_delta {
+    label: 'Net Churn Delta (pp)'
+    description: 'MoM change in Net Churn Rate (percentage points). Example: +0.5 pp'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_churn_delta }};;
+  }
+  dimension nrr_delta {
+    label: 'NRR Delta (pp)'
+    description: 'MoM change in NRR (percentage points). Positive = improving retention. Example: +0.3 pp'
+    type: 'number'
+    definition: @sql {{ #SOURCE.nrr_delta }};;
+  }
+  dimension cust_churn_delta {
+    label: 'Cust Churn Delta (pp)'
+    description: 'MoM change in Customer Churn Rate (percentage points). Example: -0.2 pp'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_churn_delta }};;
+  }
+  dimension gross_churn_badge_color {
+    label: 'Gross Churn Badge Color'
+    description: 'Badge color: green (#589442) if churn rate decreased, red (#CE5531) if increased.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.gross_churn_badge_color }};;
+  }
+  dimension net_churn_badge_color {
+    label: 'Net Churn Badge Color'
+    description: 'Badge color: green if net churn decreased, red if increased.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_churn_badge_color }};;
+  }
+  dimension nrr_badge_color {
+    label: 'NRR Badge Color'
+    description: 'Badge color: green (#589442) if NRR increased (good), red (#CE5531) if decreased.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_badge_color }};;
+  }
+  dimension cust_churn_badge_color {
+    label: 'Cust Churn Badge Color'
+    description: 'Badge color: green if customer churn decreased, red if increased.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_churn_badge_color }};;
+  }
+  dimension gross_churn_badge_bg {
+    label: 'Gross Churn Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.gross_churn_badge_bg }};;
+  }
+  dimension net_churn_badge_bg {
+    label: 'Net Churn Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_churn_badge_bg }};;
+  }
+  dimension nrr_badge_bg {
+    label: 'NRR Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_badge_bg }};;
+  }
+  dimension cust_churn_badge_bg {
+    label: 'Cust Churn Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_churn_badge_bg }};;
+  }
+  dimension gross_churn_sign {
+    label: 'Gross Churn Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.gross_churn_sign }};;
+  }
+  dimension net_churn_sign {
+    label: 'Net Churn Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_churn_sign }};;
+  }
+  dimension nrr_sign {
+    label: 'NRR Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_sign }};;
+  }
+  dimension cust_churn_sign {
+    label: 'Cust Churn Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_churn_sign }};;
+  }
+  dimension abs_gross_churn_delta {
+    label: 'Gross Churn Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_gross_churn_delta }};;
+  }
+  dimension abs_net_churn_delta {
+    label: 'Net Churn Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_net_churn_delta }};;
+  }
+  dimension abs_nrr_delta {
+    label: 'NRR Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_nrr_delta }};;
+  }
+  dimension abs_cust_churn_delta {
+    label: 'Cust Churn Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_cust_churn_delta }};;
+  }
+
+  // ── Tab 4: Customer & ARPA Dimensions ───────────────────────────────────────
+
+  dimension cust_delta_mom {
+    label: 'Cust Delta MoM'
+    description: 'Customer count change vs prior month. Example: -5 customers'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_delta_mom }};;
+  }
+  dimension cust_mom_color {
+    label: 'Cust MoM Color'
+    description: 'Badge color for customer count: green if MoM delta >= 0, red if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_mom_color }};;
+  }
+  dimension cust_yoy_pct {
+    label: 'Cust YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_yoy_pct }};;
+  }
+  dimension abs_cust_mom_pct {
+    label: 'Cust MoM % Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_cust_mom_pct }};;
+  }
+  dimension cust_mom_sign {
+    label: 'Cust MoM Sign'
+    description: 'Arrow prefix for MoM customer delta. ↑ if positive, ↓ if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cust_mom_sign }};;
+  }
+  dimension arpa_delta_mom {
+    label: 'ARPA Delta MoM'
+    description: 'ARPA change vs prior month ($). Rising ARPA with flat customers = healthy upselling. Example: +$12'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_delta_mom }};;
+  }
+  dimension arpa_sign {
+    label: 'ARPA Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.arpa_sign }};;
+  }
+  dimension arpa_badge_color {
+    label: 'ARPA Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.arpa_badge_color }};;
+  }
+  dimension arpa_growth_pct {
+    label: 'ARPA Growth %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_growth_pct }};;
+  }
+  dimension arpa_spark_y {
+    label: 'ARPA Spark Y'
+    description: 'SVG y-coordinate for ARPA sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_spark_y }};;
+  }
+  // ── MRR Growth Rate % sparkline & badge dimensions ──
+  dimension growth_spark_y {
+    label: 'Growth Spark Y'
+    type: 'number'
+    definition: @sql {{ #SOURCE.growth_spark_y }};;
+  }
+  dimension growth_delta {
+    label: 'Growth Delta'
+    type: 'number'
+    definition: @sql {{ #SOURCE.growth_delta }};;
+  }
+  dimension abs_growth_delta {
+    label: 'Growth Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_growth_delta }};;
+  }
+  dimension growth_sign {
+    label: 'Growth Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.growth_sign }};;
+  }
+  dimension growth_badge_color {
+    label: 'Growth Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.growth_badge_color }};;
+  }
+  dimension growth_badge_bg {
+    label: 'Growth Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.growth_badge_bg }};;
+  }
+  dimension high_value_pct {
+    label: 'High Value %'
+    description: 'Percentage of customers paying >= $1K MRR. Formula: High Value Customers / Paid Customers × 100. Example: 30.5%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.high_value_pct }};;
+  }
+  dimension top_customer_pct {
+    label: 'Top Customer %'
+    description: 'Largest single customer as % of total MRR. Healthy: <5%. Example: 2.85%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.top_customer_pct }};;
+  }
+  dimension top_cust_spark_y {
+    label: 'Top Cust Spark Y'
+    description: 'SVG y-coordinate for Top Customer % sparkline.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.top_cust_spark_y }};;
+  }
+
+  // ── Net New MRR Color Dimensions ────────────────────────────────────────────
+
+  dimension net_new_color {
+    label: 'Net New Color'
+    description: 'Badge color: green (#589442) if Net New MRR >= 0, red (#CE5531) if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_color }};;
+  }
+  dimension net_new_sign {
+    label: 'Net New Sign'
+    description: 'Display prefix: "+$" if positive, "-$" if negative.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_sign }};;
+  }
+  dimension net_new_delta_sign {
+    label: 'Net New Delta Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_delta_sign }};;
+  }
+  dimension net_new_badge_color {
+    label: 'Net New Badge Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_badge_color }};;
+  }
+  dimension net_new_badge_bg {
+    label: 'Net New Badge Bg'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_badge_bg }};;
+  }
+  dimension abs_net_new_delta {
+    label: 'Net New Delta Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_net_new_delta }};;
+  }
+  dimension abs_net_new_pct {
+    label: 'Net New Pct Abs'
+    type: 'number'
+    definition: @sql {{ #SOURCE.abs_net_new_pct }};;
+  }
+
+  // ── Tab 6: YoY dimensions ────────────────────────────────────────────────
+  dimension net_new_yoy_pct {
+    label: 'Net New YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_yoy_pct }};;
+  }
+  dimension net_new_yoy_sign {
+    label: 'Net New YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_yoy_sign }};;
+  }
+  dimension net_new_yoy_color {
+    label: 'Net New YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.net_new_yoy_color }};;
+  }
+  dimension nrr_yoy_pct {
+    label: 'NRR YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.nrr_yoy_pct }};;
+  }
+  dimension nrr_yoy_sign {
+    label: 'NRR YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_yoy_sign }};;
+  }
+  dimension nrr_yoy_color {
+    label: 'NRR YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_yoy_color }};;
+  }
+  // ── Tab 4: NRR Insight Text (pre-computed) ──
+  dimension nrr_insight_text {
+    label: 'NRR Insight'
+    description: 'Interpretive conclusion about revenue health based on NRR value. Pre-computed via SQL CASE.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_insight_text }};;
+  }
+  dimension nrr_health_label {
+    label: 'NRR Health Label'
+    description: 'Short health status label: Excellent / Healthy / At Risk / Warning / Critical'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_health_label }};;
+  }
+  dimension nrr_health_color {
+    label: 'NRR Health Color'
+    description: 'Color code for the NRR health label badge.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.nrr_health_color }};;
+  }
+  dimension arpa_yoy_pct {
+    label: 'ARPA YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_yoy_pct }};;
+  }
+  dimension arpa_yoy_sign {
+    label: 'ARPA YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.arpa_yoy_sign }};;
+  }
+  dimension arpa_yoy_color {
+    label: 'ARPA YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.arpa_yoy_color }};;
+  }
+  dimension new_logo_yoy_pct {
+    label: 'New Logo YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_yoy_pct }};;
+  }
+  dimension new_logo_yoy_sign {
+    label: 'New Logo YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.new_logo_yoy_sign }};;
+  }
+  dimension new_logo_yoy_color {
+    label: 'New Logo YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.new_logo_yoy_color }};;
+  }
+  dimension exp_yoy_pct {
+    label: 'Exp YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.exp_yoy_pct }};;
+  }
+  dimension exp_yoy_sign {
+    label: 'Exp YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.exp_yoy_sign }};;
+  }
+  dimension exp_yoy_color {
+    label: 'Exp YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.exp_yoy_color }};;
+  }
+  dimension gross_churn_yoy_pct {
+    label: 'Gross Churn YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.gross_churn_yoy_pct }};;
+  }
+  dimension gross_churn_yoy_sign {
+    label: 'Gross Churn YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.gross_churn_yoy_sign }};;
+  }
+  dimension gross_churn_yoy_color {
+    label: 'Gross Churn YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.gross_churn_yoy_color }};;
+  }
+  dimension churn_yoy_pct {
+    label: 'Churn YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_yoy_pct }};;
+  }
+  dimension churn_yoy_sign {
+    label: 'Churn YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.churn_yoy_sign }};;
+  }
+  dimension churn_yoy_color {
+    label: 'Churn YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.churn_yoy_color }};;
+  }
+  dimension contr_yoy_pct {
+    label: 'Contr YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contr_yoy_pct }};;
+  }
+  dimension contr_yoy_sign {
+    label: 'Contr YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.contr_yoy_sign }};;
+  }
+  dimension contr_yoy_color {
+    label: 'Contr YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.contr_yoy_color }};;
+  }
+  dimension qr_yoy_pct {
+    label: 'QR YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.qr_yoy_pct }};;
+  }
+  dimension qr_yoy_sign {
+    label: 'QR YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.qr_yoy_sign }};;
+  }
+  dimension qr_yoy_color {
+    label: 'QR YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.qr_yoy_color }};;
+  }
+  dimension mrr_yoy_pct {
+    label: 'MRR YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_yoy_pct }};;
+  }
+  dimension mrr_yoy_sign {
+    label: 'MRR YoY Sign'
+    type: 'text'
+    definition: @sql {{ #SOURCE.mrr_yoy_sign }};;
+  }
+  dimension mrr_yoy_color {
+    label: 'MRR YoY Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.mrr_yoy_color }};;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MEASURES — AQL aggregations for use in charts and KPI cards
+  // Two groups:
+  //   1. Aggregation measures (sum/avg) — for time-series charts
+  //   2. Latest-month measures (max_by) — for KPI cards showing current value
+  //   3. Sparkline/badge measures — for MarkdownViz KPI rendering
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── 1. Aggregation Measures (for time-series charts) ────────────────────────
+
+  // Formula: SUM(total_mrr) — Total MRR across selected months
+  measure sum_total_mrr {
+    label: 'Total MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.total_mrr);;
+  }
+  // Formula: SUM(net_new_mrr) — Cumulative net new MRR
+  measure sum_net_new_mrr {
+    label: 'Net New MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_new_mrr);;
+  }
+  measure abs_net_new_mrr {
+    label: 'Net New MRR Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.net_new_mrr));;
+  }
+  // Formula: SUM(new_logo_mrr) — Total new customer MRR
+  measure sum_new_logo {
+    label: 'New Logo MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.new_logo_mrr);;
+  }
+  // Formula: SUM(expansion_mrr) — Total upgrade MRR
+  measure sum_expansion {
+    label: 'Expansion MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.expansion_mrr);;
+  }
+  // Formula: SUM(contraction_mrr) — Total downgrade MRR (negative)
+  measure sum_contraction {
+    label: 'Contraction MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.contraction_mrr);;
+  }
+  // Formula: SUM(churn_mrr) — Total churned MRR (negative)
+  measure sum_churn {
+    label: 'Churn MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.churn_mrr);;
+  }
+  dimension abs_churn_mrr {
+    label: 'Churn MRR Abs'
+    type: 'number'
+    definition: @sql ABS({{ #SOURCE.churn_mrr }});;
+  }
+  measure abs_sum_churn {
+    label: 'Churn MRR Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_churn_mrr);;
+  }
+  measure sum_net_expansion_pos {
+    label: 'Net Expansion (+)'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_expansion_pos);;
+  }
+  measure sum_net_expansion_neg {
+    label: 'Net Expansion (-)'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_expansion_neg);;
+  }
+  measure abs_contraction {
+    label: 'Contraction Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.contraction_mrr));;
+  }
+  measure abs_churn {
+    label: 'Churn Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.churn_mrr));;
+  }
+  // Formula: SUM(paid_customers) — Total customers across months
+  measure sum_paid_customers {
+    label: 'Paid Customers'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.paid_customers);;
+  }
+  // Formula: SUM(high_value_customers) — Total high-value customers
+  measure sum_high_value_customers {
+    label: 'Customers >= $1K MRR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.high_value_customers);;
+  }
+  // Formula: SUM(arpa) — Sum of ARPA values
+  measure sum_arpa {
+    label: 'ARPA'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arpa);;
+  }
+  // Formula: SUM(arr) — Sum of ARR values
+  measure sum_arr {
+    label: 'ARR'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arr);;
+  }
+  // Formula: AVG(gross_churn_rate) — Average gross churn rate
+  measure avg_gross_churn_rate {
+    label: 'Gross Churn Rate %'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.gross_churn_rate);;
+  }
+  // Formula: AVG(net_churn_rate) — Average net churn rate
+  measure avg_net_churn_rate {
+    label: 'Net Churn Rate %'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.net_churn_rate);;
+  }
+  // Formula: AVG(nrr) — Average NRR
+  measure avg_nrr {
+    label: 'NRR %'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.nrr);;
+  }
+  // Formula: AVG(customer_churn_rate) — Average logo churn
+  measure avg_customer_churn_rate {
+    label: 'Customer Churn Rate %'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.customer_churn_rate);;
+  }
+  // Formula: AVG(quick_ratio) — Average Quick Ratio
+  measure avg_quick_ratio {
+    label: 'Quick Ratio'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.quick_ratio);;
+  }
+  // Formula: AVG(paid_customer_growth_rate) — Average customer growth
+  measure avg_paid_customer_growth {
+    label: 'Paid Customer Growth %'
+    type: 'number'
+    definition: @aql avg(mou_monthly_mrr.paid_customer_growth_rate);;
+  }
+
+  // ── 2. Latest-Month Measures (for KPI cards) ───────────────────────────────
+  // max_by(model, value_field, date_field) returns the value from the most recent month
+
+  // Gets Total MRR of the latest month
+  measure latest_total_mrr {
+    label: 'Latest Total MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.total_mrr, mou_monthly_mrr.month);;
+  }
+  // Gets ARR of the latest month
+  measure latest_arr {
+    label: 'Latest ARR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.arr, mou_monthly_mrr.month);;
+  }
+  // Gets Paid Customers of the latest month
+  measure latest_paid_customers {
+    label: 'Latest Paid Customers'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.paid_customers, mou_monthly_mrr.month);;
+  }
+  // Gets Net New MRR of the latest month
+  measure latest_net_new_mrr {
+    label: 'Latest Net New MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.net_new_mrr, mou_monthly_mrr.month);;
+  }
+  // Gets New Logo MRR of the latest month
+  measure latest_new_logo_mrr {
+    label: 'Latest New Logo MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.new_logo_mrr, mou_monthly_mrr.month);;
+  }
+  // Gets Expansion MRR of the latest month
+  measure latest_expansion_mrr {
+    label: 'Latest Expansion MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.expansion_mrr, mou_monthly_mrr.month);;
+  }
+  // Gets Churn MRR of the latest month (negative value)
+  measure latest_churn_mrr {
+    label: 'Latest Churn MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.churn_mrr, mou_monthly_mrr.month);;
+  }
+  // Gets Gross Churn Rate of the latest month
+  measure latest_gross_churn_rate {
+    label: 'Latest Gross Churn Rate %'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.gross_churn_rate, mou_monthly_mrr.month);;
+  }
+  // Gets Net Churn Rate of the latest month
+  measure latest_net_churn_rate {
+    label: 'Latest Net Churn Rate %'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.net_churn_rate, mou_monthly_mrr.month);;
+  }
+  // Gets NRR of the latest month
+  measure latest_nrr {
+    label: 'Latest NRR %'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.nrr, mou_monthly_mrr.month);;
+  }
+  // Gets Customer Churn Rate of the latest month
+  measure latest_customer_churn_rate {
+    label: 'Latest Customer Churn Rate %'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.customer_churn_rate, mou_monthly_mrr.month);;
+  }
+  // Gets ARPA of the latest month
+  measure latest_arpa {
+    label: 'Latest ARPA'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.arpa, mou_monthly_mrr.month);;
+  }
+  // Gets Quick Ratio of the latest month
+  measure latest_quick_ratio {
+    label: 'Latest Quick Ratio'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.quick_ratio, mou_monthly_mrr.month);;
+  }
+  // Gets High Value Customers of the latest month
+  measure latest_high_value_customers {
+    label: 'Latest Customers >= $1K MRR'
+    type: 'number'
+    definition: @aql max_by(mou_monthly_mrr, mou_monthly_mrr.high_value_customers, mou_monthly_mrr.month);;
+  }
+
+  // ── 3. MarkdownViz KPI Sparkline Measures ──────────────────────────────────
+  // These power the inline SVG sparklines rendered in MarkdownViz KPI cards.
+  // Each measure surfaces a per-row rendering value (y-coordinate, color, delta)
+  // for the MarkdownViz template to consume.
+
+  // Tab 1: MRR sparkline values
+  measure val_mrr_delta_mom {
+    label: 'MRR Delta MoM'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_new_mrr);;
+  }
+  measure val_mrr_growth_pct {
+    label: 'MRR Growth %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.mrr_growth_rate);;
+  }
+  measure abs_mrr_growth_pct {
+    label: 'MRR Growth % Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.mrr_growth_rate));;
+  }
+  measure val_mrr_color {
+    label: 'MRR Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.mrr_color);;
+  }
+  measure val_mrr_amount_sign {
+    label: 'MRR Amount Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.mrr_amount_sign);;
+  }
+  measure val_mrr_sign {
+    label: 'MRR Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.mrr_sign);;
+  }
+  measure val_mrr_spark_x {
+    label: 'MRR Spark X'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.mrr_spark_x);;
+  }
+  measure val_mrr_spark_y {
+    label: 'MRR Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.mrr_spark_y);;
+  }
+  measure val_mrr_bar_height {
+    label: 'MRR Bar Height'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.mrr_bar_height);;
+  }
+
+  // Tab 1: Paid Customers sparkline values
+  measure val_cust_spark_y {
+    label: 'Cust Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_spark_y);;
+  }
+  measure val_cust_delta_12mo {
+    label: 'Cust Delta 12mo'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_delta_12mo);;
+  }
+  measure abs_cust_delta_12mo {
+    label: 'Cust Delta 12mo Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.cust_delta_12mo));;
+  }
+  measure val_cust_color {
+    label: 'Cust Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_color);;
+  }
+  measure val_cust_sign {
+    label: 'Cust Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_sign);;
+  }
+
+  // Tab 2: Movement sparkline values
+  measure val_new_logo_spark_y {
+    label: 'New Logo Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.new_logo_spark_y);;
+  }
+  measure val_exp_spark_y {
+    label: 'Exp Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.exp_spark_y);;
+  }
+  measure val_churn_spark_y {
+    label: 'Churn Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.churn_spark_y);;
+  }
+  measure val_net_new_spark_y {
+    label: 'Net New Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_new_spark_y);;
+  }
+  measure val_new_logo_delta {
+    label: 'New Logo Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.new_logo_delta);;
+  }
+  measure val_exp_delta {
+    label: 'Exp Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.exp_delta);;
+  }
+  measure val_churn_delta {
+    label: 'Churn Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.churn_delta);;
+  }
+  measure val_contr_spark_y {
+    label: 'Contr Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.contr_spark_y);;
+  }
+  measure val_contr_delta {
+    label: 'Contr Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.contr_delta);;
+  }
+  measure val_net_new_delta {
+    label: 'Net New Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_new_delta);;
+  }
+
+  // Tab 2: MoM percentage, sign, color, abs measures
+  measure val_new_logo_sign {
+    label: 'New Logo Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.new_logo_sign);;
+  }
+  measure val_new_logo_badge_color {
+    label: 'New Logo Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.new_logo_badge_color);;
+  }
+  measure val_abs_new_logo_delta {
+    label: 'New Logo Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_new_logo_delta);;
+  }
+  measure val_abs_new_logo_pct {
+    label: 'New Logo Pct Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_new_logo_pct);;
+  }
+  measure val_exp_sign {
+    label: 'Exp Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.exp_sign);;
+  }
+  measure val_exp_badge_color {
+    label: 'Exp Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.exp_badge_color);;
+  }
+  measure val_abs_exp_delta {
+    label: 'Exp Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_exp_delta);;
+  }
+  measure val_abs_exp_pct {
+    label: 'Exp Pct Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_exp_pct);;
+  }
+  measure val_churn_sign {
+    label: 'Churn Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.churn_sign);;
+  }
+  measure val_churn_badge_color {
+    label: 'Churn Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.churn_badge_color);;
+  }
+  measure val_abs_churn_delta {
+    label: 'Churn Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_churn_delta);;
+  }
+  measure val_abs_churn_pct {
+    label: 'Churn Pct Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_churn_pct);;
+  }
+  measure val_contr_sign {
+    label: 'Contr Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.contr_sign);;
+  }
+  measure val_contr_badge_color {
+    label: 'Contr Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.contr_badge_color);;
+  }
+  measure val_abs_contr_delta {
+    label: 'Contr Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_contr_delta);;
+  }
+  measure val_abs_contr_pct {
+    label: 'Contr Pct Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_contr_pct);;
+  }
+  measure val_new_logo_badge_bg {
+    label: 'New Logo Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.new_logo_badge_bg);;
+  }
+  measure val_exp_badge_bg {
+    label: 'Exp Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.exp_badge_bg);;
+  }
+  measure val_churn_badge_bg {
+    label: 'Churn Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.churn_badge_bg);;
+  }
+  measure val_contr_badge_bg {
+    label: 'Contr Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.contr_badge_bg);;
+  }
+
+  // Tab 3: Churn rate sparkline values
+  measure val_gross_churn_spark_y {
+    label: 'Gross Churn Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.gross_churn_spark_y);;
+  }
+  measure val_net_churn_spark_y {
+    label: 'Net Churn Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_churn_spark_y);;
+  }
+  measure val_nrr_spark_y {
+    label: 'NRR Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.nrr_spark_y);;
+  }
+  measure val_cust_churn_spark_y {
+    label: 'Cust Churn Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_churn_spark_y);;
+  }
+  measure val_qr_spark_y {
+    label: 'QR Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.qr_spark_y);;
+  }
+  measure val_qr_delta {
+    label: 'QR Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.qr_delta);;
+  }
+  measure val_abs_qr_delta {
+    label: 'QR Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_qr_delta);;
+  }
+  measure val_qr_sign {
+    label: 'QR Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.qr_sign);;
+  }
+  measure val_qr_badge_color {
+    label: 'QR Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.qr_badge_color);;
+  }
+  measure val_qr_badge_bg {
+    label: 'QR Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.qr_badge_bg);;
+  }
+  measure val_gross_churn_delta {
+    label: 'Gross Churn Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.gross_churn_delta);;
+  }
+  measure val_net_churn_delta {
+    label: 'Net Churn Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_churn_delta);;
+  }
+  measure val_nrr_delta {
+    label: 'NRR Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.nrr_delta);;
+  }
+  measure val_cust_churn_delta {
+    label: 'Cust Churn Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_churn_delta);;
+  }
+  measure val_gross_churn_badge_color {
+    label: 'Gross Churn Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.gross_churn_badge_color);;
+  }
+  measure val_net_churn_badge_color {
+    label: 'Net Churn Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_churn_badge_color);;
+  }
+  measure val_nrr_badge_color {
+    label: 'NRR Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_badge_color);;
+  }
+  measure val_cust_churn_badge_color {
+    label: 'Cust Churn Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_churn_badge_color);;
+  }
+  measure val_gross_churn_badge_bg {
+    label: 'Gross Churn Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.gross_churn_badge_bg);;
+  }
+  measure val_net_churn_badge_bg {
+    label: 'Net Churn Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_churn_badge_bg);;
+  }
+  measure val_nrr_badge_bg {
+    label: 'NRR Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_badge_bg);;
+  }
+  measure val_cust_churn_badge_bg {
+    label: 'Cust Churn Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_churn_badge_bg);;
+  }
+  measure val_gross_churn_sign {
+    label: 'Gross Churn Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.gross_churn_sign);;
+  }
+  measure val_net_churn_sign {
+    label: 'Net Churn Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_churn_sign);;
+  }
+  measure val_nrr_sign {
+    label: 'NRR Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_sign);;
+  }
+  measure val_cust_churn_sign {
+    label: 'Cust Churn Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_churn_sign);;
+  }
+  measure val_abs_gross_churn_delta {
+    label: 'Gross Churn Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_gross_churn_delta);;
+  }
+  measure val_abs_net_churn_delta {
+    label: 'Net Churn Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_net_churn_delta);;
+  }
+  measure val_abs_nrr_delta {
+    label: 'NRR Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_nrr_delta);;
+  }
+  measure val_abs_cust_churn_delta {
+    label: 'Cust Churn Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_cust_churn_delta);;
+  }
+
+  // Tab 4: Customer & ARPA sparkline values
+  measure val_cust_delta_mom {
+    label: 'Cust Delta MoM'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_delta_mom);;
+  }
+  measure val_cust_mom_color {
+    label: 'Cust MoM Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_mom_color);;
+  }
+  measure val_cust_yoy_pct {
+    label: 'Cust YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.cust_yoy_pct);;
+  }
+  measure val_abs_cust_mom_pct {
+    label: 'Cust MoM % Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_cust_mom_pct);;
+  }
+  measure val_cust_mom_sign {
+    label: 'Cust MoM Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.cust_mom_sign);;
+  }
+  measure val_arpa_delta_mom {
+    label: 'ARPA Delta MoM'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arpa_delta_mom);;
+  }
+  measure abs_arpa_delta_mom {
+    label: 'ARPA Delta Abs'
+    type: 'number'
+    definition: @aql abs(sum(mou_monthly_mrr.arpa_delta_mom));;
+  }
+  measure val_arpa_growth_pct {
+    label: 'ARPA Growth %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arpa_growth_pct);;
+  }
+  measure val_arpa_sign {
+    label: 'ARPA Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.arpa_sign);;
+  }
+  measure val_arpa_badge_color {
+    label: 'ARPA Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.arpa_badge_color);;
+  }
+  measure val_arpa_spark_y {
+    label: 'ARPA Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arpa_spark_y);;
+  }
+  measure val_high_value_pct {
+    label: 'High Value %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.high_value_pct);;
+  }
+  measure val_top_customer_pct {
+    label: 'Top Customer %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.top_customer_pct);;
+  }
+  measure val_top_cust_spark_y {
+    label: 'Top Cust Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.top_cust_spark_y);;
+  }
+
+  // Tab 2: Net New MRR color values
+  measure val_net_new_color {
+    label: 'Net New Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_color);;
+  }
+  measure val_net_new_sign {
+    label: 'Net New Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_sign);;
+  }
+  measure val_net_new_delta_sign {
+    label: 'Net New Delta Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_delta_sign);;
+  }
+  measure val_net_new_badge_color {
+    label: 'Net New Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_badge_color);;
+  }
+  measure val_net_new_badge_bg {
+    label: 'Net New Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_badge_bg);;
+  }
+  measure val_abs_net_new_delta {
+    label: 'Net New Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_net_new_delta);;
+  }
+  measure val_abs_net_new_pct {
+    label: 'Net New Pct Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_net_new_pct);;
+  }
+  // ── MRR Growth Rate % sparkline & badge measures ──
+  measure val_growth_spark_y {
+    label: 'Growth Spark Y'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.growth_spark_y);;
+  }
+  measure val_growth_delta {
+    label: 'Growth Delta'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.growth_delta);;
+  }
+  measure val_abs_growth_delta {
+    label: 'Growth Delta Abs'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.abs_growth_delta);;
+  }
+  measure val_growth_sign {
+    label: 'Growth Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.growth_sign);;
+  }
+  measure val_growth_badge_color {
+    label: 'Growth Badge Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.growth_badge_color);;
+  }
+  measure val_growth_badge_bg {
+    label: 'Growth Badge Bg'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.growth_badge_bg);;
+  }
+
+  // ── Tab 6: YoY measures ──────────────────────────────────────────────────
+  measure val_net_new_yoy_pct {
+    label: 'Net New YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.net_new_yoy_pct);;
+  }
+  measure val_net_new_yoy_sign {
+    label: 'Net New YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_yoy_sign);;
+  }
+  measure val_net_new_yoy_color {
+    label: 'Net New YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.net_new_yoy_color);;
+  }
+  measure val_nrr_yoy_pct {
+    label: 'NRR YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.nrr_yoy_pct);;
+  }
+  measure val_nrr_yoy_sign {
+    label: 'NRR YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_yoy_sign);;
+  }
+  measure val_nrr_yoy_color {
+    label: 'NRR YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_yoy_color);;
+  }
+  // ── Tab 4: NRR Insight measures ──
+  measure val_nrr_insight_text {
+    label: 'NRR Insight'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_insight_text);;
+  }
+  measure val_nrr_health_label {
+    label: 'NRR Health Label'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_health_label);;
+  }
+  measure val_nrr_health_color {
+    label: 'NRR Health Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.nrr_health_color);;
+  }
+  measure val_arpa_yoy_pct {
+    label: 'ARPA YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.arpa_yoy_pct);;
+  }
+  measure val_arpa_yoy_sign {
+    label: 'ARPA YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.arpa_yoy_sign);;
+  }
+  measure val_arpa_yoy_color {
+    label: 'ARPA YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.arpa_yoy_color);;
+  }
+  measure val_new_logo_yoy_pct {
+    label: 'New Logo YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.new_logo_yoy_pct);;
+  }
+  measure val_new_logo_yoy_sign {
+    label: 'New Logo YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.new_logo_yoy_sign);;
+  }
+  measure val_new_logo_yoy_color {
+    label: 'New Logo YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.new_logo_yoy_color);;
+  }
+  measure val_exp_yoy_pct {
+    label: 'Exp YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.exp_yoy_pct);;
+  }
+  measure val_exp_yoy_sign {
+    label: 'Exp YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.exp_yoy_sign);;
+  }
+  measure val_exp_yoy_color {
+    label: 'Exp YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.exp_yoy_color);;
+  }
+  measure val_gross_churn_yoy_pct {
+    label: 'Gross Churn YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.gross_churn_yoy_pct);;
+  }
+  measure val_gross_churn_yoy_sign {
+    label: 'Gross Churn YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.gross_churn_yoy_sign);;
+  }
+  measure val_gross_churn_yoy_color {
+    label: 'Gross Churn YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.gross_churn_yoy_color);;
+  }
+  measure val_churn_yoy_pct {
+    label: 'Churn YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.churn_yoy_pct);;
+  }
+  measure val_churn_yoy_sign {
+    label: 'Churn YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.churn_yoy_sign);;
+  }
+  measure val_churn_yoy_color {
+    label: 'Churn YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.churn_yoy_color);;
+  }
+  measure val_contr_yoy_pct {
+    label: 'Contr YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.contr_yoy_pct);;
+  }
+  measure val_contr_yoy_sign {
+    label: 'Contr YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.contr_yoy_sign);;
+  }
+  measure val_contr_yoy_color {
+    label: 'Contr YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.contr_yoy_color);;
+  }
+  measure val_qr_yoy_pct {
+    label: 'QR YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.qr_yoy_pct);;
+  }
+  measure val_qr_yoy_sign {
+    label: 'QR YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.qr_yoy_sign);;
+  }
+  measure val_qr_yoy_color {
+    label: 'QR YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.qr_yoy_color);;
+  }
+  measure val_mrr_yoy_pct {
+    label: 'MRR YoY %'
+    type: 'number'
+    definition: @aql sum(mou_monthly_mrr.mrr_yoy_pct);;
+  }
+  measure val_mrr_yoy_sign {
+    label: 'MRR YoY Sign'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.mrr_yoy_sign);;
+  }
+  measure val_mrr_yoy_color {
+    label: 'MRR YoY Color'
+    type: 'text'
+    definition: @aql max(mou_monthly_mrr.mrr_yoy_color);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

@@ -1,0 +1,65 @@
+// Galaxy schema: 6 fact tables sharing 6 dimension tables
+// Role-playing: dim_dates as event date (most facts) vs install date (cohort)
+// Snowflake: dim_campaigns → dim_apps (set inactive to avoid ambiguity)
+
+
+Dataset af_marketing_performance {
+  label: 'Marketing Performance'
+  description: 'Mobile app publisher analytics — galaxy schema with 6 dimensions and 6 fact tables'
+  data_source_name: 'tri_test_app_marketing_db'
+
+  models: [
+    // Dimensions
+    af_dim_apps,
+    af_dim_campaigns,
+    af_dim_dates,
+    af_dim_channels,
+    af_dim_countries,
+    af_dim_events,
+
+    // Facts
+    af_fact_daily_spend,
+    af_fact_installs,
+    af_fact_revenue,
+    af_fact_events,
+    af_fact_daily_active_users,
+    af_fact_cohort_revenue
+  ]
+
+  relationships: [
+    // fact_daily_spend
+    relationship(af_fact_daily_spend.date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_daily_spend.app_key > af_dim_apps.app_key, true),
+    relationship(af_fact_daily_spend.campaign_key > af_dim_campaigns.campaign_key, true),
+
+    // fact_installs
+    relationship(af_fact_installs.date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_installs.app_key > af_dim_apps.app_key, true),
+    relationship(af_fact_installs.campaign_key > af_dim_campaigns.campaign_key, true),
+    relationship(af_fact_installs.country_key > af_dim_countries.country_key, true),
+
+    // fact_revenue
+    relationship(af_fact_revenue.date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_revenue.app_key > af_dim_apps.app_key, true),
+    relationship(af_fact_revenue.campaign_key > af_dim_campaigns.campaign_key, true),
+    relationship(af_fact_revenue.country_key > af_dim_countries.country_key, true),
+
+    // fact_events
+    relationship(af_fact_events.date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_events.app_key > af_dim_apps.app_key, true),
+    relationship(af_fact_events.campaign_key > af_dim_campaigns.campaign_key, true),
+    relationship(af_fact_events.event_key > af_dim_events.event_key, true),
+
+    // fact_daily_active_users (no campaign — DAU is app-level)
+    relationship(af_fact_daily_active_users.date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_daily_active_users.app_key > af_dim_apps.app_key, true),
+
+    // fact_cohort_revenue (role-playing: install_date_key is cohort date, not event date)
+    relationship(af_fact_cohort_revenue.install_date_key > af_dim_dates.date_key, true),
+    relationship(af_fact_cohort_revenue.app_key > af_dim_apps.app_key, true),
+    relationship(af_fact_cohort_revenue.campaign_key > af_dim_campaigns.campaign_key, true),
+
+    // dim_campaigns → dim_apps (INACTIVE — avoids ambiguous paths)
+    relationship(af_dim_campaigns.app_key > af_dim_apps.app_key, false)
+  ]
+}

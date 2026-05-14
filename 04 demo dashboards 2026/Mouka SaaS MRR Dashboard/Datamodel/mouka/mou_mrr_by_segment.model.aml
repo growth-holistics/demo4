@@ -1,0 +1,109 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_mrr_by_segment.model.aml — MRR breakdown by Plan, Billing, Region
+// Monthly time series of MRR grouped by 3 segment dimensions
+// Used in Tab 4: Customers & Segments — stacked area, donut, bar charts
+//
+// Key insight: Revenue is diversified across regions (NA ~35%, EU ~33%)
+// and plans (Business & Enterprise drive most MRR).
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_mrr_by_segment {
+  type: 'query'
+  label: 'MRR by Segment'
+  description: 'Monthly MRR and customer counts broken down by plan, billing cycle, and region. Each row = one month × one segment combination. Used for stacked area charts and segment analysis.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH active_subs AS (
+      SELECT
+        m.report_month,
+        sub.id AS subscription_id,
+        sub.company_id,
+        sub.plan_tier_id,
+        sub.billing_cycle,
+        CAST(sub.mrr AS NUMERIC) AS mrr,
+        c.region,
+        pt.name AS plan_name
+      FROM (
+        SELECT DISTINCT DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month
+        FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      ) m
+      JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+        ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at, '') IS NULL
+             OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+      JOIN "public"."holistics_mou_companies_f75dd_202603100503" c ON sub.company_id = c.id
+      JOIN "public"."holistics_mou_plan_tier_13939_202603100503" pt ON sub.plan_tier_id = pt.id
+    )
+    SELECT
+      TO_CHAR(report_month, 'YYYY-MM') AS month_label,
+      report_month::DATE AS report_month,
+      plan_name,
+      billing_cycle,
+      region,
+      SUM(mrr) AS mrr,
+      COUNT(DISTINCT company_id) AS customers
+    FROM active_subs
+    GROUP BY 1, 2, 3, 4, 5
+    ORDER BY report_month, plan_name
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension month_label {
+    label: 'Month'
+    description: 'Formatted month. Example: "2025-06"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.month_label }};;
+  }
+  dimension month {
+    label: 'Month Date'
+    description: 'Report month as date, for time-series charts.'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.report_month }};;
+  }
+  dimension plan_name {
+    label: 'Plan'
+    description: 'Subscription plan tier. Values: "Trial", "Standard", "Business", "Enterprise"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+  dimension billing_cycle {
+    label: 'Billing Cycle'
+    description: 'Payment frequency. Values: "monthly", "annual"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.billing_cycle }};;
+  }
+  dimension region {
+    label: 'Region'
+    description: 'Geographic region. Values: "North America", "Europe", "Asia", "Others"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.region }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(mrr)
+  // Total MRR for the selected segment/time combination.
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    description: "**sum_mrr** contains the total Monthly Recurring Revenue (MRR) for the given month and segment combination.  \nThis value represents the aggregated recurring revenue generated from all customers within the specified plan, billing cycle, and region for that month."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.mrr }});;
+    aggregation_type: "custom"
+  }
+
+  // Formula: SUM(customers)
+  // Total unique customers for the selected segment/time combination.
+  measure sum_customers {
+    label: 'Customers'
+    type: 'number'
+    description: "Total number of customers in the given month and segment combination.  \nRepresents the count of active customers contributing to the Monthly Recurring Revenue (MRR) for the specified plan, billing cycle, and region."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.customers }});;
+    aggregation_type: "custom"
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

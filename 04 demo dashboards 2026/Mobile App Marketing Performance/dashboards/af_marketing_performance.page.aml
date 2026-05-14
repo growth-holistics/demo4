@@ -1,0 +1,1634 @@
+Dashboard af_mark {
+  title: 'Mobile App - Marketing Performance'
+  description: ''
+  owner: 'tri.dvm@holistics.io'
+  block title: TextBlock {
+    content: @md <style>
+/* === Glitch reveal for line 1 === */
+@keyframes glitch-switch {
+  0% { content: var(--c0); }
+  10% { content: var(--c1); }
+  20% { content: var(--c2); }
+  30% { content: var(--c3); }
+  40% { content: var(--c4); }
+  50% { content: var(--c5); }
+  60% { content: var(--c6); }
+  70% { content: var(--c7); }
+  80% { content: var(--c8); }
+  90% { content: var(--c9); }
+  100% { content: var(--c0); }
+}
+.gc {
+  color: transparent;
+  position: relative;
+  display: inline-block;
+}
+.gc::after {
+  content: attr(data-char);
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: glitch-switch 0.15s steps(1) backwards;
+  animation-iteration-count: var(--n, 3);
+  animation-delay: var(--d, 0s);
+}
+.g-white .gc::after { color: #fff; }
+
+/* === CRT scanline + glitch on hover === */
+@keyframes crt-flicker {
+  0% { opacity: 1; }
+  5% { opacity: 0.85; }
+  10% { opacity: 1; }
+  42% { opacity: 1; }
+  44% { opacity: 0.7; }
+  46% { opacity: 1; }
+  80% { opacity: 1; }
+  82% { opacity: 0.8; }
+  83% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes scanline-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+@keyframes crt-skew {
+  0% { transform: skewX(0deg) scaleY(1); }
+  3% { transform: skewX(0deg) scaleY(1); }
+  4% { transform: skewX(-8deg) scaleY(0.98) translateX(10px); }
+  4.5% { transform: skewX(5deg) scaleY(1.01) translateX(-6px); }
+  5% { transform: skewX(-3deg) scaleY(0.99) translateX(3px); }
+  5.5% { transform: skewX(0deg) scaleY(1); }
+  40% { transform: skewX(0deg) scaleY(1); }
+  41% { transform: skewX(10deg) scaleY(0.97) translateX(-12px); }
+  41.5% { transform: skewX(-6deg) scaleY(1.02) translateX(7px); }
+  42% { transform: skewX(3deg) scaleY(0.99) translateX(-3px); }
+  42.5% { transform: skewX(0deg) scaleY(1); }
+  72% { transform: skewX(0deg) scaleY(1); }
+  73% { transform: skewX(-10deg) scaleY(0.97) translateX(12px); }
+  73.5% { transform: skewX(7deg) scaleY(1.02) translateX(-8px); }
+  74% { transform: skewX(-4deg) scaleY(0.99) translateX(4px); }
+  74.5% { transform: skewX(0deg) scaleY(1); }
+  100% { transform: skewX(0deg) scaleY(1); }
+}
+.neon-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.12) 2px,
+      rgba(0, 0, 0, 0.12) 4px
+    );
+  background-size: 100% 4px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 10;
+  transition: opacity 0.3s;
+}
+.neon-hover {
+  position: relative;
+}
+.neon-hover:hover::after {
+  opacity: 1;
+  animation: crt-flicker 3s infinite, scanline-scroll 4s linear infinite;
+}
+/* Text shaking removed — scanline alone is enough */
+.neon-hover:hover .g-white .gc::after {
+  text-shadow: 0 0 4px rgba(255,255,255,0.5), 0 0 8px rgba(168,200,70,0.3) !important;
+}
+.neon-hover:hover .ghost-text {
+  text-shadow: 0 0 4px rgba(168,200,70,0.5), 0 0 8px rgba(168,200,70,0.3) !important;
+}
+
+/* Peek ghost on hover — big face from bottom */
+@keyframes ghost-peek {
+  0% { bottom: -80px; }
+  100% { bottom: -35px; }
+}
+.peek-ghost {
+  position: absolute;
+  right: 40px;
+  bottom: -80px;
+  width: 70px;
+  height: 90px;
+  background: #A8C846;
+  background-image:
+    radial-gradient(ellipse at 35% 30%, #000 12%, transparent 0%),
+    radial-gradient(ellipse at 65% 30%, #000 12%, transparent 0%),
+    radial-gradient(ellipse at 50% 50%, #000 8%, transparent 0%);
+  border-radius: 50% 50% 0 0;
+  opacity: 0;
+  z-index: 6;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.neon-hover:hover .peek-ghost {
+  opacity: 0.9;
+  animation: ghost-peek 0.8s ease-out forwards, crt-skew 6s 0.8s infinite;
+}
+
+/* Peek tree on hover */
+@keyframes tree-peek {
+  0% { bottom: -70px; }
+  100% { bottom: -30px; }
+}
+.peek-tree {
+  position: absolute;
+  right: 130px;
+  bottom: -70px;
+  width: 0;
+  height: 0;
+  border-left: 22px solid transparent;
+  border-right: 22px solid transparent;
+  border-bottom: 50px solid #7AAC5D;
+  opacity: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.peek-tree::before {
+  content: '';
+  position: absolute;
+  top: 50px;
+  left: -6px;
+  width: 12px;
+  height: 20px;
+  background: #5B4A3A;
+  border-radius: 0 0 2px 2px;
+}
+.peek-tree::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -18px;
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 35px solid #5B7744;
+}
+.neon-hover:hover .peek-tree {
+  opacity: 0.9;
+  animation: tree-peek 1s 0.3s ease-out forwards;
+}
+
+/* Peek house on hover */
+@keyframes house-peek {
+  0% { bottom: -60px; }
+  100% { bottom: -20px; }
+}
+.peek-house {
+  position: absolute;
+  right: 180px;
+  bottom: -60px;
+  width: 50px;
+  height: 35px;
+  background: #D4A574;
+  opacity: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.peek-house::before {
+  content: '';
+  position: absolute;
+  top: -25px;
+  left: -5px;
+  width: 0;
+  height: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  border-bottom: 25px solid #A05A2C;
+}
+.peek-house::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 18px;
+  width: 14px;
+  height: 18px;
+  background: #5B4A3A;
+  border-radius: 2px 2px 0 0;
+}
+.neon-hover:hover .peek-house {
+  opacity: 0.9;
+  animation: house-peek 1s 0.5s ease-out forwards;
+}
+
+/* === Abstract geometric composition — appears after text, CRT on hover === */
+@keyframes geo-appear {
+  0% { opacity: 0; transform: scale(0) rotate(var(--rot, 0deg)); }
+  60% { opacity: var(--op, 0.6); transform: scale(1.15) rotate(var(--rot, 0deg)); }
+  100% { opacity: var(--op, 0.6); transform: scale(1) rotate(var(--rot, 0deg)); }
+}
+.geo-shapes {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  bottom: 10px;
+  width: 480px;
+  pointer-events: none;
+  z-index: 6;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.neon-hover:hover .geo-shapes {
+  transform: scale(1.15);
+}
+.geo {
+  position: absolute;
+  opacity: 0;
+  animation: geo-appear 0.4s ease-out forwards;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out, border-width 0.25s ease-out, height 0.25s ease-out;
+}
+/* Large circle — thick outline, right side */
+.g1 {
+  top: -8px; right: 30px;
+  width: 110px; height: 110px;
+  border: 6px solid #A8C846;
+  border-radius: 50%;
+  --rot: 0deg; --op: 0.4;
+  animation-delay: 2.8s;
+}
+/* Solid dot — overlapping circle */
+.g2 {
+  top: 25px; right: 55px;
+  width: 36px; height: 36px;
+  background: #A8C846;
+  border-radius: 50%;
+  --rot: 0deg; --op: 0.7;
+  animation-delay: 2.9s;
+}
+/* Bold cross — upper left of group */
+.g4 {
+  top: 2px; right: 240px;
+  width: 48px; height: 48px;
+  --rot: 15deg; --op: 0.45;
+  animation-delay: 3.0s;
+  background:
+    linear-gradient(#A8C846, #A8C846) center/8px 100% no-repeat,
+    linear-gradient(#A8C846, #A8C846) center/100% 8px no-repeat;
+}
+/* Square — mid area */
+.g5 {
+  top: 35px; right: 165px;
+  width: 48px; height: 48px;
+  border: 5px solid #7AAC5D;
+  --rot: -15deg; --op: 0.35;
+  animation-delay: 3.1s;
+}
+/* Heavy bar — mid-left, angled */
+.g3 {
+  top: 35px; right: 330px;
+  width: 90px; height: 6px;
+  background: #fff;
+  --rot: -12deg; --op: 0.25;
+  animation-delay: 2.85s;
+}
+/* Thick slash — bottom right, tucked under circle */
+.g6 {
+  bottom: 12px; right: 40px;
+  width: 70px; height: 5px;
+  background: #D4A574;
+  --rot: -18deg; --op: 0.25;
+  animation-delay: 2.95s;
+}
+/* Solid diamond — mid height, between square and circle */
+.g7 {
+  top: 45px; right: 100px;
+  width: 22px; height: 22px;
+  background: #fff;
+  --rot: 45deg; --op: 0.45;
+  animation-delay: 3.15s;
+}
+/* Small dot — left of bar */
+.g8 {
+  top: 15px; right: 390px;
+  width: 20px; height: 20px;
+  background: #A8C846;
+  border-radius: 50%;
+  --rot: 0deg; --op: 0.55;
+  animation-delay: 2.8s;
+}
+/* Thick bar — mid-left, lower */
+.g9 {
+  bottom: 15px; right: 260px;
+  width: 55px; height: 5px;
+  background: #fff;
+  --rot: 10deg; --op: 0.2;
+  animation-delay: 3.05s;
+}
+/* Solid triangle — bottom-left area */
+.g10 {
+  bottom: 10px; right: 380px;
+  width: 0; height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 30px solid #7AAC5D;
+  --rot: 8deg; --op: 0.35;
+  animation-delay: 3.15s;
+}
+/* On hover — each shape has its own random behavior */
+/* Circle — slow clockwise orbit */
+@keyframes orbit-cw {
+  0% { transform: translate(0,0) rotate(0deg); }
+  25% { transform: translate(6px,-4px) rotate(4deg); }
+  50% { transform: translate(0px,-8px) rotate(0deg); }
+  75% { transform: translate(-6px,-4px) rotate(-4deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+/* Dot — pulse scale */
+@keyframes pulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+/* Bar — tilt seesaw */
+@keyframes seesaw {
+  0%,100% { transform: rotate(-12deg); }
+  50% { transform: rotate(-18deg) translateX(4px); }
+}
+/* Cross — stutter shake */
+@keyframes shake {
+  0%,100% { transform: rotate(15deg) translate(0,0); }
+  10% { transform: rotate(15deg) translate(3px,-2px); }
+  20% { transform: rotate(15deg) translate(-2px,3px); }
+  30% { transform: rotate(15deg) translate(2px,1px); }
+  40% { transform: rotate(15deg) translate(-3px,-1px); }
+  50% { transform: rotate(15deg) translate(1px,3px); }
+  60% { transform: rotate(15deg) translate(-1px,-3px); }
+  70% { transform: rotate(15deg) translate(3px,0px); }
+  80% { transform: rotate(15deg) translate(-2px,2px); }
+  90% { transform: rotate(15deg) translate(0px,-2px); }
+}
+/* Square — counter-clockwise orbit */
+@keyframes orbit-ccw {
+  0% { transform: translate(0,0) rotate(-15deg); }
+  25% { transform: translate(-5px,4px) rotate(-20deg); }
+  50% { transform: translate(0px,7px) rotate(-15deg); }
+  75% { transform: translate(5px,4px) rotate(-10deg); }
+  100% { transform: translate(0,0) rotate(-15deg); }
+}
+/* Slash — slow swing */
+@keyframes swing {
+  0%,100% { transform: rotate(-18deg) translateY(0); }
+  33% { transform: rotate(-22deg) translateY(-3px); }
+  66% { transform: rotate(-14deg) translateY(3px); }
+}
+/* Diamond — spin */
+@keyframes spin-slow {
+  0% { transform: rotate(45deg); }
+  100% { transform: rotate(405deg); }
+}
+/* Small dot — bounce */
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-3px); }
+}
+/* Bottom bar — wobble */
+@keyframes wobble {
+  0%,100% { transform: rotate(10deg) scaleX(1); }
+  25% { transform: rotate(14deg) scaleX(0.9); }
+  75% { transform: rotate(6deg) scaleX(1.1); }
+}
+/* Triangle — float up and down */
+@keyframes float {
+  0%,100% { transform: rotate(8deg) translateY(0); }
+  50% { transform: rotate(8deg) translateY(-8px); }
+}
+/* Hover: shapes get bolder opacity + thicker strokes */
+.neon-hover:hover .g1 { animation: geo-appear 0.01s forwards, orbit-cw 8s linear infinite !important; opacity: 0.6; border-width: 8px; }
+.neon-hover:hover .g2 { animation: geo-appear 0.01s forwards, pulse 2s ease-in-out infinite !important; opacity: 0.85; }
+.neon-hover:hover .g3 { animation: geo-appear 0.01s forwards, seesaw 3s ease-in-out infinite !important; opacity: 0.4; height: 8px; }
+.neon-hover:hover .g4 { animation: geo-appear 0.01s forwards, shake 1.5s steps(1) infinite !important; opacity: 0.6; background: linear-gradient(#A8C846, #A8C846) center/10px 100% no-repeat, linear-gradient(#A8C846, #A8C846) center/100% 10px no-repeat; }
+.neon-hover:hover .g5 { animation: geo-appear 0.01s forwards, orbit-ccw 6s linear infinite !important; opacity: 0.5; border-width: 7px; }
+.neon-hover:hover .g6 { animation: geo-appear 0.01s forwards, swing 4s ease-in-out infinite !important; opacity: 0.4; height: 7px; }
+.neon-hover:hover .g7 { animation: geo-appear 0.01s forwards, spin-slow 6s linear infinite !important; opacity: 0.6; }
+.neon-hover:hover .g8 { animation: geo-appear 0.01s forwards, bounce 2.5s ease-in-out infinite !important; opacity: 0.7; }
+.neon-hover:hover .g9 { animation: geo-appear 0.01s forwards, wobble 3.5s ease-in-out infinite !important; opacity: 0.35; height: 7px; }
+.neon-hover:hover .g10 { animation: geo-appear 0.01s forwards, float 4s ease-in-out infinite !important; opacity: 0.5; }
+
+/* === Ghost reveal for line 2 === */
+.ghost-line {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+.ghost-text {
+  font-family: 'Arial Black', Impact, sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #A8C846;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  clip-path: inset(0 100% 0 0);
+  animation: ghost-text-reveal 1.2s ease-in-out 0.8s forwards;
+}
+@keyframes ghost-text-reveal {
+  0% { clip-path: inset(0 100% 0 0); }
+  85% { clip-path: inset(0 0% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+/* Sparkle star after text — single flash then gone */
+.ghost-sparkle {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 20px;
+  opacity: 0;
+  font-size: 24px;
+  color: #A8C846;
+  vertical-align: middle;
+  animation: sparkle-flash 1.2s ease-out 2.0s forwards;
+}
+@keyframes sparkle-flash {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  25% { opacity: 1; transform: scale(1.5) rotate(-15deg); }
+  50% { opacity: 1; transform: scale(1.2) rotate(10deg); }
+  75% { opacity: 0.5; transform: scale(0.8) rotate(-5deg); }
+  100% { opacity: 0; transform: scale(0) rotate(0deg); }
+}
+
+/* Ghost character */
+.ghost-char {
+  position: absolute;
+  top: 50%;
+  width: 24px;
+  height: 34px;
+  margin-top: -17px;
+  background: #A8C846;
+  background-image:
+    radial-gradient(ellipse at 35% 35%, #000 14%, transparent 0%),
+    radial-gradient(ellipse at 65% 35%, #000 14%, transparent 0%),
+    radial-gradient(ellipse at 50% 58%, #000 10%, transparent 0%);
+  border-radius: 50% 50% 0 0;
+  opacity: 0;
+  animation: ghost-fly 1.2s ease-in-out 0.8s forwards;
+  z-index: 5;
+}
+.ghost-char::before,
+.ghost-char::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  width: 8px;
+  height: 7px;
+  background: #A8C846;
+  border-radius: 0 0 50% 50%;
+}
+.ghost-char::before { left: 0; }
+.ghost-char::after { right: 0; }
+
+@keyframes ghost-fly {
+  0% {
+    left: -30px;
+    opacity: 0.9;
+    transform: rotateZ(-90deg) scale(1);
+  }
+  85% {
+    left: 105%;
+    opacity: 0.9;
+    transform: rotateZ(-90deg) scale(1);
+  }
+  100% {
+    left: 105%;
+    opacity: 0;
+    transform: rotateZ(-90deg) scale(0.5);
+  }
+}
+</style>
+<div class="neon-hover" style="background: #000; padding: 32px 40px; overflow: hidden; cursor: default;">
+  <h1 class="g-white" style="font-family:'Arial Black',Impact,sans-serif; font-size:48px; font-weight:900; text-transform:uppercase; letter-spacing:-1px; margin:0; line-height:1.1;">
+    <span class="gc" data-char="M" style="--c0:'¶';--c1:'░';--c2:'≠';--c3:'∆';--c4:'§';--c5:'▓';--c6:'∞';--c7:'¡';--c8:'≈';--c9:'µ';--d:0.05s;--n:3">M</span><span class="gc" data-char="o" style="--c0:'▒';--c1:'∂';--c2:'™';--c3:'ƒ';--c4:'¢';--c5:'˙';--c6:'å';--c7:'ß';--c8:'÷';--c9:'æ';--d:0.08s;--n:4">o</span><span class="gc" data-char="b" style="--c0:'˚';--c1:'¬';--c2:'£';--c3:'∫';--c4:'˜';--c5:'≤';--c6:'ç';--c7:'√';--c8:'º';--c9:'ª';--d:0.1s;--n:2">b</span><span class="gc" data-char="i" style="--c0:'≥';--c1:'÷';--c2:'¶';--c3:'•';--c4:'░';--c5:'▒';--c6:'▓';--c7:'∞';--c8:'§';--c9:'≠';--d:0.12s;--n:5">i</span><span class="gc" data-char="l" style="--c0:'∆';--c1:'˚';--c2:'¬';--c3:'å';--c4:'ß';--c5:'∂';--c6:'ƒ';--c7:'©';--c8:'˙';--c9:'™';--d:0.18s;--n:3">l</span><span class="gc" data-char="e" style="--c0:'£';--c1:'¢';--c2:'∫';--c3:'˜';--c4:'µ';--c5:'≤';--c6:'≥';--c7:'÷';--c8:'¡';--c9:'ç';--d:0.11s;--n:4">e</span><span style="display:inline-block; width:16px;"> </span><span class="gc" data-char="A" style="--c0:'√';--c1:'º';--c2:'ª';--c3:'–';--c4:'¶';--c5:'•';--c6:'░';--c7:'▒';--c8:'▓';--c9:'∞';--d:0.13s;--n:3">A</span><span class="gc" data-char="p" style="--c0:'§';--c1:'≠';--c2:'∆';--c3:'˚';--c4:'¬';--c5:'å';--c6:'ß';--c7:'∂';--c8:'ƒ';--c9:'©';--d:0.14s;--n:2">p</span><span class="gc" data-char="p" style="--c0:'˙';--c1:'™';--c2:'£';--c3:'¢';--c4:'∫';--c5:'˜';--c6:'µ';--c7:'≤';--c8:'≥';--c9:'÷';--d:0.15s;--n:4">p</span><span style="display:inline-block; width:16px;"> </span><span class="gc" data-char="A" style="--c0:'¡';--c1:'ç';--c2:'√';--c3:'º';--c4:'ª';--c5:'–';--c6:'¶';--c7:'•';--c8:'░';--c9:'▒';--d:0.18s;--n:3">A</span><span class="gc" data-char="g" style="--c0:'▓';--c1:'∞';--c2:'§';--c3:'≠';--c4:'∆';--c5:'˚';--c6:'¬';--c7:'å';--c8:'ß';--c9:'∂';--d:0.19s;--n:5">g</span><span class="gc" data-char="e" style="--c0:'ƒ';--c1:'©';--c2:'˙';--c3:'™';--c4:'£';--c5:'¢';--c6:'∫';--c7:'˜';--c8:'µ';--c9:'≤';--d:0.2s;--n:2">e</span><span class="gc" data-char="n" style="--c0:'≥';--c1:'÷';--c2:'¡';--c3:'ç';--c4:'√';--c5:'º';--c6:'ª';--c7:'–';--c8:'¶';--c9:'•';--d:0.21s;--n:4">n</span><span class="gc" data-char="c" style="--c0:'░';--c1:'▒';--c2:'▓';--c3:'∞';--c4:'§';--c5:'≠';--c6:'∆';--c7:'˚';--c8:'¬';--c9:'å';--d:0.23s;--n:3">c</span><span class="gc" data-char="y" style="--c0:'ß';--c1:'∂';--c2:'ƒ';--c3:'©';--c4:'˙';--c5:'™';--c6:'£';--c7:'¢';--c8:'∫';--c9:'˜';--d:0.24s;--n:2">y</span>
+  </h1>
+  <div style="display:flex; align-items:baseline; margin:8px 0 0 0;">
+    <p class="ghost-line" style="margin:0;">
+      <span class="ghost-char"></span>
+      <span class="ghost-text">Marketing Performance</span>
+    </p><span class="ghost-sparkle">&#10024;</span>
+  </div>
+  <div class="geo-shapes">
+    <div class="geo g1"></div>
+    <div class="geo g2"></div>
+    <div class="geo g3"></div>
+    <div class="geo g4"></div>
+    <div class="geo g5"></div>
+    <div class="geo g6"></div>
+    <div class="geo g7"></div>
+    <div class="geo g8"></div>
+    <div class="geo g9"></div>
+    <div class="geo g10"></div>
+  </div>
+</div>;;
+  }
+  block filter_app: FilterBlock {
+    label: 'App'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: af_marketing_performance
+      field: r(af_dim_apps.name)
+    }
+  }
+  block filter_date_range: FilterBlock {
+    label: 'Date range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: af_marketing_performance
+      field: r(af_dim_dates.date)
+    }
+    default {
+      operator: 'matches'
+      value: [
+        '2025-06-01 - 2025-06-30'
+      ]
+    }
+  }
+  block filter_view_type: FilterBlock {
+    label: 'View type'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: af_marketing_performance
+      field: r(af_dim_campaigns.view_type)
+    }
+  }
+  block filter_channel: FilterBlock {
+    label: 'Channel'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: af_marketing_performance
+      field: r(af_dim_campaigns.channel)
+    }
+  }
+  block kpi_active_users: VizBlock {
+    label: 'Active Users compared with Active Users (Prev. 1m)'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation active_users_last_30_days {
+        label: 'Active Users'
+        formula: @aql af_fact_daily_active_users | sum(af_fact_daily_active_users.active_users);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Active Users'
+        ref: 'active_users_last_30_days'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'month'
+        }
+        show_growth_rate: true
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+          font_color: '#FFFFFFFF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 40
+        }
+        compare_value {
+          font_size: 16
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_revenue_actual: VizBlock {
+    label: 'Revenue (actual) compared with Revenue (actual) (Prev. 30d)'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation revenue_actual {
+        label: 'Revenue (actual)'
+        formula: @aql sum(af_fact_revenue.amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation metric_c8cbf6d {
+        label: 'PoP Comparison of Revenue (actual)'
+        formula: @aql revenue_actual | relative_period(af_dim_dates.date, interval(-1 month), strict: true);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Revenue'
+        ref: 'revenue_actual'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 30
+          granularity: 'day'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_cost: VizBlock {
+    label: 'Cost'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation total_cost_last_30_days {
+        label: 'Cost'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.spend_amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Cost'
+        ref: 'total_cost_last_30_days'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 30
+          granularity: 'day'
+        }
+        show_growth_rate: true
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 40
+        }
+        compare_value {
+          font_size: 16
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_attributions: VizBlock {
+    label: 'Attributions'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation attributions {
+        label: 'Attributions'
+        formula: @aql af_fact_installs | count(af_fact_installs.install_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Attributions'
+        ref: 'attributions'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 30
+          granularity: 'day'
+        }
+        show_growth_rate: true
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 40
+        }
+        compare_value {
+          font_size: 16
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_revenue_d7: VizBlock {
+    label: 'Revenue D7'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation revenue_d7 {
+        label: 'Revenue D7'
+        formula: @aql sum(af_fact_cohort_revenue.cumulative_revenue) | where(af_fact_cohort_revenue.day_number == 7);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Revenue D7'
+        ref: 'revenue_d7'
+        format {
+          type: 'number'
+          pattern: '#,###0.00,"K" [$$]'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 30
+          granularity: 'day'
+        }
+        show_growth_rate: true
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 40
+        }
+        compare_value {
+          font_size: 16
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block kpi_roas_d7: VizBlock {
+    label: 'ROAS D7'
+    viz: MetricKpi {
+      dataset: af_marketing_performance
+      calculation d7_revenue {
+        label: 'D7 Revenue'
+        formula: @aql af_fact_cohort_revenue | where(af_fact_cohort_revenue.day_number == 7) | sum(af_fact_cohort_revenue.cumulative_revenue);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation last_30_days_spend {
+        label: 'Last 30 Days Spend'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.spend_amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation roas_d7 {
+        label: 'ROAS D7'
+        formula: @aql safe_divide(d7_revenue, last_30_days_spend);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'ROAS D7'
+        ref: 'roas_d7'
+        format {
+          type: 'number'
+          pattern: '#,###0.0%'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(af_dim_dates.date)
+        value: RelativePopValue {
+          duration: 30
+          granularity: 'day'
+        }
+        show_growth_rate: true
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_size: 16
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 40
+        }
+        compare_value {
+          font_size: 16
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  // ===== Section dividers =====
+  block divider_trends: TextBlock {
+    content: @md <div class="sec-bar" style="background: #000; padding: 12px 20px; border-radius: 6px; display: flex; align-items: baseline; gap: 10px;">
+  <span class="sec-num" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #000; background: #A8C846; padding: 4px 10px; border-radius: 3px; letter-spacing: 3px;">01</span>
+  <span class="sec-title" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px;">Trends</span>
+  <span class="sec-sub" style="font-family: Arial, sans-serif; font-size: 13px; color: #999;">— Are users growing? Is revenue following?</span>
+</div>;;
+  }
+  block divider_deep_dive: TextBlock {
+    content: @md <div class="sec-bar" style="background: #000; padding: 12px 20px; border-radius: 6px; display: flex; align-items: baseline; gap: 10px;">
+  <span class="sec-num" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #000; background: #A8C846; padding: 4px 10px; border-radius: 3px; letter-spacing: 3px;">02</span>
+  <span class="sec-title" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px;">Acquisition</span>
+  <span class="sec-sub" style="font-family: Arial, sans-serif; font-size: 13px; color: #999;">— Which channels and apps drive installs?</span>
+</div>;;
+  }
+  block divider_breakdown: TextBlock {
+    content: @md <div class="sec-bar" style="background: #000; padding: 12px 20px; border-radius: 6px; display: flex; align-items: baseline; gap: 10px;">
+  <span class="sec-num" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #000; background: #A8C846; padding: 4px 10px; border-radius: 3px; letter-spacing: 3px;">03</span>
+  <span class="sec-title" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px;">Deep Dive</span>
+  <span class="sec-sub" style="font-family: Arial, sans-serif; font-size: 13px; color: #999;">— Revenue by geography & top user actions</span>
+</div>;;
+  }
+  block divider_campaign: TextBlock {
+    content: @md <div class="sec-bar" style="background: #000; padding: 12px 20px; border-radius: 6px; display: flex; align-items: baseline; gap: 10px;">
+  <span class="sec-num" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #000; background: #A8C846; padding: 4px 10px; border-radius: 3px; letter-spacing: 3px;">04</span>
+  <span class="sec-title" style="font-family: 'Arial Black', Impact, sans-serif; font-size: 13px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px;">Campaign Detail</span>
+  <span class="sec-sub" style="font-family: Arial, sans-serif; font-size: 13px; color: #999;">— Every campaign, side by side</span>
+</div>;;
+  }
+  block chart_active_users_revenue: VizBlock {
+    label: 'Active users & revenue (actual)'
+    viz: CombinationChart {
+      dataset: af_marketing_performance
+      calculation active_users {
+        label: 'Active Users'
+        formula: @aql af_fact_daily_active_users | sum(af_fact_daily_active_users.active_users);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation revenue_actual {
+        label: 'Revenue (actual)'
+        formula: @aql af_fact_revenue | sum(af_fact_revenue.amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        label: 'Date'
+        ref: r(af_dim_dates.date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'LLL dd, yyyy'
+        }
+        uname: 'af_dim_dates_date_2'
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Active Users'
+            ref: 'active_users'
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+          settings {
+            color: '#BED829FF'
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Revenue (actual)'
+            ref: 'revenue_actual'
+            format {
+              type: 'number'
+              pattern: '[$]#,###0.00'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_label: 'Date'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_attributions_by_app: VizBlock {
+    label: 'Attributions by app'
+    viz: ColumnChart {
+      dataset: af_marketing_performance
+      calculation attributions {
+        label: 'Attributions'
+        formula: @aql af_fact_installs | count(af_fact_installs.install_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        label: 'Date'
+        ref: r(af_dim_dates.date)
+        format {
+          type: 'date'
+          pattern: 'dd/LL/yyyy'
+        }
+        uname: 'af_dim_dates_date_1'
+      }
+      legend: VizFieldFull {
+        label: 'App Name'
+        ref: r(af_dim_apps.name)
+        uname: 'af_dim_apps_name_1'
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Attributions'
+            ref: 'attributions'
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            color: '#FFD376FF'
+            color_palette: 40199
+            point {
+              value: 'Budget Buddy'
+              color: '#0A85A7FF'
+            }
+            point {
+              value: 'Daily Recipes'
+              color: '#2FCAE6FF'
+            }
+            point {
+              value: 'Fitness Tracker Plus'
+              color: '#49992BFF'
+            }
+            point {
+              value: 'Language Master'
+              color: '#BED829FF'
+            }
+            point {
+              value: 'Meditation Now'
+              color: '#C7F0FBFF'
+            }
+            point {
+              value: 'Photo Editor Pro'
+              color: '#CAF4BBFF'
+            }
+            point {
+              value: 'Puzzle Quest Pro'
+              color: '#0A85A7FF'
+            }
+            point {
+              value: 'Sleep Sounds'
+              color: '#2FCAE6FF'
+            }
+            point {
+              value: 'Task Planner'
+              color: '#49992BFF'
+            }
+            point {
+              value: 'Word Champion'
+              color: '#BED829FF'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        legend_label: 'top'
+        x_axis_label: 'Date'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_top_event_unique_users_mom: VizBlock {
+    label: 'Purchase users | MoM'
+    viz: LineChart {
+      dataset: af_marketing_performance
+      calculation purchase_unique_users {
+        label: 'Purchase Unique Users'
+        formula: @aql af_fact_events | where(af_dim_events.event_name == 'purchase') | sum(af_fact_events.unique_users);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation purchase_unique_users_previous_30_days {
+        label: 'Purchase Unique Users (Prev. 30d)'
+        formula: @aql purchase_unique_users | relative_period(af_dim_dates.date, interval(-30 day));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        label: 'Date'
+        ref: r(af_dim_dates.date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'dd/LL/yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Purchase Unique Users'
+            ref: 'purchase_unique_users'
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+          settings {
+            color: '#BED829FF'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Purchase Unique Users (Prev. 30d)'
+            ref: 'purchase_unique_users_previous_30_days'
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        x_axis_label: 'Date'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_attributions_by_media_source: VizBlock {
+    label: 'Attributions by media source'
+    viz: ColumnChart {
+      dataset: af_marketing_performance
+      calculation attributions {
+        label: 'Attributions'
+        formula: @aql af_fact_installs | count(af_fact_installs.install_id);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        label: 'Date'
+        ref: r(af_dim_dates.date)
+        transformation: 'datetrunc day'
+        format {
+          type: 'date'
+          pattern: 'dd/LL/yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        label: 'Media Source'
+        ref: r(af_dim_campaigns.channel)
+      }
+      y_axis {
+        settings {
+          show_total_in_tooltip: true
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Attributions'
+            ref: 'attributions'
+            format {
+              type: 'number'
+              pattern: '#,###0'
+            }
+          }
+          settings {
+            color_palette: 40199
+            point {
+              value: 'AppLovin'
+              color: '#0A85A7FF'
+            }
+            point {
+              value: 'Facebook Ads'
+              color: '#2FCAE6FF'
+            }
+            point {
+              value: 'Google Ads'
+              color: '#49992BFF'
+            }
+            point {
+              value: 'Organic'
+              color: '#BED829FF'
+            }
+            point {
+              value: 'TikTok'
+              color: '#C7F0FBFF'
+            }
+            point {
+              value: 'Unity Ads'
+              color: '#CAF4BBFF'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 100
+        legend_label: 'top'
+        x_axis_label: 'Date'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_revenue_by_geo: VizBlock {
+    label: 'Revenue by GEO'
+    viz: PieChart {
+      dataset: af_marketing_performance
+      calculation revenue {
+        label: 'Revenue'
+        formula: @aql af_fact_revenue | sum(af_fact_revenue.amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      legend: VizFieldFull {
+        label: 'GEO'
+        ref: r(af_dim_countries.country_name)
+      }
+      series {
+        field: VizFieldFull {
+          label: 'Revenue'
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '[$]#,###0.00'
+          }
+        }
+        settings {
+          color_palette: 40199
+          point {
+            value: 'Brazil'
+            color: '#0A85A7FF'
+          }
+          point {
+            value: 'Canada'
+            color: '#2FCAE6FF'
+          }
+          point {
+            value: 'France'
+            color: '#49992BFF'
+          }
+          point {
+            value: 'Germany'
+            color: '#BED829FF'
+          }
+          point {
+            value: 'India'
+            color: '#C7F0FBFF'
+          }
+          point {
+            value: 'Japan'
+            color: '#CAF4BBFF'
+          }
+          point {
+            value: 'Russia'
+            color: '#0A85A7FF'
+          }
+          point {
+            value: 'South Korea'
+            color: '#2FCAE6FF'
+          }
+          point {
+            value: 'United Kingdom'
+            color: '#49992BFF'
+          }
+          point {
+            value: 'United States'
+            color: '#BED829FF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        row_limit: 5
+        sort: 'desc'
+        legend_label: 'hidden'
+        show_data_label: true
+        show_percentage: true
+        data_label_position: 'inside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block chart_top_events: VizBlock {
+    label: 'Top events'
+    viz: BarChart {
+      dataset: af_marketing_performance
+      calculation event_count {
+        label: 'Event Count'
+        formula: @aql af_fact_events | sum(af_fact_events.event_count);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        label: 'Event Name'
+        ref: r(af_dim_events.event_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Event Count'
+            ref: 'event_count'
+            format {
+              type: 'number'
+              pattern: '#,###'
+            }
+          }
+          settings {
+            color: '#BED829FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 9
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'yaxis'
+        }
+        legend_label: 'hidden'
+        x_axis_label: 'Top Events'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block table_campaign_performance_by_media_source: VizBlock {
+    label: 'Campaign performance by Media source'
+    viz: PivotTable {
+      dataset: af_marketing_performance
+      calculation impressions {
+        label: 'Impressions'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.impressions);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation clicks {
+        label: 'Clicks'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.clicks);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation installs {
+        label: 'Installs'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.installs);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation re_attributions {
+        label: 'Re Attributions'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.re_attributions);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation re_engagements {
+        label: 'Re Engagements'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.re_engagements);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation cost {
+        label: 'Cost ($)'
+        formula: @aql af_fact_daily_spend | sum(af_fact_daily_spend.spend_amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation ecpi {
+        label: 'eCPI ($)'
+        formula: @aql safe_divide(cost, installs);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation revenue {
+        label: 'Revenue ($)'
+        formula: @aql af_fact_revenue | sum(af_fact_revenue.amount);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Media Source'
+          ref: r(af_dim_campaigns.channel)
+          format {
+            type: 'text'
+          }
+          uname: 'af_dim_campaigns_channel_1'
+        },
+        VizFieldFull {
+          label: 'Campaign Name'
+          ref: r(af_dim_campaigns.name)
+          format {
+            type: 'text'
+          }
+          uname: 'af_dim_campaigns_name_1'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'Impressions'
+          ref: 'impressions'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'custom_impressions'
+        },
+        VizFieldFull {
+          label: 'Clicks'
+          ref: 'clicks'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'custom_clicks'
+        },
+        VizFieldFull {
+          label: 'Installs'
+          ref: 'installs'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'custom_installs'
+        },
+        VizFieldFull {
+          label: 'Re Attributions'
+          ref: 're_attributions'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'custom_re_attributions'
+        },
+        VizFieldFull {
+          label: 'Re Engagements'
+          ref: 're_engagements'
+          format {
+            type: 'number'
+            pattern: '#,###0'
+          }
+          uname: 'custom_re_engagements'
+        },
+        VizFieldFull {
+          label: 'Cost ($)'
+          ref: 'cost'
+          format {
+            type: 'number'
+            pattern: '[$]#,###0.00'
+          }
+          uname: 'custom_cost'
+        },
+        VizFieldFull {
+          label: 'eCPI ($)'
+          ref: 'ecpi'
+          format {
+            type: 'number'
+            pattern: '[$]#,###0.00'
+          }
+          uname: 'custom_ecpi'
+        },
+        VizFieldFull {
+          label: 'Revenue ($)'
+          ref: 'revenue'
+          format {
+            type: 'number'
+            pattern: '[$]#,###0.00'
+          }
+          uname: 'custom_revenue'
+        }
+      ]
+      settings {
+        wrap_header_text: true
+        pagination_size: 100
+        show_row_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'af_dim_campaigns_channel_1'
+            direction: 'asc'
+          },
+          SortSetting {
+            key: 'af_dim_campaigns_name_1'
+            direction: 'asc'
+          }
+        ]
+        row_limit: 100
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        frozen_columns: 2
+        column_styles: [
+          ColumnStyle {
+            key: 'af_dim_campaigns_channel_1'
+            width: 136
+          },
+          ColumnStyle {
+            key: 'af_dim_campaigns_name_1'
+            width: 207
+          },
+          ColumnStyle {
+            key: 'custom_impressions'
+            width: 124
+          },
+          ColumnStyle {
+            key: 'custom_clicks'
+            width: 89
+          },
+          ColumnStyle {
+            key: 'custom_installs'
+            width: 94
+          },
+          ColumnStyle {
+            key: 'custom_re_attributions'
+            width: 139
+          },
+          ColumnStyle {
+            key: 'custom_re_engagements'
+            width: 150
+          },
+          ColumnStyle {
+            key: 'custom_cost'
+            width: 100
+          },
+          ColumnStyle {
+            key: 'custom_ecpi'
+            width: 100
+          },
+          ColumnStyle {
+            key: 'custom_revenue'
+            width: 123
+          }
+        ]
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1340
+    height: 2480
+    grid_size: 20
+    auto_expand_vertically: true
+    block title {
+      position: pos(20, 20, 1300, 160)
+    }
+    // Filters + KPIs (no section header)
+    block filter_app {
+      position: pos(20, 200, 300, 80)
+    }
+    block filter_date_range {
+      position: pos(340, 200, 300, 80)
+    }
+    block filter_view_type {
+      position: pos(660, 200, 300, 80)
+    }
+    block filter_channel {
+      position: pos(980, 200, 340, 80)
+    }
+    block kpi_active_users {
+      position: pos(20, 300, 200, 140)
+    }
+    block kpi_revenue_actual {
+      position: pos(240, 300, 200, 140)
+    }
+    block kpi_cost {
+      position: pos(460, 300, 200, 140)
+    }
+    block kpi_attributions {
+      position: pos(680, 300, 200, 140)
+    }
+    block kpi_revenue_d7 {
+      position: pos(900, 300, 200, 140)
+    }
+    block kpi_roas_d7 {
+      position: pos(1120, 300, 200, 140)
+    }
+    // 01 Trends
+    block divider_trends {
+      position: pos(20, 460, 1300, 60)
+    }
+    block chart_active_users_revenue {
+      position: pos(20, 540, 640, 320)
+    }
+    block chart_top_event_unique_users_mom {
+      position: pos(680, 540, 640, 320)
+    }
+    block divider_deep_dive {
+      position: pos(20, 880, 1300, 60)
+    }
+    block chart_attributions_by_media_source {
+      position: pos(20, 960, 640, 320)
+    }
+    block chart_attributions_by_app {
+      position: pos(680, 960, 640, 320)
+    }
+    block divider_breakdown {
+      position: pos(20, 1300, 1300, 60)
+    }
+    block chart_revenue_by_geo {
+      position: pos(20, 1380, 640, 420)
+    }
+    block chart_top_events {
+      position: pos(680, 1380, 640, 420)
+    }
+    block divider_campaign {
+      position: pos(20, 1820, 1300, 60)
+    }
+    block table_campaign_performance_by_media_source {
+      position: pos(20, 1900, 1300, 540)
+    }
+    mobile {
+      mode: 'auto'
+    }
+    auto_expand_horizontally: true
+    default_zoom: 'fit_to_width'
+  }
+  theme: ghibli_meadow
+}

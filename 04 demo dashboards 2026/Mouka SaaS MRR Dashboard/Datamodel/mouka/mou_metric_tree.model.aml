@@ -1,0 +1,296 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_metric_tree.model.aml — Metric Tree: single-row summary for tree viz
+// Computes current values + MoM% + YoY% for 7 key SaaS metrics.
+// Returns exactly ONE row — used by the Metric Tree Dynamic Content Block.
+//
+// Tree structure:
+//   Level 0: Total MRR (root)
+//   Level 1: Paid Customers × ARPA (MRR = Customers × ARPA)
+//   Level 2: Net New MRR breakdown → New Logo, Expansion, Churn, Contraction
+//   Supporting: Quick Ratio, NRR, Gross Churn Rate
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_metric_tree {
+  type: 'query'
+  label: 'Metric Tree'
+  description: 'Single-row model with current, MoM%, and YoY% for key SaaS metrics. Powers the Metric Tree visualization in Tab 6.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH monthly_events AS (
+      SELECT
+        DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month,
+        SUM(CAST(mrr_delta AS NUMERIC)) AS net_new_mrr,
+        SUM(CASE WHEN event_type = 'new_logo' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS new_logo_mrr,
+        SUM(CASE WHEN event_type = 'expansion' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS expansion_mrr,
+        SUM(CASE WHEN event_type = 'contraction' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS contraction_mrr,
+        SUM(CASE WHEN event_type = 'churn' THEN CAST(mrr_delta AS NUMERIC) ELSE 0 END) AS churn_mrr
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      GROUP BY 1
+    ),
+    monthly_active AS (
+      SELECT
+        report_month,
+        COUNT(DISTINCT company_id) AS paid_customers,
+        SUM(company_mrr) AS total_mrr
+      FROM (
+        SELECT
+          m.report_month,
+          sub.company_id,
+          SUM(CAST(sub.mrr AS NUMERIC)) AS company_mrr
+        FROM (
+          SELECT DISTINCT DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month
+          FROM "public"."holistics_mou_subscript_3936c_202603100503"
+        ) m
+        JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+          ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+          AND (NULLIF(sub.churned_at, '') IS NULL
+               OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+        GROUP BY 1, 2
+      ) company_level
+      GROUP BY 1
+    ),
+    monthly AS (
+      SELECT
+        ma.report_month,
+        ma.total_mrr,
+        ma.paid_customers,
+        ROUND((ma.total_mrr / NULLIF(ma.paid_customers, 0))::NUMERIC, 0) AS arpa,
+        COALESCE(me.net_new_mrr, 0) AS net_new_mrr,
+        COALESCE(me.new_logo_mrr, 0) AS new_logo_mrr,
+        COALESCE(me.expansion_mrr, 0) AS expansion_mrr,
+        COALESCE(me.contraction_mrr, 0) AS contraction_mrr,
+        COALESCE(me.churn_mrr, 0) AS churn_mrr,
+        ROUND((COALESCE(me.new_logo_mrr, 0) + COALESCE(me.expansion_mrr, 0))::NUMERIC
+          / NULLIF(ABS(COALESCE(me.contraction_mrr, 0) + COALESCE(me.churn_mrr, 0)), 0), 2) AS quick_ratio,
+        ROUND((ABS(COALESCE(me.churn_mrr, 0))::NUMERIC
+          / NULLIF(LAG(ma.total_mrr) OVER (ORDER BY ma.report_month), 0) * 100)::NUMERIC, 2) AS gross_churn_rate,
+        ROUND(((LAG(ma.total_mrr) OVER (ORDER BY ma.report_month)
+          + COALESCE(me.expansion_mrr, 0) + COALESCE(me.contraction_mrr, 0) + COALESCE(me.churn_mrr, 0))
+          / NULLIF(LAG(ma.total_mrr) OVER (ORDER BY ma.report_month), 0) * 100)::NUMERIC, 2) AS nrr
+      FROM monthly_active ma
+      LEFT JOIN monthly_events me ON ma.report_month = me.report_month
+    ),
+    curr AS (SELECT * FROM monthly ORDER BY report_month DESC LIMIT 1),
+    prev AS (SELECT * FROM monthly ORDER BY report_month DESC LIMIT 1 OFFSET 1),
+    yoy  AS (
+      SELECT * FROM monthly
+      WHERE report_month = (SELECT report_month - INTERVAL '12 months' FROM curr)
+    )
+    SELECT
+      -- ── Total MRR ──
+      ROUND(c.total_mrr::NUMERIC, 0) AS total_mrr,
+      ROUND(((c.total_mrr - p.total_mrr) / NULLIF(p.total_mrr, 0) * 100)::NUMERIC, 1) AS mrr_mom,
+      ROUND(((c.total_mrr - y.total_mrr) / NULLIF(y.total_mrr, 0) * 100)::NUMERIC, 1) AS mrr_yoy,
+      -- ── Paid Customers ──
+      c.paid_customers,
+      ROUND(((c.paid_customers - p.paid_customers)::NUMERIC / NULLIF(p.paid_customers, 0) * 100)::NUMERIC, 1) AS cust_mom,
+      ROUND(((c.paid_customers - y.paid_customers)::NUMERIC / NULLIF(y.paid_customers, 0) * 100)::NUMERIC, 1) AS cust_yoy,
+      -- ── ARPA ──
+      c.arpa,
+      ROUND(((c.arpa - p.arpa) / NULLIF(p.arpa, 0) * 100)::NUMERIC, 1) AS arpa_mom,
+      ROUND(((c.arpa - y.arpa) / NULLIF(y.arpa, 0) * 100)::NUMERIC, 1) AS arpa_yoy,
+      -- ── Net New MRR ──
+      ROUND(c.net_new_mrr::NUMERIC, 0) AS net_new_mrr,
+      ROUND(((c.net_new_mrr - p.net_new_mrr) / NULLIF(ABS(p.net_new_mrr), 0) * 100)::NUMERIC, 1) AS net_new_mom,
+      -- ── MRR Movement Components ──
+      ROUND(c.new_logo_mrr::NUMERIC, 0) AS new_logo_mrr,
+      ROUND(c.expansion_mrr::NUMERIC, 0) AS expansion_mrr,
+      ROUND(ABS(c.contraction_mrr)::NUMERIC, 0) AS contraction_mrr,
+      ROUND(ABS(c.churn_mrr)::NUMERIC, 0) AS churn_mrr,
+      -- ── Rates ──
+      c.quick_ratio,
+      c.gross_churn_rate,
+      c.nrr
+    FROM curr c
+    CROSS JOIN prev p
+    CROSS JOIN yoy y
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension total_mrr {
+    label: 'Total MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.total_mrr }};;
+  }
+  dimension mrr_mom {
+    label: 'MRR MoM %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_mom }};;
+  }
+  dimension mrr_yoy {
+    label: 'MRR YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr_yoy }};;
+  }
+  dimension paid_customers {
+    label: 'Paid Customers'
+    type: 'number'
+    definition: @sql {{ #SOURCE.paid_customers }};;
+  }
+  dimension cust_mom {
+    label: 'Customers MoM %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_mom }};;
+  }
+  dimension cust_yoy {
+    label: 'Customers YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.cust_yoy }};;
+  }
+  dimension arpa {
+    label: 'ARPA'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa }};;
+  }
+  dimension arpa_mom {
+    label: 'ARPA MoM %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_mom }};;
+  }
+  dimension arpa_yoy {
+    label: 'ARPA YoY %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa_yoy }};;
+  }
+  dimension net_new_mrr {
+    label: 'Net New MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_mrr }};;
+  }
+  dimension net_new_mom {
+    label: 'Net New MoM %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.net_new_mom }};;
+  }
+  dimension new_logo_mrr {
+    label: 'New Logo MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.new_logo_mrr }};;
+  }
+  dimension expansion_mrr {
+    label: 'Expansion MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.expansion_mrr }};;
+  }
+  dimension contraction_mrr {
+    label: 'Contraction MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.contraction_mrr }};;
+  }
+  dimension churn_mrr {
+    label: 'Churn MRR'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churn_mrr }};;
+  }
+  dimension quick_ratio {
+    label: 'Quick Ratio'
+    type: 'number'
+    definition: @sql {{ #SOURCE.quick_ratio }};;
+  }
+  dimension gross_churn_rate {
+    label: 'Gross Churn Rate %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.gross_churn_rate }};;
+  }
+  dimension nrr {
+    label: 'NRR %'
+    type: 'number'
+    definition: @sql {{ #SOURCE.nrr }};;
+  }
+
+  // ── Measures (for MarkdownViz values) ─────────────────────────────────────
+  measure m_total_mrr {
+    label: 'Total MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.total_mrr);;
+  }
+  measure m_mrr_mom {
+    label: 'MRR MoM'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.mrr_mom);;
+  }
+  measure m_mrr_yoy {
+    label: 'MRR YoY'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.mrr_yoy);;
+  }
+  measure m_paid_customers {
+    label: 'Paid Customers'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.paid_customers);;
+  }
+  measure m_cust_mom {
+    label: 'Cust MoM'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.cust_mom);;
+  }
+  measure m_cust_yoy {
+    label: 'Cust YoY'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.cust_yoy);;
+  }
+  measure m_arpa {
+    label: 'ARPA'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.arpa);;
+  }
+  measure m_arpa_mom {
+    label: 'ARPA MoM'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.arpa_mom);;
+  }
+  measure m_arpa_yoy {
+    label: 'ARPA YoY'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.arpa_yoy);;
+  }
+  measure m_net_new_mrr {
+    label: 'Net New MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.net_new_mrr);;
+  }
+  measure m_net_new_mom {
+    label: 'Net New MoM'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.net_new_mom);;
+  }
+  measure m_new_logo_mrr {
+    label: 'New Logo MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.new_logo_mrr);;
+  }
+  measure m_expansion_mrr {
+    label: 'Expansion MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.expansion_mrr);;
+  }
+  measure m_contraction_mrr {
+    label: 'Contraction MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.contraction_mrr);;
+  }
+  measure m_churn_mrr {
+    label: 'Churn MRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.churn_mrr);;
+  }
+  measure m_quick_ratio {
+    label: 'Quick Ratio'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.quick_ratio);;
+  }
+  measure m_gross_churn_rate {
+    label: 'Gross Churn'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.gross_churn_rate);;
+  }
+  measure m_nrr {
+    label: 'NRR'
+    type: 'number'
+    definition: @aql sum(mou_metric_tree.nrr);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

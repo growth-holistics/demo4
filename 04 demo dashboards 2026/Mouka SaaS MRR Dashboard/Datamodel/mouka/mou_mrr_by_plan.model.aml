@@ -1,0 +1,92 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_mrr_by_plan.model.aml — MRR breakdown by Plan Tier
+// Pre-computes each plan's MRR and % of total for Dynamic Content Block cards.
+// Used in Tab 4: Customers & Segments — plan MRR cards
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_mrr_by_plan {
+  type: 'query'
+  label: 'MRR by Plan'
+  description: 'Active MRR per plan tier with pre-computed percentage of total. One row per plan. Powers the Dynamic Content Block cards in Tab 4.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH active_subs AS (
+      SELECT
+        m.report_month,
+        pt.name AS plan_name,
+        CAST(sub.mrr AS NUMERIC) AS mrr
+      FROM (
+        SELECT DISTINCT DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month
+        FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      ) m
+      JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+        ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at, '') IS NULL
+             OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+      JOIN "public"."holistics_mou_plan_tier_13939_202603100503" pt
+        ON sub.plan_tier_id = pt.id
+    ),
+    plan_totals AS (
+      SELECT
+        report_month,
+        plan_name,
+        SUM(mrr) AS mrr
+      FROM active_subs
+      GROUP BY report_month, plan_name
+    ),
+    month_totals AS (
+      SELECT report_month, SUM(mrr) AS total_mrr
+      FROM active_subs
+      GROUP BY report_month
+    )
+    SELECT
+      pt.report_month::DATE AS report_month,
+      pt.plan_name,
+      pt.mrr,
+      ROUND(pt.mrr * 100.0 / mt.total_mrr, 1) AS mrr_pct
+    FROM plan_totals pt
+    JOIN month_totals mt ON pt.report_month = mt.report_month
+    ORDER BY pt.report_month DESC, pt.mrr DESC
+  ;;
+
+  dimension month {
+    label: 'Month'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.report_month }};;
+  }
+
+  dimension plan_name {
+    label: 'Plan'
+    type: 'text'
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+
+  dimension mrr_raw {
+    label: 'MRR (raw)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+
+  dimension mrr_pct_raw {
+    label: 'MRR % (raw)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.mrr_pct }};;
+  }
+
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    definition: @aql sum(mou_mrr_by_plan.mrr_raw);;
+  }
+
+  measure avg_mrr_pct {
+    label: 'MRR %'
+    type: 'number'
+    definition: @aql avg(mou_mrr_by_plan.mrr_pct_raw);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

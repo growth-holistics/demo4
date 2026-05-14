@@ -1,0 +1,131 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_cohort_retention.model.aml — Cohort MRR Retention Heatmap
+// Rows = signup cohort month, Columns = months since signup (M0..M13)
+// Used in Tab 3: Churn & Retention — retention heatmap table
+//
+// Shows what % of a cohort's initial MRR is retained after N months.
+// M0 = 100% by definition. Healthy SaaS retains >80% at M12.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_cohort_retention {
+  type: 'query'
+  label: 'Cohort MRR Retention'
+  description: 'Cohort retention matrix. Each row is a signup month cohort, each column is months since first subscription. Value = Cohort MRR at month N / Cohort MRR at month 0 (decimal 0-1, formatted as %).'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    -- Step 1: Identify each company's cohort month (first new_logo event)
+    WITH first_event AS (
+      SELECT
+        company_id,
+        DATE_TRUNC('month', MIN(CAST(occurred_at AS TIMESTAMP))) AS cohort_month
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      WHERE event_type = 'new_logo'
+      GROUP BY company_id
+    ),
+    -- Step 2: Aggregate MRR deltas per company per month
+    monthly_mrr AS (
+      SELECT
+        e.company_id,
+        DATE_TRUNC('month', CAST(e.occurred_at AS TIMESTAMP)) AS event_month,
+        SUM(CAST(e.mrr_delta AS NUMERIC)) AS mrr_delta
+      FROM "public"."holistics_mou_subscript_3936c_202603100503" e
+      GROUP BY 1, 2
+    ),
+    -- Step 3: Generate a month series for each company (cohort_month to cohort_month + 13 months)
+    month_spine AS (
+      SELECT
+        f.company_id,
+        f.cohort_month,
+        f.cohort_month + (g.n || ' months')::INTERVAL AS event_month
+      FROM first_event f
+      CROSS JOIN generate_series(0, 13) AS g(n)
+      WHERE f.cohort_month + (g.n || ' months')::INTERVAL <= DATE_TRUNC('month', CURRENT_DATE)
+    ),
+    -- Step 4: Left join events onto the spine, compute running MRR with gap-filling
+    filled_mrr AS (
+      SELECT
+        ms.company_id,
+        ms.cohort_month,
+        ms.event_month,
+        SUM(COALESCE(m.mrr_delta, 0)) OVER (
+          PARTITION BY ms.company_id ORDER BY ms.event_month
+        ) AS running_mrr
+      FROM month_spine ms
+      LEFT JOIN monthly_mrr m
+        ON ms.company_id = m.company_id
+       AND ms.event_month = m.event_month
+    ),
+    -- Step 5: Aggregate cohort MRR per cohort × months_since (only positive MRR)
+    cohort_data AS (
+      SELECT
+        fm.cohort_month,
+        fm.event_month,
+        EXTRACT(YEAR FROM AGE(fm.event_month, fm.cohort_month)) * 12
+          + EXTRACT(MONTH FROM AGE(fm.event_month, fm.cohort_month)) AS months_since,
+        SUM(GREATEST(fm.running_mrr, 0)) AS cohort_mrr
+      FROM filled_mrr fm
+      GROUP BY 1, 2
+    ),
+    -- Step 6: Get base MRR for each cohort (M0)
+    cohort_base AS (
+      SELECT
+        cohort_month,
+        cohort_mrr AS base_mrr
+      FROM cohort_data
+      WHERE months_since = 0
+    )
+    -- Step 7: Output retention as decimal (0-1) for proper % formatting
+    SELECT
+      TO_CHAR(cd.cohort_month, 'Mon YYYY') AS cohort_label,
+      cd.cohort_month::DATE AS cohort_month,
+      cd.months_since::INT AS months_since,
+      CASE WHEN cb.base_mrr > 0
+        THEN ROUND((cd.cohort_mrr / cb.base_mrr)::NUMERIC, 3)
+        ELSE 0 END AS retention_pct
+    FROM cohort_data cd
+    JOIN cohort_base cb ON cd.cohort_month = cb.cohort_month
+    WHERE cd.months_since <= 13
+      AND cd.cohort_mrr > 0
+    ORDER BY cd.cohort_month, cd.months_since
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension cohort_label {
+    label: 'Cohort'
+    description: 'Signup month formatted for display. Example: "2024-09", "2025-01"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.cohort_label }};;
+  }
+  dimension cohort_month {
+    label: 'Cohort Month'
+    description: 'Signup month as date. Used for sorting cohorts chronologically.'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.cohort_month }};;
+  }
+  dimension months_since {
+    label: 'Months Since Signup'
+    description: 'Number of months after cohort start. Range: 0 (signup month) to 13. M0 is always 100%.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.months_since }};;
+  }
+  dimension retention_pct {
+    label: 'Retention %'
+    description: 'What fraction of initial cohort MRR remains (0-1 scale). Example: 0.925 at M3 means 92.5% retained, 7.5% lost.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.retention_pct }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: AVG(retention_pct)
+  // Average retention rate across all cohorts at a given month.
+  measure avg_retention {
+    label: 'Avg Retention %'
+    type: 'number'
+    definition: @aql avg(mou_cohort_retention.retention_pct);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

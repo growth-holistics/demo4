@@ -1,0 +1,164 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_segment_snapshot.model.aml — Latest-month MRR breakdown by 4 dimensions
+// Pivots active MRR into 4 breakdown views: plan, region, billing, industry
+// Used in Tab 4: MRR by Segment Breakdown tables
+//
+// Each row = one category within one breakdown type.
+// Example: breakdown_type="plan", category="Enterprise", mrr=$250,000
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_segment_snapshot {
+  type: 'query'
+  label: 'Segment Snapshot'
+  description: 'Latest-month MRR broken down by 4 dimensions (plan, region, billing cycle, industry). Each row shows MRR, customer count, ARPA, and % of total for one segment category.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH latest_month AS (
+      SELECT MAX(DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP))) AS report_month
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+    ),
+    active_subs AS (
+      SELECT
+        sub.company_id,
+        CAST(sub.mrr AS NUMERIC) AS mrr,
+        pt.name AS plan_name,
+        sub.billing_cycle,
+        c.region,
+        c.industry
+      FROM "public"."holistics_mou_subscript_46062_202603100504" sub
+      JOIN "public"."holistics_mou_companies_f75dd_202603100503" c ON sub.company_id = c.id
+      JOIN "public"."holistics_mou_plan_tier_13939_202603100503" pt ON sub.plan_tier_id = pt.id
+      CROSS JOIN latest_month lm
+      WHERE CAST(sub.started_at AS TIMESTAMP) < (lm.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at, '') IS NULL
+             OR CAST(sub.churned_at AS TIMESTAMP) >= (lm.report_month + INTERVAL '1 month'))
+    ),
+    total AS (SELECT SUM(mrr) AS total_mrr FROM active_subs)
+
+    SELECT 'plan' AS breakdown_type, plan_name AS category,
+      SUM(mrr) AS mrr,
+      COUNT(DISTINCT company_id) AS customers,
+      CASE WHEN COUNT(DISTINCT company_id) > 0
+        THEN ROUND((SUM(mrr) / COUNT(DISTINCT company_id))::NUMERIC, 0) ELSE 0 END AS arpa,
+      ROUND((SUM(mrr) / t.total_mrr * 100)::NUMERIC, 1) AS pct_of_total
+    FROM active_subs CROSS JOIN total t
+    GROUP BY 1, 2, t.total_mrr
+
+    UNION ALL
+
+    SELECT 'region', region, SUM(mrr), COUNT(DISTINCT company_id),
+      CASE WHEN COUNT(DISTINCT company_id) > 0
+        THEN ROUND((SUM(mrr) / COUNT(DISTINCT company_id))::NUMERIC, 0) ELSE 0 END,
+      ROUND((SUM(mrr) / t.total_mrr * 100)::NUMERIC, 1)
+    FROM active_subs CROSS JOIN total t
+    GROUP BY 1, 2, t.total_mrr
+
+    UNION ALL
+
+    SELECT 'billing', billing_cycle, SUM(mrr), COUNT(DISTINCT company_id),
+      CASE WHEN COUNT(DISTINCT company_id) > 0
+        THEN ROUND((SUM(mrr) / COUNT(DISTINCT company_id))::NUMERIC, 0) ELSE 0 END,
+      ROUND((SUM(mrr) / t.total_mrr * 100)::NUMERIC, 1)
+    FROM active_subs CROSS JOIN total t
+    GROUP BY 1, 2, t.total_mrr
+
+    UNION ALL
+
+    SELECT 'industry', industry, SUM(mrr), COUNT(DISTINCT company_id),
+      CASE WHEN COUNT(DISTINCT company_id) > 0
+        THEN ROUND((SUM(mrr) / COUNT(DISTINCT company_id))::NUMERIC, 0) ELSE 0 END,
+      ROUND((SUM(mrr) / t.total_mrr * 100)::NUMERIC, 1)
+    FROM active_subs CROSS JOIN total t
+    GROUP BY 1, 2, t.total_mrr
+
+    ORDER BY breakdown_type, mrr DESC
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension breakdown_type {
+    label: 'Breakdown Type'
+    description: 'Which dimension this row represents. Values: "plan", "region", "billing", "industry"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.breakdown_type }};;
+  }
+  dimension category {
+    label: 'Category'
+    description: 'The specific segment value. Depends on breakdown_type. Examples: "Enterprise" (plan), "North America" (region), "annual" (billing), "Technology" (industry)'
+    type: 'text'
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension mrr {
+    label: 'MRR ($)'
+    description: 'Total MRR for this segment category. Example: $250,000 for Enterprise plan.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+  dimension customers {
+    label: 'Customers'
+    description: 'Number of unique companies in this segment. Example: 150 companies on Business plan.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.customers }};;
+  }
+  dimension arpa {
+    label: 'ARPA ($)'
+    description: 'Average Revenue Per Account for this segment. Formula: MRR / Customers. Example: $1,667 for Enterprise.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.arpa }};;
+  }
+  dimension pct_of_total {
+    label: '% of Total MRR'
+    description: 'This segment MRR / total MRR × 100. Example: 35.2% for North America region.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.pct_of_total }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(mrr)
+  // Aggregated MRR across selected segments.
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    description: "Total Monthly Recurring Revenue (MRR) summed across all segment categories in the latest month. This value represents the aggregate MRR for all plans, regions, billing cycles, and industries combined."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.mrr }});;
+    aggregation_type: "custom"
+  }
+
+  // Formula: SUM(customers)
+  // Total customers across selected segments.
+  measure sum_customers {
+    label: 'Customers'
+    type: 'number'
+    description: "Total number of unique companies across all segment categories in the latest-month snapshot. This field aggregates the customer counts from all breakdown dimensions such as plan, region, billing cycle, and industry."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.customers }});;
+    aggregation_type: "custom"
+  }
+
+  // Formula: SUM(arpa)
+  // Note: Summing ARPA is only meaningful when viewing a single segment row.
+  measure sum_arpa {
+    label: 'ARPA'
+    type: 'number'
+    description: "Average Revenue Per Account (ARPA) summed across all segment categories in the latest-month MRR snapshot. This value represents the total of ARPA metrics calculated for each segment dimension such as plan, region, billing cycle, or industry."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.arpa }});;
+    aggregation_type: "custom"
+  }
+
+  // Formula: SUM(pct_of_total)
+  // Should sum to 100% within each breakdown_type.
+  measure sum_pct {
+    label: '% of MRR'
+    type: 'number'
+    description: "**Sum of % of Total MRR** for all segment categories in the latest-month snapshot.  \nRepresents the combined percentage contributions of each segment’s MRR to the total MRR across all breakdown dimensions."
+    hidden: false
+    definition: @sql SUM({{ #SOURCE.pct_of_total }});;
+    aggregation_type: "custom"
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

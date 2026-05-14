@@ -1,0 +1,194 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_customer_concentration.model.aml — Top 15 customers by MRR
+// Shows revenue concentration risk: is too much MRR from one customer?
+// Used in Tab 4: Customers & Segments — concentration table
+//
+// Key insight: Top customer ~3% of MRR. Top 4 combined ~10%.
+// Long tail of 800+ customers = healthy diversification.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_customer_concentration {
+  type: 'query'
+  label: 'Customer Concentration'
+  description: 'Top 15 customers ranked by MRR with their % of total. Used to assess revenue concentration risk. A healthy SaaS has no single customer >5% of total MRR.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH latest_month AS (
+      SELECT MAX(DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP))) AS report_month
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+    ),
+    active_subs AS (
+      SELECT
+        sub.company_id,
+        c.name AS company_name,
+        pt.name AS plan_name,
+        c.region,
+        SUM(CAST(sub.mrr AS NUMERIC)) AS mrr,
+        COUNT(*) AS sub_count,
+        MIN(CAST(sub.started_at AS TIMESTAMP)) AS earliest_start
+      FROM "public"."holistics_mou_subscript_46062_202603100504" sub
+      JOIN "public"."holistics_mou_companies_f75dd_202603100503" c ON sub.company_id = c.id
+      JOIN "public"."holistics_mou_plan_tier_13939_202603100503" pt ON sub.plan_tier_id = pt.id
+      CROSS JOIN latest_month lm
+      WHERE CAST(sub.started_at AS TIMESTAMP) < (lm.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at, '') IS NULL
+             OR CAST(sub.churned_at AS TIMESTAMP) >= (lm.report_month + INTERVAL '1 month'))
+      GROUP BY sub.company_id, c.name, pt.name, c.region
+    ),
+    total AS (
+      SELECT SUM(mrr) AS total_mrr FROM active_subs
+    ),
+    ranked AS (
+      SELECT
+        company_name,
+        plan_name,
+        region,
+        mrr,
+        sub_count,
+        ROUND(mrr / sub_count, 2) AS arpa,
+        earliest_start,
+        ROUND((mrr / t.total_mrr * 100)::NUMERIC, 2) AS pct_of_total,
+        ROW_NUMBER() OVER (ORDER BY mrr DESC) AS rank,
+        EXTRACT(YEAR FROM AGE(lm.report_month + INTERVAL '1 month', earliest_start)) * 12
+          + EXTRACT(MONTH FROM AGE(lm.report_month + INTERVAL '1 month', earliest_start)) AS tenure_months
+      FROM active_subs
+      CROSS JOIN total t
+      CROSS JOIN latest_month lm
+    )
+    SELECT
+      rank,
+      company_name,
+      plan_name,
+      region,
+      mrr,
+      arpa,
+      pct_of_total,
+      tenure_months
+    FROM ranked
+    WHERE rank <= 15
+    ORDER BY rank
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension rank {
+    label: '#'
+    description: 'Rank by MRR descending. 1 = highest MRR customer. Example: 1, 2, 3...'
+    type: 'number'
+    definition: @sql {{ #SOURCE.rank }};;
+  }
+  dimension company_name {
+    label: 'Customer'
+    description: 'Company display name. Example: "Shopify", "Atlassian", "Company_042"'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.company_name }};;
+  }
+  dimension company_name_formatted {
+    label: 'Customer'
+    description: 'Company name with logo from Google Favicon API + bold styling'
+    type: 'text'
+    definition: @sql '<div style="display:flex;align-items:center;gap:8px;"><img src="https://www.google.com/s2/favicons?domain=' || LOWER(REPLACE({{ #SOURCE.company_name }}, ' ', '')) || '.com&sz=64" style="width:24px;height:24px;border-radius:4px;" onerror="this.style.display=''none''" /><span style="font-weight:600;color:#423935;">' || {{ #SOURCE.company_name }} || '</span></div>';;
+  }
+  dimension plan_name {
+    label: 'Plan'
+    description: 'Current plan tier. Top customers are typically on Enterprise or Business.'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+  dimension plan_name_formatted {
+    label: 'Plan'
+    description: 'Plan name as colored pill badge matching MRR Movers table style'
+    type: 'text'
+    definition: @sql
+      CASE {{ #SOURCE.plan_name }}
+        WHEN 'business'   THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#EDF5FF;color:#2993E1;">Business</span>'
+        WHEN 'enterprise' THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#FBEEEB;color:#E65E87;">Enterprise</span>'
+        WHEN 'standard'   THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#E6F5F4;color:#35948C;">Standard</span>'
+        WHEN 'trial'      THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#F2EFE7;color:#705845;">Trial</span>'
+        ELSE INITCAP({{ #SOURCE.plan_name }})
+      END
+    ;;
+  }
+  dimension region {
+    label: 'Region'
+    description: 'Geographic region of the customer. Values: "North America", "Europe", "Asia", "Others"'
+    type: 'text'
+    hidden: true
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension mrr {
+    label: 'MRR ($)'
+    description: 'Total MRR from this customer (sum of all their active subscriptions). Example: $2,499 (single Enterprise sub)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+  dimension mrr_bar {
+    label: 'MRR ($)'
+    description: 'MRR with data bar visualization, scaled to max $2000'
+    type: 'text'
+    definition: @sql
+      '<div style="display:flex;align-items:center;gap:8px;width:100%">'
+      || '<div style="flex:1;display:flex;justify-content:flex-start">'
+      || '<div style="background:#95D2FF;height:8px;border-radius:4px;width:'
+      || CAST(LEAST(ROUND({{ #SOURCE.mrr }}::numeric / 2000.0 * 100), 100) AS TEXT)
+      || '%"></div></div>'
+      || '<span style="white-space:nowrap;font-weight:500;font-size:16px;color:#423935">'
+      || '&#36;'
+      || TO_CHAR({{ #SOURCE.mrr }}, 'FM999,999')
+      || '</span></div>'
+    ;;
+  }
+  dimension arpa {
+    label: 'ARPA'
+    description: 'Average Revenue Per Account = MRR / number of active subscriptions'
+    type: 'text'
+    definition: @sql
+      '<span style="font-weight:500;color:#423935">'
+      || '&#36;'
+      || TO_CHAR({{ #SOURCE.arpa }}, 'FM999,999')
+      || '</span>'
+    ;;
+  }
+  dimension tenure_months {
+    label: 'Tenure'
+    description: 'Number of months since first paid subscription started'
+    type: 'text'
+    definition: @sql
+      '<span style="font-weight:500;color:#423935">'
+      || CAST({{ #SOURCE.tenure_months }} AS INTEGER)
+      || '</span>'
+      || '<span style="color:#897669;font-size:13px"> mo</span>'
+    ;;
+  }
+  dimension pct_of_total {
+    label: '% of Total MRR'
+    description: 'This customer MRR / total active MRR × 100. Healthy: <5%. Example: 2.85%'
+    type: 'number'
+    definition: @sql {{ #SOURCE.pct_of_total }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(mrr)
+  // Total MRR of displayed customers (top 15).
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    definition: @aql sum(mou_customer_concentration.mrr);;
+  }
+
+  // Formula: MIN_BY(pct_of_total, rank)
+  // Gets the % of total for the #1 ranked customer (highest MRR).
+  // Used as the "Top Customer %" KPI card value.
+  measure top_customer_pct {
+    label: 'Top Customer %'
+    type: 'number'
+    definition: @aql min_by(mou_customer_concentration, mou_customer_concentration.pct_of_total, mou_customer_concentration.rank);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

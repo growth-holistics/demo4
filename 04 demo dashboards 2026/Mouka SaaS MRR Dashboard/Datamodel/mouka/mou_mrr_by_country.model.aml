@@ -1,0 +1,76 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_mrr_by_country.model.aml — MRR breakdown by Country
+// Aggregates active subscription MRR at the country level for FilledMap viz.
+// Used in Tab 4: Customers & Segments — choropleth map
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_mrr_by_country {
+  type: 'query'
+  label: 'MRR by Country'
+  description: 'Active MRR aggregated by country. One row per country with total MRR and customer count from current active subscriptions. Powers the FilledMap choropleth in Tab 4.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    SELECT
+      CASE c.country
+        WHEN 'South Korea' THEN 'Korea'
+        ELSE c.country
+      END AS country,
+      c.region,
+      SUM(CAST(sub.mrr AS NUMERIC)) AS mrr,
+      COUNT(DISTINCT sub.company_id) AS customers
+    FROM "public"."holistics_mou_subscript_46062_202603100504" sub
+    JOIN "public"."holistics_mou_companies_f75dd_202603100503" c
+      ON sub.company_id = c.id
+    WHERE NULLIF(sub.churned_at, '') IS NULL
+       OR CAST(sub.churned_at AS TIMESTAMP) >= DATE_TRUNC('month', NOW())
+    GROUP BY 1, 2
+    ORDER BY mrr DESC
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension country {
+    label: 'Country'
+    description: 'Country name from company profile. Used as FilledMap location field.'
+    type: 'text'
+    definition: @sql {{ #SOURCE.country }};;
+  }
+
+  dimension region {
+    label: 'Region'
+    description: 'Geographic region. Values: "North America", "Europe", "Asia", "Others"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.region }};;
+  }
+
+  dimension mrr {
+    label: 'MRR (raw)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+
+  dimension customers {
+    label: 'Customers (raw)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.customers }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    definition: @aql sum(mou_mrr_by_country.mrr);;
+  }
+
+  measure sum_customers {
+    label: 'Customers'
+    type: 'number'
+    definition: @aql sum(mou_mrr_by_country.customers);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

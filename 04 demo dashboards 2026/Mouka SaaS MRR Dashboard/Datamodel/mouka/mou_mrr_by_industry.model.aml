@@ -1,0 +1,60 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_mrr_by_industry.model.aml — MRR by Industry (Top 4 + Others)
+// Groups active MRR into top 4 industries by revenue + "Others" bucket.
+// Used in Tab 4: Customers & Segments — Donut chart
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_mrr_by_industry {
+  type: 'query'
+  label: 'MRR by Industry'
+  description: 'Active MRR grouped into top 4 industries + Others. Powers the donut chart in Tab 4.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH active_subs AS (
+      SELECT
+        c.industry,
+        CAST(sub.mrr AS NUMERIC) AS mrr
+      FROM "public"."holistics_mou_subscript_46062_202603100504" sub
+      JOIN "public"."holistics_mou_companies_f75dd_202603100503" c
+        ON sub.company_id = c.id
+      WHERE NULLIF(sub.churned_at, '') IS NULL
+         OR CAST(sub.churned_at AS TIMESTAMP) >= DATE_TRUNC('month', NOW())
+    ),
+    ranked AS (
+      SELECT
+        industry,
+        SUM(mrr) AS mrr,
+        ROW_NUMBER() OVER (ORDER BY SUM(mrr) DESC) AS rn
+      FROM active_subs
+      GROUP BY industry
+    )
+    SELECT
+      CASE WHEN rn <= 4 THEN INITCAP(industry) ELSE 'Others' END AS industry,
+      SUM(mrr) AS mrr
+    FROM ranked
+    GROUP BY 1
+    ORDER BY SUM(mrr) DESC
+  ;;
+
+  dimension industry {
+    label: 'Industry'
+    type: 'text'
+    definition: @sql {{ #SOURCE.industry }};;
+  }
+
+  dimension mrr_raw {
+    label: 'MRR (raw)'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+
+  measure sum_mrr {
+    label: 'MRR'
+    type: 'number'
+    definition: @aql sum(mou_mrr_by_industry.mrr_raw);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

@@ -1,0 +1,212 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_subscription_events.model.aml — MRR movement events (the SaaS event log)
+// Each row = one revenue event: new_logo, expansion, contraction, churn (reactivation exists in data but is excluded from dashboard)
+// This is the primary source for MRR waterfall, movement charts, and churn analysis
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_subscription_events {
+  type: 'table'
+  label: 'Subscription Events'
+  description: 'Event log of all MRR movements. 4 active event types: new_logo (+), expansion (+), contraction (-), churn (-). Reactivation events exist in data but are excluded from dashboard formulas. Net New MRR = sum of all mrr_delta.'
+  data_source_name: 'saas_mrr'
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension id {
+    label: 'Event ID'
+    description: 'Unique event identifier. Example: "evt_00001"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension subscription_id {
+    label: 'Subscription'
+    description: 'FK → mou_subscriptions.id. Which subscription this event affects. Example: "sub_00042"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.subscription_id }};;
+  }
+  dimension company_id {
+    label: 'Company'
+    description: 'FK → mou_companies.id. The customer involved. Example: "Company_042"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.company_id }};;
+  }
+  dimension event_type {
+    label: 'Event Type'
+    description: 'Type of MRR movement. Values: "new_logo" (first sub), "expansion" (upgrade), "reactivation" (return), "contraction" (downgrade), "churn" (cancel)'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.event_type }};;
+  }
+  dimension event_type_formatted {
+    label: 'Event Type Display'
+    description: 'Formatted event type with proper capitalization. Maps: new_logo→New Logo, expansion→Expansion, contraction→Contraction, churn→Churned'
+    type: 'text'
+    hidden: false
+    definition: @sql
+      CASE {{ #SOURCE.event_type }}
+        WHEN 'new_logo'     THEN 'New Logo'
+        WHEN 'expansion'    THEN 'Expansion'
+        WHEN 'contraction'  THEN 'Contraction'
+        WHEN 'churn'        THEN 'Churned'
+        ELSE INITCAP(REPLACE({{ #SOURCE.event_type }}, '_', ' '))
+      END
+    ;;
+  }
+  dimension mrr_delta {
+    label: 'MRR Delta ($)'
+    description: 'Dollar change in MRR. Positive for new_logo/expansion. Negative for contraction/churn. Example: +$799 (new Business), -$299 (churn Standard)'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mrr_delta }};;
+  }
+  dimension previous_plan_id {
+    label: 'Previous Plan'
+    description: 'FK → mou_plan_tiers.id. Plan before the event. NULL for new_logo. Example: "plan_002" (Standard → Business upgrade)'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.previous_plan_id }};;
+  }
+  dimension new_plan_id {
+    label: 'New Plan'
+    description: 'FK → mou_plan_tiers.id. Plan after the event. NULL for churn. Example: "plan_003" (upgraded to Business)'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.new_plan_id }};;
+  }
+  dimension previous_billing_cycle {
+    label: 'Previous Billing Cycle'
+    description: 'Billing cycle before event. Values: "monthly", "annual", or NULL. Used to split churn by billing type.'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.previous_billing_cycle }};;
+  }
+  dimension new_billing_cycle {
+    label: 'New Billing Cycle'
+    description: 'Billing cycle after event. Values: "monthly", "annual", or NULL (for churn).'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.new_billing_cycle }};;
+  }
+  dimension occurred_at {
+    label: 'Occurred At'
+    description: 'When the event happened. Example: "2025-03-15 14:00:00". Used as the time axis for all movement charts.'
+    type: 'datetime'
+    hidden: false
+    definition: @sql CAST({{ #SOURCE.occurred_at }} AS TIMESTAMP);;
+  }
+  dimension churn_reason {
+    label: 'Churn Reason'
+    description: 'Why the customer churned. Only populated for churn events. Values: "too_expensive", "switched_competitor", "no_longer_needed", "poor_support", "missing_features"'
+    type: 'text'
+    hidden: false
+    definition: @sql INITCAP(REPLACE({{ #SOURCE.churn_reason }}, '_', ' '));;
+  }
+
+  dimension mrr_delta_bar {
+    label: 'Net MRR Delta Bar'
+    type: 'text'
+    definition: @sql
+      '<div style="display:flex;align-items:center;gap:8px;width:100%">'
+      || '<div style="flex:1;display:flex;justify-content:flex-start">'
+      || '<div style="background:'
+      || CASE {{ #SOURCE.event_type }}
+           WHEN 'churn' THEN '#E1643F'
+           WHEN 'contraction' THEN '#FAC666'
+           WHEN 'new_logo' THEN '#9999FF'
+           WHEN 'expansion' THEN '#7FE1D8'
+           ELSE '#CCC'
+         END
+      || ';height:8px;border-radius:4px;width:'
+      || CAST(LEAST(ROUND(ABS({{ #SOURCE.mrr_delta }})::numeric / 500.0 * 100), 100) AS TEXT)
+      || '%"></div></div>'
+      || '<span style="white-space:nowrap;font-weight:500;font-size:16px;color:#423935">'
+      || CASE WHEN {{ #SOURCE.mrr_delta }} < 0 THEN '-' ELSE '' END
+      || '&#36;'
+      || TO_CHAR(ABS({{ #SOURCE.mrr_delta }}), 'FM999,999.00')
+      || '</span></div>'
+    ;;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(mrr_delta)
+  // Net MRR change across all event types. Positive = growth, negative = shrinkage.
+  measure sum_mrr_delta {
+    label: 'Net MRR Delta'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta);;
+  }
+
+  // Formula: COUNT(id)
+  // Total number of subscription events.
+  measure count_events {
+    label: 'Count Events'
+    type: 'number'
+    definition: @aql count(mou_subscription_events.id);;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'new_logo'
+  // MRR from first-ever subscriptions of new customers. Always positive.
+  measure new_logo_mrr {
+    label: 'New Logo MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'new_logo');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'expansion'
+  // MRR gained from plan upgrades or add-ons. Always positive.
+  measure expansion_mrr {
+    label: 'Expansion MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'expansion');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'contraction'
+  // MRR lost from plan downgrades. Always negative.
+  measure contraction_mrr {
+    label: 'Contraction MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'contraction');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'churn'
+  // MRR lost from subscription cancellations. Always negative.
+  measure churn_mrr {
+    label: 'Churn MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'churn');;
+  }
+
+  // Formula: COUNT(*) WHERE event_type = 'churn'
+  // Number of churn events. Used for customer churn rate calculation.
+  measure churn_count {
+    label: 'Churn Count'
+    type: 'number'
+    definition: @aql count_if(mou_subscription_events.event_type == 'churn');;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'mou_subscription_events.csv'
+    uploaded_at: '2026-03-10 05:03:12'
+    hash: 'bbb415562524745a230d16ab9da557e755c42afb8eac046c9489278f9a4968d6'
+    column_configs: [
+      H.imports.column_config("id", "id", "text"),
+      H.imports.column_config("subscription_id", "subscription_id", "text"),
+      H.imports.column_config("company_id", "company_id", "text"),
+      H.imports.column_config("event_type", "event_type", "text"),
+      H.imports.column_config("mrr_delta", "mrr_delta", "number"),
+      H.imports.column_config("previous_plan_id", "previous_plan_id", "text"),
+      H.imports.column_config("new_plan_id", "new_plan_id", "text"),
+      H.imports.column_config("previous_billing_cycle", "previous_billing_cycle", "text"),
+      H.imports.column_config("new_billing_cycle", "new_billing_cycle", "text"),
+      H.imports.column_config("occurred_at", "occurred_at", "text"),
+      H.imports.column_config("churn_reason", "churn_reason", "text")
+    ]
+  }
+  owner: 'nhi.ty+staging@holistics.io'
+  table_name: '"public"."holistics_mou_subscript_3936c_202603100503"'
+}

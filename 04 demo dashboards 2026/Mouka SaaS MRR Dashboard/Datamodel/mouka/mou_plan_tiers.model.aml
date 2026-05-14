@@ -1,0 +1,73 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_plan_tiers.model.aml — Product pricing tiers
+// Contains the 4 plan tiers offered by Mouka: Trial, Standard, Business, Enterprise
+// Each tier has a monthly and annual price (annual = 2 months free)
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_plan_tiers {
+  type: 'table'
+  label: 'Plan Tiers'
+  description: 'Lookup table of Mouka subscription plans. 4 tiers from Trial (free) to Enterprise ($2,499/mo). Annual billing applies a 10/12 discount (2 months free).'
+  data_source_name: 'saas_mrr'
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension id {
+    label: 'Plan Tier ID'
+    description: 'Unique identifier for each plan tier. Example: "plan_001", "plan_002"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension name {
+    label: 'Plan Name'
+    description: 'Human-readable plan name. Values: "Trial", "Standard", "Business", "Enterprise"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.name }};;
+  }
+  dimension name_formatted {
+    label: 'Plan Name Display'
+    description: 'Plan name as colored pill badge. Business=pink, Enterprise=lavender, Standard=gray, Trial=light green'
+    type: 'text'
+    hidden: false
+    definition: @sql
+      CASE {{ #SOURCE.name }}
+        WHEN 'business'   THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#EDF5FF;color:#2993E1;">Business</span>'
+        WHEN 'enterprise' THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#FBEEEB;color:#E65E87;">Enterprise</span>'
+        WHEN 'standard'   THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#E6F5F4;color:#35948C;">Standard</span>'
+        WHEN 'trial'      THEN '<span style="display:inline-block;padding:1px 10px;border-radius:20px;font-size:13px;font-weight:500;line-height:20px;background:#F2EFE7;color:#705845;">Trial</span>'
+        ELSE INITCAP({{ #SOURCE.name }})
+      END
+    ;;
+  }
+  dimension monthly_price {
+    label: 'Monthly Price ($)'
+    description: 'List price per month when billed monthly. Example: Trial=$0, Standard=$299, Business=$799, Enterprise=$2,499'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_price }};;
+  }
+  dimension annual_price {
+    label: 'Annual Price ($/mo)'
+    description: 'Effective monthly price when billed annually (= monthly_price × 10/12). Example: Standard=$249, Business=$666, Enterprise=$2,083'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.annual_price }};;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'mou_plan_tiers.csv'
+    uploaded_at: '2026-03-10 05:03:59'
+    hash: '21c245427f1bc59b21fe166c87231c23d0fd3e7964db10aa8ea9978e80f328b8'
+    column_configs: [
+      H.imports.column_config("id", "id", "text"),
+      H.imports.column_config("name", "name", "text"),
+      H.imports.column_config("monthly_price", "monthly_price", "number"),
+      H.imports.column_config("annual_price", "annual_price", "number")
+    ]
+  }
+  owner: 'nhi.ty+staging@holistics.io'
+  table_name: '"public"."holistics_mou_plan_tier_13939_202603100503"'
+}

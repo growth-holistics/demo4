@@ -1,0 +1,139 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_subscriptions.model.aml — Active & churned subscriptions
+// One row per subscription. Links a company to a plan tier with MRR.
+// Core fact table for calculating active MRR, customer counts, ARPA.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_subscriptions {
+  type: 'table'
+  label: 'Subscriptions'
+  description: 'Each row is one subscription linking a company to a plan tier. Contains current MRR, billing cycle, and lifecycle dates. A company may have multiple subscriptions.'
+  data_source_name: 'saas_mrr'
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension id {
+    label: 'Subscription ID'
+    description: 'Unique subscription identifier. Example: "sub_00001"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension company_id {
+    label: 'Company'
+    description: 'FK → mou_companies.id. The customer who owns this subscription. Example: "Company_042"'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.company_id }};;
+  }
+  dimension plan_tier_id {
+    label: 'Plan Tier'
+    description: 'FK → mou_plan_tiers.id. The pricing plan for this subscription. Example: "plan_003" (Business)'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.plan_tier_id }};;
+  }
+  dimension billing_cycle {
+    label: 'Billing Cycle'
+    description: 'Payment frequency. Values: "monthly" or "annual". Annual gets a 10/12 discount.'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.billing_cycle }};;
+  }
+  dimension annual_plan_check {
+    label: 'Annual Plan'
+    description: 'Checkmark for annual billing. Shows ✓ for annual, empty for monthly.'
+    type: 'text'
+    hidden: false
+    definition: @sql CASE WHEN {{ #SOURCE.billing_cycle }} = 'annual' THEN '<div style="text-align:center;color:#BDB5A0;font-size:18px;">✓</div>' ELSE '' END;;
+  }
+  dimension mrr {
+    label: 'MRR ($)'
+    description: 'Monthly Recurring Revenue for this subscription. Example: $299 (Standard monthly), $666 (Business annual). Range: $0–$2,499.'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mrr }};;
+  }
+  dimension status {
+    label: 'Status'
+    description: 'Current subscription state. Values: "active" (paying) or "churned" (cancelled).'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.status }};;
+  }
+  dimension started_at {
+    label: 'Started At'
+    description: 'Date subscription began. Example: "2024-09-01 00:00:00". Used to determine active subs at any given month.'
+    type: 'datetime'
+    hidden: false
+    definition: @sql CAST({{ #SOURCE.started_at }} AS TIMESTAMP);;
+  }
+  dimension churned_at {
+    label: 'Churned At'
+    description: 'Date subscription was cancelled. NULL if still active. Example: "2025-08-15 00:00:00"'
+    type: 'datetime'
+    hidden: false
+    definition: @sql CAST({{ #SOURCE.churned_at }} AS TIMESTAMP);;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(mrr)
+  // Total MRR across all subscriptions (active + churned). Use active_mrr for current revenue.
+  measure total_mrr {
+    label: 'Total MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscriptions.mrr);;
+  }
+
+  // Formula: COUNT(id)
+  // Total number of subscriptions regardless of status.
+  measure count_subscriptions {
+    label: 'Count Subscriptions'
+    type: 'number'
+    definition: @aql count(mou_subscriptions.id);;
+  }
+
+  // Formula: COUNT(id) WHERE status = 'active'
+  // Number of currently paying subscriptions.
+  measure count_active {
+    label: 'Active Subscriptions'
+    type: 'number'
+    definition: @aql count_if(mou_subscriptions.status == 'active');;
+  }
+
+  // Formula: SUM(mrr) WHERE status = 'active'
+  // Current monthly recurring revenue from paying subscriptions only.
+  measure active_mrr {
+    label: 'Active MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active');;
+  }
+
+  // Formula: COUNT(DISTINCT company_id) WHERE status = 'active'
+  // Number of unique companies with at least one active subscription.
+  measure count_active_companies {
+    label: 'Paid Customers'
+    type: 'number'
+    definition: @aql count_distinct(mou_subscriptions.company_id) | where(mou_subscriptions.status == 'active');;
+  }
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'mou_subscriptions.csv'
+    uploaded_at: '2026-03-10 05:04:16'
+    hash: '2470df2f6e254a29c3e829d60bea3b83f81a3d1159692cfe96ea28b071c0405b'
+    column_configs: [
+      H.imports.column_config("id", "id", "text"),
+      H.imports.column_config("company_id", "company_id", "text"),
+      H.imports.column_config("plan_tier_id", "plan_tier_id", "text"),
+      H.imports.column_config("billing_cycle", "billing_cycle", "text"),
+      H.imports.column_config("mrr", "mrr", "number"),
+      H.imports.column_config("status", "status", "text"),
+      H.imports.column_config("started_at", "started_at", "text"),
+      H.imports.column_config("churned_at", "churned_at", "text")
+    ]
+  }
+  owner: 'nhi.ty+staging@holistics.io'
+  table_name: '"public"."holistics_mou_subscript_46062_202603100504"'
+}

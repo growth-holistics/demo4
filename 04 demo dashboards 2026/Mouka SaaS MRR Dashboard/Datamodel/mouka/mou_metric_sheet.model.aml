@@ -1,0 +1,255 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_metric_sheet.model.aml — Metric Reference Sheet (unpivoted, 6 months)
+// 17 metrics × 6 months = 102 rows, for PivotTable with dynamic month headers
+// Used in Tab 5: Metrics Sheet — PivotTable
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_metric_sheet {
+  type: 'query'
+  label: 'Metric Reference Sheet'
+  description: '17 metrics across 4 sections, unpivoted to 1 row per metric per month for PivotTable.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH
+    latest AS (
+      SELECT MAX(DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)))::DATE AS max_month
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+    ),
+    months AS (
+      SELECT generate_series(
+        (SELECT max_month - INTERVAL '5 months' FROM latest),
+        (SELECT max_month FROM latest),
+        INTERVAL '1 month'
+      )::DATE AS report_month
+    ),
+    month_num AS (
+      SELECT report_month,
+        ROW_NUMBER() OVER (ORDER BY report_month) AS mnum
+      FROM months
+    ),
+    ev AS (
+      SELECT
+        DATE_TRUNC('month', CAST(e.occurred_at AS TIMESTAMP))::DATE AS rm,
+        SUM(CASE WHEN e.event_type='new_logo' THEN CAST(e.mrr_delta AS NUMERIC) ELSE 0 END) AS new_logo,
+        SUM(CASE WHEN e.event_type='expansion' THEN CAST(e.mrr_delta AS NUMERIC) ELSE 0 END) AS expansion,
+        SUM(CASE WHEN e.event_type='contraction' THEN CAST(e.mrr_delta AS NUMERIC) ELSE 0 END) AS contraction,
+        SUM(CASE WHEN e.event_type='churn' THEN CAST(e.mrr_delta AS NUMERIC) ELSE 0 END) AS churn,
+        SUM(CAST(e.mrr_delta AS NUMERIC)) AS net_new,
+        COUNT(CASE WHEN e.event_type='churn' THEN 1 END) AS churn_cnt
+      FROM "public"."holistics_mou_subscript_3936c_202603100503" e
+      WHERE DATE_TRUNC('month', CAST(e.occurred_at AS TIMESTAMP))::DATE IN (SELECT report_month FROM months)
+      GROUP BY 1
+    ),
+    act AS (
+      SELECT m.report_month AS rm,
+        SUM(CAST(sub.mrr AS NUMERIC)) AS total_mrr,
+        COUNT(DISTINCT sub.company_id) AS paid_cust
+      FROM month_num m
+      JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+        ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at,'') IS NULL OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+      GROUP BY 1
+    ),
+    act_prev AS (
+      SELECT m.report_month AS rm,
+        SUM(CAST(sub.mrr AS NUMERIC)) AS total_mrr,
+        COUNT(DISTINCT sub.company_id) AS paid_cust
+      FROM month_num m
+      JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+        ON CAST(sub.started_at AS TIMESTAMP) < m.report_month
+        AND (NULLIF(sub.churned_at,'') IS NULL OR CAST(sub.churned_at AS TIMESTAMP) >= m.report_month)
+      GROUP BY 1
+    ),
+    hv AS (
+      SELECT rm, COUNT(*) AS cnt
+      FROM (
+        SELECT m.report_month AS rm, sub.company_id
+        FROM month_num m
+        JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+          ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+          AND (NULLIF(sub.churned_at,'') IS NULL OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+        GROUP BY m.report_month, sub.company_id
+        HAVING SUM(CAST(sub.mrr AS NUMERIC)) >= 1000
+      ) x
+      GROUP BY rm
+    ),
+    tc AS (
+      SELECT rm, ROUND((MAX(co_mrr)/NULLIF(SUM(co_mrr),0)*100)::NUMERIC,1) AS top1_pct
+      FROM (
+        SELECT m.report_month AS rm, sub.company_id, SUM(CAST(sub.mrr AS NUMERIC)) AS co_mrr
+        FROM month_num m
+        JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+          ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+          AND (NULLIF(sub.churned_at,'') IS NULL OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+        GROUP BY m.report_month, sub.company_id
+      ) x
+      GROUP BY rm
+    ),
+    monthly AS (
+      SELECT
+        mn.report_month,
+        COALESCE(a.total_mrr,0) AS total_mrr,
+        COALESCE(a.total_mrr,0)*12 AS arr,
+        COALESCE(e.net_new,0) AS net_new,
+        CASE WHEN COALESCE(ap.total_mrr,0)>0 THEN ROUND(((a.total_mrr-ap.total_mrr)/ap.total_mrr*100)::NUMERIC,1) ELSE 0 END AS growth_rate,
+        CASE WHEN COALESCE(a.paid_cust,0)>0 THEN ROUND((a.total_mrr/a.paid_cust)::NUMERIC,0) ELSE 0 END AS arpa,
+        CASE WHEN (ABS(COALESCE(e.contraction,0))+ABS(COALESCE(e.churn,0)))>0
+          THEN ROUND(((COALESCE(e.new_logo,0)+COALESCE(e.expansion,0))
+               /(ABS(COALESCE(e.contraction,0))+ABS(COALESCE(e.churn,0))))::NUMERIC,2) ELSE 0 END AS quick_ratio,
+        COALESCE(a.paid_cust,0) AS paid_cust,
+        COALESCE(e.new_logo,0) AS new_logo,
+        COALESCE(e.expansion,0) AS expansion,
+        COALESCE(e.contraction,0) AS contraction,
+        COALESCE(e.churn,0) AS churn_mrr,
+        CASE WHEN COALESCE(ap.total_mrr,0)>0 THEN ROUND((ABS(COALESCE(e.churn,0))/ap.total_mrr*100)::NUMERIC,1) ELSE 0 END AS gross_churn,
+        CASE WHEN COALESCE(ap.total_mrr,0)>0 THEN ROUND(((ABS(COALESCE(e.churn,0))+ABS(COALESCE(e.contraction,0))-COALESCE(e.expansion,0))/ap.total_mrr*100)::NUMERIC,1) ELSE 0 END AS net_churn,
+        CASE WHEN COALESCE(ap.total_mrr,0)>0 THEN ROUND(((ap.total_mrr+COALESCE(e.expansion,0)+COALESCE(e.contraction,0)+COALESCE(e.churn,0))/ap.total_mrr*100)::NUMERIC,1) ELSE 0 END AS nrr,
+        CASE WHEN COALESCE(ap.paid_cust,0)>0 THEN ROUND((COALESCE(e.churn_cnt,0)::NUMERIC/ap.paid_cust*100)::NUMERIC,1) ELSE 0 END AS cust_churn,
+        COALESCE(h.cnt,0) AS hv_cnt,
+        COALESCE(t.top1_pct,0) AS top1_pct
+      FROM month_num mn
+      LEFT JOIN ev e ON e.rm = mn.report_month
+      LEFT JOIN act a ON a.rm = mn.report_month
+      LEFT JOIN act_prev ap ON ap.rm = mn.report_month
+      LEFT JOIN hv h ON h.rm = mn.report_month
+      LEFT JOIN tc t ON t.rm = mn.report_month
+    )
+    ,
+    flat AS (
+      SELECT mm.report_month, v.*
+      FROM monthly mm
+      CROSS JOIN LATERAL (VALUES
+        (1,'Revenue health','Total MRR', mm.total_mrr, '$'||TO_CHAR(mm.total_mrr,'FM999,999,999')),
+        (2,'Revenue health','ARR', mm.arr, '$'||TO_CHAR(mm.arr,'FM999,999,999')),
+        (3,'Revenue health','Net New MRR', mm.net_new,
+          CASE WHEN mm.net_new>=0 THEN '$'||TO_CHAR(mm.net_new,'FM999,999,999')
+          ELSE '-$'||TO_CHAR(ABS(mm.net_new),'FM999,999,999') END),
+        (4,'Revenue health','MRR Growth %', mm.growth_rate, TO_CHAR(mm.growth_rate,'FM990.0')||'%'),
+        (5,'Revenue health','ARPA', mm.arpa, '$'||TO_CHAR(mm.arpa,'FM999,999')),
+        (6,'Revenue health','Quick Ratio', mm.quick_ratio, TO_CHAR(mm.quick_ratio,'FM990.00')||'x'),
+        (7,'Revenue health','Paid Customers', mm.paid_cust::NUMERIC, TO_CHAR(mm.paid_cust,'FM999,999')),
+        (8,'Revenue movement','New Logo MRR', mm.new_logo, '$'||TO_CHAR(mm.new_logo,'FM999,999,999')),
+        (9,'Revenue movement','Expansion MRR', mm.expansion, '$'||TO_CHAR(mm.expansion,'FM999,999,999')),
+        (10,'Revenue movement','Contraction MRR', ABS(mm.contraction), '$'||TO_CHAR(ABS(mm.contraction),'FM999,999,999')),
+        (11,'Revenue movement','Churned MRR', ABS(mm.churn_mrr), '$'||TO_CHAR(ABS(mm.churn_mrr),'FM999,999,999')),
+        (12,'Churn & retention','Gross Churn Rate', mm.gross_churn, TO_CHAR(mm.gross_churn,'FM990.00')||'%'),
+        (13,'Churn & retention','Net Churn Rate', mm.net_churn, TO_CHAR(mm.net_churn,'FM990.00')||'%'),
+        (14,'Churn & retention','NRR', mm.nrr, TO_CHAR(mm.nrr,'FM990.0')||'%'),
+        (15,'Churn & retention','Customer Churn Rate', mm.cust_churn, TO_CHAR(mm.cust_churn,'FM990.00')||'%'),
+        (16,'Customer segments','Customers >= $1K', mm.hv_cnt::NUMERIC, TO_CHAR(mm.hv_cnt,'FM999,999')),
+        (17,'Customer segments','Top Customer %', mm.top1_pct, TO_CHAR(mm.top1_pct,'FM990.0')||'%')
+      ) AS v(sort_order, section, metric_name, raw_val, fmt_val)
+    ),
+    spark AS (
+      SELECT
+        sort_order,
+        -- SVG open tag + white background rect
+        CHR(60)||'svg width='||CHR(34)||'100%'||CHR(34)||' height='||CHR(34)||'40'||CHR(34)||' viewBox='||CHR(34)||'-10 -8 100 40'||CHR(34)||CHR(62)
+        ||CHR(60)||'rect x='||CHR(34)||'-10'||CHR(34)||' y='||CHR(34)||'-8'||CHR(34)||' width='||CHR(34)||'100'||CHR(34)||' height='||CHR(34)||'40'||CHR(34)||' fill='||CHR(34)||'#FFFFFF'||CHR(34)||CHR(47)||CHR(62)
+        || CASE
+          WHEN sort_order IN (4,6,12,13,14,15,17) THEN
+            -- Area line chart for % and ratio metrics
+            CHR(60)||'polygon fill='||CHR(34)||'rgba('||clr||',0.15)'||CHR(34)||' points='||CHR(34)||'0,24 '||pts||' 80,24'||CHR(34)||CHR(47)||CHR(62)
+            ||CHR(60)||'polyline fill='||CHR(34)||'none'||CHR(34)||' stroke='||CHR(34)||'rgb('||clr||')'||CHR(34)||' stroke-width='||CHR(34)||'1.5'||CHR(34)||' stroke-linecap='||CHR(34)||'round'||CHR(34)||' stroke-linejoin='||CHR(34)||'round'||CHR(34)||' points='||CHR(34)||pts||CHR(34)||CHR(47)||CHR(62)
+            ||dots
+          ELSE
+            -- Bar chart for $ and count metrics
+            bars
+        END
+        -- SVG close
+        ||CHR(60)||CHR(47)||'svg'||CHR(62) AS trend_html
+      FROM (
+        SELECT
+          sort_order, clr,
+          -- Line/area points
+          STRING_AGG(
+            CAST(ROUND(((rn - 1) * 16)::NUMERIC, 0) AS TEXT)
+            ||','
+            ||CAST(ROUND(y_val::NUMERIC, 0) AS TEXT),
+            ' ' ORDER BY rn
+          ) AS pts,
+          -- Bar rects with <title> tooltip (color injected per metric)
+          STRING_AGG(
+            CHR(60)||'rect x='||CHR(34)||CAST(ROUND(((rn-1)*13)::NUMERIC,0) AS TEXT)||CHR(34)
+            ||' y='||CHR(34)||CAST(ROUND(y_val::NUMERIC,0) AS TEXT)||CHR(34)
+            ||' width='||CHR(34)||'10'||CHR(34)
+            ||' height='||CHR(34)||CAST(ROUND((24-y_val)::NUMERIC,0) AS TEXT)||CHR(34)
+            ||' fill='||CHR(34)||CASE WHEN rn=6 THEN 'rgb('||clr||')' ELSE 'rgba('||clr||',0.35)' END||CHR(34)
+            ||' rx='||CHR(34)||'1'||CHR(34)
+            ||CHR(62)
+            ||CHR(60)||'title'||CHR(62)||month_lbl||': '||fmt_val||CHR(60)||CHR(47)||'title'||CHR(62)
+            ||CHR(60)||CHR(47)||'rect'||CHR(62),
+            '' ORDER BY rn
+          ) AS bars,
+          -- Invisible hover circles with tooltip for area line chart
+          STRING_AGG(
+            CHR(60)||'circle cx='||CHR(34)||CAST(ROUND(((rn-1)*16)::NUMERIC,0) AS TEXT)||CHR(34)
+            ||' cy='||CHR(34)||CAST(ROUND(y_val::NUMERIC,0) AS TEXT)||CHR(34)
+            ||' r='||CHR(34)||'6'||CHR(34)
+            ||' fill='||CHR(34)||'transparent'||CHR(34)
+            ||CHR(62)
+            ||CHR(60)||'title'||CHR(62)||month_lbl||': '||fmt_val||CHR(60)||CHR(47)||'title'||CHR(62)
+            ||CHR(60)||CHR(47)||'circle'||CHR(62),
+            '' ORDER BY rn
+          ) AS dots
+        FROM (
+          SELECT
+            sort_order, raw_val, fmt_val,
+            TO_CHAR(report_month, 'Mon YYYY') AS month_lbl,
+            ROW_NUMBER() OVER (PARTITION BY sort_order ORDER BY report_month) AS rn,
+            CASE WHEN MAX(raw_val) OVER (PARTITION BY sort_order) = MIN(raw_val) OVER (PARTITION BY sort_order) THEN 12
+            ELSE 22 - (raw_val - MIN(raw_val) OVER (PARTITION BY sort_order)) / NULLIF(MAX(raw_val) OVER (PARTITION BY sort_order) - MIN(raw_val) OVER (PARTITION BY sort_order), 0) * 20
+            END AS y_val,
+            -- Per-metric color (R,G,B) — give hex to Claude to convert
+            '225,100,63' AS clr  -- All metrics: #E1643F
+          FROM flat
+        ) normalized
+        GROUP BY sort_order, clr
+      ) agg
+    )
+    ,
+    combined AS (
+      -- Regular month rows — prefix "YYYYMM " for sort, hidden via sub_header row
+      SELECT
+        EXTRACT(YEAR FROM report_month)::INT || '/' || EXTRACT(MONTH FROM report_month)::INT AS month_label,
+        sort_order, section, metric_name,
+        CHR(60)||'div style='||CHR(34)||'text-align:right'||CHR(34)||CHR(62)||fmt_val||CHR(60)||CHR(47)||'div'||CHR(62) AS fmt_val
+      FROM flat
+
+      UNION ALL
+
+      -- Trend column — "000000" prefix sorts before any YYYYMM
+      SELECT
+        'Trend' AS month_label,
+        s.sort_order,
+        f0.section,
+        f0.metric_name,
+        s.trend_html
+      FROM spark s
+      JOIN LATERAL (
+        SELECT section, metric_name FROM flat f2 WHERE f2.sort_order = s.sort_order LIMIT 1
+      ) f0 ON true
+    )
+    SELECT month_label, sort_order, section, metric_name, fmt_val
+    FROM combined
+    ORDER BY sort_order, month_label
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+  dimension sort_order { label: '#' type: 'number' definition: @sql {{ #SOURCE.sort_order }};; }
+  dimension section { label: 'Section' type: 'text' definition: @sql {{ #SOURCE.section }};; }
+  dimension metric_name { label: 'Metric' type: 'text' definition: @sql {{ #SOURCE.metric_name }};; }
+  dimension month_label { label: 'Month' type: 'text' definition: @sql {{ #SOURCE.month_label }};; }
+  dimension fmt_val { label: 'Value' type: 'text' definition: @sql {{ #SOURCE.fmt_val }};; }
+  // trend_html is now embedded as a fake month in fmt_val — no separate dimension needed
+
+  // ── Measures ──────────────────────────────────────────────────────────────────
+  measure val_display {
+    label: 'Value'
+    type: 'text'
+    definition: @aql max(mou_metric_sheet.fmt_val);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

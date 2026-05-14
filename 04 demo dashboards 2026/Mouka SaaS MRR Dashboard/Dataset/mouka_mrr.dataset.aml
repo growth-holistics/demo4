@@ -1,0 +1,222 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mouka_mrr.dataset.aml — Mouka SaaS MRR Dataset
+//
+// Central dataset connecting all models for the MRR dashboard.
+// Contains 17 composable AQL metrics that reference each other
+// for complex calculations (ratios, period comparisons, % of total).
+//
+// Models included:
+//   Base tables: companies, plan_tiers, subscriptions, subscription_events
+//   Query models: monthly_mrr, churn_by_billing, cohort_retention,
+//                 mrr_by_segment, customer_concentration, segment_snapshot,
+//                 churn_reason
+// ─────────────────────────────────────────────────────────────────────────────
+
+Dataset mouka_mrr {
+  __engine__: 'aql'
+  label: 'Mouka SaaS MRR'
+  description: 'Complete SaaS MRR analytics dataset. Connects subscription data with customer segments, revenue movements, and churn analysis. Powers all 4 dashboard tabs.'
+  data_source_name: 'saas_mrr'
+  models: [
+    mou_subscription_events,
+    mou_companies,
+    mou_plan_tiers,
+    mou_subscriptions,
+    mou_monthly_mrr,
+    mou_churn_by_billing,
+    mou_cohort_retention,
+    mou_mrr_by_segment,
+    mou_customer_concentration,
+    mou_segment_snapshot,
+    mou_churn_reason,
+    mou_metric_sheet,
+    mou_mrr_by_country,
+    mou_mrr_by_industry,
+    mou_mrr_by_plan,
+    mou_metric_tree
+  ]
+
+  // ── Relationships ─────────────────────────────────────────────────────────
+  // Defines how models join together.
+  // "true" = default active join; "false" = optional join (user must select)
+  relationships: [
+    relationship(mou_subscriptions.company_id > mou_companies.id, true),
+    relationship(mou_subscriptions.plan_tier_id > mou_plan_tiers.id, true),
+    relationship(mou_subscription_events.subscription_id > mou_subscriptions.id, true),
+    relationship(mou_subscription_events.company_id > mou_companies.id, false),
+    relationship(mou_subscription_events.previous_plan_id > mou_plan_tiers.id, false),
+    relationship(mou_subscription_events.new_plan_id > mou_plan_tiers.id, false)
+  ]
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AQL METRICS — Composable, reusable business metrics
+  // These metrics can reference each other (e.g., arpa uses total_active_mrr
+  // and paid_customers). They compile to SQL at query time.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── Revenue Health (Tab 1: Overview KPI Cards) ────────────────────────────
+
+  // Formula: SUM(mrr) WHERE status = 'active'
+  // Current monthly recurring revenue from paying subscriptions.
+  // Example: $650,000
+  metric total_active_mrr {
+    label: 'Total Active MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active');;
+  }
+
+  // Formula: total_active_mrr × 12
+  // Annualized revenue run rate. Example: $7,800,000
+  metric arr {
+    label: 'ARR'
+    type: 'number'
+    definition: @aql total_active_mrr * 12;;
+  }
+
+  // Formula: COUNT(DISTINCT company_id) WHERE status = 'active'
+  // Unique paying companies. Example: 820
+  metric paid_customers {
+    label: 'Paid Customers'
+    type: 'number'
+    definition: @aql count_distinct(mou_subscriptions.company_id) | where(mou_subscriptions.status == 'active');;
+  }
+
+  // Formula: total_active_mrr / paid_customers
+  // Average Revenue Per Account. Trend: rising from ~$665 to ~$851.
+  // Uses safe_divide to avoid division by zero.
+  metric arpa {
+    label: 'ARPA'
+    type: 'number'
+    definition: @aql safe_divide(total_active_mrr, paid_customers);;
+  }
+
+  // ── Event-based MRR Movements (Tab 2: Revenue Movements) ─────────────────
+
+  // Formula: SUM(mrr_delta) — all event types
+  // Net MRR change. Positive = growth, negative = shrinkage.
+  metric net_new_mrr {
+    label: 'Net New MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta);;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'new_logo'
+  // MRR from brand-new customers. The primary growth engine (~$330K cumulative).
+  metric new_logo_mrr {
+    label: 'New Logo MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'new_logo');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'expansion'
+  // MRR gained from plan upgrades. Roughly offsets churn (~$283K cumulative).
+  metric expansion_mrr {
+    label: 'Expansion MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'expansion');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'contraction'
+  // MRR lost from downgrades. Always negative. Smaller than churn.
+  metric contraction_mrr {
+    label: 'Contraction MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'contraction');;
+  }
+
+  // Formula: SUM(mrr_delta) WHERE event_type = 'churn'
+  // MRR lost from cancellations. Always negative. ~$252K cumulative.
+  metric churn_mrr {
+    label: 'Churn MRR'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events.mrr_delta) | where(mou_subscription_events.event_type == 'churn');;
+  }
+
+  // Formula: COUNT(*) WHERE event_type = 'churn'
+  // Number of churn events. Used for customer churn rate.
+  metric churn_event_count {
+    label: 'Churn Count'
+    type: 'number'
+    definition: @aql count_if(mou_subscription_events.event_type == 'churn');;
+  }
+
+  // ── Composed Ratios ───────────────────────────────────────────────────────
+
+  // Formula: (New Logo + Expansion) / ABS(Contraction + Churn)
+  // Revenue efficiency indicator. >4 = excellent, 1-4 = OK, <1 = shrinking.
+  // Uses safe_divide; multiplies denominator by -1 since contraction/churn are negative.
+  metric quick_ratio {
+    label: 'Quick Ratio'
+    type: 'number'
+    definition: @aql safe_divide(
+      new_logo_mrr + expansion_mrr,
+      -1 * (contraction_mrr + churn_mrr)
+    );;
+  }
+
+  // ── Period Comparisons ────────────────────────────────────────────────────
+
+  // Formula: total_active_mrr shifted back 1 month
+  // Uses relative_period() to get last month's MRR for growth rate calculation.
+  // NOTE: Uses started_at as the time dimension for relative_period. This works
+  // because Holistics filters active subs by started_at month. If results look
+  // off, verify that the date filter in the widget uses started_at as well.
+  metric prev_month_mrr {
+    label: 'Previous Month MRR'
+    type: 'number'
+    definition: @aql total_active_mrr | relative_period(mou_subscriptions.started_at, interval(-1 month));;
+  }
+
+  // Formula: (total_active_mrr - prev_month_mrr) / prev_month_mrr × 100
+  // Month-over-month MRR growth percentage. Example: 1.96%
+  metric mrr_growth_rate {
+    label: 'MRR Growth %'
+    type: 'number'
+    definition: @aql safe_divide((total_active_mrr - prev_month_mrr) * 100.0, prev_month_mrr);;
+  }
+
+  // ── Churn Analysis (Tab 3: Churn & Retention) ─────────────────────────────
+
+  // Formula: SUM(ABS(mrr_delta)) WHERE event_type = 'churn'
+  // Absolute churned MRR (positive number). Used as denominator for reason breakdown.
+  metric churned_mrr_abs {
+    label: 'Churned MRR (Absolute)'
+    type: 'number'
+    definition: @aql sum(mou_subscription_events, abs(mou_subscription_events.mrr_delta)) | where(mou_subscription_events.event_type == 'churn');;
+  }
+
+  // Formula: churned_mrr_abs / churned_mrr_abs_of_all_reasons × 100
+  // What % of total churn is attributed to each reason.
+  // Uses of_all() to get the grand total across all churn_reason values.
+  metric pct_churn_by_reason {
+    label: '% of Churn by Reason'
+    type: 'number'
+    definition: @aql safe_divide(churned_mrr_abs * 100.0, churned_mrr_abs | of_all(mou_subscription_events.churn_reason));;
+  }
+
+  // ── Segment Analysis (Tab 4: Customers & Segments) ────────────────────────
+
+  // Formula: active_mrr_in_this_region / active_mrr_across_all_regions × 100
+  // Uses of_all(region) to compute the grand total, then divides per-region MRR.
+  // Example: North America = 35.2%, Europe = 33.1%
+  metric mrr_pct_by_region {
+    label: 'MRR % by Region'
+    type: 'number'
+    definition: @aql safe_divide(
+      sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active'),
+      sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active') | of_all(mou_companies.region)
+    ) * 100.0;;
+  }
+
+  // Formula: active_mrr_on_this_plan / active_mrr_across_all_plans × 100
+  // Uses of_all(plan_name) to compute the grand total per plan tier.
+  // Example: Enterprise = 45%, Business = 35%
+  metric mrr_pct_by_plan {
+    label: 'MRR % by Plan'
+    type: 'number'
+    definition: @aql safe_divide(
+      sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active'),
+      sum(mou_subscriptions.mrr) | where(mou_subscriptions.status == 'active') | of_all(mou_plan_tiers.name)
+    ) * 100.0;;
+  }
+}

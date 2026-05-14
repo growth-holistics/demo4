@@ -1,0 +1,123 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_churn_by_billing.model.aml — Churn rate split by billing cycle
+// Compares Monthly vs Annual churn rates over time
+// Used in Tab 3: Churn & Retention — "Churn Rate by Billing Cycle" line chart
+//
+// Key insight: Annual billing shows volatile spikes at renewal events,
+// while monthly billing has consistent 1-6% but accumulates over time.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_churn_by_billing {
+  type: 'query'
+  label: 'Churn by Billing Cycle'
+  description: 'Monthly time series of gross MRR churn rate split by billing cycle (monthly vs annual). Formula: Churned MRR by billing type / Previous month total MRR × 100.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH monthly_billing AS (
+      SELECT
+        DATE_TRUNC('month', CAST(e.occurred_at AS TIMESTAMP)) AS report_month,
+        SUM(ABS(CAST(e.mrr_delta AS NUMERIC))) AS churned_mrr
+      FROM "public"."holistics_mou_subscript_3936c_202603100503" e
+      WHERE e.event_type = 'churn'
+        AND e.previous_billing_cycle = 'monthly'
+      GROUP BY 1
+    ),
+    annual_billing AS (
+      SELECT
+        DATE_TRUNC('month', CAST(e.occurred_at AS TIMESTAMP)) AS report_month,
+        SUM(ABS(CAST(e.mrr_delta AS NUMERIC))) AS churned_mrr
+      FROM "public"."holistics_mou_subscript_3936c_202603100503" e
+      WHERE e.event_type = 'churn'
+        AND e.previous_billing_cycle = 'annual'
+      GROUP BY 1
+    ),
+    active_mrr AS (
+      SELECT
+        m.report_month,
+        SUM(CAST(sub.mrr AS NUMERIC)) AS total_mrr
+      FROM (
+        SELECT DISTINCT DATE_TRUNC('month', CAST(occurred_at AS TIMESTAMP)) AS report_month
+        FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      ) m
+      JOIN "public"."holistics_mou_subscript_46062_202603100504" sub
+        ON CAST(sub.started_at AS TIMESTAMP) < (m.report_month + INTERVAL '1 month')
+        AND (NULLIF(sub.churned_at, '') IS NULL
+             OR CAST(sub.churned_at AS TIMESTAMP) >= (m.report_month + INTERVAL '1 month'))
+      GROUP BY 1
+    ),
+    base AS (
+      SELECT
+        report_month,
+        LAG(total_mrr) OVER (ORDER BY report_month) AS prev_mrr
+      FROM active_mrr
+    )
+    SELECT
+      TO_CHAR(b.report_month, 'YYYY-MM') AS month_label,
+      b.report_month::DATE AS report_month,
+      CASE WHEN b.prev_mrr > 0
+        THEN ROUND((COALESCE(mb.churned_mrr, 0) / b.prev_mrr * 100)::NUMERIC, 2)
+        ELSE 0 END AS monthly_churn_rate,
+      CASE WHEN b.prev_mrr > 0
+        THEN ROUND((COALESCE(ab.churned_mrr, 0) / b.prev_mrr * 100)::NUMERIC, 2)
+        ELSE 0 END AS annual_churn_rate
+    FROM base b
+    LEFT JOIN monthly_billing mb ON b.report_month = mb.report_month
+    LEFT JOIN annual_billing ab ON b.report_month = ab.report_month
+    WHERE b.prev_mrr IS NOT NULL
+    ORDER BY b.report_month
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension month {
+    label: 'Month'
+    description: 'Report month as date. Example: 2025-06-01'
+    type: 'datetime'
+    definition: @sql {{ #SOURCE.report_month }};;
+  }
+  dimension month_label {
+    label: 'Month Label'
+    description: 'Formatted month for display. Example: "2025-06"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.month_label }};;
+  }
+  dimension monthly_churn_rate {
+    label: 'Monthly Billing Churn %'
+    description: 'Gross churn rate for monthly-billed subscriptions. Formula: ABS(churned MRR from monthly subs) / prev month total MRR × 100. Typical range: 1-6%.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.monthly_churn_rate }};;
+  }
+  dimension annual_churn_rate {
+    label: 'Annual Billing Churn %'
+    description: 'Gross churn rate for annual-billed subscriptions. Formula: ABS(churned MRR from annual subs) / prev month total MRR × 100. Shows spikes at renewal months.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.annual_churn_rate }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: AVG(monthly_churn_rate)
+  // Average monthly-billing churn rate across selected period.
+  measure avg_monthly_churn {
+    label: 'Monthly Billing Churn %'
+    type: 'number'
+    description: "Average gross churn rate for monthly-billed subscriptions over the selected period.  \nCalculated as the average of the monthly churn rates, where each monthly churn rate is the absolute churned MRR from monthly subscriptions divided by the previous month’s total MRR, multiplied by 100.  \nTypical monthly churn rates range from 1% to 6%."
+    hidden: false
+    definition: @aql avg(mou_churn_by_billing.monthly_churn_rate);;
+    aggregation_type: "custom"
+  }
+
+  // Formula: AVG(annual_churn_rate)
+  // Average annual-billing churn rate across selected period.
+  measure avg_annual_churn {
+    label: 'Annual Billing Churn %'
+    type: 'number'
+    description: "Average gross churn rate for annual-billed subscriptions over the selected period.  \nCalculated as the average of the monthly gross churn rates, where each monthly churn rate is the absolute churned MRR from annual subscriptions divided by the previous month’s total MRR, multiplied by 100.  \nThis metric highlights typical churn behavior including spikes during renewal months."
+    hidden: false
+    definition: @aql avg(mou_churn_by_billing.annual_churn_rate);;
+    aggregation_type: "custom"
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}

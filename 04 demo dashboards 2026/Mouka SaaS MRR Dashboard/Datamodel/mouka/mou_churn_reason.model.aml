@@ -1,0 +1,74 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// mou_churn_reason.model.aml — Churn reason breakdown with % of total
+// Shows WHY customers are leaving, ranked by churned MRR
+// Used in Tab 3: Churn & Retention — churn reason breakdown table
+// ─────────────────────────────────────────────────────────────────────────────
+
+Model mou_churn_reason {
+  type: 'query'
+  label: 'Churn Reason Breakdown'
+  description: 'Aggregates churned MRR by reason. Each row = one churn reason with its total churned MRR and % of all churn. Helps prioritize retention efforts.'
+  data_source_name: 'saas_mrr'
+
+  query: @sql
+    WITH churn_events AS (
+      SELECT
+        churn_reason,
+        ABS(mrr_delta) AS churned_mrr
+      FROM "public"."holistics_mou_subscript_3936c_202603100503"
+      WHERE event_type = 'churn'
+        AND churn_reason IS NOT NULL
+        AND churn_reason != ''
+    ),
+    total AS (SELECT SUM(churned_mrr) AS total_churn FROM churn_events)
+    SELECT
+      INITCAP(REPLACE(churn_reason, '_', ' ')) AS reason,
+      SUM(churned_mrr) AS churned_mrr,
+      ROUND((SUM(churned_mrr) / t.total_churn * 100)::NUMERIC, 1) AS pct_of_total
+    FROM churn_events
+    CROSS JOIN total t
+    GROUP BY 1, t.total_churn
+    ORDER BY churned_mrr DESC
+  ;;
+
+  // ── Dimensions ──────────────────────────────────────────────────────────────
+
+  dimension reason {
+    label: 'Churn Reason'
+    description: 'Why the customer cancelled. Values: "too_expensive", "switched_competitor", "no_longer_needed", "poor_support", "missing_features"'
+    type: 'text'
+    definition: @sql {{ #SOURCE.reason }};;
+  }
+  dimension churned_mrr {
+    label: 'Churned MRR ($)'
+    description: 'Total MRR lost to this reason (absolute value). Example: $45,000 for "too_expensive"'
+    type: 'number'
+    definition: @sql {{ #SOURCE.churned_mrr }};;
+  }
+  dimension pct_of_total {
+    label: '% of Total Churn'
+    description: 'This reason churned MRR / all churned MRR × 100. Example: 28.5% means this reason caused ~28.5% of all revenue churn.'
+    type: 'number'
+    definition: @sql {{ #SOURCE.pct_of_total }};;
+  }
+
+  // ── Measures ────────────────────────────────────────────────────────────────
+
+  // Formula: SUM(churned_mrr)
+  // Total churned MRR across selected reasons.
+  measure sum_churned_mrr {
+    label: 'Churned MRR'
+    type: 'number'
+    definition: @aql sum(mou_churn_reason.churned_mrr);;
+  }
+
+  // Formula: SUM(pct_of_total)
+  // Sum of % shares. Should add up to 100% when all reasons are selected.
+  measure sum_pct {
+    label: '% of Total Churn'
+    type: 'number'
+    definition: @aql sum(mou_churn_reason.pct_of_total);;
+  }
+
+  owner: 'nhi.ty+staging@holistics.io'
+}
