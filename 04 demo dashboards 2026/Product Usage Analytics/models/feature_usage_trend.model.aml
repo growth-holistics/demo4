@@ -1,0 +1,49 @@
+Model feature_usage_trend {
+  type: 'query'
+  label: 'Feature Usage Trend'
+  description: ''
+  data_source_name: 'demodb'
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension usage_count {
+    label: 'Usage Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.usage_count }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+      DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+      CASE f.name
+        WHEN 'ai_writing_assistant' THEN 'AI writing assistant'
+        WHEN 'ai_summarization' THEN 'AI summarization'
+        WHEN 'api_access' THEN 'API access'
+        ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+      END AS feature_name,
+      f.category,
+      COUNT(*) AS usage_count
+    FROM sample.holistics_feature_event_d3066_202603080537 fe
+    JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+    GROUP BY 1, 2, 3
+    ORDER BY 1, 4 DESC;;
+  models: [
+  ]
+}

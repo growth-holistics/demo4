@@ -1,0 +1,66 @@
+Model feature_adoption_curve {
+  type: 'query'
+  label: 'Feature Adoption Curve'
+  description: ''
+  data_source_name: 'demodb'
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension cumulative_users {
+    label: 'Cumulative Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.cumulative_users }};;
+  }
+  dimension adoption_pct {
+    label: 'Adoption Pct'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.adoption_pct }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH feature_first_use AS (
+      SELECT
+        fe.user_id,
+        CASE f.name
+          WHEN 'ai_writing_assistant' THEN 'AI writing assistant'
+          WHEN 'ai_summarization' THEN 'AI summarization'
+          WHEN 'api_access' THEN 'API access'
+          ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+        END AS feature_name,
+        MIN((fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date) AS first_used_at
+      FROM sample.holistics_feature_event_d3066_202603080537 fe
+      JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+      GROUP BY fe.user_id, f.name
+    ),
+    total_users AS (
+      SELECT COUNT(*) AS cnt FROM sample.holistics_users__6fb23_202603060326
+    ),
+    monthly AS (
+      SELECT
+        feature_name,
+        DATE_TRUNC('month', first_used_at)::date AS month,
+        COUNT(*) AS new_adopters
+      FROM feature_first_use
+      GROUP BY 1, 2
+    )
+    SELECT
+      feature_name,
+      month,
+      SUM(new_adopters) OVER (PARTITION BY feature_name ORDER BY month) AS cumulative_users,
+      ROUND(SUM(new_adopters) OVER (PARTITION BY feature_name ORDER BY month)::numeric / (SELECT cnt FROM total_users) * 100, 2) AS adoption_pct
+    FROM monthly
+    ORDER BY feature_name, month;;
+  models: []
+}

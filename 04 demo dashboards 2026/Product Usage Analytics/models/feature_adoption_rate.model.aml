@@ -1,0 +1,56 @@
+Model feature_adoption_rate {
+  type: 'query'
+  label: 'Feature Adoption Rate'
+  description: ''
+  data_source_name: 'demodb'
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension users_who_used {
+    label: 'Users Who Used'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.users_who_used }};;
+  }
+  dimension total_users {
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_users }};;
+  }
+  dimension adoption_rate {
+    label: 'Adoption Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.adoption_rate }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+      CASE f.name
+  WHEN 'ai_writing_assistant' THEN 'AI writing assistant'
+  WHEN 'ai_summarization' THEN 'AI summarization'
+  WHEN 'api_access' THEN 'API access'
+  ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+  END AS feature_name,
+      f.category,
+      COUNT(DISTINCT fe.user_id) AS users_who_used,
+      (SELECT COUNT(*) FROM sample.holistics_users__6fb23_202603060326) AS total_users,
+      ROUND(COUNT(DISTINCT fe.user_id)::numeric / (SELECT COUNT(*) FROM sample.holistics_users__6fb23_202603060326) * 100, 2) AS adoption_rate
+    FROM sample.holistics_feature_event_d3066_202603080537 fe
+    JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+    GROUP BY f.name, f.category
+    ORDER BY adoption_rate DESC;;
+  models: [
+  ]
+}

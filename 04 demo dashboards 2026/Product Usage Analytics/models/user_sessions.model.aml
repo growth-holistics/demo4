@@ -1,0 +1,84 @@
+Model user_sessions {
+  type: 'table'
+  label: 'User sessions'
+  description: ''
+  data_source_name: 'demodb'
+  dimension id {
+    label: 'Id'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.id }};;
+  }
+  dimension user_id {
+    label: 'User'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.user_id }};;
+  }
+  dimension started_at {
+    label: 'Started at'
+    description: ''
+    type: 'datetime'
+    hidden: false
+    definition: @sql {{ #SOURCE.started_at }};;
+  }
+  dimension duration_minutes {
+    label: 'Duration minutes'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.duration_minutes }};;
+  }
+  dimension device {
+    label: 'Device'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.device }};;
+  }
+  dimension started_at_shifted {
+  label: "Started at shifted"
+  type: "datetime"
+  description: "When the session started (auto-adjusted to stay current relative to today)"
+  hidden: false
+  definition: @sql {{ #SOURCE.started_at }} + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day';;
+  primary_key: false
+}
+
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'user_sessions.csv'
+    uploaded_at: '2026-03-22 03:49:34'
+    hash: 'd99e641322ea3fd2a3e657b2f714e2aa4d91efd99c8051d85b93b30d3e64fa0b'
+    column_configs: [
+      H.imports.column_config("id", "id", "number"),
+      H.imports.column_config("user_id", "user_id", "number"),
+      H.imports.column_config("started_at", "started_at", "datetime"),
+      H.imports.column_config("duration_minutes", "duration_minutes", "number"),
+      H.imports.column_config("device", "device", "text")
+    ]
+  }
+  owner: 'thang.lk@holistics.io'
+  table_name: '"sample"."holistics_user_sessions_dfc9c_202603060328"'
+
+  measure unique_active_users {
+  label: "Unique Active Users"
+  type: "number"
+  description: "Distinct users who had at least one session"
+  hidden: false
+  definition: @sql {{ user_id }};;
+  aggregation_type: "count distinct"
+  format: "#,###"
+}
+measure session_count {
+  label: "Session Count"
+  type: "number"
+  description: "Total number of login sessions"
+  definition: @sql {{ id }};;
+  aggregation_type: "count"
+  format: "#,###"
+}
+  
+}

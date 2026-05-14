@@ -1,0 +1,46 @@
+Model engagement_by_plan {
+  type: 'query'
+  label: 'Engagement by plan'
+  description: ''
+  data_source_name: 'demodb'
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension plan_name {
+    label: 'Plan Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+  dimension active_users {
+    label: 'Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.active_users }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH daily_by_plan AS (
+      SELECT
+        DATE_TRUNC('month', s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        p.name AS plan_name,
+        COUNT(DISTINCT s.user_id) AS active_users
+      FROM sample.holistics_user_sessions_dfc9c_202603060328 s
+      JOIN sample.holistics_users__6fb23_202603060326 u ON s.user_id = u.id
+      JOIN sample.holistics_workspaces_6e8d7_202603060325 w ON u.workspace_id = w.id
+      JOIN sample.holistics_plans2_d8edd_202603221027 p ON w.plan_id = p.id
+      GROUP BY 1, 2
+    )
+    SELECT
+      month,
+      plan_name,
+      active_users
+    FROM daily_by_plan
+    ORDER BY month, plan_name;;
+  models: [
+  ]
+}

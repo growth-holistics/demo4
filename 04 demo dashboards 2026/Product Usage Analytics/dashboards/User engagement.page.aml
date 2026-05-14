@@ -1,0 +1,1674 @@
+Dashboard user_engagement {
+  title: 'User engagement'
+  description: ''
+  owner: 'thang.lk@holistics.io'
+  block title: TextBlock {
+    content: @md ### User engagement;;
+  }
+  block v_q5t9: VizBlock {
+    label: 'User health'
+    viz: PieChart {
+      dataset: product_usage_analytics
+      legend: VizFieldFull {
+        ref: r(users_.is_active_label)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: 'users'
+          ref: r(users_.user_count)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          point {
+            value: 'Active'
+            color: '#E07A3AFF'
+          }
+          point {
+            value: 'Inactive'
+            color: '#1A1816FF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 10000
+        legend_label: 'hidden'
+        show_percentage: true
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_3akc: VizBlock {
+    label: 'Active users trend'
+    viz: LineChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(user_sessions.started_at_shifted)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Unique active users'
+            ref: r(user_sessions.unique_active_users)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#6E7B4E'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_pypf: VizBlock {
+    label: 'DAU/MAU Stickiness Ratio'
+    description: 'How often monthly users return daily. Calculated as Daily Active Users / Monthly Active Users.'
+    viz: LineChart {
+      dataset: product_usage_analytics
+      calculation metric_269226f {
+        label: 'Avg. of Stickiness Ratio Stickiness Ratio'
+        formula: @aql avg(stickiness_ratio.stickiness_ratio);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(stickiness_ratio.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'dd LLL'
+        }
+      }
+      y_axis {
+        settings {
+          show_data_label_by: 'value'
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Stickiness Ratio (%)'
+            ref: 'metric_269226f'
+            format {
+              type: 'number'
+              pattern: '#,###0.00%'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#B5798E'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_tmun: VizBlock {
+    label: 'Weekly session frequency'
+    description: 'Avg. number of sessions per active user each week'
+    viz: ColumnChart {
+      dataset: product_usage_analytics
+      calculation metric_4d5ba11 {
+        label: 'Avg. of Session Frequency Sessions Per User'
+        formula: @aql avg(session_frequency.sessions_per_user);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(session_frequency.week)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        label: 'Sessions Per User'
+        settings {
+          show_data_label_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Sessions per user'
+            ref: 'metric_4d5ba11'
+            format {
+              type: 'number'
+              pattern: '#,###0.00'
+            }
+          }
+          settings {
+            color: '#245E54'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_m0aw: VizBlock {
+    label: 'Pages created over time'
+    viz: LineChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(pages.created_at_shifted)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            label: 'Pages created'
+            ref: r(pages.id)
+            aggregation: 'count'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+          settings {
+            color: '#A67C52FF'
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_75vq: VizBlock {
+    label: 'Active users by plan'
+    viz: CombinationChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(engagement_by_plan.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(engagement_by_plan.plan_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: true
+          show_total_in_tooltip: true
+        }
+        series {
+          field: VizFieldFull {
+            label: ' plan'
+            ref: r(engagement_by_plan.active_users)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            point {
+              value: 'business'
+              color: '#E07A3AFF'
+            }
+            point {
+              value: 'enterprise'
+              color: '#6E7B4E'
+            }
+            point {
+              value: 'free'
+              color: '#802222'
+            }
+            point {
+              value: 'plus'
+              color: '#D4A574FF'
+            }
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        show_rows_with_no_data: true
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_hn10: VizBlock {
+    label: 'Feature usage trend'
+    viz: LineChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(feature_usage_trend.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(feature_usage_trend.feature_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Usage count'
+        settings {
+          show_total_in_tooltip: true
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(feature_usage_trend.usage_count)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        }
+      }
+      settings {
+        show_rows_with_no_data: true
+        row_limit: 10000
+        legend_label: 'right'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_qdav: VizBlock {
+    label: 'Feature adoption by plan'
+    viz: BarChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(adoption_by_plan.feature_name)
+        format {
+          type: 'text'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(adoption_by_plan.plan_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Adoption rate'
+        settings {
+          show_data_label_by: 'value'
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            label: 'plan user'
+            ref: r(adoption_by_plan.adoption_rate)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###\\%'
+            }
+          }
+          settings {
+            point {
+              value: 'business'
+              color: '#E07A3AFF'
+            }
+            point {
+              value: 'enterprise'
+              color: '#6E7B4E'
+            }
+            point {
+              value: 'free'
+              color: '#802222'
+            }
+            point {
+              value: 'plus'
+              color: '#D4A574FF'
+            }
+          }
+        }
+      }
+      tooltips: [
+        VizTooltip {
+          field: VizFieldFull {
+            label: 'plan users'
+            ref: r(adoption_by_plan.users_who_used)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        }
+      ]
+      settings {
+        show_rows_with_no_data: true
+        row_limit: 10000
+        sort {
+          field_index: 0
+          direction: 'desc'
+          type: 'xaxis'
+        }
+        legend_label: 'right'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xpal: VizBlock {
+    label: 'AI feature spotlight '
+    viz: LineChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(ai_feature_spotlight.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(ai_feature_spotlight.feature_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: r(ai_feature_spotlight.usage_count)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+          settings {
+            point {
+              value: 'AI Summarization'
+              color: '#E07A3AFF'
+            }
+            point {
+              value: 'AI Writing Assistant'
+              color: '#245E54'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_csbm: VizBlock {
+    label: 'Usage share by category'
+    viz: AreaChart {
+      dataset: product_usage_analytics
+      x_axis: VizFieldFull {
+        ref: r(usage_by_category.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(usage_by_category.category)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Usage count'
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(usage_by_category.usage_count)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            point {
+              value: 'AI'
+              color: '#3B2F80'
+            }
+            point {
+              value: 'Automation'
+              color: '#6E7B4E'
+            }
+            point {
+              value: 'Collaboration'
+              color: '#B5798E'
+            }
+            point {
+              value: 'Core'
+              color: '#E07A3AFF'
+            }
+            point {
+              value: 'Integration'
+              color: '#3B2F80'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 10000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_vmna: VizBlock {
+    label: 'Feature adoption vs usage intensity'
+    viz: ScatterChart {
+      dataset: product_usage_analytics
+      x_col: VizFieldFull {
+        ref: r(feature_adoption_vs_usage.adoption_rate)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      y_col: VizFieldFull {
+        ref: r(feature_adoption_vs_usage.avg_usage_per_user)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        row_limit: 10000
+      }
+    }
+  }
+  block v_jsun: VizBlock {
+    label: 'Avg adoption rate'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'Avg adoption rate'
+        ref: r(feature_kpi_summary.avg_adoption_rate)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00\\%'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_pulb: VizBlock {
+    label: 'AI feature growth (MoM)'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'AI feature growth (MoM)'
+        ref: r(feature_kpi_summary.ai_mom_growth)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: '#,###0.00\\%'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_8y6d: VizBlock {
+    label: 'Monthly active users'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'Monthly active users'
+        ref: r(feature_kpi_summary.monthly_active_users)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_plan: FilterBlock {
+    label: 'Plan'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: product_usage_analytics
+      field: r(plans.name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block t_lowu: TextBlock {
+    content: @md ### Feature adoption;;
+  }
+  block f_category: FilterBlock {
+    label: 'Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: product_usage_analytics
+      field: r(features.category)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block f_date_range: FilterBlock {
+    label: 'Date range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: product_usage_analytics
+      field: r(feature_events.used_at)
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
+    }
+  }
+  block v_k3lg: VizBlock {
+    label: 'Total users compared with Total users (Prev. 1y)'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'Total users'
+        ref: r(engagement_kpi_summary.total_users)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        label {
+          font_color: '#1A1816FF'
+        }
+        alignment: 'left'
+        metric_value {
+          font_color: '#211F1CFF'
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_xzut: VizBlock {
+    label: 'Total users copy'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'Monthly active users'
+        ref: r(engagement_kpi_summary.monthly_active_users)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_l1d1: VizBlock {
+    label: 'Total users copy copy'
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      value: VizFieldFull {
+        label: 'Avg sessions per user'
+        ref: r(engagement_kpi_summary.avg_sessions_per_user)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_3exu: FilterBlock {
+    label: 'Plan'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: product_usage_analytics
+      field: r(plans.name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+  }
+  block v_aqd2: VizBlock {
+    label: 'Monthly metrics overview'
+    viz: MetricSheet {
+      dataset: product_usage_analytics
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFFFF'
+          }
+        }
+      }
+      date_field: VizFieldFull {
+        ref: r(monthly_engagement_summary.month)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      rows: [
+        MetricHeading {
+          label: 'User engagement'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Total users'
+            ref: r(monthly_engagement_summary.total_users)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Monthly active users'
+            ref: r(monthly_engagement_summary.mau)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Avg. daily active users'
+            ref: r(monthly_engagement_summary.avg_dau)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Stickiness rate'
+            ref: r(monthly_engagement_summary.stickiness_pct)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###\\%'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Total sessions'
+            ref: r(monthly_engagement_summary.total_sessions)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Avg. sessions per user'
+            ref: r(monthly_engagement_summary.avg_sessions_per_user)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Avg. session duration'
+            ref: r(monthly_engagement_summary.avg_session_duration)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricHeading {
+          label: 'Content creation'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Pages created'
+            ref: r(monthly_engagement_summary.pages_created)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Avg. word count'
+            ref: r(monthly_engagement_summary.avg_word_count)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Unique creators'
+            ref: r(monthly_engagement_summary.unique_creators)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Total activities'
+            ref: r(monthly_engagement_summary.total_activities)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Edits'
+            ref: r(monthly_engagement_summary.edits)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Comments'
+            ref: r(monthly_engagement_summary.comments)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricHeading {
+          label: 'Feature adoption'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Feature active users'
+            ref: r(monthly_engagement_summary.feature_active_users)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Feature adoption rate'
+            ref: r(monthly_engagement_summary.feature_adoption_pct)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'AI events'
+            ref: r(monthly_engagement_summary.ai_events)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'AI users'
+            ref: r(monthly_engagement_summary.ai_users)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00,"K"'
+            }
+          }
+        },
+        MetricHeading {
+          label: 'Device mix'
+          settings {
+            background_color: '#e1e3ea'
+            text_color: '#31353f'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Desktop share'
+            ref: r(monthly_engagement_summary.desktop_pct)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00\\%'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            label: 'Mobile share'
+            ref: r(monthly_engagement_summary.mobile_pct)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '#,###0.00\\%'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            mark_type: 'line'
+          }
+        }
+      ]
+      settings {
+        max_column: 7
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_controls: true
+    }
+  }
+  block v_pqhr: VizBlock {
+    label: 'Stickiness (DAU/MAU)'
+    description: @md How consistently do they return daily?
+;;
+    viz: MetricKpi {
+      dataset: product_usage_analytics
+      calculation metric_e0967c6 {
+        label: 'Average of Stickiness Ratio Stickiness Ratio'
+        formula: @aql avg(stickiness_ratio.stickiness_ratio);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      value: VizFieldFull {
+        label: 'Stickiness (DAU/MAU)'
+        ref: 'metric_e0967c6'
+        format {
+          type: 'number'
+          pattern: '#,###%'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  view: TabLayout {
+    label: 'View 1'
+    tab view_1: CanvasLayout {
+      label: '😃 User engagement'
+      width: 1320
+      height: 2960
+      grid_size: 20
+      auto_expand_vertically: true
+      block title {
+        position: pos(20, 20, 1260, 80)
+      }
+      block v_q5t9 {
+        position: pos(20, 440, 620, 420)
+      }
+      block v_3akc {
+        position: pos(680, 440, 620, 420)
+      }
+      block v_pypf {
+        position: pos(20, 920, 620, 480)
+        layer: 2
+      }
+      block v_tmun {
+        position: pos(680, 920, 620, 480)
+        layer: 3
+      }
+      block v_m0aw {
+        position: pos(20, 1460, 620, 420)
+        layer: 3
+      }
+      block v_75vq {
+        position: pos(660, 1460, 620, 420)
+        layer: 4
+      }
+      block v_k3lg {
+        position: pos(20, 240, 300, 140)
+      }
+      block v_xzut {
+        position: pos(340, 240, 320, 140)
+      }
+      block v_l1d1 {
+        position: pos(680, 240, 300, 140)
+      }
+      block f_3exu {
+        position: pos(20, 140, 300, 80)
+        layer: 5
+      }
+      block v_aqd2 {
+        position: pos(20, 1940, 1280, 1000)
+        layer: 3
+      }
+      block v_pqhr {
+        position: pos(1000, 240, 300, 140)
+      }
+      mobile {
+        mode: 'auto'
+      }
+    }
+    tab tab_d9ju: CanvasLayout {
+      label: '🤑 Feature adoption'
+      width: 1320
+      height: 2740
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block v_hn10 {
+        position: pos(20, 1600, 1280, 600)
+        layer: 1
+      }
+      block v_qdav {
+        position: pos(20, 400, 1280, 580)
+        layer: 1
+      }
+      block v_xpal {
+        position: pos(20, 2300, 1080, 420)
+        layer: 1
+      }
+      block v_csbm {
+        position: pos(660, 1020, 640, 520)
+        layer: 1
+      }
+      block v_vmna {
+        position: pos(20, 1020, 620, 520)
+        layer: 4
+      }
+      block v_jsun {
+        position: pos(20, 220, 260, 140)
+        layer: 1
+      }
+      block v_pulb {
+        position: pos(300, 220, 260, 140)
+        layer: 1
+      }
+      block v_8y6d {
+        position: pos(580, 220, 260, 140)
+        layer: 1
+      }
+      block f_plan {
+        position: pos(20, 120, 300, 80)
+        layer: 1
+      }
+      block t_lowu {
+        position: pos(20, 0, 860, 100)
+        layer: 1
+      }
+      block f_category {
+        position: pos(340, 120, 300, 80)
+        layer: 1
+      }
+      block f_date_range {
+        position: pos(660, 120, 300, 80)
+        layer: 1
+      }
+    }
+  }
+  interactions: [
+    FilterInteraction {
+      from: 'v_q5t9'
+      to: [
+        CustomMapping {
+          block: [
+            'v_3akc',
+            'v_pypf',
+            'v_75vq',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_3akc'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_pypf',
+            'v_75vq',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_pypf'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_75vq',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_tmun'
+      to: [
+        CustomMapping {
+          block: [
+            'v_75vq',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_m0aw'
+      to: [
+        CustomMapping {
+          block: [
+            'v_75vq',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_75vq'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_qdav',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_hn10'
+      to: [
+        CustomMapping {
+          block: [
+            'v_xpal',
+            'v_csbm',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_qdav'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_xpal',
+            'v_csbm',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xpal'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_csbm',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_csbm'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_vmna'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_jsun'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_pulb'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_8y6d'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_plan'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr',
+            'f_category',
+            'f_date_range',
+            'f_3exu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_category'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr',
+            'f_plan',
+            'f_date_range',
+            'f_3exu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_date_range'
+      to: [
+        CustomMapping {
+          block: [
+            'v_q5t9',
+            'v_3akc',
+            'v_pypf',
+            'v_tmun',
+            'v_m0aw',
+            'v_75vq',
+            'v_k3lg',
+            'v_xzut',
+            'v_l1d1',
+            'v_aqd2',
+            'v_pqhr',
+            'f_plan',
+            'f_category',
+            'f_3exu'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_k3lg'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_xzut'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_l1d1'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_3exu'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d',
+            'f_plan',
+            'f_category',
+            'f_date_range'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_aqd2'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_pqhr'
+      to: [
+        CustomMapping {
+          block: [
+            'v_hn10',
+            'v_qdav',
+            'v_xpal',
+            'v_csbm',
+            'v_vmna',
+            'v_jsun',
+            'v_pulb',
+            'v_8y6d'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  theme: claude_theme
+}

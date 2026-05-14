@@ -1,0 +1,50 @@
+Model session_frequency {
+  type: 'query'
+  label: 'Session Frequency'
+  description: ''
+  data_source_name: 'demodb'
+  dimension week {
+    label: 'Week'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.week }};;
+  }
+  dimension total_sessions {
+    label: 'Total Sessions'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_sessions }};;
+  }
+  dimension unique_users {
+    label: 'Unique Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.unique_users }};;
+  }
+  dimension sessions_per_user {
+    label: 'Sessions Per User'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.sessions_per_user }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH weekly_stats AS (
+      SELECT
+        DATE_TRUNC('week', started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS week,
+        COUNT(*) AS total_sessions,
+        COUNT(DISTINCT user_id) AS unique_users
+      FROM sample.holistics_user_sessions_dfc9c_202603060328
+      GROUP BY 1
+    )
+    SELECT
+      week,
+      total_sessions,
+      unique_users,
+      ROUND(total_sessions::numeric / NULLIF(unique_users, 0), 2) AS sessions_per_user
+    FROM weekly_stats
+    ORDER BY week;;
+  models: [
+  ]
+}

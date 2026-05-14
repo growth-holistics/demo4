@@ -1,0 +1,242 @@
+Model monthly_engagement_summary {
+  type: 'query'
+  label: 'Monthly Engagement Summary'
+  description: ''
+  data_source_name: 'demodb'
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension total_users {
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_users }};;
+  }
+  dimension mau {
+    label: 'Mau'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mau }};;
+  }
+  dimension avg_dau {
+    label: 'Avg Dau'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_dau }};;
+  }
+  dimension stickiness_pct {
+    label: 'Stickiness Pct'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.stickiness_pct }};;
+  }
+  dimension total_sessions {
+    label: 'Total Sessions'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_sessions }};;
+  }
+  dimension avg_sessions_per_user {
+    label: 'Avg Sessions Per User'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_sessions_per_user }};;
+  }
+  dimension avg_session_duration {
+    label: 'Avg Session Duration'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_session_duration }};;
+  }
+  dimension pages_created {
+    label: 'Pages Created'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.pages_created }};;
+  }
+  dimension avg_word_count {
+    label: 'Avg Word Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_word_count }};;
+  }
+  dimension unique_creators {
+    label: 'Unique Creators'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.unique_creators }};;
+  }
+  dimension total_activities {
+    label: 'Total Activities'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_activities }};;
+  }
+  dimension edits {
+    label: 'Edits'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.edits }};;
+  }
+  dimension comments {
+    label: 'Comments'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.comments }};;
+  }
+  dimension feature_events {
+    label: 'Feature Events'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_events }};;
+  }
+  dimension feature_active_users {
+    label: 'Feature Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_active_users }};;
+  }
+  dimension feature_adoption_pct {
+    label: 'Feature Adoption Pct'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_adoption_pct }};;
+  }
+  dimension ai_events {
+    label: 'Ai Events'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ai_events }};;
+  }
+  dimension ai_users {
+    label: 'Ai Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ai_users }};;
+  }
+  dimension desktop_pct {
+    label: 'Desktop Pct'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.desktop_pct }};;
+  }
+  dimension mobile_pct {
+    label: 'Mobile Pct'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.mobile_pct }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH months AS (
+      SELECT DISTINCT
+        DATE_TRUNC('month', started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month
+      FROM sample.holistics_user_sessions_dfc9c_202603060328
+    ),
+
+    cumulative_users AS (
+      SELECT
+        m.month,
+        COUNT(*) AS total_users
+      FROM months m
+      JOIN sample.holistics_users__6fb23_202603060326 u
+        ON (u.signup_date + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date <= (m.month + INTERVAL '1 month' - INTERVAL '1 day')::date
+      GROUP BY m.month
+    ),
+
+    session_metrics AS (
+      SELECT
+        DATE_TRUNC('month', s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        COUNT(DISTINCT s.user_id) AS mau,
+        COUNT(*) AS total_sessions,
+        ROUND(AVG(s.duration_minutes)::numeric, 1) AS avg_session_duration,
+        ROUND(COUNT(*)::numeric / NULLIF(COUNT(DISTINCT s.user_id), 0)::numeric, 2) AS avg_sessions_per_user,
+        ROUND(COUNT(CASE WHEN s.device = 'desktop' THEN 1 END)::numeric / NULLIF(COUNT(*), 0)::numeric * 100, 1) AS desktop_pct,
+        ROUND(COUNT(CASE WHEN s.device = 'mobile' THEN 1 END)::numeric / NULLIF(COUNT(*), 0)::numeric * 100, 1) AS mobile_pct
+      FROM sample.holistics_user_sessions_dfc9c_202603060328 s
+      GROUP BY 1
+    ),
+
+    dau_metrics AS (
+      SELECT
+        DATE_TRUNC('month', s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        ROUND(
+          (COUNT(DISTINCT s.user_id || '-' || (s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date)::numeric
+          / NULLIF(EXTRACT(DAY FROM
+              DATE_TRUNC('month', MIN(s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')) + INTERVAL '1 month' - INTERVAL '1 day'
+            )::numeric, 0))::numeric
+        , 0) AS avg_dau
+      FROM sample.holistics_user_sessions_dfc9c_202603060328 s
+      GROUP BY 1
+    ),
+
+    page_metrics AS (
+      SELECT
+        DATE_TRUNC('month', p.created_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        COUNT(*) AS pages_created,
+        ROUND(AVG(p.word_count)::numeric, 0) AS avg_word_count,
+        COUNT(DISTINCT p.created_by) AS unique_creators
+      FROM sample.holistics_pages_csv_c7874_202603060326 p
+      GROUP BY 1
+    ),
+
+    activity_metrics AS (
+      SELECT
+        DATE_TRUNC('month', a.created_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        COUNT(*) AS total_activities,
+        COUNT(CASE WHEN a.activity_type = 'edit' THEN 1 END) AS edits,
+        COUNT(CASE WHEN a.activity_type = 'comment' THEN 1 END) AS comments,
+        COUNT(CASE WHEN a.activity_type = 'share' THEN 1 END) AS shares
+      FROM sample.holistics_page_activiti_2fcda_202603060327 a
+      GROUP BY 1
+    ),
+
+    feature_metrics AS (
+      SELECT
+        DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+        COUNT(*) AS feature_events,
+        COUNT(DISTINCT fe.user_id) AS feature_active_users,
+        COUNT(CASE WHEN f.category = 'ai' THEN 1 END) AS ai_events,
+        COUNT(DISTINCT CASE WHEN f.category = 'ai' THEN fe.user_id END) AS ai_users
+      FROM sample.holistics_feature_event_d3066_202603080537 fe
+      JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+      GROUP BY 1
+    )
+
+    SELECT
+      m.month,
+      cu.total_users,
+      sm.mau,
+      dm.avg_dau,
+      ROUND((dm.avg_dau::numeric / NULLIF(sm.mau, 0)::numeric * 100)::numeric, 1) AS stickiness_pct,
+      sm.total_sessions,
+      sm.avg_sessions_per_user,
+      sm.avg_session_duration,
+      pm.pages_created,
+      pm.avg_word_count,
+      pm.unique_creators,
+      am.total_activities,
+      am.edits,
+      am.comments,
+      fm.feature_events,
+      fm.feature_active_users,
+      ROUND((fm.feature_active_users::numeric / NULLIF(cu.total_users, 0)::numeric * 100)::numeric, 1) AS feature_adoption_pct,
+      fm.ai_events,
+      fm.ai_users,
+      sm.desktop_pct,
+      sm.mobile_pct
+    FROM months m
+    LEFT JOIN cumulative_users cu ON m.month = cu.month
+    LEFT JOIN session_metrics sm ON m.month = sm.month
+    LEFT JOIN dau_metrics dm ON m.month = dm.month
+    LEFT JOIN page_metrics pm ON m.month = pm.month
+    LEFT JOIN activity_metrics am ON m.month = am.month
+    LEFT JOIN feature_metrics fm ON m.month = fm.month
+    ORDER BY m.month;;
+  models: [
+  ]
+}

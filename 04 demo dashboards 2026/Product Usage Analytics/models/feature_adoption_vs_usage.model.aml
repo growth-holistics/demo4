@@ -1,0 +1,49 @@
+Model feature_adoption_vs_usage {
+  type: 'query'
+  label: 'Feature Adoption Vs Usage'
+  description: ''
+  data_source_name: 'demodb'
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension adoption_rate {
+    label: 'Adoption Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.adoption_rate }};;
+  }
+  dimension avg_usage_per_user {
+    label: 'Avg Usage Per User'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_usage_per_user }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+      CASE f.name
+        WHEN 'ai_writing_assistant' THEN 'AI Writing Assistant'
+        WHEN 'ai_summarization' THEN 'AI Summarization'
+        WHEN 'api_access' THEN 'API Access'
+        ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+      END AS feature_name,
+      f.category,
+      ROUND(COUNT(DISTINCT fe.user_id)::numeric / (SELECT COUNT(*) FROM sample.holistics_users__6fb23_202603060326) * 100, 2) AS adoption_rate,
+      ROUND(COUNT(*)::numeric / NULLIF(COUNT(DISTINCT fe.user_id), 0), 2) AS avg_usage_per_user
+    FROM sample.holistics_feature_event_d3066_202603080537 fe
+    JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+    GROUP BY f.name, f.category
+    ORDER BY adoption_rate DESC;;
+  models: [
+  ]
+}

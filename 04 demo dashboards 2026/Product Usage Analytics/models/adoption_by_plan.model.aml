@@ -1,0 +1,77 @@
+Model adoption_by_plan {
+  type: 'query'
+  label: 'Adoption By Plan'
+  description: ''
+  data_source_name: 'demodb'
+  dimension plan_name {
+    label: 'Plan Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.plan_name }};;
+  }
+  dimension feature_name {
+    label: 'Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.feature_name }};;
+  }
+  dimension users_who_used {
+    label: 'Users Who Used'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.users_who_used }};;
+  }
+  dimension total_users {
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_users }};;
+  }
+  dimension adoption_rate {
+    label: 'Adoption Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.adoption_rate }};;
+  }
+  dimension adoption_label {
+  label: 'Adoption Label'
+  type: 'text'
+  hidden: false
+  definition: @sql {{ #SOURCE.adoption_label }};;
+}
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+  p.name AS plan_name,
+  CASE f.name
+    WHEN 'ai_writing_assistant' THEN 'AI writing assistant'
+    WHEN 'ai_summarization' THEN 'AI summarization'
+    WHEN 'api_access' THEN 'API access'
+    ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+  END AS feature_name,
+  COUNT(DISTINCT fe.user_id) AS users_who_used,
+  total_plan_users.total_users,
+  ROUND(COUNT(DISTINCT fe.user_id)::numeric / NULLIF(total_plan_users.total_users, 0) * 100, 2) AS adoption_rate,
+  CONCAT(
+    ROUND(COUNT(DISTINCT fe.user_id)::numeric / NULLIF(total_plan_users.total_users, 0) * 100, 1)::text,
+    '% (',
+    COUNT(DISTINCT fe.user_id)::text,
+    ')'
+  ) AS adoption_label
+    FROM sample.holistics_feature_event_d3066_202603080537 fe
+    JOIN sample.holistics_users__6fb23_202603060326 u ON fe.user_id = u.id
+    JOIN sample.holistics_workspaces_6e8d7_202603060325 w ON u.workspace_id = w.id
+    JOIN sample.holistics_plans2_d8edd_202603221027 p ON w.plan_id = p.id
+    JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+    JOIN LATERAL (
+      SELECT COUNT(*) AS total_users
+      FROM sample.holistics_users__6fb23_202603060326 u2
+      JOIN sample.holistics_workspaces_6e8d7_202603060325 w2 ON u2.workspace_id = w2.id
+      WHERE w2.plan_id = p.id
+    ) total_plan_users ON true
+    GROUP BY p.name, feature_name, total_plan_users.total_users
+    ORDER BY p.name, adoption_rate DESC;;
+  models: [
+  ]
+}

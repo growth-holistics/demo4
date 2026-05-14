@@ -1,0 +1,50 @@
+Model usage_by_category {
+  type: 'query'
+  label: 'Usage By Category'
+  description: ''
+  data_source_name: 'demodb'
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.category }};;
+  }
+  dimension usage_count {
+    label: 'Usage Count'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.usage_count }};;
+  }
+  dimension unique_users {
+    label: 'Unique Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.unique_users }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+  DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS month,
+  CASE f.category
+    WHEN 'ai' THEN 'AI'
+    WHEN 'core' THEN 'Core'
+    WHEN 'collaboration' THEN 'Collaboration'
+    WHEN 'integration' THEN 'Integration'
+    WHEN 'automation' THEN 'Automation'
+  END AS category,
+  COUNT(*) AS usage_count,
+  COUNT(DISTINCT fe.user_id) AS unique_users
+FROM sample.holistics_feature_event_d3066_202603080537 fe
+JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+GROUP BY 1, 2
+ORDER BY 1, 2;;
+  models: [
+  ]
+}

@@ -1,0 +1,93 @@
+Model feature_kpi_summary {
+  type: 'query'
+  label: 'Feature Kpi Summary'
+  description: ''
+  data_source_name: 'demodb'
+  dimension avg_adoption_rate {
+    label: 'Avg Adoption Rate'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_adoption_rate }};;
+  }
+  dimension ai_mom_growth {
+    label: 'Ai Mom Growth'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.ai_mom_growth }};;
+  }
+  dimension monthly_active_users {
+    label: 'Monthly Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_active_users }};;
+  }
+  dimension top_feature_name {
+    label: 'Top Feature Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.top_feature_name }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH adoption AS (
+      SELECT
+        ROUND(AVG(adoption_rate), 1) AS avg_adoption_rate
+      FROM (
+        SELECT
+          f.id,
+          COUNT(DISTINCT fe.user_id)::numeric / (SELECT COUNT(*) FROM sample.holistics_users__6fb23_202603060326) * 100 AS adoption_rate
+        FROM sample.holistics_features_5b8a8_202603060322 f
+        LEFT JOIN sample.holistics_feature_event_d3066_202603080537 fe ON f.id = fe.feature_id
+        GROUP BY f.id
+      ) sub
+    ),
+    ai_growth AS (
+      SELECT
+        ROUND(
+          (curr.cnt - prev.cnt)::numeric / NULLIF(prev.cnt, 0) * 100, 1
+        ) AS ai_mom_growth
+      FROM (
+        SELECT COUNT(*) AS cnt
+        FROM sample.holistics_feature_event_d3066_202603080537 fe
+        JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+        WHERE f.category = 'ai'
+          AND DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day') = DATE_TRUNC('month', CURRENT_DATE)
+      ) curr,
+      (
+        SELECT COUNT(*) AS cnt
+        FROM sample.holistics_feature_event_d3066_202603080537 fe
+        JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+        WHERE f.category = 'ai'
+          AND DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day') = DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month'
+      ) prev
+    ),
+    mau AS (
+      SELECT COUNT(DISTINCT user_id) AS monthly_active_users
+      FROM sample.holistics_user_sessions_dfc9c_202603060328
+      WHERE (started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date >= DATE_TRUNC('month', CURRENT_DATE)
+    ),
+    top_feature AS (
+      SELECT
+        CASE f.name
+          WHEN 'ai_writing_assistant' THEN 'AI Writing Assistant'
+          WHEN 'ai_summarization' THEN 'AI Summarization'
+          WHEN 'api_access' THEN 'API Access'
+          ELSE CONCAT(UPPER(LEFT(REPLACE(f.name, '_', ' '), 1)), SUBSTRING(REPLACE(f.name, '_', ' ') FROM 2))
+        END AS top_feature_name
+      FROM sample.holistics_feature_event_d3066_202603080537 fe
+      JOIN sample.holistics_features_5b8a8_202603060322 f ON fe.feature_id = f.id
+      WHERE DATE_TRUNC('month', fe.used_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day') = DATE_TRUNC('month', CURRENT_DATE)
+      GROUP BY f.name
+      ORDER BY COUNT(*) DESC
+      LIMIT 1
+    )
+    SELECT
+      a.avg_adoption_rate,
+      g.ai_mom_growth,
+      m.monthly_active_users,
+      t.top_feature_name
+    FROM adoption a, ai_growth g, mau m, top_feature t;;
+  models: [
+  ]
+}

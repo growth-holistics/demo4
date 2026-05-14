@@ -1,0 +1,35 @@
+Model engagement_kpi_summary {
+  type: 'query'
+  label: 'Engagement Kpi Summary'
+  description: ''
+  data_source_name: 'demodb'
+  dimension total_users {
+    label: 'Total Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.total_users }};;
+  }
+  dimension monthly_active_users {
+    label: 'Monthly Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_active_users }};;
+  }
+  dimension avg_sessions_per_user {
+    label: 'Avg Sessions Per User'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_sessions_per_user }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    SELECT
+      (SELECT COUNT(*) FROM sample.holistics_users__6fb23_202603060326) AS total_users,
+      COUNT(DISTINCT s.user_id) AS monthly_active_users,
+      ROUND(COUNT(*)::numeric / NULLIF(COUNT(DISTINCT s.user_id), 0), 1) AS avg_sessions_per_user
+    FROM sample.holistics_user_sessions_dfc9c_202603060328 s
+    WHERE (s.started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date >= DATE_TRUNC('month', CURRENT_DATE);;
+  models: [
+  ]
+}

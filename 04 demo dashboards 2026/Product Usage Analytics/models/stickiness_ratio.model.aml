@@ -1,0 +1,70 @@
+Model stickiness_ratio {
+  type: 'query'
+  label: 'Stickiness Ratio'
+  description: ''
+  data_source_name: 'demodb'
+  dimension month {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension avg_daily_active_users {
+    label: 'Avg Daily Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.avg_daily_active_users }};;
+  }
+  dimension monthly_active_users {
+    label: 'Monthly Active Users'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_active_users }};;
+  }
+  dimension stickiness_ratio {
+    label: 'Stickiness Ratio'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.stickiness_ratio }};;
+  }
+
+  owner: 'thang.lk@holistics.io'
+  query: @sql
+    WITH user_days AS (
+      SELECT DISTINCT
+        user_id,
+        (started_at + (CURRENT_DATE - DATE '2026-02-26') * INTERVAL '1 day')::date AS activity_date
+      FROM sample.holistics_user_sessions_dfc9c_202603060328
+    ),
+    daily_counts AS (
+      SELECT 
+        activity_date,
+        COUNT(*) AS dau
+      FROM user_days
+      GROUP BY 1
+    ),
+    monthly_avg_dau AS (
+      SELECT
+        DATE_TRUNC('month', activity_date)::date AS month,
+        ROUND(AVG(dau)) AS avg_daily_active_users
+      FROM daily_counts
+      GROUP BY 1
+    ),
+    monthly_unique AS (
+      SELECT
+        DATE_TRUNC('month', activity_date)::date AS month,
+        COUNT(DISTINCT user_id) AS monthly_active_users
+      FROM user_days
+      GROUP BY 1
+    )
+    SELECT
+      a.month,
+      a.avg_daily_active_users,
+      u.monthly_active_users,
+      ROUND(a.avg_daily_active_users::numeric / NULLIF(u.monthly_active_users, 0), 4) AS stickiness_ratio
+    FROM monthly_avg_dau a
+    JOIN monthly_unique u USING (month)
+    ORDER BY a.month;;
+  models: [
+  ]
+}

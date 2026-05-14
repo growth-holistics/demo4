@@ -1,0 +1,51 @@
+Dataset product_usage_analytics {
+  __engine__: 'aql'
+  label: 'product_usage_analytics'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    plans,
+    features,
+    workspaces,
+    users_,
+    pages,
+    page_activities,
+    feature_events,
+    user_sessions
+    ,
+    stickiness_ratio
+    ,
+    session_frequency
+    ,
+    engagement_by_plan
+    ,
+    feature_adoption_rate,
+    feature_usage_trend
+    ,
+    adoption_by_plan
+    ,
+    feature_adoption_curve
+    ,
+    ai_feature_spotlight
+    ,
+    usage_by_category
+    ,
+    feature_adoption_vs_usage
+    ,
+    feature_kpi_summary
+    ,
+    engagement_kpi_summary
+    ,
+    monthly_engagement_summary
+  ]
+  relationships: [
+    relationship(workspaces.plan_id > plans.id, true),
+    relationship(users_.workspace_id > workspaces.id, true),
+    relationship(pages.created_by > users_.id, true),
+    relationship(page_activities.page_id > pages.id, true),
+    relationship(page_activities.user_id > users_.id, true),
+    relationship(feature_events.user_id > users_.id, true),
+    relationship(feature_events.feature_id > features.id, true),
+    relationship(user_sessions.user_id > users_.id, true)
+  ]
+}
