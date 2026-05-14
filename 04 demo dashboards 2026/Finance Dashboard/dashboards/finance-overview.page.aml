@@ -1,0 +1,1529 @@
+Dashboard finance_overview {
+  title: 'Finance Overview'
+  description: @md ## What it is
+A simple Finance Overview dashboard that lets you track revenue, profitability, and cash runway across segments and scenarios — all in one scroll.
+
+## Description
+This dashboard is for finance leads, executives, and anyone who needs a quick read on company health without digging through spreadsheets. Instead of chasing numbers across tools, you get revenue trends, P&L breakdown, and cash flow all in one place — filterable by date range, scenario, and business segment.;;
+  owner: 'di.hoang+20166@holistics.io'
+  block title: TextBlock {
+    content: @md <div class="section-header">
+  <div class="accent-bar"></div>
+  <h1>Key Performance Indicators</h1>
+</div>;;
+  }
+  block v_1n2l: VizBlock {
+    label: 'Total Revenue'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.total_revenue)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_gl_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_ki4y: VizBlock {
+    label: 'Gross Profit'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.gross_profit)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_gl_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_9396: VizBlock {
+    label: 'EBITDA'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.ebitda)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_gl_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_v7u3: VizBlock {
+    label: 'Cash Balance'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.cash_balance)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_cashflow_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_8vn3: VizBlock {
+    label: 'Net Income'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.net_income)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_gl_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_date_range: FilterBlock {
+    label: 'Date Range'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance
+      field: r(fact_gl_entries.date)
+    }
+    default {
+      operator: 'matches'
+      value: '2025'
+    }
+  }
+  block v_bcw6: VizBlock {
+    label: 'Revenue vs. Operating Expenses'
+    viz: CombinationChart {
+      dataset: demo_finance
+      calculation abs_expenses {
+        label: 'Abs Expenses'
+        formula: @aql abs(expenses);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(fact_gl_entries.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: r(demo_finance.total_revenue)
+            format {
+              type: 'number'
+              pattern: '#,###,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#7638FFFF'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            label: 'Expenses'
+            ref: 'abs_expenses'
+            format {
+              type: 'number'
+              pattern: '#,###,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#FC8B37FF'
+            color_palette: 0
+          }
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Net'
+            ref: r(demo_finance.ebitda)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#00C56EFF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_1hht: VizBlock {
+    label: 'Revenue Breakdown'
+    viz: PieChart {
+      dataset: demo_finance
+      legend: VizFieldFull {
+        ref: r(fact_gl_entries.breakdown_dim)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          label: ' '
+          ref: r(demo_finance.total_revenue)
+          format {
+            type: 'number'
+            pattern: '#,###0.00,,"M" [$$]'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+        settings {
+          point {
+            value: 'Enterprise'
+            color: '#5BADFFFF'
+          }
+          point {
+            value: 'SaaS'
+            color: '#7638FFFF'
+          }
+          point {
+            value: 'Services'
+            color: '#FC8B37FF'
+          }
+          point {
+            value: 'APAC'
+            color: '#7638FFFF'
+          }
+          point {
+            value: 'North America'
+            color: '#5BADFFFF'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        show_total: true
+        sort: 'desc'
+        show_percentage: true
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_s49h: VizBlock {
+    label: 'P&L Waterfall — Revenue to Net Income'
+    viz: CustomChart {
+      dataset: demo_finance
+      custom_chart_id: 33129
+      field amount: VizFieldFull {
+        ref: r(pl_waterfall.sum_amount)
+        aggregation: 'sum'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field label: VizFieldFull {
+        ref: r(pl_waterfall.label)
+        format {
+          type: 'text'
+        }
+      }
+      field sort_order: VizFieldFull {
+        ref: r(demo_finance, pl_waterfall.label_sort_order)
+        format {
+          type: 'text'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_6wxj: TextBlock {
+    content: @md <div class="section-header">
+  <div class="accent-bar"></div>
+  <h1>Revenue &amp; Expense Analysis</h1>
+</div>;;
+  }
+  block t_68gv: TextBlock {
+    content: @md <div class="section-header">
+  <div class="accent-bar"></div>
+  <h1>Profit &amp; loss summary</h1>
+</div>;;
+  }
+  block v_p7pm: VizBlock {
+    label: 'P&L Statement'
+    viz: MetricSheet {
+      dataset: demo_finance
+      calculation saas_rev {
+        label: 'SaaS Subscriptions'
+        formula: @aql total_revenue
+| where(fact_gl_entries.segment == "SaaS");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation enterprise_rev {
+        label: 'Enterprise Licenses'
+        formula: @aql total_revenue
+| where(fact_gl_entries.segment == "Enterprise");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation services_rev {
+        label: 'Professional Services'
+        formula: @aql total_revenue;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation cogs {
+        label: 'Cost of Goods sold'
+        formula: @aql sum(fact_gl_entries.actual_amount)
+| where(dim_account.type == "COGS");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation sales_expenses {
+        label: 'Sales & Marketing'
+        formula: @aql expenses
+| where(fact_gl_entries.department == "Sales");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation rd_expenses {
+        label: 'Research & Development'
+        formula: @aql expenses
+| where(fact_gl_entries.department == "R&amp;D");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation cs_expenses {
+        label: 'Customer Services'
+        formula: @aql expenses
+| where(fact_gl_entries.department == "CS");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation ga_expenses {
+        label: 'General & Admin'
+        formula: @aql expenses
+| where(fact_gl_entries.department == "G&amp;A");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation da_amount {
+        label: 'Depreciation & Amort.'
+        formula: @aql sum(fact_gl_entries.actual_amount)
+| where(dim_account.type == "D&amp;A");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation interest_tax_amount {
+        label: 'Interest & Tax'
+        formula: @aql sum(fact_gl_entries.actual_amount)
+| where(dim_account.type in ["Interest", "Tax"]);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      theme {
+        table {
+          general {
+            bg_color: '#FFFFFF'
+            borders {
+              outer: true
+              vertical: true
+              header: true
+            }
+          }
+        }
+      }
+      date_field: VizFieldFull {
+        ref: r(fact_gl_entries.date)
+        transformation: 'datetrunc quarter'
+        format {
+          type: 'date'
+          pattern: 'yyyy Qq'
+        }
+      }
+      rows: [
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance.total_revenue)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'saas_rev'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'enterprise_rev'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'services_rev'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'cogs'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance.gross_profit)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance.expenses)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'sales_expenses'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'rd_expenses'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'cs_expenses'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'ga_expenses'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance.ebitda)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'da_amount'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: 'interest_tax_amount'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            indent: 5
+            mark_type: 'line'
+          }
+        },
+        MetricSeries {
+          field: VizFieldFull {
+            ref: r(demo_finance.net_income)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+        }
+      ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block t_f8fu: TextBlock {
+    content: @md <div class="section-header">
+  <div class="accent-bar"></div>
+  <h1>Cashflow Overview</h1>
+</div>;;
+  }
+  block v_87kg: VizBlock {
+    label: 'Cash Flow by Category'
+    viz: CombinationChart {
+      dataset: demo_finance
+      calculation operating_cf {
+        label: 'Operating'
+        formula: @aql sum(fact_cashflow_entries.amount)
+| where(fact_cashflow_entries.cf_type == "Operating");;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation investing {
+        label: 'Investing'
+        formula: @aql abs(sum(fact_cashflow_entries.amount)
+| where(fact_cashflow_entries.cf_type == "Investing"));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation financing {
+        label: 'Financing'
+        formula: @aql abs(sum(fact_cashflow_entries.amount)
+| where(fact_cashflow_entries.cf_type == "Financing"));;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation total_cashflow {
+        label: 'Total Cashflow'
+        formula: @aql operating_cf + investing + financing;;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      x_axis: VizFieldFull {
+        ref: r(fact_cashflow_entries.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      legend: VizFieldFull {
+        ref: r(fact_cashflow_entries.cf_type)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          axis_min: -100000
+          axis_max: 275000
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: ' '
+            ref: r(fact_cashflow_entries.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            point {
+              value: 'Financing'
+              color: '#FC8B37FF'
+            }
+            point {
+              value: 'Investing'
+              color: '#5BADFFFF'
+            }
+            point {
+              value: 'Operating'
+              color: '#7638FFFF'
+            }
+          }
+        }
+      }
+      y_axis {
+        settings {
+          alignment: 'right'
+          axis_min: -100000
+          axis_max: 275000
+          hidden: true
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            label: 'Net'
+            ref: r(fact_cashflow_entries.amount)
+            aggregation: 'sum'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00,"K"'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+            break_by_legend: false
+          }
+          settings {
+            color: '#00C56EFF'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  block v_xa1q: VizBlock {
+    label: 'Cash Runway'
+    viz: MarkdownViz {
+      dataset: demo_finance
+      rows: [
+        VizFieldFull {
+          ref: r(cash_runway.operating)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.investing)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.financing)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.free_cf)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.monthly_net_cf)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.runway_months)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(cash_runway.runway_pct)
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00,"K"'
+            group_separator: ','
+            decimal_separator: '.'
+          }
+        }
+      ]
+      content: @md <style>
+  * { box-sizing: border-box; }
+  .runway-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #1B2559;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(118,56,255,0.08);
+  }
+  .runway-title { font-size: 18px; font-weight: 700; margin-bottom: 2px; color: #1B2559; }
+  .runway-subtitle { font-size: 13px; color: #6B7A99; margin-bottom: 20px; }
+  .runway-number { font-size: 64px; font-weight: 800; color: #7638FF; line-height: 1; }
+  .runway-label { font-size: 15px; color: #6B7A99; margin: 4px 0 16px; }
+  .runway-progress-bar-bg {
+    background: #E0D9FF; border-radius: 999px;
+    height: 8px; margin-bottom: 6px; width: 100%;
+  }
+  .runway-progress-bar-fill {
+    background: #7638FF; height: 8px; border-radius: 999px; width: 0%;
+  }
+  .runway-progress-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #6B7A99; margin-bottom: 20px;
+  }
+  .runway-metrics-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 16px; width: 100%;
+  }
+  .runway-metric-box { background: #F8F9FC; border-radius: 10px; padding: 14px; min-width: 0; }
+  .runway-metric-label { font-size: 10px; font-weight: 700; color: #6B7A99; letter-spacing: 0.08em; }
+  .runway-metric-value { font-size: 18px; font-weight: 700; margin-top: 4px; }
+  .runway-positive { color: #00C56E; }
+  .runway-negative { color: #FC0027; }
+  .runway-insight-box {
+    background: #F0EBFF; border: 1px solid #7638FF44;
+    border-radius: 10px; padding: 14px; font-size: 13px; color: #6B7A99;
+  }
+  .runway-insight-title {
+    font-size: 11px; font-weight: 700; color: #7638FF;
+    letter-spacing: 0.08em; margin-bottom: 6px;
+  }
+  #runway-pct-value { display: none; }
+</style>
+
+<div class="runway-card">
+  <div class="runway-title">Cash Runway</div>
+  <div class="runway-subtitle">At current burn rate</div>
+
+  <div class="runway-number">{{ rows[0].`Runway Months` }}</div>
+  <div class="runway-label">months remaining</div>
+
+  <div class="runway-progress-bar-bg">
+    <div class="runway-progress-bar-fill" id="runway-fill"></div>
+  </div>
+  <div class="runway-progress-labels">
+    <span>Now</span>
+    <span>{{ rows[0].`Runway Months` }}mo</span>
+    <span>24mo</span>
+  </div>
+
+  <div class="runway-metrics-grid">
+    <div class="runway-metric-box">
+      <div class="runway-metric-label">OPERATING</div>
+      <div class="runway-metric-value runway-positive">{{ rows[0].`Operating` }}</div>
+    </div>
+    <div class="runway-metric-box">
+      <div class="runway-metric-label">INVESTING</div>
+      <div class="runway-metric-value runway-negative">{{ rows[0].`Investing` }}</div>
+    </div>
+    <div class="runway-metric-box">
+      <div class="runway-metric-label">FINANCING</div>
+      <div class="runway-metric-value runway-negative">{{ rows[0].`Financing` }}</div>
+    </div>
+    <div class="runway-metric-box">
+      <div class="runway-metric-label">FREE CF</div>
+      <div class="runway-metric-value runway-positive">{{ rows[0].`Free Cf` }}</div>
+    </div>
+  </div>
+
+  <div class="runway-insight-box">
+    <div class="runway-insight-title">💡 INSIGHT</div>
+    Operating CF is positive — business is self-sustaining.
+    Investing outflows reflect ongoing infrastructure spend.
+  </div>
+</div>
+
+<span id="runway-pct-value">{{ rows[0].`Runway Pct` }}</span>
+
+<script>
+  setTimeout(function() {
+    var pct = document.getElementById('runway-pct-value').innerText.trim();
+    document.getElementById('runway-fill').style.width = pct + '%';
+  }, 100);
+</script> ;;
+      settings {
+        show_row_total: true
+        show_column_total: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block f_breakdown: FilterBlock {
+    label: 'Breakdown'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance
+      field: r(fact_gl_entries.dim_choice)
+    }
+    default {
+      operator: 'is'
+      value: 'Segment'
+    }
+    settings {
+      hide_label: true
+      input_type: 'single'
+    }
+    theme: BlockTheme {
+      border {
+        border_width: 0
+        border_style: 'none'
+      }
+      shadow: 'none'
+    }
+  }
+  block f_amount_type: FilterBlock {
+    label: 'Scenario'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance
+      field: r(fact_gl_entries.filter_choice)
+    }
+    default {
+      operator: 'is'
+      value: 'Actual'
+    }
+    settings {
+      input_type: 'single'
+    }
+  }
+  block f_segment: FilterBlock {
+    label: 'Segment'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_finance
+      field: r(fact_gl_entries.segment)
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+  block t_8m8p: TextBlock {
+    content: @md <div 
+  style="
+    background: linear-gradient(135deg, #0D0A1A 0%, #1A1035 40%, #2C1A5E 75%, #1A0F3A 100%);
+    border: 1.5px solid rgba(167,139,250,0.25);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+  ">
+
+  <!-- soft glow blobs -->
+  <div style="position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(118,56,255,0.18) 0%, transparent 70%); pointer-events: none;"></div>
+  <div style="position: absolute; bottom: -30px; left: 30%; width: 140px; height: 140px; background: radial-gradient(circle, rgba(252,139,55,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+    <div style="width: 3px; height: 28px; background: linear-gradient(to bottom, #FC8B37, #7638FF); border-radius: 2px; flex-shrink: 0;"></div>
+    <h1 style="margin: 0; font-size: 24px; font-weight: 700; background: #ffffff; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.3px;">Finance Overview</h1>
+  </div>
+
+  <p style="margin: 0 0 16px 0; font-size: 16px; color: rgba(255, 255, 255, 1); padding-left: 26px;">Full-year performance across all segments · Scenario: Actual</p>
+
+  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-left: 13px; padding-top:24px; ">
+    <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(118,56,255,0.22); color: #A78BFA; border: 1px solid rgba(118,56,255,0.4); letter-spacing: 0.4px;">FY 2025</span>
+    <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(252,139,55,0.15); color: #FC8B37; border: 1px solid rgba(252,139,55,0.35); letter-spacing: 0.4px;">All Segments</span>
+    <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: rgba(118,56,255,0.22); color: #A78BFA; border: 1px solid rgba(167,139,250,0.15); letter-spacing: 0.4px;">57mo runway</span>
+  </div>
+</div>;;
+  }
+  block t_ejox: TextBlock {
+    content: @md ## Coming soon 🔜
+
+Vote to unlock the new tab :)));;
+  }
+  block t_ory6: TextBlock {
+    content: @md <img src="https://media.holistics.io/8c05fc2b-SVG--1-.svg" />;;
+    theme {
+      border {
+        border_color: 'transparent'
+      }
+      background {
+        bg_color: 'transparent'
+      }
+    }
+  }
+  block v_2w8b: VizBlock {
+    label: 'Gross Profit copy'
+    viz: MetricKpi {
+      dataset: demo_finance
+      value: VizFieldFull {
+        ref: r(demo_finance.gross_profit)
+        format {
+          type: 'number'
+          pattern: '[$$]#,###0.00,,"M"'
+          group_separator: ','
+          decimal_separator: '.'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(fact_gl_entries.date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 44
+        }
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+  block v_rt1y: VizBlock {
+    label: 'Gross Profit copy copy'
+    viz: AreaChart {
+      dataset: demo_finance
+      x_axis: VizFieldFull {
+        ref: r(fact_gl_entries.date)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          hidden: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(demo_finance.gross_profit)
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+              group_separator: ','
+              decimal_separator: '.'
+            }
+          }
+          settings {
+            color: '#00C56EFF'
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        legend_label: 'hidden'
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    settings {
+      hide_label: true
+      hide_controls: true
+    }
+  }
+  view: TabLayout {
+    label: 'View 1'
+    tab view_1: CanvasLayout {
+      label: 'Financial Overview'
+      width: 1310
+      height: 3180
+      auto_expand_vertically: true
+      block title {
+        position: pos(20, 300, 1260, 80)
+        layer: 6
+      }
+      block v_1n2l {
+        position: pos(20, 390, 250, 170)
+        layer: 7
+      }
+      block v_ki4y {
+        position: pos(280, 390, 250, 170)
+        layer: 8
+      }
+      block v_9396 {
+        position: pos(540, 390, 240, 170)
+        layer: 9
+      }
+      block v_v7u3 {
+        position: pos(1040, 390, 240, 170)
+        layer: 10
+      }
+      block v_8vn3 {
+        position: pos(790, 390, 240, 170)
+        layer: 11
+      }
+      block f_date_range {
+        position: pos(20, 200, 300, 90)
+        layer: 6
+      }
+      block v_bcw6 {
+        position: pos(18, 670, 630, 420)
+        layer: 11
+      }
+      block v_1hht {
+        position: pos(660, 670, 620, 420)
+        layer: 11
+      }
+      block v_s49h {
+        position: pos(20, 1210, 1260, 500)
+        layer: 8
+      }
+      block t_6wxj {
+        position: pos(20, 580, 1260, 80)
+        layer: 6
+      }
+      block t_68gv {
+        position: pos(20, 1110, 1260, 80)
+        layer: 7
+      }
+      block v_p7pm {
+        position: pos(20, 1720, 1260, 680)
+        layer: 8
+      }
+      block t_f8fu {
+        position: pos(20, 2410, 1260, 80)
+        layer: 8
+      }
+      block v_87kg {
+        position: pos(20, 2500, 810, 420)
+        layer: 8
+      }
+      block v_xa1q {
+        position: pos(840, 2500, 440, 600)
+        layer: 7
+      }
+      block f_breakdown {
+        position: pos(1099, 690, 170, 80)
+        layer: 11
+      }
+      block f_amount_type {
+        position: pos(350, 200, 300, 90)
+        layer: 9
+      }
+      block f_segment {
+        position: pos(660, 200, 300, 90)
+        layer: 6
+      }
+      block t_8m8p {
+        position: pos(0, 0, 1310, 3180)
+        layer: 5
+      }
+      block t_ory6 {
+        position: pos(900, 40, 310, 140)
+        layer: 6
+      }
+      block v_2w8b {
+        position: pos(1930, 3190, 490, 230)
+        layer: 8
+      }
+      block v_rt1y {
+        position: pos(2110, 3210, 260, 160)
+        layer: 9
+      }
+      mobile {
+        mode: 'auto'
+      }
+      default_zoom: 1
+    }
+    tab tab_e4w4: CanvasLayout {
+      label: 'Revenue Intelligence'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
+      }
+      block t_ejox {
+        position: pos(480, 100, 260, 120)
+      }
+    }
+  }
+  theme: finance_light_2
+  interactions: [
+    FilterInteraction {
+      from: 'f_date_range'
+      to: [
+        CustomMapping {
+          block: [
+            'v_v7u3',
+            'v_87kg'
+          ]
+          field: r(fact_cashflow_entries.date)
+        },
+        CustomMapping {
+          block: 'v_s49h'
+          field: r(pl_waterfall.date_param)
+        },
+        CustomMapping {
+          block: 'v_xa1q'
+          field: r(cash_runway.date_param)
+        },
+        CustomMapping {
+          block: [
+            'f_breakdown',
+            'f_amount_type',
+            'f_segment'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_amount_type'
+      to: [
+        CustomMapping {
+          block: 'v_s49h'
+          field: r(pl_waterfall.amount_dim_param)
+        },
+        CustomMapping {
+          block: [
+            'v_87kg',
+            'v_xa1q',
+            'f_date_range',
+            'f_breakdown',
+            'f_segment'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_1n2l'
+      to: [
+        CustomMapping {
+          block: [
+            'v_ki4y',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_ki4y'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_9396'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_v7u3'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_9396',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_8vn3'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_9396',
+            'v_v7u3',
+            'v_bcw6',
+            'v_1hht',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_bcw6'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_1hht',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_1hht'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_2w8b',
+            'v_rt1y'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_breakdown'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_ki4y',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_s49h',
+            'v_p7pm',
+            'v_87kg',
+            'v_xa1q',
+            'v_2w8b',
+            'v_rt1y',
+            'f_date_range',
+            'f_amount_type',
+            'f_segment'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_segment'
+      to: [
+        CustomMapping {
+          block: [
+            'f_date_range',
+            'f_breakdown',
+            'f_amount_type'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_2w8b'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'v_rt1y'
+      to: [
+        CustomMapping {
+          block: [
+            'v_1n2l',
+            'v_9396',
+            'v_v7u3',
+            'v_8vn3',
+            'v_bcw6',
+            'v_1hht'
+          ]
+          disabled: true
+        }
+      ]
+    }
+  ]
+  settings {
+    timezone: 'Etc/UTC'
+    cache_duration: 1440
+  }
+}

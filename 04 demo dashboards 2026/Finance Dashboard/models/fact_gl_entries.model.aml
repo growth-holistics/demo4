@@ -1,0 +1,137 @@
+Model fact_gl_entries {
+  type: 'table'
+  label: 'Fact gl entries'
+  description: ''
+  data_source_name: 'demodb'
+  dimension entry_id {
+    label: 'Entry'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.entry_id }};;
+  }
+  dimension date {
+    label: 'Date'
+    description: ''
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension account_id {
+    label: 'Account'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.account_id }};;
+  }
+  dimension segment {
+    label: 'Segment'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.segment }};;
+  }
+  dimension region {
+    label: 'Region'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.region }};;
+  }
+  dimension department {
+    label: 'Department'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.department }};;
+  }
+  dimension actual_amount {
+    label: 'Actual amount'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.actual_amount }};;
+  }
+  dimension budget_amount {
+    label: 'Budget amount'
+    description: ''
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.budget_amount }};;
+  }
+  dimension scenario {
+    label: 'Scenario'
+    description: ''
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.scenario }};;
+  }
+  param dim_choice {
+    label: 'Dim Choice'
+    type: 'text'
+    allowed_values: ['Segment', 'Region']
+  }
+  dimension breakdown_dim {
+    label: 'Breakdown'
+    type: 'text'
+    definition: @aql case(
+      when: 'Segment' in fact_gl_entries.dim_choice
+      , then: fact_gl_entries.segment
+      , when: 'Region' in fact_gl_entries.dim_choice
+      , then: fact_gl_entries.region
+    ) ;;
+  }
+
+  param filter_choice {
+    label: 'Filter Choice'
+    type: 'text'
+    allowed_values: ['Actual', 'Budget']
+  }
+
+  dimension amount_dim {
+    label: 'Amount'
+    type: 'number'
+    definition: @aql case(
+      when: 'Actual' in fact_gl_entries.filter_choice
+      , then: fact_gl_entries.actual_amount
+      , when: 'Budget' in fact_gl_entries.filter_choice
+      , then: fact_gl_entries.budget_amount
+    ) ;;
+  }
+  // param metric_choice {
+  //   label: 'Metric Choice'
+  //   type: 'text'
+  //   allowed_values: ['Actual', 'Budget']
+  // }
+
+
+  // measure dynamic_metric {
+  //   label: 'Dynamic Metric'
+  //   type: 'number'
+  //   definition: @aql case(
+  //     when: 'Actual' in fact_gl_entries.measure_choice
+  //     , then: fact_gl_entries.actual_amount
+  //     , when: 'Budget' in fact_gl_entries.measure_choice
+  //     , then: fact_gl_entries.budget_amount
+  //   ) ;;
+  // }
+  import_source: ImportSource {
+    type: 'csv'
+    original_file_name: 'fact_gl_entries.csv'
+    uploaded_at: '2026-02-25 15:08:36'
+    hash: '3f2a196d1c6ffdbef672447f368c939fc7cfe455aabff1b61e960790081d6c36'
+    column_configs: [
+      H.imports.column_config("entry_id", "entry_id", "number"),
+      H.imports.column_config("date", "date", "date"),
+      H.imports.column_config("account_id", "account_id", "number"),
+      H.imports.column_config("segment", "segment", "text"),
+      H.imports.column_config("region", "region", "text"),
+      H.imports.column_config("department", "department", "text"),
+      H.imports.column_config("actual_amount", "actual_amount", "number"),
+      H.imports.column_config("budget_amount", "budget_amount", "number"),
+      H.imports.column_config("scenario", "scenario", "text")
+    ]
+  }
+  owner: 'di.hoang+20166@holistics.io'
+  table_name: '"persisted"."holistics_fact_gl_entri_326bb_202602251508"'
+}

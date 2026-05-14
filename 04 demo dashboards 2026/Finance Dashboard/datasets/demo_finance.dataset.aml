@@ -1,0 +1,99 @@
+Dataset demo_finance {
+  label: 'demo_finance'
+  description: ''
+  data_source_name: 'demodb'
+  models: [
+    dim_account,
+    fact_cashflow_entries,
+    fact_gl_entries
+    ,
+    pl_waterfall
+    ,
+    cash_runway
+  ]
+  relationships: [
+    relationship(fact_gl_entries.account_id > dim_account.id, true)
+  ]
+  metric total_revenue {
+    label: "Total Revenue"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(fact_gl_entries.amount_dim)| where(dim_account.type == "Revenue");;
+    format: "[\$\$]#,###0.00"
+  }
+
+  metric gross_profit {
+    label: "Gross Profit"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(fact_gl_entries.amount_dim)| where(dim_account.type in ["COGS", "Revenue"]);;
+    format: "[\$\$]#,###0.00"
+  }
+
+  metric gross_margin {
+    label: "Gross Margin"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql gross_profit * 100.0 / total_revenue;;
+    format: "#,###0.00\\%"
+  }
+
+  metric ebitda {
+    label: "EBITDA"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(fact_gl_entries.amount_dim)| where(dim_account.type in ["Revenue", "COGS", "OpEx"]);;
+    format: "[\$\$]#,###0.00"
+  }
+
+  metric net_income {
+    label: "Net Income"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(fact_gl_entries.amount_dim);;
+    format: "[\$\$]#,###0.00"
+  }
+  metric cash_balance {
+    label: "Cash Balance"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql max(fact_cashflow_entries.cash_balance_eop);;
+  }
+  metric expenses {
+    label: "Expenses"
+    type: "number"
+    hidden: false
+    description: ""
+    definition: @aql sum(fact_gl_entries.amount_dim)
+| where(dim_account.type in ["OpEx", "COGS"]);;
+    format: "[\$\$]#,###0.00"
+  }
+  dimension label_sort_order {
+    label: "Label sort order"
+    type: "text"
+    hidden: false
+    description: ""
+    definition: @aql case(
+  when: pl_waterfall.label == "Revenue",
+  then: "1",
+  when: pl_waterfall.label == "COGS",
+  then: "2",
+  when: pl_waterfall.label == "Gross Profit",
+  then: "3",
+  when: pl_waterfall.label == "OpEx",
+  then: "4",
+  when: pl_waterfall.label == "EBITDA",
+  then: "5",
+  when: pl_waterfall.label == "Tax & D&A",
+  then: "6",
+  else: "7"
+);;
+    model: pl_waterfall
+  }
+}

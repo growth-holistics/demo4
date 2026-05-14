@@ -1,0 +1,96 @@
+Model cash_runway {
+  type: 'query'
+  label: 'Cash Runway'
+  description: ''
+  data_source_name: 'demodb'
+  dimension operating {
+    label: 'Operating'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.operating }};;
+  }
+  dimension investing {
+    label: 'Investing'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.investing }};;
+  }
+  dimension financing {
+    label: 'Financing'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.financing }};;
+  }
+  dimension free_cf {
+    label: 'Free Cf'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.free_cf }};;
+  }
+  dimension monthly_net_cf {
+    label: 'Monthly Net Cf'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.monthly_net_cf }};;
+  }
+  dimension runway_months {
+    label: 'Runway Months'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.runway_months }};;
+  }
+  dimension runway_pct {
+    label: "Runway Pct"
+    type: "number"
+    hidden: false
+    definition: @sql {{ #SOURCE.runway_pct }};;
+    primary_key: false
+  }
+  param date_param {
+    label: 'Date Param'
+    type: 'date'
+  }
+  owner: 'di.hoang+20166@holistics.io'
+  query: @sql WITH monthly AS (
+    SELECT
+        cf_type,
+        SUM(amount) AS total_amount
+    FROM {{ #fact_cashflow_entries as f }}
+    WHERE {% filter(date_param) %} f.date {% end %}
+    GROUP BY cf_type
+),
+pivoted AS (
+    SELECT
+        COALESCE(MAX(CASE WHEN cf_type = 'Operating'  THEN total_amount END), 0) AS operating,
+        COALESCE(MAX(CASE WHEN cf_type = 'Investing'  THEN total_amount END), 0) AS investing,
+        COALESCE(MAX(CASE WHEN cf_type = 'Financing'  THEN total_amount END), 0) AS financing
+    FROM monthly
+),
+computed AS (
+    SELECT
+        operating,
+        investing,
+        financing,
+        operating + investing AS free_cf,
+        ROUND(CAST((operating + investing + financing) / 12.0 AS numeric), 0) AS monthly_net_cf,
+        ROUND(
+            CAST(
+                (SELECT MAX(cash_balance_eop) FROM {{ #fact_cashflow_entries }} WHERE cash_balance_eop IS NOT NULL)
+                / NULLIF(ABS((operating + investing + financing) / 12.0), 0)
+            AS numeric)
+        , 0) AS runway_months
+    FROM pivoted
+)
+SELECT
+    operating,
+    investing,
+    financing,
+    free_cf,
+    monthly_net_cf,
+    runway_months,
+    LEAST(ROUND(CAST(runway_months / 24.0 * 100 AS numeric), 0), 100) AS runway_pct
+FROM computed;;
+  models: [
+    fact_cashflow_entries
+  ]
+}

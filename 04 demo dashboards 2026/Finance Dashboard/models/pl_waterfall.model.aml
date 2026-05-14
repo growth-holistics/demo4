@@ -1,0 +1,74 @@
+Model pl_waterfall {
+  type: 'query'
+  label: 'PL Waterfall'
+  description: ''
+  data_source_name: 'demodb'
+  dimension label {
+    label: 'Label'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.label }};;
+  }
+  dimension sum_amount {
+    label: 'Sum Amount'
+    type: 'number'
+    description: ""
+    hidden: false
+    definition: @sql {{ #SOURCE.sum_amount }};;
+    primary_key: false
+    format: "[\$\$]#,###0.00"
+  }
+  param date_param {
+    label: 'Date Param'
+    type: 'date'
+  }
+
+  param amount_dim_param {
+    label: 'Amount Dim Param'
+    type: 'text'
+  }
+
+  owner: 'di.hoang+20166@holistics.io'
+  query: @sql WITH base AS (
+    SELECT
+        a.type,
+        SUM( 
+          CASE
+            WHEN {{ amount_dim_param }} = 'Actual' THEN f.actual_amount
+            WHEN {{ amount_dim_param }} = 'Budget' THEN f.budget_amount
+            ELSE 0
+          END   
+        ) AS sum_amount
+    FROM {{ #fact_gl_entries as f }}
+    JOIN {{ #dim_account as a }} ON f.account_id = a.id
+    WHERE {% filter(date_param) %} f.date {% end %}
+    GROUP BY a.type
+),
+pivoted AS (
+    SELECT
+        COALESCE(MAX(CASE WHEN type = 'Revenue'  THEN sum_amount END), 0) AS revenue,
+        COALESCE(MAX(CASE WHEN type = 'COGS'     THEN sum_amount END), 0) AS cogs,
+        COALESCE(MAX(CASE WHEN type = 'OpEx'     THEN sum_amount END), 0) AS opex,
+        COALESCE(MAX(CASE WHEN type = 'Tax'      THEN sum_amount END), 0) AS tax,
+        COALESCE(MAX(CASE WHEN type = 'D&A'      THEN sum_amount END), 0) AS dna,
+        COALESCE(MAX(CASE WHEN type = 'Interest' THEN sum_amount END), 0) AS interest
+    FROM base
+)
+SELECT
+    t.label,
+    t.sum_amount
+FROM pivoted,
+LATERAL (VALUES
+    ('Revenue',      revenue),
+    ('COGS',         cogs),
+    ('Gross Profit', 0),
+    ('OpEx',         opex),
+    ('EBITDA',       0),
+    ('Tax & D&A',    tax + dna),
+    ('Net Income',   interest)
+) AS t(label, sum_amount);;
+  models: [
+    dim_account,
+    fact_gl_entries
+  ]
+}
