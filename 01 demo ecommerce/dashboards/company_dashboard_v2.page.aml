@@ -33,7 +33,7 @@ BlockTheme holistics_ant_card_blocktheme {
 }
 @tag('Endorsed')
 Dashboard company_dashboard_v2 {
-  title: 'Ecommerce Dashboard'
+  title: 'Ecommerce Dashboard v2'
   owner: 'thong.do@holistics.io'
   description: ''''''
   block v34: VizBlock {
@@ -2138,11 +2138,12 @@ background: #EFF6FF;
     type: 'date'
     default {
       operator: 'matches'
-      value: 'last 12 months'
+      value: 'last 6 months'
     }
   }
+
   block f_lmkf: FilterBlock {
-    label: 'Select metric'
+    label: 'Select metric 123 '
     type: 'field'
     source: FieldFilterSource {
       dataset: demo_ecommerce_version_2
@@ -2600,6 +2601,42 @@ background: #EFF6FF;
   }
   block t_sgr9: block_ha_page_header('Ecommerce Metrics Tree', 'An overview of our metrics and their correlation ')
   block t_853s: block_ha_page_header_bg()
+  block v_rcby: VizBlock {
+    label: 'Revenue by Country'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        ref: r(ecommerce_countries.name)
+        format {
+          type: 'text'
+        }
+      }
+      series {
+        field: VizFieldFull {
+          ref: r(demo_ecommerce_version_2.revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+        settings {
+          color_palette: 36356
+        }
+      }
+      settings {
+        display_as_donut: true
+        row_limit: 5000
+        legend_label: 'right'
+        show_percentage: true
+        data_label_position: 'outside'
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+    theme: holistics_ant_card_blocktheme
+  }
   view: TabLayout {
     label: 'View 1'
     tab tab_dstw: CanvasLayout {
@@ -2947,7 +2984,7 @@ background: #EFF6FF;
         layer: 19
       }
       block t_zbp0 {
-        position: pos(-20, 200, 1300, 120)
+        position: pos(0, 220, 1260, 120)
         layer: -1
       }
       block v_wtl8 {
@@ -2985,6 +3022,10 @@ background: #EFF6FF;
       block v_kp1e {
         position: pos(40, 1710, 1160, 420)
         layer: 25
+      }
+      block v_rcby {
+        position: pos(20, 2210, 1200, 380)
+        layer: 26
       }
       mobile {
         mode: 'auto'
@@ -3295,7 +3336,7 @@ background: #EFF6FF;
             'v37',
             'v_xvgb'
           ]
-          field: ref('ecommerce_users', 'sign_up_at')
+          field: r(ecommerce_users.sign_up_at)
         }
       ]
     }
