@@ -1,0 +1,31 @@
+Model dim_pass {
+  type: 'table'
+  label: 'Pass'
+  description: 'Membership / pass types: 1-Ride, 24-Hour, 30-Day, 365-Day, Business, Flex.'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'dim_pass'
+
+  dimension pass_id {
+    label: 'Pass Id'
+    type: 'number'
+    primary_key: true
+    definition: @sql {{ #SOURCE.pass_id }};;
+  }
+  dimension pass_name {
+    label: 'Pass Name'
+    type: 'text'
+    definition: @sql {{ #SOURCE.pass_name }};;
+  }
+  dimension pass_family {
+    label: 'Pass Family'
+    type: 'text'
+    description: 'Pass family used in passholder crosstab.'
+    definition: @sql {{ #SOURCE.pass_family }};;
+  }
+  dimension price_usd {
+    label: 'Price USD'
+    type: 'number'
+    definition: @sql {{ #SOURCE.price_usd }};;
+    format: '[$$]#,###0.00'
+  }
+}

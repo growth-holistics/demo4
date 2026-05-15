@@ -1,0 +1,40 @@
+Model dim_date {
+  type: 'table'
+  label: 'Date'
+  description: 'Date dimension with fiscal year mapping (FY runs Jul-Jun).'
+  data_source_name: 'md_bicycle_transit'
+  table_name: 'dim_date'
+
+  dimension date_key {
+    label: 'Date'
+    type: 'date'
+    primary_key: true
+    definition: @sql {{ #SOURCE.date }};;
+  }
+  dimension year {
+    label: 'Year'
+    type: 'number'
+    definition: @sql {{ #SOURCE.year }};;
+  }
+  dimension month {
+    label: 'Month'
+    type: 'number'
+    definition: @sql {{ #SOURCE.month }};;
+  }
+  dimension month_name {
+    label: 'Month Name'
+    type: 'text'
+    definition: @sql {{ #SOURCE.month_name }};;
+  }
+  dimension fiscal_year {
+    label: 'Fiscal Year'
+    type: 'text'
+    description: 'e.g. FY 2025-26.'
+    definition: @sql {{ #SOURCE.fiscal_year }};;
+  }
+  dimension fiscal_quarter {
+    label: 'Fiscal Quarter'
+    type: 'number'
+    definition: @sql {{ #SOURCE.fiscal_quarter }};;
+  }
+}
