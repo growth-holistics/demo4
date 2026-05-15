@@ -1,0 +1,93 @@
+Dashboard dashboard_user_trips_by_year_xjpnp {
+  title: 'Dashboard User Trips by Year'
+  owner: 'embed_3405ab5a2a7f7cf950@holistics.io'
+  block v_k7u5: VizBlock {
+    label: 'User Trips by Year'
+    viz: CombinationChart {
+      dataset: bicycle_transit
+      filter {
+        field: r(fact_trips.started_date)
+        operator: 'matches'
+        value: '$H_NIL$'
+      }
+      x_axis: VizFieldFull {
+        label: 'Month'
+        ref: r(fact_trips.started_date)
+        transformation: 'datetrunc year'
+        format {
+          type: 'date'
+          pattern: 'yyyy'
+        }
+      }
+      y_axis {
+        label: 'User Trips'
+        series {
+          mark_type: 'area'
+          field: VizFieldFull {
+            ref: r(bicycle_transit.user_trips)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      y_axis {
+        label: 'Trips per Bike per Day'
+        settings {
+          alignment: 'right'
+        }
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: r(bicycle_transit.trips_per_bike_per_day)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        show_data_points: true
+        row_limit: 200
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        x_axis_label: 'Month'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+  interactions: []
+  view: CanvasLayout {
+    label: 'View 1'
+    width: 1300
+    height: 800
+    grid_size: 20
+    auto_expand_vertically: true
+    block v_k7u5 {
+      position: pos(20, 20, 620, 420)
+      layer: 1
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+  theme: H.themes.vanilla
+  settings {
+    autorun_on_open: true
+  }
+}
