@@ -33,6 +33,7 @@ Powers the four POC dashboards:
     marlin_rpt_daily_member_summary,
     marlin_rpt_monthly_member_waterfall,
     marlin_waterfall_unpivot,
+    marlin_dim_month,
   ]
 
   relationships: [
@@ -64,8 +65,8 @@ Powers the four POC dashboards:
     relationship(marlin_rpt_daily_member_summary.shift_date > marlin_dim_date.date_id, true),
     relationship(marlin_rpt_daily_member_summary.venue_id > marlin_dim_venue.venue_id, true),
 
-    // Reporting: monthly member waterfall
-    relationship(marlin_rpt_monthly_member_waterfall.month_start > marlin_dim_date.date_id, true),
+    // Reporting: monthly member waterfall (joins to dim_month, not dim_date)
+    relationship(marlin_rpt_monthly_member_waterfall.month_start > marlin_dim_month.month_start, true),
     relationship(marlin_rpt_monthly_member_waterfall.venue_id > marlin_dim_venue.venue_id, true),
 
     // Dimension-to-dimension
@@ -78,9 +79,12 @@ Powers the four POC dashboards:
     relationship(marlin_ref_item_classification.product_id > marlin_dim_item.product_id, true),
     relationship(marlin_dim_public_holiday.date_id > marlin_dim_date.date_id, false),
 
-    // Waterfall unpivot — relates back to date + venue for filter propagation
-    relationship(marlin_waterfall_unpivot.month_start > marlin_dim_date.date_id, false),
+    // Waterfall unpivot — joins to dim_month hub
+    relationship(marlin_waterfall_unpivot.month_start > marlin_dim_month.month_start, true),
     relationship(marlin_waterfall_unpivot.venue_id > marlin_dim_venue.venue_id, true),
+
+    // dim_date → dim_month: each day belongs to a month
+    relationship(marlin_dim_date.month_start > marlin_dim_month.month_start, true),
   ]
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -624,4 +628,13 @@ Powers the four POC dashboards:
     definition: @aql revenue_per_labour_hour | of_all(marlin_dim_venue);;
     format: '[$$]#,###0.00'
   }
+
+  metric closing_active_trend {
+    label: 'Closing Active (All Months)'
+    type: 'number'
+    description: 'Closing active count for the trend chart — bypasses the month filter via of_all so the line spans all 15 months regardless of page filter.'
+    definition: @aql closing_active | of_all(marlin_dim_month);;
+    format: '#,###'
+  }
+
 }

@@ -714,10 +714,14 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_dim_venue', 'venue_name')
+      field: r(marlin_dim_venue.venue_name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
     }
     settings {
-      input_type: 'single'
+      input_type: 'multiple'
     }
   }
   block t2_filter_date: FilterBlock {
@@ -1083,11 +1087,11 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
 Member-base movement (opening → new → reactivated → −lapsed → closing), member vs non-member spend, and visit distribution.;;
   }
   block t3_filter_month: FilterBlock {
-    label: 'Date Range'
+    label: 'Month'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: r(marlin_dim_date.date_id)
+      field: r(marlin_dim_month.month_start)
     }
     default {
       operator: 'matches'
@@ -1199,25 +1203,121 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
   }
   block t3_waterfall: VizBlock {
     label: 'Monthly Member Waterfall'
-    viz: CustomChart {
+    viz: MarkdownViz {
       dataset: marlin_hospitality_mart
-      custom_chart_id: 13982
-      field amount: VizFieldFull {
-        ref: r(marlin_waterfall_unpivot.amount)
-        format {
-          type: 'number'
-          pattern: 'inherited'
+      rows: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.label)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_class)
+          format {
+            type: 'text'
+          }
         }
-      }
-      field label: VizFieldFull {
-        ref: r(marlin_waterfall_unpivot.label)
-        format {
-          type: 'text'
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.value_label)
+          format {
+            type: 'text'
+          }
         }
-      }
-      settings {
-        row_limit: 5000
-      }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_min)
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_max)
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      content: @md <style>
+  .wf {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    padding: 28px 16px 48px;
+    height: 400px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Montserrat", sans-serif;
+    position: relative;
+    --top: 200000;
+  }
+  .wf .col {
+    flex: 1;
+    min-width: 110px;
+    position: relative;
+    height: 100%;
+  }
+  .wf .bar {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: calc(var(--min, 0) / var(--top, 1) * 100%);
+    height: calc((var(--max-y, 0) - var(--min, 0)) / var(--top, 1) * 100%);
+    min-height: 3px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .wf .col .val {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--max-y, 0) / var(--top, 1) * 100% + 4px);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+  }
+  .wf .col .axis-lbl {
+    position: absolute;
+    bottom: -32px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .wf .bar.total { background: #fef3c7; border: 1px solid #fde68a; }
+  .wf .bar.add { background: #d1fae5; border: 1px solid #a7f3d0; }
+  .wf .bar.sub { background: #fee2e2; border: 1px solid #fecaca; }
+  .wf .col.total .val { color: #78350f; }
+  .wf .col.add .val { color: #065f46; }
+  .wf .col.sub .val { color: #991b1b; }
+</style>
+
+<div class="wf">
+{% map(rows) %}
+{% map(values) %}
+<div class="col {{ `Bar Class`.raw }}" style="--min: {{ value.`Bar Min`.raw }}; --max-y: {{ value.`Bar Max`.raw }};">
+<div class="bar {{ `Bar Class`.raw }}"></div>
+<div class="val">{{ value.`Amount` }}</div>
+<div class="axis-lbl">{{ `Label` }}</div>
+</div>
+{% end %}
+{% end %}
+</div>
+;;
     }
   }
   block t3_chart_closing_trend: VizBlock {
@@ -1296,61 +1396,74 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       dataset: marlin_hospitality_mart
       fields: [
         VizFieldFull {
-          ref: ref('marlin_dim_venue', 'venue_name')
+          ref: r(marlin_dim_venue.venue_name)
           format {
             type: 'text'
           }
+          uname: 'marlin_dim_venue_venue_name'
         },
         VizFieldFull {
-          ref: 'opening_active'
+          ref: r(marlin_hospitality_mart.opening_active)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'new_members_monthly'
+          ref: r(marlin_hospitality_mart.new_members_monthly)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'reactivated_members'
+          ref: r(marlin_hospitality_mart.reactivated_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'retained_members'
+          ref: r(marlin_hospitality_mart.retained_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'lapsed_members'
+          ref: r(marlin_hospitality_mart.lapsed_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'closing_active'
+          ref: r(marlin_hospitality_mart.closing_active)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'waterfall_member_revenue'
+          ref: r(marlin_hospitality_mart.waterfall_member_revenue)
           format {
             type: 'number'
             pattern: 'inherited'
           }
-        },
+        }
       ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'marlin_dim_venue_venue_name'
+            width: 155
+          }
+        ]
+      }
     }
   }
   block t3_chart_member_vs_non: VizBlock {
@@ -1927,22 +2040,22 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(800, 260, 240, 140)
       }
       block t3_waterfall {
-        position: pos(20, 420, 800, 340)
+        position: pos(20, 420, 800, 500)
       }
       block t3_chart_closing_trend {
-        position: pos(840, 420, 420, 340)
+        position: pos(840, 420, 420, 500)
       }
       block t3_chart_movement_by_venue {
-        position: pos(20, 780, 620, 360)
+        position: pos(20, 940, 620, 360)
       }
       block t3_table_venue {
-        position: pos(660, 780, 600, 360)
+        position: pos(660, 940, 600, 360)
       }
       block t3_chart_member_vs_non {
-        position: pos(20, 1160, 620, 360)
+        position: pos(20, 1320, 620, 360)
       }
       block t3_chart_visit_dist {
-        position: pos(660, 1160, 600, 360)
+        position: pos(660, 1320, 600, 360)
       }
       block t3_chart_points {
         position: pos(20, 1540, 1240, 340)
@@ -2011,6 +2124,16 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
       block t_footer {
         position: pos(20, 1580, 1260, 60)
+      }
+    }
+    tab tab_dsqz: CanvasLayout {
+      label: 'Untitled'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
       }
     }
   }
