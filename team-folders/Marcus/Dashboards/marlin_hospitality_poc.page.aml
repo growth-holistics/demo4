@@ -393,13 +393,12 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
   block t1_chart_daily_sales: VizBlock {
     label: 'Daily Net Sales by Venue'
     viz: LineChart {
       dataset: marlin_hospitality_mart
       x_axis: VizFieldFull {
-        ref: ref('marlin_rpt_daily_venue_sales', 'shift_date')
+        ref: r(marlin_rpt_daily_venue_sales.shift_date)
         transformation: 'datetrunc day'
         format {
           type: 'date'
@@ -407,7 +406,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
       legend: VizFieldFull {
-        ref: ref('marlin_dim_venue', 'venue_name')
+        ref: r(marlin_dim_venue.venue_name)
         format {
           type: 'text'
         }
@@ -415,12 +414,20 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       y_axis {
         series {
           field: VizFieldFull {
-            ref: 'total_net_sales'
+            label: ' '
+            ref: r(marlin_hospitality_mart.total_net_sales)
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -1833,207 +1840,182 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
 
     tab group_weekly: CanvasLayout {
       label: 'Group Weekly Performance'
-      height: 2120
+      height: 2180
       width: 1300
       grid_size: 20
       auto_expand_vertically: true
       block t1_header {
-        position: pos(20, 20, 1240, 80)
+        position: pos(20, 20, 1260, 120)
       }
       block t1_filter_date {
-        position: pos(20, 100, 400, 60)
+        position: pos(20, 160, 400, 80)
       }
       block t1_filter_venue {
-        position: pos(440, 100, 400, 60)
+        position: pos(440, 160, 400, 80)
       }
-      // Venue KPIs (row 1, respect filter)
       block t1_kpi_sales {
-        position: pos(20, 180, 200, 120)
+        position: pos(20, 260, 200, 120)
       }
       block t1_kpi_gp {
-        position: pos(228, 180, 200, 120)
+        position: pos(240, 260, 200, 120)
       }
       block t1_kpi_labour {
-        position: pos(436, 180, 200, 120)
+        position: pos(460, 260, 200, 120)
       }
       block t1_kpi_gpal {
-        position: pos(644, 180, 200, 120)
+        position: pos(680, 260, 200, 120)
       }
       block t1_kpi_labour_pct {
-        position: pos(852, 180, 200, 120)
+        position: pos(900, 260, 160, 120)
       }
       block t1_kpi_rev_per_hr {
-        position: pos(1060, 180, 200, 120)
+        position: pos(1080, 260, 200, 120)
       }
-
-      // Total KPIs (row 2, ignore venue filter)
       block t1_kpi_sales_group {
-        position: pos(20, 320, 200, 120)
+        position: pos(20, 400, 200, 120)
       }
       block t1_kpi_gp_group {
-        position: pos(228, 320, 200, 120)
+        position: pos(240, 400, 200, 120)
       }
       block t1_kpi_labour_group {
-        position: pos(436, 320, 200, 120)
+        position: pos(460, 400, 200, 120)
       }
       block t1_kpi_gpal_group {
-        position: pos(644, 320, 200, 120)
+        position: pos(680, 400, 200, 120)
       }
       block t1_kpi_labour_pct_group {
-        position: pos(852, 320, 200, 120)
+        position: pos(900, 400, 160, 120)
       }
       block t1_kpi_rev_per_hr_group {
-        position: pos(1060, 320, 200, 120)
+        position: pos(1080, 400, 200, 120)
       }
-
-      // Charts row
       block t1_chart_sales_split {
-        position: pos(20, 460, 500, 380)
+        position: pos(20, 540, 500, 360)
       }
       block t1_chart_daily_sales {
-        position: pos(540, 460, 720, 380)
+        position: pos(540, 540, 740, 360)
       }
-
-      // Labour hours stacked column (full width)
       block t1_chart_labour_hours {
-        position: pos(20, 860, 1240, 340)
+        position: pos(20, 920, 1260, 340)
       }
-
-      // Top 20 Food / Beverage
       block t1_table_top_food {
-        position: pos(20, 1220, 620, 420)
+        position: pos(20, 1280, 620, 420)
       }
       block t1_table_top_bev {
-        position: pos(660, 1220, 600, 420)
+        position: pos(660, 1280, 620, 420)
       }
-
-      // Loyalty section
       block t1_kpi_members {
-        position: pos(20, 1660, 240, 100)
+        position: pos(20, 1720, 240, 120)
       }
       block t1_kpi_new_members {
-        position: pos(280, 1660, 240, 100)
+        position: pos(280, 1720, 240, 120)
       }
       block t1_kpi_member_share {
-        position: pos(540, 1660, 240, 100)
+        position: pos(540, 1720, 240, 120)
       }
       block t1_kpi_points_net {
-        position: pos(800, 1660, 240, 100)
+        position: pos(800, 1720, 240, 120)
       }
       block t1_chart_member_spend {
-        position: pos(20, 1780, 1240, 320)
+        position: pos(20, 1860, 1260, 300)
       }
     }
 
     tab venue_manager: CanvasLayout {
       label: 'Venue Manager'
-      height: 1480
-      width: 1300
+      height: 1560
+      width: 1280
       grid_size: 20
       auto_expand_vertically: true
       block t2_header {
-        position: pos(20, 20, 1240, 80)
+        position: pos(20, 20, 1240, 120)
       }
       block t2_filter_venue {
-        position: pos(20, 100, 400, 60)
+        position: pos(20, 160, 400, 80)
       }
       block t2_filter_date {
-        position: pos(440, 100, 400, 60)
+        position: pos(440, 160, 400, 80)
       }
-
-      // KPI row
       block t2_kpi_sales {
-        position: pos(20, 180, 240, 120)
+        position: pos(20, 260, 240, 120)
       }
       block t2_kpi_gp {
-        position: pos(280, 180, 240, 120)
+        position: pos(280, 260, 240, 120)
       }
       block t2_kpi_labour_cost {
-        position: pos(540, 180, 240, 120)
+        position: pos(540, 260, 240, 120)
       }
       block t2_kpi_gpal {
-        position: pos(800, 180, 240, 120)
+        position: pos(800, 260, 240, 120)
       }
       block t2_kpi_labour_pct {
-        position: pos(1060, 180, 200, 120)
+        position: pos(1060, 260, 200, 120)
       }
-
-      // Charts
       block t2_chart_daily {
-        position: pos(20, 320, 620, 340)
+        position: pos(20, 400, 620, 340)
       }
       block t2_chart_split {
-        position: pos(660, 320, 600, 340)
+        position: pos(660, 400, 600, 340)
       }
-
-      // Daily detail
       block t2_table_daily {
-        position: pos(20, 680, 1240, 380)
+        position: pos(20, 760, 1240, 380)
       }
-
-      // Staff hours
       block t2_table_staff {
-        position: pos(20, 1080, 1240, 380)
+        position: pos(20, 1160, 1240, 380)
       }
     }
 
     tab loyalty_waterfall: CanvasLayout {
       label: 'Loyalty Waterfall'
-      height: 1860
-      width: 1300
+      height: 1900
+      width: 1280
       grid_size: 20
       auto_expand_vertically: true
       block t3_header {
         position: pos(20, 20, 1240, 80)
       }
       block t3_filter_month {
-        position: pos(20, 120, 400, 60)
+        position: pos(20, 120, 400, 80)
       }
       block t3_kpi_closing {
-        position: pos(20, 200, 240, 140)
+        position: pos(20, 220, 240, 140)
       }
       block t3_kpi_new {
-        position: pos(280, 200, 240, 140)
+        position: pos(280, 220, 240, 140)
       }
       block t3_kpi_reactivated {
-        position: pos(540, 200, 240, 140)
+        position: pos(540, 220, 240, 140)
       }
       block t3_kpi_lapsed {
-        position: pos(800, 200, 240, 120)
+        position: pos(800, 220, 240, 120)
       }
       block t3_waterfall {
-        position: pos(20, 340, 800, 380)
+        position: pos(20, 420, 800, 340)
       }
       block t3_chart_closing_trend {
-        position: pos(840, 340, 420, 380)
+        position: pos(840, 380, 420, 380)
       }
-
-      // Member movement by venue + per-venue table
       block t3_chart_movement_by_venue {
-        position: pos(20, 740, 620, 360)
+        position: pos(20, 780, 620, 360)
       }
       block t3_table_venue {
-        position: pos(660, 740, 600, 360)
+        position: pos(660, 780, 600, 360)
       }
-
-      // Member vs non-member + visit distribution
       block t3_chart_member_vs_non {
-        position: pos(20, 1120, 620, 360)
+        position: pos(20, 1160, 620, 360)
       }
       block t3_chart_visit_dist {
-        position: pos(660, 1120, 600, 360)
+        position: pos(660, 1160, 600, 360)
       }
-
-      // Points
       block t3_chart_points {
-        position: pos(20, 1500, 1240, 340)
+        position: pos(20, 1540, 1240, 340)
       }
     }
 
     tab promo_product: CanvasLayout {
       label: 'Promotional Product'
-      height: 600
-      width: 1300
+      height: 440
+      width: 1280
       grid_size: 20
       auto_expand_vertically: true
 
@@ -2044,51 +2026,42 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
 
     tab ad_hoc: CanvasLayout {
       label: 'Ad Hoc Analysis'
-      height: 1480
-      width: 1300
+      height: 1580
+      width: 1280
       grid_size: 20
       auto_expand_vertically: true
-
       block t5_header {
-        position: pos(20, 20, 1240, 60)
+        position: pos(20, 20, 1240, 120)
       }
       block t5_filter_date {
-        position: pos(20, 100, 400, 60)
+        position: pos(20, 160, 400, 100)
       }
       block t5_filter_venue {
-        position: pos(440, 100, 400, 60)
+        position: pos(440, 160, 400, 100)
       }
       block t5_filter_category {
-        position: pos(860, 100, 400, 60)
+        position: pos(860, 160, 400, 100)
       }
-
-      // KPI row
       block t5_kpi_distinct_members {
-        position: pos(20, 180, 400, 120)
+        position: pos(20, 280, 400, 120)
       }
       block t5_kpi_avg_spend {
-        position: pos(440, 180, 400, 120)
+        position: pos(440, 280, 400, 120)
       }
       block t5_kpi_avg_visits {
-        position: pos(860, 180, 400, 120)
+        position: pos(860, 280, 400, 120)
       }
-
-      // Multi-venue comparison + category mix
       block t5_chart_venue_compare {
-        position: pos(20, 320, 620, 340)
+        position: pos(20, 420, 620, 340)
       }
       block t5_chart_category_mix {
-        position: pos(660, 320, 600, 340)
+        position: pos(660, 420, 600, 340)
       }
-
-      // Top products table
       block t5_table_top_products {
-        position: pos(20, 680, 1240, 380)
+        position: pos(20, 780, 1240, 380)
       }
-
-      // Member RFM
       block t5_table_member {
-        position: pos(20, 1080, 1240, 380)
+        position: pos(20, 1180, 1240, 380)
       }
     }
   }
