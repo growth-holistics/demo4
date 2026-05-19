@@ -120,7 +120,7 @@ Powers the four POC dashboards:
   // ═══════════════════════════════════════════════════════════════════════════
 
   metric total_net_sales {
-    label: 'Total Net Sales'
+    label: 'Venue Net Sales'
     type: 'number'
     description: 'Primary revenue measure — adjusted_net_sales_ex_tax summed.'
     definition: @aql sum(marlin_rpt_daily_venue_sales.adjusted_net_sales_ex_tax);;
@@ -163,7 +163,7 @@ Powers the four POC dashboards:
   }
 
   metric gross_profit {
-    label: 'Gross Profit'
+    label: 'Venue Gross Profit'
     type: 'number'
     definition: @aql sum(marlin_rpt_daily_venue_sales.gross_profit);;
     format: '[$$]#,###0'
@@ -272,7 +272,7 @@ Powers the four POC dashboards:
   }
 
   metric total_labour_cost {
-    label: 'Total Labour Cost'
+    label: 'Venue Labour Cost'
     type: 'number'
     description: 'Smart-switch: settled payrun where available, timesheet estimate otherwise.'
     definition: @aql sum(marlin_rpt_daily_labour.effective_labour_cost);;
@@ -284,7 +284,7 @@ Powers the four POC dashboards:
   // ═══════════════════════════════════════════════════════════════════════════
 
   metric gpal {
-    label: 'GPaL'
+    label: 'Venue GPaL'
     type: 'number'
     description: 'Gross Profit after Labour = Gross Profit - Total Labour Cost.'
     definition: @aql gross_profit - total_labour_cost;;
@@ -299,7 +299,7 @@ Powers the four POC dashboards:
   }
 
   metric labour_pct_of_sales {
-    label: 'Labour % of Sales'
+    label: 'Venue Labour % of Sales'
     type: 'number'
     definition: @aql total_labour_cost / total_net_sales;;
     format: '#,###0.0%'
@@ -313,7 +313,7 @@ Powers the four POC dashboards:
   }
 
   metric revenue_per_labour_hour {
-    label: 'Revenue per Labour Hour'
+    label: 'Venue Revenue per Labour Hour'
     type: 'number'
     definition: @aql total_net_sales / total_labour_hours;;
     format: '[$$]#,###0.00'
@@ -561,5 +561,53 @@ Powers the four POC dashboards:
     type: 'number'
     definition: @aql avg(marlin_dim_member.member_visit_count);;
     format: '#,###0.0'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — H. Group totals (bypass venue filter via of_all)
+  // Used for the side-by-side "Group Total" widgets on Tab 1.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric total_net_sales_group {
+    label: 'Total Net Sales'
+    type: 'number'
+    description: 'Net sales summed across all venues regardless of venue filter.'
+    definition: @aql total_net_sales | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric gross_profit_group {
+    label: 'Total Gross Profit'
+    type: 'number'
+    definition: @aql gross_profit | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric total_labour_cost_group {
+    label: 'Total Labour Cost'
+    type: 'number'
+    definition: @aql total_labour_cost | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric gpal_group {
+    label: 'Total GPaL'
+    type: 'number'
+    definition: @aql gpal | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric labour_pct_of_sales_group {
+    label: 'Total Labour % of Sales'
+    type: 'number'
+    definition: @aql labour_pct_of_sales | of_all(marlin_dim_venue);;
+    format: '#,###0.0%'
+  }
+
+  metric revenue_per_labour_hour_group {
+    label: 'Total Revenue per Labour Hour'
+    type: 'number'
+    definition: @aql revenue_per_labour_hour | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0.00'
   }
 }

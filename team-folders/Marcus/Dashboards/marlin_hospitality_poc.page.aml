@@ -2,6 +2,7 @@ Dashboard marlin_hospitality_poc {
   title: 'Marlin Group × Mangrove — Hospitality POC'
   description: 'POC dashboard for the BI tool evaluation. Five tabs covering group weekly performance, venue-level view, loyalty waterfall, promotional product (placeholder), and ad-hoc analysis.'
   owner: 'dong.ln@holistics.io'
+  theme: marlin
 
   // ═══════════════════════════════════════════════════════════════════════════
   // BLOCK DEFINITIONS — referenced by tabs below
@@ -30,148 +31,363 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       field: ref('marlin_dim_venue', 'venue_name')
     }
   }
-
-  // ── KPI row ─────────────────────────────────────────────────────────────
   block t1_kpi_sales: VizBlock {
-    label: 'Total Net Sales'
+    label: 'Venue Net Sales'
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'total_net_sales'
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_net_sales)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('marlin_rpt_daily_venue_sales', 'shift_date')
+        field: r(marlin_rpt_daily_venue_sales.shift_date)
         value: RelativePopValue {
           duration: 1
           granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
         }
       }
     }
   }
 
   block t1_kpi_gp: VizBlock {
-    label: 'Gross Profit'
+    label: 'Venue Gross Profit'
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'gross_profit'
+        label: ' '
+        ref: r(marlin_hospitality_mart.gross_profit)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('marlin_rpt_daily_venue_sales', 'shift_date')
+        field: r(marlin_rpt_daily_venue_sales.shift_date)
         value: RelativePopValue {
           duration: 1
           granularity: 'year'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t1_kpi_labour: VizBlock {
+    label: 'Venue Labour Cost'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_labour_cost)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(marlin_rpt_daily_labour.shift_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  block t1_kpi_gpal: VizBlock {
+    label: 'Venue GPaL'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.gpal)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: r(marlin_rpt_daily_venue_sales.shift_date)
+        value: RelativePopValue {
+          duration: 1
+          granularity: 'year'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  block t1_kpi_labour_pct: VizBlock {
+    label: 'Venue Labour %'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.labour_pct_of_sales)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  block t1_kpi_rev_per_hr: VizBlock {
+    label: 'Venue Revenue / Labour Hr'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.revenue_per_labour_hour)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  // ── Total (group-level) KPIs — ignore venue filter ─────────────────────
+  block t1_kpi_sales_group: VizBlock {
+    label: 'Total Net Sales'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_net_sales_group)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  block t1_kpi_gp_group: VizBlock {
+    label: 'Total Gross Profit'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.gross_profit_group)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
+  }
+
+  block t1_kpi_labour_group: VizBlock {
     label: 'Total Labour Cost'
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'total_labour_cost'
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_labour_cost_group)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
-      compare_value: VizPopSettings {
-        field: ref('marlin_rpt_daily_labour', 'shift_date')
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'year'
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
         }
       }
     }
+
   }
 
-  block t1_kpi_gpal: VizBlock {
-    label: 'GPaL'
+  block t1_kpi_gpal_group: VizBlock {
+    label: 'Total GPaL'
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'gpal'
+        label: ' '
+        ref: r(marlin_hospitality_mart.gpal_group)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
-      compare_value: VizPopSettings {
-        field: ref('marlin_rpt_daily_venue_sales', 'shift_date')
-        value: RelativePopValue {
-          duration: 1
-          granularity: 'year'
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
         }
       }
     }
+
   }
 
-  block t1_kpi_labour_pct: VizBlock {
-    label: 'Labour % of Sales'
+  block t1_kpi_labour_pct_group: VizBlock {
+    label: 'Total Labour %'
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'labour_pct_of_sales'
+        label: ' '
+        ref: r(marlin_hospitality_mart.labour_pct_of_sales_group)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
+  }
+
+  block t1_kpi_rev_per_hr_group: VizBlock {
+    label: 'Total Revenue / Labour Hr'
+    viz: MetricKpi {
+      dataset: marlin_hospitality_mart
+      value: VizFieldFull {
+        label: ' '
+        ref: r(marlin_hospitality_mart.revenue_per_labour_hour_group)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
+    }
+
   }
 
   // ── Charts ─────────────────────────────────────────────────────────────
   block t1_chart_sales_split: VizBlock {
-    label: 'Sales Split by Venue (Food / Beverage / Other)'
-    viz: ColumnChart {
+    label: 'Sales Mix (Food / Beverage / Other)'
+    viz: PieChart {
       dataset: marlin_hospitality_mart
-      x_axis: VizFieldFull {
-        ref: ref('marlin_dim_venue', 'venue_name')
+      legend: VizFieldFull {
+        ref: ref('marlin_ref_item_classification', 'revenue_category')
         format {
           type: 'text'
         }
       }
-      y_axis {
-        settings {
-          show_data_label_by: 'value'
-          stack_series_by: 'value'
-          show_stack_total: true
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'food_sales'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'beverage_sales'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
-          }
-        }
-        series {
-          field: VizFieldFull {
-            ref: 'other_sales'
-            format {
-              type: 'number'
-              pattern: 'inherited'
-            }
+      series {
+        field: VizFieldFull {
+          ref: 'product_revenue'
+          format {
+            type: 'number'
+            pattern: 'inherited'
           }
         }
       }
@@ -209,193 +425,61 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
-  // ── Weekly performance table ───────────────────────────────────────────
-  block t1_table_weekly: VizBlock {
-    label: 'Weekly Performance by Venue'
-    viz: DataTable {
+  // ── Labour Hours by Category × Venue (stacked column) ──────────────────
+  block t1_chart_labour_hours: VizBlock {
+    label: 'Labour Hours by Category × Venue'
+    viz: ColumnChart {
       dataset: marlin_hospitality_mart
-      fields: [
-        VizFieldFull {
-          ref: ref('marlin_dim_venue', 'venue_name')
-          format {
-            type: 'text'
+      x_axis: VizFieldFull {
+        ref: ref('marlin_dim_venue', 'venue_name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        settings {
+          stack_series_by: 'value'
+          show_stack_total: true
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'management_hours'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: 'total_net_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'foh_hours'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: 'food_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'kitchen_hours'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: 'beverage_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
+        }
+        series {
+          field: VizFieldFull {
+            ref: 'other_hours'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
           }
-        },
-        VizFieldFull {
-          ref: 'other_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_discount'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'gross_profit'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_labour_cost'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'gpal'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'labour_pct_of_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'net_sales_wow_pct'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'net_sales_yoy_pct'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-      ]
+        }
+      }
     }
   }
-
-  // ── Labour table ───────────────────────────────────────────────────────
-  block t1_table_labour: VizBlock {
-    label: 'Labour Hours & Cost by Category × Venue'
-    viz: DataTable {
-      dataset: marlin_hospitality_mart
-      fields: [
-        VizFieldFull {
-          ref: ref('marlin_dim_venue', 'venue_name')
-          format {
-            type: 'text'
-          }
-        },
-        VizFieldFull {
-          ref: 'management_hours'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'foh_hours'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'kitchen_hours'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'other_hours'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'total_labour_hours'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'management_cost'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'foh_cost'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'kitchen_cost'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'other_cost'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'kitchen_pct_of_food_sales'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-        VizFieldFull {
-          ref: 'revenue_per_labour_hour'
-          format {
-            type: 'number'
-            pattern: 'inherited'
-          }
-        },
-      ]
-    }
-  }
-
   // ── Top 20 Food / Beverage ─────────────────────────────────────────────
   block t1_table_top_food: VizBlock {
     label: 'Top 20 Food Products'
@@ -503,13 +587,25 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'distinct_members'
+        label: ' '
+        ref: r(marlin_hospitality_mart.distinct_members)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t1_kpi_new_members: VizBlock {
@@ -517,13 +613,25 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'new_members_daily'
+        label: ' '
+        ref: r(marlin_hospitality_mart.new_members_daily)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t1_kpi_member_share: VizBlock {
@@ -531,13 +639,25 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'member_spend_pct_of_sales'
+        label: ' '
+        ref: r(marlin_hospitality_mart.member_spend_pct_of_sales)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t1_kpi_points_net: VizBlock {
@@ -546,33 +666,43 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
         label: 'Net Points'
-        ref: 'points_earned_daily'
+        ref: r(marlin_hospitality_mart.points_earned_daily)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
-  }
 
+  }
   block t1_chart_member_spend: VizBlock {
     label: 'Member Spend by Venue'
     viz: BarChart {
       dataset: marlin_hospitality_mart
-      legend: VizFieldFull {
-        ref: ref('marlin_dim_venue', 'venue_name')
+      x_axis: VizFieldFull {
+        ref: r(marlin_dim_venue.venue_name)
         format {
           type: 'text'
         }
       }
       y_axis {
         settings {
-          stack_series_by: 'value'
           show_stack_total: true
+          stack_series_by: 'value'
         }
         series {
           field: VizFieldFull {
-            ref: 'member_gross_revenue'
+            ref: r(marlin_hospitality_mart.member_gross_revenue)
             format {
               type: 'number'
               pattern: 'inherited'
@@ -581,12 +711,19 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
         series {
           field: VizFieldFull {
-            ref: 'non_member_revenue'
+            ref: r(marlin_hospitality_mart.non_member_revenue)
             format {
               type: 'number'
               pattern: 'inherited'
             }
           }
+        }
+      }
+      settings {
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
         }
       }
     }
@@ -605,9 +742,8 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
       dataset: marlin_hospitality_mart
       field: ref('marlin_dim_venue', 'venue_name')
     }
-    default {
-      operator: 'is'
-      value: 'Perth City Hotel'
+    settings {
+      input_type: 'single'
     }
   }
   block t2_filter_date: FilterBlock {
@@ -629,20 +765,32 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'total_net_sales'
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_net_sales)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('marlin_rpt_daily_venue_sales', 'shift_date')
+        field: r(marlin_rpt_daily_venue_sales.shift_date)
         value: RelativePopValue {
           duration: 1
           granularity: 'week'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t2_kpi_gp: VizBlock {
@@ -650,13 +798,25 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'gross_profit'
+        label: ' '
+        ref: r(marlin_hospitality_mart.gross_profit)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t2_kpi_labour_cost: VizBlock {
@@ -664,13 +824,25 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'total_labour_cost'
+        label: ' '
+        ref: r(marlin_hospitality_mart.total_labour_cost)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t2_kpi_gpal: VizBlock {
@@ -678,13 +850,25 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'gpal'
+        label: ' '
+        ref: r(marlin_hospitality_mart.gpal)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t2_kpi_labour_pct: VizBlock {
@@ -692,13 +876,25 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'labour_pct_of_sales'
+        label: ' '
+        ref: r(marlin_hospitality_mart.labour_pct_of_sales)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   // ── Daily trend ────────────────────────────────────────────────────────
@@ -949,20 +1145,32 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'closing_active'
+        label: ' '
+        ref: r(marlin_hospitality_mart.closing_active)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
       compare_value: VizPopSettings {
-        field: ref('marlin_rpt_monthly_member_waterfall', 'month_start')
+        field: r(marlin_rpt_monthly_member_waterfall.month_start)
         value: RelativePopValue {
           duration: 1
           granularity: 'month'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t3_kpi_new: VizBlock {
@@ -970,13 +1178,25 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'new_members_monthly'
+        label: ' '
+        ref: r(marlin_hospitality_mart.new_members_monthly)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t3_kpi_lapsed: VizBlock {
@@ -984,13 +1204,25 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'lapsed_members'
+        label: ' '
+        ref: r(marlin_hospitality_mart.lapsed_members)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t3_kpi_reactivated: VizBlock {
@@ -998,13 +1230,25 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'reactivated_members'
+        label: ' '
+        ref: r(marlin_hospitality_mart.reactivated_members)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   // ── Waterfall (CustomChart 13982) ──────────────────────────────────────
@@ -1507,13 +1751,25 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'distinct_members'
+        label: ' '
+        ref: r(marlin_hospitality_mart.distinct_members)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t5_kpi_avg_spend: VizBlock {
@@ -1521,13 +1777,25 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'avg_member_spend'
+        label: ' '
+        ref: r(marlin_hospitality_mart.avg_member_spend)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   block t5_kpi_avg_visits: VizBlock {
@@ -1535,13 +1803,25 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
     viz: MetricKpi {
       dataset: marlin_hospitality_mart
       value: VizFieldFull {
-        ref: 'avg_member_visits'
+        label: ' '
+        ref: r(marlin_hospitality_mart.avg_member_visits)
         format {
           type: 'number'
           pattern: 'inherited'
         }
       }
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        alignment: 'left'
+        metric_value {
+          font_size: 30
+        }
+      }
     }
+
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1553,7 +1833,7 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
 
     tab group_weekly: CanvasLayout {
       label: 'Group Weekly Performance'
-      height: 2280
+      height: 2120
       width: 1300
       grid_size: 20
       auto_expand_vertically: true
@@ -1566,59 +1846,82 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       block t1_filter_venue {
         position: pos(440, 100, 400, 60)
       }
+      // Venue KPIs (row 1, respect filter)
       block t1_kpi_sales {
-        position: pos(20, 180, 240, 140)
+        position: pos(20, 180, 200, 120)
       }
       block t1_kpi_gp {
-        position: pos(280, 180, 240, 140)
+        position: pos(228, 180, 200, 120)
       }
       block t1_kpi_labour {
-        position: pos(540, 180, 240, 140)
+        position: pos(436, 180, 200, 120)
       }
       block t1_kpi_gpal {
-        position: pos(800, 180, 240, 140)
+        position: pos(644, 180, 200, 120)
       }
       block t1_kpi_labour_pct {
-        position: pos(1060, 180, 200, 140)
+        position: pos(852, 180, 200, 120)
       }
-      block t1_chart_sales_split {
-        position: pos(20, 340, 620, 340)
-      }
-      block t1_chart_daily_sales {
-        position: pos(660, 340, 600, 340)
-      }
-      block t1_table_weekly {
-        position: pos(20, 700, 1240, 320)
+      block t1_kpi_rev_per_hr {
+        position: pos(1060, 180, 200, 120)
       }
 
-      // Labour table
-      block t1_table_labour {
-        position: pos(20, 1040, 1240, 340)
+      // Total KPIs (row 2, ignore venue filter)
+      block t1_kpi_sales_group {
+        position: pos(20, 320, 200, 120)
+      }
+      block t1_kpi_gp_group {
+        position: pos(228, 320, 200, 120)
+      }
+      block t1_kpi_labour_group {
+        position: pos(436, 320, 200, 120)
+      }
+      block t1_kpi_gpal_group {
+        position: pos(644, 320, 200, 120)
+      }
+      block t1_kpi_labour_pct_group {
+        position: pos(852, 320, 200, 120)
+      }
+      block t1_kpi_rev_per_hr_group {
+        position: pos(1060, 320, 200, 120)
+      }
+
+      // Charts row
+      block t1_chart_sales_split {
+        position: pos(20, 460, 500, 380)
+      }
+      block t1_chart_daily_sales {
+        position: pos(540, 460, 720, 380)
+      }
+
+      // Labour hours stacked column (full width)
+      block t1_chart_labour_hours {
+        position: pos(20, 860, 1240, 340)
       }
 
       // Top 20 Food / Beverage
       block t1_table_top_food {
-        position: pos(20, 1400, 620, 420)
+        position: pos(20, 1220, 620, 420)
       }
       block t1_table_top_bev {
-        position: pos(660, 1400, 600, 420)
+        position: pos(660, 1220, 600, 420)
       }
 
       // Loyalty section
       block t1_kpi_members {
-        position: pos(20, 1840, 240, 100)
+        position: pos(20, 1660, 240, 100)
       }
       block t1_kpi_new_members {
-        position: pos(280, 1840, 240, 100)
+        position: pos(280, 1660, 240, 100)
       }
       block t1_kpi_member_share {
-        position: pos(540, 1840, 240, 100)
+        position: pos(540, 1660, 240, 100)
       }
       block t1_kpi_points_net {
-        position: pos(800, 1840, 240, 100)
+        position: pos(800, 1660, 240, 100)
       }
       block t1_chart_member_spend {
-        position: pos(20, 1960, 1240, 300)
+        position: pos(20, 1780, 1240, 320)
       }
     }
 
