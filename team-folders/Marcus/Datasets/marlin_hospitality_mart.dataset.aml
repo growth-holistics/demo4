@@ -381,11 +381,19 @@ Powers the four POC dashboards:
     format: '#,###0.0%'
   }
 
+  metric member_transaction_share {
+    label: 'Member Transaction Share'
+    type: 'number'
+    description: 'Share of transactions attributed to loyalty members.'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.member_transaction_count) / sum(marlin_rpt_daily_venue_sales.transaction_count);;
+    format: '#,###0.0%'
+  }
+
   metric non_member_revenue {
     label: 'Non-Member Revenue'
     type: 'number'
-    description: 'Derived: total net sales minus member gross revenue.'
-    definition: @aql total_net_sales - member_gross_revenue;;
+    description: 'Estimated: total_net_sales × (1 − member transaction share). Uses transaction-count ratio because the underlying member_gross_revenue / member_net_revenue columns in the synthetic data are inflated.'
+    definition: @aql total_net_sales * (1 - member_transaction_share);;
     format: '[$$]#,###0'
   }
 
