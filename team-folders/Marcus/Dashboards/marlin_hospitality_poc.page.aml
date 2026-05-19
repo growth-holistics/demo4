@@ -20,23 +20,28 @@ Dashboard marlin_hospitality_poc {
     content: @md # Group Weekly Performance
 Daily and weekly view of sales, gross profit, labour, and loyalty across all venues. Use the filters to scope the week and venues.;;
   }
-
-  // ── Filters ─────────────────────────────────────────────────────────────
   block t1_filter_date: FilterBlock {
     label: 'Date'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_rpt_daily_venue_sales', 'shift_date')
+      field: r(marlin_rpt_daily_venue_sales.shift_date)
+    }
+    default {
+      operator: 'matches'
+      value: '$H_NIL$'
     }
   }
-
   block t1_filter_venue: FilterBlock {
     label: 'Venue'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_dim_venue', 'venue_name')
+      field: r(marlin_dim_venue.venue_name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
     }
   }
   block t1_kpi_sales: VizBlock {
@@ -70,7 +75,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
   block t1_kpi_gp: VizBlock {
     label: 'Venue Gross Profit'
     viz: MetricKpi {
@@ -101,9 +105,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_labour: VizBlock {
     label: 'Venue Labour Cost'
     viz: MetricKpi {
@@ -134,9 +136,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_gpal: VizBlock {
     label: 'Venue GPaL'
     viz: MetricKpi {
@@ -167,9 +167,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_labour_pct: VizBlock {
     label: 'Venue Labour %'
     viz: MetricKpi {
@@ -193,9 +191,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_rev_per_hr: VizBlock {
     label: 'Venue Revenue / Labour Hr'
     viz: MetricKpi {
@@ -219,10 +215,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
-  // ── Total (group-level) KPIs — ignore venue filter ─────────────────────
   block t1_kpi_sales_group: VizBlock {
     label: 'Total Net Sales'
     viz: MetricKpi {
@@ -246,9 +239,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_gp_group: VizBlock {
     label: 'Total Gross Profit'
     viz: MetricKpi {
@@ -272,9 +263,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_labour_group: VizBlock {
     label: 'Total Labour Cost'
     viz: MetricKpi {
@@ -298,9 +287,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_gpal_group: VizBlock {
     label: 'Total GPaL'
     viz: MetricKpi {
@@ -324,9 +311,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_labour_pct_group: VizBlock {
     label: 'Total Labour %'
     viz: MetricKpi {
@@ -350,9 +335,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_rev_per_hr_group: VizBlock {
     label: 'Total Revenue / Labour Hr'
     viz: MetricKpi {
@@ -376,10 +359,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
-  // ── Charts ─────────────────────────────────────────────────────────────
   block t1_chart_sales_split: VizBlock {
     label: 'Sales Mix (Food / Beverage / Other)'
     viz: PieChart {
@@ -440,7 +420,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-  // ── Labour Hours by Category × Venue (stacked column) ──────────────────
   block t1_chart_labour_hours: VizBlock {
     label: 'Labour Hours by Category × Venue'
     viz: ColumnChart {
@@ -495,7 +474,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-  // ── Top 20 Food / Beverage ─────────────────────────────────────────────
   block t1_table_top_food: VizBlock {
     label: 'Top 20 Food Products'
     viz: DataTable {
@@ -545,7 +523,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
   block t1_table_top_bev: VizBlock {
     label: 'Top 20 Beverage Products'
     viz: DataTable {
@@ -595,8 +572,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
-  // ── Loyalty section ────────────────────────────────────────────────────
   block t1_kpi_members: VizBlock {
     label: 'Transacting Members'
     viz: MetricKpi {
@@ -620,9 +595,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_new_members: VizBlock {
     label: 'New Members'
     viz: MetricKpi {
@@ -646,9 +619,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_member_share: VizBlock {
     label: 'Member Spend % of Sales'
     viz: MetricKpi {
@@ -672,9 +643,7 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
-
   block t1_kpi_points_net: VizBlock {
     label: 'Points Earned − Redeemed'
     viz: MetricKpi {
@@ -698,7 +667,6 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
         }
       }
     }
-
   }
   block t1_chart_member_spend: VizBlock {
     label: 'Member Spend by Venue'
@@ -743,13 +711,10 @@ Daily and weekly view of sales, gross profit, labour, and loyalty across all ven
       }
     }
   }
-
   block t2_header: TextBlock {
     content: @md # Venue Manager Dashboard
 Same metrics as the group view, scoped to a single venue selected below. _(RLS will be wired in production; for the POC use the venue dropdown.)_;;
   }
-
-  // ── Filters ─────────────────────────────────────────────────────────────
   block t2_filter_venue: FilterBlock {
     label: 'Venue'
     type: 'field'
@@ -773,8 +738,6 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
       value: '2026'
     }
   }
-
-  // ── KPIs (venue-scoped) ────────────────────────────────────────────────
   block t2_kpi_sales: VizBlock {
     label: 'Net Sales (Venue)'
     viz: MetricKpi {
@@ -805,9 +768,7 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
         }
       }
     }
-
   }
-
   block t2_kpi_gp: VizBlock {
     label: 'Gross Profit'
     viz: MetricKpi {
@@ -831,9 +792,7 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
         }
       }
     }
-
   }
-
   block t2_kpi_labour_cost: VizBlock {
     label: 'Labour Cost'
     viz: MetricKpi {
@@ -857,9 +816,7 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
         }
       }
     }
-
   }
-
   block t2_kpi_gpal: VizBlock {
     label: 'GPaL'
     viz: MetricKpi {
@@ -883,9 +840,7 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
         }
       }
     }
-
   }
-
   block t2_kpi_labour_pct: VizBlock {
     label: 'Labour % of Sales'
     viz: MetricKpi {
@@ -909,10 +864,7 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
         }
       }
     }
-
   }
-
-  // ── Daily trend ────────────────────────────────────────────────────────
   block t2_chart_daily: VizBlock {
     label: 'Daily Net Sales'
     viz: LineChart {
@@ -956,8 +908,6 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
       }
     }
   }
-
-  // ── Sales split ────────────────────────────────────────────────────────
   block t2_chart_split: VizBlock {
     label: 'Sales by Category'
     viz: ColumnChart {
@@ -1094,8 +1044,6 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
       }
     }
   }
-
-  // ── Staff hours (within venue) ─────────────────────────────────────────
   block t2_table_staff: VizBlock {
     label: 'Staff Hours by Individual'
     viz: DataTable {
@@ -1136,7 +1084,6 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
       ]
     }
   }
-
   block t3_header: TextBlock {
     content: @md # Monthly Loyalty Waterfall
 Member-base movement (opening → new → reactivated → −lapsed → closing), member vs non-member spend, and visit distribution.;;
@@ -1153,8 +1100,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       value: '2026'
     }
   }
-
-  // ── KPIs ───────────────────────────────────────────────────────────────
   block t3_kpi_closing: VizBlock {
     label: 'Closing Active Members'
     viz: MetricKpi {
@@ -1185,9 +1130,7 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
         }
       }
     }
-
   }
-
   block t3_kpi_new: VizBlock {
     label: 'New Members'
     viz: MetricKpi {
@@ -1211,9 +1154,7 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
         }
       }
     }
-
   }
-
   block t3_kpi_lapsed: VizBlock {
     label: 'Lapsed Members'
     viz: MetricKpi {
@@ -1237,9 +1178,7 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
         }
       }
     }
-
   }
-
   block t3_kpi_reactivated: VizBlock {
     label: 'Reactivated Members'
     viz: MetricKpi {
@@ -1263,10 +1202,7 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
         }
       }
     }
-
   }
-
-  // ── Waterfall (CustomChart 13982) ──────────────────────────────────────
   block t3_waterfall: VizBlock {
     label: 'Monthly Member Waterfall'
     viz: CustomChart {
@@ -1277,8 +1213,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
-  // ── Closing trend ──────────────────────────────────────────────────────
   block t3_chart_closing_trend: VizBlock {
     label: 'Closing Active Members Trend (Group)'
     viz: LineChart {
@@ -1304,8 +1238,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
-  // ── New / Reactivated / Lapsed by venue ────────────────────────────────
   block t3_chart_movement_by_venue: VizBlock {
     label: 'Member Movement by Venue (selected month)'
     viz: ColumnChart {
@@ -1351,8 +1283,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
-  // ── Per-venue waterfall table ──────────────────────────────────────────
   block t3_table_venue: VizBlock {
     label: 'Per-Venue Waterfall Components'
     viz: DataTable {
@@ -1416,8 +1346,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       ]
     }
   }
-
-  // ── Member vs non-member spend split ───────────────────────────────────
   block t3_chart_member_vs_non: VizBlock {
     label: 'Member vs Non-Member Spend'
     viz: ColumnChart {
@@ -1456,8 +1384,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
-  // ── Visit distribution ─────────────────────────────────────────────────
   block t3_chart_visit_dist: VizBlock {
     label: 'Member Visit Distribution'
     viz: ColumnChart {
@@ -1481,8 +1407,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
-  // ── Points by venue ────────────────────────────────────────────────────
   block t3_chart_points: VizBlock {
     label: 'Points Earned & Redeemed by Venue'
     viz: ColumnChart {
@@ -1515,7 +1439,6 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
-
   block t4_header: TextBlock {
     content: @md # Promotional Product Usage
 **Data gap — placeholder.** The current data mart does not include a promotions dimension, promotional-price flag, or transaction-line grain.
@@ -1527,41 +1450,46 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
 
 Once those are wired in, this tab will cover: full-price vs promo splits, time-of-day comparisons, basket size, and per-basket purchase distribution.;;
   }
-
   block t5_header: TextBlock {
     content: @md # Ad Hoc Analysis
 Open exploration using the full-grain fact tables. Filter by date, venue, and category to drill into product, member, and category-mix questions.;;
   }
-
-  // ── Filters ─────────────────────────────────────────────────────────────
   block t5_filter_date: FilterBlock {
     label: 'Date'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_fact_daily_sales', 'shift_date')
+      field: r(marlin_fact_daily_sales.shift_date)
+    }
+    default {
+      operator: 'matches'
+      value: '2026'
     }
   }
-
   block t5_filter_venue: FilterBlock {
     label: 'Venue'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_dim_venue', 'venue_name')
+      field: r(marlin_dim_venue.venue_name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
     }
   }
-
   block t5_filter_category: FilterBlock {
     label: 'Category L1'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_dim_item', 'category_l1')
+      field: r(marlin_dim_item.category_l1)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
     }
   }
-
-  // ── Top products ───────────────────────────────────────────────────────
   block t5_table_top_products: VizBlock {
     label: 'Top Products by Revenue'
     viz: DataTable {
@@ -1619,8 +1547,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
     }
   }
-
-  // ── Category mix over time ─────────────────────────────────────────────
   block t5_chart_category_mix: VizBlock {
     label: 'Category Mix Over Time'
     viz: ColumnChart {
@@ -1656,8 +1582,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
     }
   }
-
-  // ── Multi-venue comparator ─────────────────────────────────────────────
   block t5_chart_venue_compare: VizBlock {
     label: 'Multi-Venue Comparison'
     viz: ColumnChart {
@@ -1699,8 +1623,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
     }
   }
-
-  // ── Member RFM-lite ────────────────────────────────────────────────────
   block t5_table_member: VizBlock {
     label: 'Member RFM-lite'
     viz: DataTable {
@@ -1759,8 +1681,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
     }
   }
-
-  // ── Group summary ──────────────────────────────────────────────────────
   block t5_kpi_distinct_members: VizBlock {
     label: 'Distinct Members'
     viz: MetricKpi {
@@ -1784,9 +1704,7 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         }
       }
     }
-
   }
-
   block t5_kpi_avg_spend: VizBlock {
     label: 'Avg Member Spend'
     viz: MetricKpi {
@@ -1810,9 +1728,7 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         }
       }
     }
-
   }
-
   block t5_kpi_avg_visits: VizBlock {
     label: 'Avg Member Visits'
     viz: MetricKpi {
@@ -1836,16 +1752,9 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         }
       }
     }
-
   }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // VIEW — TabLayout with 5 tabs
-  // ═══════════════════════════════════════════════════════════════════════════
-
   view: TabLayout {
     label: 'POC'
-
     tab group_weekly: CanvasLayout {
       label: 'Group Weekly Performance'
       height: 2240
@@ -1934,7 +1843,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(20, 2180, 1260, 30)
       }
     }
-
     tab venue_manager: CanvasLayout {
       label: 'Venue Manager'
       height: 1620
@@ -1984,7 +1892,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(20, 1560, 1260, 30)
       }
     }
-
     tab loyalty_waterfall: CanvasLayout {
       label: 'Loyalty Waterfall'
       height: 1960
@@ -2037,7 +1944,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(20, 1900, 1260, 30)
       }
     }
-
     tab promo_product: CanvasLayout {
       label: 'Promotional Product'
       height: 500
@@ -2055,7 +1961,6 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(20, 440, 1260, 30)
       }
     }
-
     tab ad_hoc: CanvasLayout {
       label: 'Ad Hoc Analysis'
       height: 1640
