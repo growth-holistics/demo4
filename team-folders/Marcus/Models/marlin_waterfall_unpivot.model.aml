@@ -1,0 +1,59 @@
+Model marlin_waterfall_unpivot {
+  type: 'query'
+  label: 'Waterfall (Unpivoted)'
+  description: 'Long-format view of rpt_monthly_member_waterfall — one row per waterfall step (Opening, +New, +Reactivated, −Lapsed, =Closing). Powers the CustomChart waterfall on Tab 3.'
+  data_source_name: 'demo_marlin_mangrove_sample'
+
+  dimension label {
+    label: 'Label'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.label }} ;;
+  }
+
+  dimension sort_order {
+    label: 'Sort Order'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.sort_order }} ;;
+  }
+
+  dimension month_start {
+    label: 'Month Start'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_start }}::date ;;
+  }
+
+  dimension venue_id {
+    label: 'Venue Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.venue_id }} ;;
+  }
+
+  measure amount {
+    label: 'Amount'
+    type: 'number'
+    description: 'Bar value — positive for inflows (Opening, New, Reactivated, Closing), negative for Lapsed.'
+    definition: @sql sum({{ #SOURCE.amount }}) ;;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  query: @sql
+    SELECT '1. Opening' AS label, 1 AS sort_order, opening_active_count::numeric AS amount, month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '2. + New', 2, new_member_count::numeric, month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '3. + Reactivated', 3, reactivated_count::numeric, month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '4. - Lapsed', 4, -lapsed_count::numeric, month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '5. = Closing', 5, closing_active_count::numeric, month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+  ;;
+}

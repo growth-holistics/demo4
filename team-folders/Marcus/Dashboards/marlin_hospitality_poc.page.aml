@@ -1083,15 +1083,15 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
 Member-base movement (opening → new → reactivated → −lapsed → closing), member vs non-member spend, and visit distribution.;;
   }
   block t3_filter_month: FilterBlock {
-    label: 'Month'
+    label: 'Date Range'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: r(marlin_rpt_monthly_member_waterfall.month_start)
+      field: r(marlin_dim_date.date_id)
     }
     default {
       operator: 'matches'
-      value: '2026'
+      value: 'Jan 2026'
     }
   }
   block t3_kpi_closing: VizBlock {
@@ -1202,6 +1202,19 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
     viz: CustomChart {
       dataset: marlin_hospitality_mart
       custom_chart_id: 13982
+      field amount: VizFieldFull {
+        ref: r(marlin_waterfall_unpivot.amount)
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      field label: VizFieldFull {
+        ref: r(marlin_waterfall_unpivot.label)
+        format {
+          type: 'text'
+        }
+      }
       settings {
         row_limit: 5000
       }
@@ -1998,6 +2011,16 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
       }
       block t_footer {
         position: pos(20, 1580, 1260, 60)
+      }
+    }
+    tab tab_dsqz: CanvasLayout {
+      label: 'Untitled'
+      width: 1300
+      height: 800
+      grid_size: 20
+      auto_expand_vertically: true
+      mobile {
+        mode: 'auto'
       }
     }
   }
