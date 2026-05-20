@@ -1391,6 +1391,205 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
+  block t3_compare_matrix: VizBlock {
+    label: 'Member vs Non-Member Comparison'
+    viz: MarkdownViz {
+      dataset: marlin_hospitality_mart
+      rows: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_all)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_v)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_revenue_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_txn_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_avg_txn_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_food_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_beverage_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_other_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_revenue)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_txn_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_avg_txn_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_food_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_beverage_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_other_est)
+          aggregation: 'sum'
+          format { type: 'number' pattern: 'inherited' }
+        }
+      ]
+      content: @md <style>
+  .cmp {
+    display: flex;
+    gap: 16px;
+    padding: 20px 16px 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Montserrat", sans-serif;
+  }
+  .cmp .panel {
+    flex: 1;
+    padding: 20px 22px 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+  .cmp .panel.m { background: #eff6ff; border-color: #bfdbfe; }
+  .cmp .panel.n { background: #f5f3ff; border-color: #ddd6fe; }
+  .cmp .panel .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .cmp .panel.m .badge { background: #1d4ed8; color: #fff; }
+  .cmp .panel.n .badge { background: #7c3aed; color: #fff; }
+  .cmp .panel .headline {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 14px;
+  }
+  .cmp .panel .headline .big {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: #0f172a;
+  }
+  .cmp .panel .headline .meta {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
+  }
+  .cmp .panel .headline .meta strong { color: #334155; }
+  .cmp .panel .row {
+    display: grid;
+    grid-template-columns: 90px 1fr 96px;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .cmp .panel .row .lbl {
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+  }
+  .cmp .panel .row .bar-track {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .cmp .panel .row .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .cmp .panel.m .bar-fill { background: #2563eb; }
+  .cmp .panel.n .bar-fill { background: #8b5cf6; }
+  .cmp .panel .row .val {
+    text-align: right;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  .cmp-note {
+    padding: 0 18px 18px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-style: italic;
+  }
+</style>
+
+<div class="cmp">
+{% map(rows) %}
+{% map(values) %}
+<div class="panel m">
+<div class="badge">Members</div>
+<div class="headline">
+<div class="big">{{ value.`Member Revenue (est)` }}</div>
+<div class="meta"><strong>{{ value.`Member Transactions (est)` }}</strong> txns &middot; avg <strong>{{ value.`Member Avg Txn (est)` }}</strong></div>
+</div>
+<div class="row"><span class="lbl">Food</span><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><span class="val">{{ value.`Member Food (est)` }}</span></div>
+<div class="row"><span class="lbl">Beverage</span><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div><span class="val">{{ value.`Member Beverage (est)` }}</span></div>
+<div class="row"><span class="lbl">Other</span><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><span class="val">{{ value.`Member Other (est)` }}</span></div>
+</div>
+<div class="panel n">
+<div class="badge">Non-Members</div>
+<div class="headline">
+<div class="big">{{ value.`Non-Member Revenue` }}</div>
+<div class="meta"><strong>{{ value.`Non-Member Transactions (est)` }}</strong> txns &middot; avg <strong>{{ value.`Non-Member Avg Txn (est)` }}</strong></div>
+</div>
+<div class="row"><span class="lbl">Food</span><div class="bar-track"><div class="bar-fill" style="width:75%"></div></div><span class="val">{{ value.`Non-Member Food (est)` }}</span></div>
+<div class="row"><span class="lbl">Beverage</span><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div><span class="val">{{ value.`Non-Member Beverage (est)` }}</span></div>
+<div class="row"><span class="lbl">Other</span><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><span class="val">{{ value.`Non-Member Other (est)` }}</span></div>
+</div>
+{% end %}
+{% end %}
+</div>
+<div class="cmp-note">Member / non-member split is estimated using transaction-share ratio. Category mix (food / beverage / other) is assumed uniform across segments until per-member category data is available in production.</div>
+;;
+    }
+  }
+
   block t3_chart_visit_dist: VizBlock {
     label: 'Member Visit Distribution'
     viz: ColumnChart {
