@@ -1504,6 +1504,246 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
+  block t3_compare_matrix: VizBlock {
+    label: 'Member vs Non-Member Comparison'
+    viz: MarkdownViz {
+      dataset: marlin_hospitality_mart
+      rows: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_all)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_v)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_revenue_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_avg_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_food_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_beverage_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_other_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_avg_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_food_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_beverage_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_other_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .cmp {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Montserrat", sans-serif;
+  }
+  .cmp .panel {
+    flex: 1;
+    padding: 18px 22px 16px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+  }
+  .cmp .panel.m { background: #eff6ff; border-color: #bfdbfe; }
+  .cmp .panel.n { background: #f5f3ff; border-color: #ddd6fe; }
+  .cmp .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .cmp .panel.m .badge { background: #1d4ed8; color: #fff; }
+  .cmp .panel.n .badge { background: #7c3aed; color: #fff; }
+
+  .cmp .kpis {
+    display: flex;
+    gap: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    margin-bottom: 14px;
+  }
+  .cmp .kpi { display: flex; flex-direction: column; }
+  .cmp .kpi-lbl {
+    font-size: 9px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cmp .kpi-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+  }
+
+  .cmp .cat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 10px 0 4px;
+    font-size: 12px;
+  }
+  .cmp .cat-head .cat-lbl {
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+  }
+  .cmp .cat-head .cat-val {
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .cmp .cat-bar {
+    height: 6px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cmp .cat-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: calc(var(--v, 0) / 60000 * 100%);
+    max-width: 100%;
+  }
+  .cmp .panel.m .cat-fill { background: #2563eb; }
+  .cmp .panel.n .cat-fill { background: #8b5cf6; }
+
+  .cmp-note {
+    padding: 0 18px 12px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-style: italic;
+  }
+</style>
+
+<div class="cmp">
+{% map(rows) %}
+{% map(values) %}
+<div class="panel m">
+<div class="badge">Members</div>
+<div class="kpis">
+<div class="kpi"><span class="kpi-lbl">Revenue</span><span class="kpi-val">{{ value.`Member Revenue (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Transactions</span><span class="kpi-val">{{ value.`Member Transactions (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Avg Txn</span><span class="kpi-val">{{ value.`Member Avg Txn (est)` }}</span></div>
+</div>
+<div class="cat-head"><span class="cat-lbl">Food</span><span class="cat-val">{{ value.`Member Food (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Food (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Beverage</span><span class="cat-val">{{ value.`Member Beverage (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Beverage (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Other</span><span class="cat-val">{{ value.`Member Other (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Other (est)`.raw }};"></div></div>
+</div>
+<div class="panel n">
+<div class="badge">Non-Members</div>
+<div class="kpis">
+<div class="kpi"><span class="kpi-lbl">Revenue</span><span class="kpi-val">{{ value.`Non-Member Revenue` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Transactions</span><span class="kpi-val">{{ value.`Non-Member Transactions (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Avg Txn</span><span class="kpi-val">{{ value.`Non-Member Avg Txn (est)` }}</span></div>
+</div>
+<div class="cat-head"><span class="cat-lbl">Food</span><span class="cat-val">{{ value.`Non-Member Food (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Food (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Beverage</span><span class="cat-val">{{ value.`Non-Member Beverage (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Beverage (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Other</span><span class="cat-val">{{ value.`Non-Member Other (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Other (est)`.raw }};"></div></div>
+</div>
+{% end %}
+{% end %}
+</div>
+<div class="cmp-note">Member / non-member split is estimated via transaction-share ratio. Category mix is assumed uniform across segments until per-member category data is available in production.</div>
+;;
+    }
+  }
+
   block t3_chart_visit_dist: VizBlock {
     label: 'Member Visit Distribution'
     viz: ColumnChart {
@@ -2014,7 +2254,7 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
     }
     tab loyalty_waterfall: CanvasLayout {
       label: 'Loyalty Waterfall'
-      height: 1980
+      height: 2500
       width: 1280
       grid_size: 20
       auto_expand_vertically: true
@@ -2058,10 +2298,13 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(660, 1320, 600, 360)
       }
       block t3_chart_points {
-        position: pos(20, 1540, 1240, 340)
+        position: pos(20, 1700, 1240, 340)
+      }
+      block t3_compare_matrix {
+        position: pos(20, 2060, 1240, 340)
       }
       block t_footer {
-        position: pos(20, 1900, 1260, 60)
+        position: pos(20, 2420, 1260, 60)
       }
     }
     tab promo_product: CanvasLayout {
