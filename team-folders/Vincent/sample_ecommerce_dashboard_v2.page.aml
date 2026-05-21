@@ -1,0 +1,716 @@
+Dashboard sample_ecommerce_dashboard_v2 {
+  title: 'Sample Ecommerce Dashboard V2 (Richer)'
+
+  block t1: TextBlock {
+    content: @md <h1 style="text-align:center;">🛒 Sample Ecommerce Dashboard — V2</h1><p style="text-align:center;">Executive view of GMV → NMV → Revenue, operational health, and customer loyalty using <code>demo_ecommerce_version_2</code>.</p>;;
+  }
+
+  block f_date: FilterBlock {
+    label: 'Date Range'
+    type: 'date'
+    default {
+      operator: 'last'
+      value: '12'
+      modifier: 'month'
+    }
+  }
+
+  block f_country: FilterBlock {
+    label: 'Country'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('ecommerce_countries', 'name')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  block f_category: FilterBlock {
+    label: 'Parent Category'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: ref('map_categories', 'parent_category')
+    }
+    default {
+      operator: 'is'
+      value: []
+    }
+  }
+
+  block v_revenue: VizBlock {
+    label: 'Total Revenue'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('demo_ecommerce_version_2', 'revenue')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_gmv: VizBlock {
+    label: 'GMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('demo_ecommerce_version_2', 'gmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_nmv: VizBlock {
+    label: 'NMV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('demo_ecommerce_version_2', 'nmv')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_orders: VizBlock {
+    label: 'Total Orders'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('demo_ecommerce_version_2', 'total_orders')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_aov: VizBlock {
+    label: 'AOV'
+    viz: MetricKpi {
+      dataset: demo_ecommerce_version_2
+      value: VizFieldFull {
+        ref: ref('demo_ecommerce_version_2', 'aov')
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      compare_value: VizPopSettings {
+        field: ref('ecommerce_orders', 'created_at')
+        duration: 1
+        granularity: 'year'
+      }
+      settings {
+        aggregate_awareness {
+          enabled: true
+        }
+        alignment: 'center'
+      }
+    }
+    settings {
+      hide_label: true
+    }
+  }
+
+  block v_revenue_gmv_trend: VizBlock {
+    label: 'GMV (bar) & Revenue (line) Over Time'
+    viz: CombinationChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc month'
+        label: 'Month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        label: 'GMV'
+        series {
+          mark_type: 'column'
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'gmv')
+            label: 'GMV'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#60A5FA'
+          }
+        }
+      }
+      y_axis {
+        label: 'Revenue'
+        series {
+          mark_type: 'line'
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'revenue')
+            label: 'Revenue'
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F97316'
+            line_style: 'solid'
+          }
+        }
+        settings {
+          alignment: 'right'
+        }
+      }
+      settings {
+        x_axis_label: 'Month'
+        legend_label: 'top'
+        x_axis_show_null_datetime: false
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_fulfillment: VizBlock {
+    label: 'Order Fulfillment Rate Over Time'
+    viz: LineChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'order_fulfillment_rate')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#10B981'
+            line_interpolation: 'smooth'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_status_pie: VizBlock {
+    label: 'Orders by Status'
+    viz: PieChart {
+      dataset: demo_ecommerce_version_2
+      legend: VizFieldFull {
+        ref: ref('ecommerce_orders', 'status')
+        label: 'Status'
+      }
+      series {
+        field: VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'total_orders')
+          label: 'Total Orders'
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      }
+      settings {
+        display_as_donut: true
+        legend_label: 'right'
+        show_data_label: true
+        show_percentage: true
+        data_label_position: 'outside'
+        row_limit: 500
+        sort: 'desc'
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_loss_value: VizBlock {
+    label: 'Delivered vs Cancelled vs Refunded Value'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_orders', 'created_at')
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        settings {
+          show_stack_total: false
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'delivered_value')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#10B981'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'cancelled_value')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'refunded_value')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#EF4444'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        x_axis_show_null_datetime: false
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_country_revenue: VizBlock {
+    label: 'Revenue by Country (Top 10)'
+    viz: BarChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_countries', 'name')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'revenue')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color_palette: 0
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort {
+          type: 'yaxis'
+          direction: 'desc'
+        }
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_top_categories: VizBlock {
+    label: 'Top Categories by GMV'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('map_categories', 'parent_category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('map_categories', 'category')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'gmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'total_orders')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'aov')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 10
+        sorts: [
+          SortSetting {
+            field_index: 2
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_top_merchants: VizBlock {
+    label: 'Top Merchants by Revenue'
+    viz: DataTable {
+      dataset: demo_ecommerce_version_2
+      fields: [
+        VizFieldFull {
+          ref: ref('ecommerce_merchants', 'name')
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'revenue')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'gmv')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'total_orders')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'cancelled_order_ratio')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      settings {
+        show_row_number: true
+        row_limit: 10
+        sorts: [
+          SortSetting {
+            field_index: 1
+            direction: 'desc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_age_buyers: VizBlock {
+    label: 'Buyers vs Repeat Buyers by Age Group'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        ref: ref('ecommerce_users', 'age_group')
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'total_buyers')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#2563EB'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: ref('demo_ecommerce_version_2', 'total_repeated_buyers')
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+          settings {
+            color: '#7C3AED'
+          }
+        }
+      }
+      settings {
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  block v_repeat_kpi: VizBlock {
+    label: 'Customer Loyalty Snapshot'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation repeat_rate {
+        label: 'Repeat Buyer Rate'
+        formula: @aql safe_divide(total_repeated_buyers, total_buyers);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          ref: ref('ecommerce_users', 'gender')
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'total_buyers')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: ref('demo_ecommerce_version_2', 'total_repeated_buyers')
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          label: 'Repeat Buyer Rate'
+          ref: 'repeat_rate'
+          format {
+            type: 'number'
+            pattern: '#,###0.00%'
+          }
+        }
+      ]
+      settings {
+        show_row_total: true
+        show_column_total: false
+        row_limit: 5000
+        aggregate_awareness {
+          enabled: true
+        }
+      }
+    }
+  }
+
+  view: CanvasLayout {
+    label: 'Overview'
+    width: 1600
+    height: 2000
+    grid_size: 20
+    auto_expand_vertically: true
+    block t1 {
+      position: pos(20, 20, 1560, 80)
+      layer: 1
+    }
+    block f_date {
+      position: pos(20, 120, 500, 80)
+      layer: 2
+    }
+    block f_country {
+      position: pos(540, 120, 520, 80)
+      layer: 3
+    }
+    block f_category {
+      position: pos(1080, 120, 500, 80)
+      layer: 4
+    }
+    block v_revenue {
+      position: pos(20, 220, 300, 140)
+      layer: 5
+    }
+    block v_gmv {
+      position: pos(340, 220, 300, 140)
+      layer: 6
+    }
+    block v_nmv {
+      position: pos(660, 220, 300, 140)
+      layer: 7
+    }
+    block v_orders {
+      position: pos(980, 220, 300, 140)
+      layer: 8
+    }
+    block v_aov {
+      position: pos(1300, 220, 280, 140)
+      layer: 9
+    }
+    block v_revenue_gmv_trend {
+      position: pos(20, 380, 1000, 360)
+      layer: 10
+    }
+    block v_fulfillment {
+      position: pos(1040, 380, 540, 360)
+      layer: 11
+    }
+    block v_status_pie {
+      position: pos(20, 760, 500, 360)
+      layer: 12
+    }
+    block v_loss_value {
+      position: pos(540, 760, 540, 360)
+      layer: 13
+    }
+    block v_country_revenue {
+      position: pos(1100, 760, 480, 360)
+      layer: 14
+    }
+    block v_top_categories {
+      position: pos(20, 1140, 780, 400)
+      layer: 15
+    }
+    block v_top_merchants {
+      position: pos(820, 1140, 760, 400)
+      layer: 16
+    }
+    block v_age_buyers {
+      position: pos(20, 1560, 780, 360)
+      layer: 17
+    }
+    block v_repeat_kpi {
+      position: pos(820, 1560, 760, 360)
+      layer: 18
+    }
+    mobile {
+      mode: 'auto'
+    }
+  }
+}
