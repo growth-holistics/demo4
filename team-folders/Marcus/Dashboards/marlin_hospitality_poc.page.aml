@@ -714,10 +714,14 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: ref('marlin_dim_venue', 'venue_name')
+      field: r(marlin_dim_venue.venue_name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
     }
     settings {
-      input_type: 'single'
+      input_type: 'multiple'
     }
   }
   block t2_filter_date: FilterBlock {
@@ -1083,11 +1087,11 @@ Same metrics as the group view, scoped to a single venue selected below. _(RLS w
 Member-base movement (opening → new → reactivated → −lapsed → closing), member vs non-member spend, and visit distribution.;;
   }
   block t3_filter_month: FilterBlock {
-    label: 'Date Range'
+    label: 'Month'
     type: 'field'
     source: FieldFilterSource {
       dataset: marlin_hospitality_mart
-      field: r(marlin_dim_date.date_id)
+      field: r(marlin_dim_month.month_start)
     }
     default {
       operator: 'matches'
@@ -1199,25 +1203,121 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
   }
   block t3_waterfall: VizBlock {
     label: 'Monthly Member Waterfall'
-    viz: CustomChart {
+    viz: MarkdownViz {
       dataset: marlin_hospitality_mart
-      custom_chart_id: 13982
-      field amount: VizFieldFull {
-        ref: r(marlin_waterfall_unpivot.amount)
-        format {
-          type: 'number'
-          pattern: 'inherited'
+      rows: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.label)
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_class)
+          format {
+            type: 'text'
+          }
         }
-      }
-      field label: VizFieldFull {
-        ref: r(marlin_waterfall_unpivot.label)
-        format {
-          type: 'text'
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.value_label)
+          format {
+            type: 'text'
+          }
         }
-      }
-      settings {
-        row_limit: 5000
-      }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.amount)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_min)
+          format {
+            type: 'number'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_waterfall_unpivot.bar_max)
+          format {
+            type: 'number'
+          }
+        }
+      ]
+      content: @md <style>
+  .wf {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    padding: 28px 16px 48px;
+    height: 400px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Montserrat", sans-serif;
+    position: relative;
+    --top: 200000;
+  }
+  .wf .col {
+    flex: 1;
+    min-width: 110px;
+    position: relative;
+    height: 100%;
+  }
+  .wf .bar {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: calc(var(--min, 0) / var(--top, 1) * 100%);
+    height: calc((var(--max-y, 0) - var(--min, 0)) / var(--top, 1) * 100%);
+    min-height: 3px;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .wf .col .val {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--max-y, 0) / var(--top, 1) * 100% + 4px);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+  }
+  .wf .col .axis-lbl {
+    position: absolute;
+    bottom: -32px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .wf .bar.total { background: #fef3c7; border: 1px solid #fde68a; }
+  .wf .bar.add { background: #d1fae5; border: 1px solid #a7f3d0; }
+  .wf .bar.sub { background: #fee2e2; border: 1px solid #fecaca; }
+  .wf .col.total .val { color: #78350f; }
+  .wf .col.add .val { color: #065f46; }
+  .wf .col.sub .val { color: #991b1b; }
+</style>
+
+<div class="wf">
+{% map(rows) %}
+{% map(values) %}
+<div class="col {{ `Bar Class`.raw }}" style="--min: {{ value.`Bar Min`.raw }}; --max-y: {{ value.`Bar Max`.raw }};">
+<div class="bar {{ `Bar Class`.raw }}"></div>
+<div class="val">{{ value.`Amount` }}</div>
+<div class="axis-lbl">{{ `Label` }}</div>
+</div>
+{% end %}
+{% end %}
+</div>
+;;
     }
   }
   block t3_chart_closing_trend: VizBlock {
@@ -1296,61 +1396,74 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       dataset: marlin_hospitality_mart
       fields: [
         VizFieldFull {
-          ref: ref('marlin_dim_venue', 'venue_name')
+          ref: r(marlin_dim_venue.venue_name)
           format {
             type: 'text'
           }
+          uname: 'marlin_dim_venue_venue_name'
         },
         VizFieldFull {
-          ref: 'opening_active'
+          ref: r(marlin_hospitality_mart.opening_active)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'new_members_monthly'
+          ref: r(marlin_hospitality_mart.new_members_monthly)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'reactivated_members'
+          ref: r(marlin_hospitality_mart.reactivated_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'retained_members'
+          ref: r(marlin_hospitality_mart.retained_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'lapsed_members'
+          ref: r(marlin_hospitality_mart.lapsed_members)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'closing_active'
+          ref: r(marlin_hospitality_mart.closing_active)
           format {
             type: 'number'
             pattern: 'inherited'
           }
         },
         VizFieldFull {
-          ref: 'waterfall_member_revenue'
+          ref: r(marlin_hospitality_mart.waterfall_member_revenue)
           format {
             type: 'number'
             pattern: 'inherited'
           }
-        },
+        }
       ]
+      settings {
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+        column_styles: [
+          ColumnStyle {
+            key: 'marlin_dim_venue_venue_name'
+            width: 155
+          }
+        ]
+      }
     }
   }
   block t3_chart_member_vs_non: VizBlock {
@@ -1391,6 +1504,246 @@ Member-base movement (opening → new → reactivated → −lapsed → closing)
       }
     }
   }
+  block t3_compare_matrix: VizBlock {
+    label: 'Member vs Non-Member Comparison'
+    viz: MarkdownViz {
+      dataset: marlin_hospitality_mart
+      rows: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_all)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      columns: [
+        VizFieldFull {
+          ref: r(marlin_rpt_daily_venue_sales.const_v)
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_revenue_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_avg_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_food_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_beverage_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.member_other_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_revenue)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_avg_txn_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_food_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_beverage_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        },
+        VizFieldFull {
+          ref: r(marlin_hospitality_mart.non_member_other_est)
+          format {
+            type: 'number'
+            pattern: 'inherited'
+          }
+        }
+      ]
+      content: @md <style>
+  .cmp {
+    display: flex;
+    gap: 16px;
+    padding: 18px 16px 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Montserrat", sans-serif;
+  }
+  .cmp .panel {
+    flex: 1;
+    padding: 18px 22px 16px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+  }
+  .cmp .panel.m { background: #eff6ff; border-color: #bfdbfe; }
+  .cmp .panel.n { background: #f5f3ff; border-color: #ddd6fe; }
+  .cmp .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .cmp .panel.m .badge { background: #1d4ed8; color: #fff; }
+  .cmp .panel.n .badge { background: #7c3aed; color: #fff; }
+
+  .cmp .kpis {
+    display: flex;
+    gap: 24px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    margin-bottom: 14px;
+  }
+  .cmp .kpi { display: flex; flex-direction: column; }
+  .cmp .kpi-lbl {
+    font-size: 9px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cmp .kpi-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+  }
+
+  .cmp .cat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 10px 0 4px;
+    font-size: 12px;
+  }
+  .cmp .cat-head .cat-lbl {
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 10px;
+  }
+  .cmp .cat-head .cat-val {
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .cmp .cat-bar {
+    height: 6px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .cmp .cat-fill {
+    height: 100%;
+    border-radius: 3px;
+    width: calc(var(--v, 0) / 60000 * 100%);
+    max-width: 100%;
+  }
+  .cmp .panel.m .cat-fill { background: #2563eb; }
+  .cmp .panel.n .cat-fill { background: #8b5cf6; }
+
+  .cmp-note {
+    padding: 0 18px 12px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-style: italic;
+  }
+</style>
+
+<div class="cmp">
+{% map(rows) %}
+{% map(values) %}
+<div class="panel m">
+<div class="badge">Members</div>
+<div class="kpis">
+<div class="kpi"><span class="kpi-lbl">Revenue</span><span class="kpi-val">{{ value.`Member Revenue (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Transactions</span><span class="kpi-val">{{ value.`Member Transactions (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Avg Txn</span><span class="kpi-val">{{ value.`Member Avg Txn (est)` }}</span></div>
+</div>
+<div class="cat-head"><span class="cat-lbl">Food</span><span class="cat-val">{{ value.`Member Food (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Food (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Beverage</span><span class="cat-val">{{ value.`Member Beverage (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Beverage (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Other</span><span class="cat-val">{{ value.`Member Other (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Member Other (est)`.raw }};"></div></div>
+</div>
+<div class="panel n">
+<div class="badge">Non-Members</div>
+<div class="kpis">
+<div class="kpi"><span class="kpi-lbl">Revenue</span><span class="kpi-val">{{ value.`Non-Member Revenue` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Transactions</span><span class="kpi-val">{{ value.`Non-Member Transactions (est)` }}</span></div>
+<div class="kpi"><span class="kpi-lbl">Avg Txn</span><span class="kpi-val">{{ value.`Non-Member Avg Txn (est)` }}</span></div>
+</div>
+<div class="cat-head"><span class="cat-lbl">Food</span><span class="cat-val">{{ value.`Non-Member Food (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Food (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Beverage</span><span class="cat-val">{{ value.`Non-Member Beverage (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Beverage (est)`.raw }};"></div></div>
+<div class="cat-head"><span class="cat-lbl">Other</span><span class="cat-val">{{ value.`Non-Member Other (est)` }}</span></div>
+<div class="cat-bar"><div class="cat-fill" style="--v: {{ value.`Non-Member Other (est)`.raw }};"></div></div>
+</div>
+{% end %}
+{% end %}
+</div>
+<div class="cmp-note">Member / non-member split is estimated via transaction-share ratio. Category mix is assumed uniform across segments until per-member category data is available in production.</div>
+;;
+    }
+  }
+
   block t3_chart_visit_dist: VizBlock {
     label: 'Member Visit Distribution'
     viz: ColumnChart {
@@ -1901,7 +2254,7 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
     }
     tab loyalty_waterfall: CanvasLayout {
       label: 'Loyalty Waterfall'
-      height: 1980
+      height: 2500
       width: 1280
       grid_size: 20
       auto_expand_vertically: true
@@ -1927,28 +2280,31 @@ Open exploration using the full-grain fact tables. Filter by date, venue, and ca
         position: pos(800, 260, 240, 140)
       }
       block t3_waterfall {
-        position: pos(20, 420, 800, 340)
+        position: pos(20, 420, 800, 500)
       }
       block t3_chart_closing_trend {
-        position: pos(840, 420, 420, 340)
+        position: pos(840, 420, 420, 500)
       }
       block t3_chart_movement_by_venue {
-        position: pos(20, 780, 620, 360)
+        position: pos(20, 940, 620, 360)
       }
       block t3_table_venue {
-        position: pos(660, 780, 600, 360)
+        position: pos(660, 940, 600, 360)
       }
       block t3_chart_member_vs_non {
-        position: pos(20, 1160, 620, 360)
+        position: pos(20, 1320, 620, 360)
       }
       block t3_chart_visit_dist {
-        position: pos(660, 1160, 600, 360)
+        position: pos(660, 1320, 600, 360)
       }
       block t3_chart_points {
-        position: pos(20, 1540, 1240, 340)
+        position: pos(20, 2060, 1240, 340)
+      }
+      block t3_compare_matrix {
+        position: pos(20, 1700, 1240, 340)
       }
       block t_footer {
-        position: pos(20, 1900, 1260, 60)
+        position: pos(20, 2420, 1260, 60)
       }
     }
     tab promo_product: CanvasLayout {
