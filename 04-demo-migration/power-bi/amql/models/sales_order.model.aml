@@ -1,0 +1,40 @@
+Model sales_order {
+  type: 'query'
+  label: 'Sales Order'
+  description: 'AdventureWorks sales order detail (1:1 with sales fact on SalesOrderLineKey).'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "SalesOrderLineKey" as sales_order_line_key,
+      "Channel"           as channel,
+      "Sales Order"       as sales_order,
+      "Sales Order Line"  as sales_order_line
+    from main.sales_order
+  ;;
+
+  dimension sales_order_line_key {
+    label: 'Sales Order Line Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.sales_order_line_key }};;
+  }
+
+  dimension channel {
+    label: 'Channel'
+    type: 'text'
+    definition: @sql {{ #SOURCE.channel }};;
+  }
+
+  dimension sales_order {
+    label: 'Sales Order'
+    type: 'text'
+    definition: @sql {{ #SOURCE.sales_order }};;
+  }
+
+  dimension sales_order_line {
+    label: 'Sales Order Line'
+    type: 'text'
+    definition: @sql {{ #SOURCE.sales_order_line }};;
+  }
+}
