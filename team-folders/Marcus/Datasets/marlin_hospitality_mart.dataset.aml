@@ -1,0 +1,719 @@
+Dataset marlin_hospitality_mart {
+  label: 'Marlin Hospitality Mart'
+  description: '''
+Hospitality data mart for the Marlin Group × Mangrove Digital BI Tool POC.
+Models a Bepoz (POS) + Employment Hero (HR/Payroll) data mart over 15 months
+(Jan 2025 – Apr 2026) across 7 venues in WA and NT.
+
+Powers the four POC dashboards:
+1. Group Weekly Performance — uses rpt_daily_venue_sales + rpt_daily_labour + rpt_daily_member_summary
+2. Venue Manager Dashboard — same tables, filtered by venue_id
+3. Monthly Loyalty Waterfall — uses rpt_monthly_member_waterfall
+4. Ad Hoc Analysis — uses fact_daily_sales + fact_daily_member_activity + dim_item + dim_member
+'''
+  data_source_name: 'demo_marlin_mangrove_sample'
+  owner: 'dong.ln@holistics.io'
+
+  models: [
+    marlin_dim_venue,
+    marlin_dim_date,
+    marlin_dim_public_holiday,
+    marlin_dim_item,
+    marlin_dim_size,
+    marlin_dim_member,
+    marlin_dim_staff,
+    marlin_ref_venue_location_map,
+    marlin_ref_pay_component_classification,
+    marlin_ref_item_classification,
+    marlin_fact_daily_sales,
+    marlin_fact_daily_labour,
+    marlin_fact_daily_member_activity,
+    marlin_rpt_daily_venue_sales,
+    marlin_rpt_daily_labour,
+    marlin_rpt_daily_member_summary,
+    marlin_rpt_monthly_member_waterfall,
+    marlin_waterfall_unpivot,
+    marlin_dim_month,
+  ]
+
+  relationships: [
+    // Fact: daily sales
+    relationship(marlin_fact_daily_sales.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_fact_daily_sales.venue_id > marlin_dim_venue.venue_id, true),
+    relationship(marlin_fact_daily_sales.product_id > marlin_dim_item.product_id, true),
+
+    // Fact: daily labour
+    relationship(marlin_fact_daily_labour.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_fact_daily_labour.venue_id > marlin_dim_venue.venue_id, true),
+    relationship(marlin_fact_daily_labour.staff_id > marlin_dim_staff.staff_id, true),
+    relationship(marlin_fact_daily_labour.pay_component_name > marlin_ref_pay_component_classification.pay_component_name, true),
+
+    // Fact: daily member activity
+    relationship(marlin_fact_daily_member_activity.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_fact_daily_member_activity.venue_id > marlin_dim_venue.venue_id, true),
+    relationship(marlin_fact_daily_member_activity.member_id > marlin_dim_member.member_id, true),
+
+    // Reporting: daily venue sales
+    relationship(marlin_rpt_daily_venue_sales.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_rpt_daily_venue_sales.venue_id > marlin_dim_venue.venue_id, true),
+
+    // Reporting: daily labour
+    relationship(marlin_rpt_daily_labour.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_rpt_daily_labour.venue_id > marlin_dim_venue.venue_id, true),
+
+    // Reporting: daily member summary
+    relationship(marlin_rpt_daily_member_summary.shift_date > marlin_dim_date.date_id, true),
+    relationship(marlin_rpt_daily_member_summary.venue_id > marlin_dim_venue.venue_id, true),
+
+    // Reporting: monthly member waterfall (joins to dim_month, not dim_date)
+    relationship(marlin_rpt_monthly_member_waterfall.month_start > marlin_dim_month.month_start, true),
+    relationship(marlin_rpt_monthly_member_waterfall.venue_id > marlin_dim_venue.venue_id, true),
+
+    // Dimension-to-dimension
+    relationship(marlin_dim_size.product_id > marlin_dim_item.product_id, true),
+    relationship(marlin_dim_member.pref_venue_id > marlin_dim_venue.venue_id, false),
+    relationship(marlin_dim_member.allowed_venue_id > marlin_dim_venue.venue_id, false),
+    relationship(marlin_dim_member.parent_id > marlin_dim_member.member_id, false),
+    relationship(marlin_dim_staff.default_venue_id > marlin_dim_venue.venue_id, false),
+    relationship(marlin_ref_venue_location_map.venue_id > marlin_dim_venue.venue_id, false),
+    relationship(marlin_ref_item_classification.product_id > marlin_dim_item.product_id, true),
+    relationship(marlin_dim_public_holiday.date_id > marlin_dim_date.date_id, false),
+
+    // Waterfall unpivot — joins to dim_month hub
+    relationship(marlin_waterfall_unpivot.month_start > marlin_dim_month.month_start, true),
+    relationship(marlin_waterfall_unpivot.venue_id > marlin_dim_venue.venue_id, true),
+
+    // dim_date → dim_month: each day belongs to a month
+    relationship(marlin_dim_date.month_start > marlin_dim_month.month_start, true),
+  ]
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DIMENSIONS (cross-model / derived)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  dimension effective_labour_cost {
+    model: marlin_rpt_daily_labour
+    label: 'Effective Labour Cost (smart-switch)'
+    type: 'number'
+    description: 'Settled payrun cost when available, falls back to timesheet estimate for current week.'
+    definition: @aql case(
+      when: marlin_rpt_daily_labour.has_settled_payrun == 1, then: marlin_rpt_daily_labour.total_gross_plus_super,
+      else: marlin_rpt_daily_labour.timesheet_cost
+    );;
+  }
+
+  dimension member_visit_count {
+    model: marlin_dim_member
+    label: 'Member Visit Count'
+    type: 'number'
+    description: 'Distinct shift_dates a member transacted on (within current AQL scope).'
+    definition: @aql count_distinct(marlin_fact_daily_member_activity.shift_date) | dimensionalize(marlin_dim_member.member_id);;
+  }
+
+  dimension visit_count_bucket {
+    model: marlin_dim_member
+    label: 'Visit Count Bucket'
+    type: 'text'
+    description: '1, 2, 3-5, 6-11, 12+ — for the loyalty visit distribution chart.'
+    definition: @aql case(
+      when: marlin_dim_member.member_visit_count >= 12, then: '12+',
+      when: marlin_dim_member.member_visit_count >= 6, then: '6-11',
+      when: marlin_dim_member.member_visit_count >= 3, then: '3-5',
+      when: marlin_dim_member.member_visit_count >= 2, then: '2',
+      when: marlin_dim_member.member_visit_count >= 1, then: '1',
+      else: '0'
+    );;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — A. Revenue (from rpt_daily_venue_sales)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric total_net_sales {
+    label: 'Venue Net Sales'
+    type: 'number'
+    description: 'Primary revenue measure — adjusted_net_sales_ex_tax summed.'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.adjusted_net_sales_ex_tax);;
+    format: '[$$]#,###0'
+  }
+
+  metric food_sales {
+    label: 'Food Sales'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.food_sales);;
+    format: '[$$]#,###0'
+  }
+
+  metric beverage_sales {
+    label: 'Beverage Sales'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.beverage_sales);;
+    format: '[$$]#,###0'
+  }
+
+  metric other_sales {
+    label: 'Other Sales'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.other_sales);;
+    format: '[$$]#,###0'
+  }
+
+  metric total_discount {
+    label: 'Total Discount'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.total_discount);;
+    format: '[$$]#,###0'
+  }
+
+  metric cost_of_goods {
+    label: 'Cost of Goods'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.cost_of_goods);;
+    format: '[$$]#,###0'
+  }
+
+  metric gross_profit {
+    label: 'Venue Gross Profit'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.gross_profit);;
+    format: '[$$]#,###0'
+  }
+
+  metric gross_profit_pct {
+    label: 'Gross Profit %'
+    type: 'number'
+    definition: @aql gross_profit / total_net_sales;;
+    format: '#,###0.0%'
+  }
+
+  metric transaction_count {
+    label: 'Transaction Count'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.transaction_count);;
+    format: '#,###'
+  }
+
+  metric avg_transaction_value {
+    label: 'Avg Transaction Value'
+    type: 'number'
+    definition: @aql total_net_sales / transaction_count;;
+    format: '[$$]#,###0.00'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — B. Labour (from rpt_daily_labour)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric total_labour_hours {
+    label: 'Total Labour Hours'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.total_hours_worked);;
+    format: '#,###0.0'
+  }
+
+  metric management_hours {
+    label: 'Management Hours'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.management_hours);;
+    format: '#,###0.0'
+  }
+
+  metric management_cost {
+    label: 'Management Cost'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.management_cost);;
+    format: '[$$]#,###0'
+  }
+
+  metric foh_hours {
+    label: 'FOH Hours'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.foh_hours);;
+    format: '#,###0.0'
+  }
+
+  metric foh_cost {
+    label: 'FOH Cost'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.foh_cost);;
+    format: '[$$]#,###0'
+  }
+
+  metric kitchen_hours {
+    label: 'Kitchen Hours'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.kitchen_hours);;
+    format: '#,###0.0'
+  }
+
+  metric kitchen_cost {
+    label: 'Kitchen Cost'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.kitchen_cost);;
+    format: '[$$]#,###0'
+  }
+
+  metric other_hours {
+    label: 'Other Hours'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.other_hours);;
+    format: '#,###0.0'
+  }
+
+  metric other_cost {
+    label: 'Other Cost'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.other_cost);;
+    format: '[$$]#,###0'
+  }
+
+  metric timesheet_cost_total {
+    label: 'Timesheet Cost (estimate)'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.timesheet_cost);;
+    format: '[$$]#,###0'
+  }
+
+  metric gross_plus_super_total {
+    label: 'Gross + Super (settled)'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_labour.total_gross_plus_super);;
+    format: '[$$]#,###0'
+  }
+
+  metric total_labour_cost {
+    label: 'Venue Labour Cost'
+    type: 'number'
+    description: 'Smart-switch: settled payrun where available, timesheet estimate otherwise.'
+    definition: @aql sum(marlin_rpt_daily_labour.effective_labour_cost);;
+    format: '[$$]#,###0'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — C. P&L (cross-table)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric gpal {
+    label: 'Venue GPaL'
+    type: 'number'
+    description: 'Gross Profit after Labour = Gross Profit - Total Labour Cost.'
+    definition: @aql gross_profit - total_labour_cost;;
+    format: '[$$]#,###0'
+  }
+
+  metric gpal_pct {
+    label: 'GPaL %'
+    type: 'number'
+    definition: @aql gpal / total_net_sales;;
+    format: '#,###0.0%'
+  }
+
+  metric labour_pct_of_sales {
+    label: 'Venue Labour % of Sales'
+    type: 'number'
+    definition: @aql total_labour_cost / total_net_sales;;
+    format: '#,###0.0%'
+  }
+
+  metric kitchen_pct_of_food_sales {
+    label: 'Kitchen Cost % of Food Sales'
+    type: 'number'
+    definition: @aql kitchen_cost / food_sales;;
+    format: '#,###0.0%'
+  }
+
+  metric revenue_per_labour_hour {
+    label: 'Venue Revenue per Labour Hour'
+    type: 'number'
+    definition: @aql total_net_sales / total_labour_hours;;
+    format: '[$$]#,###0.00'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — D. Member (from rpt_daily_member_summary)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric member_gross_revenue {
+    label: 'Member Gross Revenue'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.member_gross_revenue);;
+    format: '[$$]#,###0'
+  }
+
+  metric member_net_revenue {
+    label: 'Member Net Revenue'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.member_net_revenue);;
+    format: '[$$]#,###0'
+  }
+
+  metric transacting_members {
+    label: 'Transacting Members (daily sum)'
+    type: 'number'
+    description: 'Sum of daily distinct-member counts. Not group-distinct — use distinct_members for that.'
+    definition: @aql sum(marlin_rpt_daily_member_summary.transacting_member_count);;
+    format: '#,###'
+  }
+
+  metric new_members_daily {
+    label: 'New Members'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.new_member_count);;
+    format: '#,###'
+  }
+
+  metric points_earned_daily {
+    label: 'Points Earned'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.points_earned);;
+    format: '#,###'
+  }
+
+  metric points_redeemed_daily {
+    label: 'Points Redeemed'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.points_redeemed);;
+    format: '#,###'
+  }
+
+  metric member_transaction_count {
+    label: 'Member Transactions'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_daily_member_summary.transaction_count);;
+    format: '#,###'
+  }
+
+  metric member_spend_pct_of_sales {
+    label: 'Member Spend % of Sales'
+    type: 'number'
+    description: 'Member gross revenue as a share of total net sales.'
+    definition: @aql member_gross_revenue / total_net_sales;;
+    format: '#,###0.0%'
+  }
+
+  metric member_transaction_share {
+    label: 'Member Transaction Share'
+    type: 'number'
+    description: 'Share of transactions attributed to loyalty members.'
+    definition: @aql sum(marlin_rpt_daily_venue_sales.member_transaction_count) / sum(marlin_rpt_daily_venue_sales.transaction_count);;
+    format: '#,###0.0%'
+  }
+
+  metric non_member_revenue {
+    label: 'Non-Member Revenue'
+    type: 'number'
+    description: 'Estimated: total_net_sales × (1 − member transaction share). Uses transaction-count ratio because the underlying member_gross_revenue / member_net_revenue columns in the synthetic data are inflated.'
+    definition: @aql total_net_sales * (1 - member_transaction_share);;
+    format: '[$$]#,###0'
+  }
+
+  // ─── Comparison matrix estimates (assume members & non-members share category mix) ───
+
+  metric member_revenue_est {
+    label: 'Member Revenue (est)'
+    type: 'number'
+    definition: @aql total_net_sales * member_transaction_share;;
+    format: '[$$]#,###0'
+  }
+
+  metric member_txn_est {
+    label: 'Member Transactions (est)'
+    type: 'number'
+    definition: @aql transaction_count * member_transaction_share;;
+    format: '#,###'
+  }
+
+  metric member_avg_txn_est {
+    label: 'Member Avg Txn (est)'
+    type: 'number'
+    definition: @aql member_revenue_est / member_txn_est;;
+    format: '[$$]#,###0.00'
+  }
+
+  metric member_food_est {
+    label: 'Member Food (est)'
+    type: 'number'
+    definition: @aql food_sales * member_transaction_share;;
+    format: '[$$]#,###0'
+  }
+
+  metric member_beverage_est {
+    label: 'Member Beverage (est)'
+    type: 'number'
+    definition: @aql beverage_sales * member_transaction_share;;
+    format: '[$$]#,###0'
+  }
+
+  metric member_other_est {
+    label: 'Member Other (est)'
+    type: 'number'
+    definition: @aql other_sales * member_transaction_share;;
+    format: '[$$]#,###0'
+  }
+
+  metric non_member_txn_est {
+    label: 'Non-Member Transactions (est)'
+    type: 'number'
+    definition: @aql transaction_count * (1 - member_transaction_share);;
+    format: '#,###'
+  }
+
+  metric non_member_avg_txn_est {
+    label: 'Non-Member Avg Txn (est)'
+    type: 'number'
+    definition: @aql non_member_revenue / non_member_txn_est;;
+    format: '[$$]#,###0.00'
+  }
+
+  metric non_member_food_est {
+    label: 'Non-Member Food (est)'
+    type: 'number'
+    definition: @aql food_sales * (1 - member_transaction_share);;
+    format: '[$$]#,###0'
+  }
+
+  metric non_member_beverage_est {
+    label: 'Non-Member Beverage (est)'
+    type: 'number'
+    definition: @aql beverage_sales * (1 - member_transaction_share);;
+    format: '[$$]#,###0'
+  }
+
+  metric non_member_other_est {
+    label: 'Non-Member Other (est)'
+    type: 'number'
+    definition: @aql other_sales * (1 - member_transaction_share);;
+    format: '[$$]#,###0'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — E. Waterfall (from rpt_monthly_member_waterfall)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric opening_active {
+    label: 'Opening Active'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.opening_active_count);;
+    format: '#,###'
+  }
+
+  metric new_members_monthly {
+    label: 'New Members (Monthly)'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.new_member_count);;
+    format: '#,###'
+  }
+
+  metric reactivated_members {
+    label: 'Reactivated Members'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.reactivated_count);;
+    format: '#,###'
+  }
+
+  metric retained_members {
+    label: 'Retained Members'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.retained_count);;
+    format: '#,###'
+  }
+
+  metric lapsed_members {
+    label: 'Lapsed Members'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.lapsed_count);;
+    format: '#,###'
+  }
+
+  metric closing_active {
+    label: 'Closing Active'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.closing_active_count);;
+    format: '#,###'
+  }
+
+  metric waterfall_member_revenue {
+    label: 'Monthly Member Revenue'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.member_gross_revenue);;
+    format: '[$$]#,###0'
+  }
+
+  metric waterfall_points_earned {
+    label: 'Monthly Points Earned'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.points_earned);;
+    format: '#,###'
+  }
+
+  metric waterfall_points_redeemed {
+    label: 'Monthly Points Redeemed'
+    type: 'number'
+    definition: @aql sum(marlin_rpt_monthly_member_waterfall.points_redeemed);;
+    format: '#,###'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — F. Comparisons (WoW, YoY)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric net_sales_prev_week {
+    label: 'Net Sales (Prev Week)'
+    type: 'number'
+    definition: @aql total_net_sales | relative_period(marlin_rpt_daily_venue_sales.shift_date, interval(-1 week), strict: true);;
+    format: '[$$]#,###0'
+  }
+
+  metric net_sales_wow_pct {
+    label: 'Net Sales WoW %'
+    type: 'number'
+    definition: @aql (total_net_sales - net_sales_prev_week) / net_sales_prev_week;;
+    format: '#,###0.0%'
+  }
+
+  metric net_sales_prev_year {
+    label: 'Net Sales (Prior Year)'
+    type: 'number'
+    definition: @aql total_net_sales | relative_period(marlin_rpt_daily_venue_sales.shift_date, interval(-1 year), strict: true);;
+    format: '[$$]#,###0'
+  }
+
+  metric net_sales_yoy_pct {
+    label: 'Net Sales YoY %'
+    type: 'number'
+    definition: @aql (total_net_sales - net_sales_prev_year) / net_sales_prev_year;;
+    format: '#,###0.0%'
+  }
+
+  metric gp_prev_year {
+    label: 'Gross Profit (Prior Year)'
+    type: 'number'
+    definition: @aql gross_profit | relative_period(marlin_rpt_daily_venue_sales.shift_date, interval(-1 year), strict: true);;
+    format: '[$$]#,###0'
+  }
+
+  metric labour_cost_prev_year {
+    label: 'Labour Cost (Prior Year)'
+    type: 'number'
+    definition: @aql total_labour_cost | relative_period(marlin_rpt_daily_labour.shift_date, interval(-1 year), strict: true);;
+    format: '[$$]#,###0'
+  }
+
+  metric gpal_prev_year {
+    label: 'GPaL (Prior Year)'
+    type: 'number'
+    definition: @aql gpal | relative_period(marlin_rpt_daily_venue_sales.shift_date, interval(-1 year), strict: true);;
+    format: '[$$]#,###0'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — G. Ad-hoc (from fact_*)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric units_sold {
+    label: 'Units Sold'
+    type: 'number'
+    definition: @aql sum(marlin_fact_daily_sales.qty_sold);;
+    format: '#,###'
+  }
+
+  metric product_revenue {
+    label: 'Product Revenue (ex-tax)'
+    type: 'number'
+    definition: @aql sum(marlin_fact_daily_sales.nett_sales_ex_tax);;
+    format: '[$$]#,###0'
+  }
+
+  metric product_cogs {
+    label: 'Product COGS'
+    type: 'number'
+    definition: @aql sum(marlin_fact_daily_sales.cost_of_goods);;
+    format: '[$$]#,###0'
+  }
+
+  metric product_gp {
+    label: 'Product Gross Profit'
+    type: 'number'
+    definition: @aql product_revenue - product_cogs;;
+    format: '[$$]#,###0'
+  }
+
+  metric distinct_members {
+    label: 'Distinct Members'
+    type: 'number'
+    description: 'True group-distinct count of members who transacted in the current scope.'
+    definition: @aql count_distinct(marlin_fact_daily_member_activity.member_id);;
+    format: '#,###'
+  }
+
+  metric avg_member_spend {
+    label: 'Avg Member Spend'
+    type: 'number'
+    definition: @aql member_gross_revenue / distinct_members;;
+    format: '[$$]#,###0'
+  }
+
+  metric avg_member_visits {
+    label: 'Avg Member Visits'
+    type: 'number'
+    definition: @aql avg(marlin_dim_member.member_visit_count);;
+    format: '#,###0.0'
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // METRICS — H. Group totals (bypass venue filter via of_all)
+  // Used for the side-by-side "Group Total" widgets on Tab 1.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  metric total_net_sales_group {
+    label: 'Total Net Sales'
+    type: 'number'
+    description: 'Net sales summed across all venues regardless of venue filter.'
+    definition: @aql total_net_sales | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric gross_profit_group {
+    label: 'Total Gross Profit'
+    type: 'number'
+    definition: @aql gross_profit | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric total_labour_cost_group {
+    label: 'Total Labour Cost'
+    type: 'number'
+    definition: @aql total_labour_cost | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric gpal_group {
+    label: 'Total GPaL'
+    type: 'number'
+    definition: @aql gpal | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0'
+  }
+
+  metric labour_pct_of_sales_group {
+    label: 'Total Labour % of Sales'
+    type: 'number'
+    definition: @aql labour_pct_of_sales | of_all(marlin_dim_venue);;
+    format: '#,###0.0%'
+  }
+
+  metric revenue_per_labour_hour_group {
+    label: 'Total Revenue per Labour Hour'
+    type: 'number'
+    definition: @aql revenue_per_labour_hour | of_all(marlin_dim_venue);;
+    format: '[$$]#,###0.00'
+  }
+
+  metric closing_active_trend {
+    label: 'Closing Active (All Months)'
+    type: 'number'
+    description: 'Closing active count for the trend chart — bypasses the month filter via of_all so the line spans all 15 months regardless of page filter.'
+    definition: @aql closing_active | of_all(marlin_dim_month);;
+    format: '#,###'
+  }
+
+}
