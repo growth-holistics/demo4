@@ -542,6 +542,55 @@ ecommerce_users.sign_up_date
       granularity: 'year'
     }
   }
+  block v_qmm0: VizBlock {
+    label: 'Revenue by Month and Continent Name'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      x_axis: VizFieldFull {
+        label: 'Month'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+        uname: 'datetrunc_month_created_at_1'
+      }
+      legend: VizFieldFull {
+        label: 'Continent Name'
+        ref: r(ecommerce_countries.continent_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Revenue'
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 1000
+        legend_label: 'right'
+        x_axis_label: 'Month'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     DateDrillInteraction {
       from: 'd1'
@@ -598,7 +647,7 @@ ecommerce_users.sign_up_date
   view: CanvasLayout {
     label: 'View 1'
     width: 1440
-    height: 1530
+    height: 1940
     block d1 {
       position: pos(520, 330, 170, 100)
     }
@@ -674,6 +723,10 @@ ecommerce_users.sign_up_date
     block box1 {
       position: pos(20, 120, 1400, 180)
       layer: -1
+    }
+    block v_qmm0 {
+      position: pos(10, 1510, 620, 420)
+      layer: 2
     }
   }
 }

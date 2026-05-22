@@ -1,0 +1,89 @@
+Model product {
+  type: 'query'
+  label: 'Product'
+  description: 'AdventureWorks product dimension. Sorting derived from category_sort lookup.'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "ProductKey"    as product_key,
+      "SKU"           as sku,
+      "Product"       as product,
+      "Standard Cost" as standard_cost,
+      "Color"         as color,
+      "List Price"    as list_price,
+      "Model"         as model,
+      "Subcategory"   as subcategory,
+      "Category"      as category
+    from main.product
+  ;;
+
+  dimension product_key {
+    label: 'Product Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.product_key }};;
+  }
+
+  dimension sku {
+    label: 'SKU'
+    type: 'text'
+    definition: @sql {{ #SOURCE.sku }};;
+  }
+
+  dimension product {
+    label: 'Product'
+    type: 'text'
+    definition: @sql {{ #SOURCE.product }};;
+  }
+
+  dimension standard_cost {
+    label: 'Standard Cost'
+    type: 'number'
+    definition: @sql {{ #SOURCE.standard_cost }};;
+  }
+
+  dimension color {
+    label: 'Color'
+    type: 'text'
+    definition: @sql {{ #SOURCE.color }};;
+  }
+
+  dimension list_price {
+    label: 'List Price'
+    type: 'number'
+    definition: @sql {{ #SOURCE.list_price }};;
+  }
+
+  dimension model {
+    label: 'Model'
+    type: 'text'
+    definition: @sql {{ #SOURCE.model }};;
+  }
+
+  dimension subcategory {
+    label: 'Subcategory'
+    type: 'text'
+    definition: @sql {{ #SOURCE.subcategory }};;
+  }
+
+  dimension category {
+    label: 'Category'
+    type: 'text'
+    definition: @sql {{ #SOURCE.category }};;
+  }
+
+  // Translated from DAX calc col: Sorting = RELATED('Table'[Sorting])
+  // Source 'Table' was an inline lookup of Category -> Sorting (Bikes=1, Components=2, Clothing=3, Accessories=4).
+  // Inlined here as CASE since the lookup has only 4 rows.
+  dimension sorting {
+    label: 'Sorting'
+    type: 'number'
+    definition: @sql case {{ #SOURCE.category }}
+      when 'Bikes' then 1
+      when 'Components' then 2
+      when 'Clothing' then 3
+      when 'Accessories' then 4
+    end;;
+  }
+}

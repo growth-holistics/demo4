@@ -1,0 +1,140 @@
+Model sales {
+  type: 'query'
+  label: 'Sales'
+  description: 'AdventureWorks sales fact table (one row per sales order line).'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "SalesOrderLineKey"      as sales_order_line_key,
+      "ResellerKey"            as reseller_key,
+      "CustomerKey"            as customer_key,
+      "ProductKey"             as product_key,
+      "OrderDateKey"           as order_date_key,
+      "DueDateKey"             as due_date_key,
+      "ShipDateKey"            as ship_date_key,
+      "SalesTerritoryKey"      as sales_territory_key,
+      "Order Quantity"         as order_quantity,
+      "Unit Price"             as unit_price,
+      "Extended Amount"        as extended_amount,
+      "Unit Price Discount Pct" as unit_price_discount_pct,
+      "Product Standard Cost"  as product_standard_cost,
+      "Total Product Cost"     as total_product_cost,
+      "Sales Amount"           as sales_amount
+    from main.sales
+  ;;
+
+  dimension sales_order_line_key {
+    label: 'Sales Order Line Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.sales_order_line_key }};;
+  }
+
+  dimension reseller_key {
+    label: 'Reseller Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.reseller_key }};;
+  }
+
+  dimension customer_key {
+    label: 'Customer Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.customer_key }};;
+  }
+
+  dimension product_key {
+    label: 'Product Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.product_key }};;
+  }
+
+  dimension order_date_key {
+    label: 'Order Date Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.order_date_key }};;
+  }
+
+  dimension due_date_key {
+    label: 'Due Date Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.due_date_key }};;
+  }
+
+  dimension ship_date_key {
+    label: 'Ship Date Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.ship_date_key }};;
+  }
+
+  dimension sales_territory_key {
+    label: 'Sales Territory Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.sales_territory_key }};;
+  }
+
+  dimension order_quantity {
+    label: 'Order Quantity'
+    type: 'number'
+    definition: @sql {{ #SOURCE.order_quantity }};;
+  }
+
+  dimension unit_price {
+    label: 'Unit Price'
+    type: 'number'
+    definition: @sql {{ #SOURCE.unit_price }};;
+  }
+
+  dimension extended_amount {
+    label: 'Extended Amount'
+    type: 'number'
+    definition: @sql {{ #SOURCE.extended_amount }};;
+  }
+
+  dimension unit_price_discount_pct {
+    label: 'Unit Price Discount Pct'
+    type: 'number'
+    definition: @sql {{ #SOURCE.unit_price_discount_pct }};;
+  }
+
+  dimension product_standard_cost {
+    label: 'Product Standard Cost'
+    type: 'number'
+    definition: @sql {{ #SOURCE.product_standard_cost }};;
+  }
+
+  dimension total_product_cost {
+    label: 'Total Product Cost'
+    type: 'number'
+    definition: @sql {{ #SOURCE.total_product_cost }};;
+  }
+
+  dimension sales_amount {
+    label: 'Sales Amount'
+    type: 'number'
+    definition: @sql {{ #SOURCE.sales_amount }};;
+  }
+
+  measure total_sales_amount {
+    label: 'Sales Amount'
+    type: 'number'
+    description: 'Sum of Sales Amount. Mirrors PBI implicit SUM(Sales[Sales Amount]).'
+    definition: @aql sum(sales.sales_amount);;
+    aggregation_type: 'custom'
+  }
+
+  measure total_order_quantity {
+    label: 'Order Quantity'
+    type: 'number'
+    description: 'Sum of Order Quantity. Mirrors PBI implicit SUM(Sales[Order Quantity]).'
+    definition: @aql sum(sales.order_quantity);;
+    aggregation_type: 'custom'
+  }
+}

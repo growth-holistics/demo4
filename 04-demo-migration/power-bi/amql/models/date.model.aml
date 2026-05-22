@@ -1,0 +1,62 @@
+Model date {
+  type: 'query'
+  label: 'Date'
+  description: 'AdventureWorks calendar dimension with Fiscal hierarchy.'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "DateKey"        as date_key,
+      "Date"           as date,
+      "Fiscal Year"    as fiscal_year,
+      "Fiscal Quarter" as fiscal_quarter,
+      "Month"          as month,
+      "Full Date"      as full_date,
+      "MonthKey"       as month_key
+    from main.date
+  ;;
+
+  dimension date_key {
+    label: 'Date Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.date_key }};;
+  }
+
+  dimension date {
+    label: 'Date'
+    type: 'date'
+    definition: @sql {{ #SOURCE.date }};;
+  }
+
+  dimension fiscal_year {
+    label: 'Fiscal Year'
+    type: 'text'
+    definition: @sql {{ #SOURCE.fiscal_year }};;
+  }
+
+  dimension fiscal_quarter {
+    label: 'Fiscal Quarter'
+    type: 'text'
+    definition: @sql {{ #SOURCE.fiscal_quarter }};;
+  }
+
+  dimension month {
+    label: 'Month'
+    type: 'text'
+    definition: @sql {{ #SOURCE.month }};;
+  }
+
+  dimension full_date {
+    label: 'Full Date'
+    type: 'text'
+    definition: @sql {{ #SOURCE.full_date }};;
+  }
+
+  dimension month_key {
+    label: 'Month Key'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.month_key }};;
+  }
+}

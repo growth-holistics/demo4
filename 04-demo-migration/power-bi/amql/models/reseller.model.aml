@@ -1,0 +1,68 @@
+Model reseller {
+  type: 'query'
+  label: 'Reseller'
+  description: 'AdventureWorks reseller dimension.'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "ResellerKey"     as reseller_key,
+      "Reseller ID"     as reseller_id,
+      "Business Type"   as business_type,
+      "Reseller"        as reseller,
+      "City"            as city,
+      "State-Province"  as state_province,
+      "Country-Region"  as country_region,
+      "Postal Code"     as postal_code
+    from main.reseller
+  ;;
+
+  dimension reseller_key {
+    label: 'Reseller Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.reseller_key }};;
+  }
+
+  dimension reseller_id {
+    label: 'Reseller ID'
+    type: 'text'
+    definition: @sql {{ #SOURCE.reseller_id }};;
+  }
+
+  dimension business_type {
+    label: 'Business Type'
+    type: 'text'
+    definition: @sql {{ #SOURCE.business_type }};;
+  }
+
+  dimension reseller {
+    label: 'Reseller'
+    type: 'text'
+    definition: @sql {{ #SOURCE.reseller }};;
+  }
+
+  dimension city {
+    label: 'City'
+    type: 'text'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+
+  dimension state_province {
+    label: 'State-Province'
+    type: 'text'
+    definition: @sql {{ #SOURCE.state_province }};;
+  }
+
+  dimension country_region {
+    label: 'Country-Region'
+    type: 'text'
+    definition: @sql {{ #SOURCE.country_region }};;
+  }
+
+  dimension postal_code {
+    label: 'Postal Code'
+    type: 'text'
+    definition: @sql {{ #SOURCE.postal_code }};;
+  }
+}
