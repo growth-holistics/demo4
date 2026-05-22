@@ -535,7 +535,6 @@ Dashboard sandbox_dashboard {
         value: 'United Kingdom'
       }
       theme {
-
       }
       x_axis: VizFieldFull {
         label: 'Quarter'
@@ -588,10 +587,107 @@ Dashboard sandbox_dashboard {
       }
     }
   }
+  block v_vcfm: VizBlock {
+    label: 'P25 Order Size, P50 Order Size and 2 more by Parent Category'
+    viz: PivotTable {
+      dataset: demo_ecommerce_version_2
+      calculation order_size_per_order {
+        label: 'Order Size Per Order'
+        formula: @aql unique(ecommerce_order_items.order_id, map_categories.parent_category)
+  | select(order_size: ecommerce_order_items | sum(ecommerce_order_items.quantity * ecommerce_products.price));;
+        calc_type: 'measure'
+        data_type: 'json'
+      }
+      calculation p25_order_size {
+        label: 'P25 Order Size'
+        formula: @aql order_size_per_order | percentile_cont(order_size, 0.25);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation p50_order_size {
+        label: 'P50 Order Size'
+        formula: @aql order_size_per_order | percentile_cont(order_size, 0.50);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation p75_order_size {
+        label: 'P75 Order Size'
+        formula: @aql order_size_per_order | percentile_cont(order_size, 0.75);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      calculation p95_order_size {
+        label: 'P95 Order Size'
+        formula: @aql order_size_per_order | percentile_cont(order_size, 0.95);;
+        calc_type: 'measure'
+        data_type: 'number'
+      }
+      rows: [
+        VizFieldFull {
+          label: 'Parent Category'
+          ref: r(map_categories.parent_category)
+          format {
+            type: 'text'
+          }
+          uname: 'map_categories_parent_category'
+        }
+      ]
+      values: [
+        VizFieldFull {
+          label: 'P25 Order Size'
+          ref: 'p25_order_size'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'P50 Order Size'
+          ref: 'p50_order_size'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'P75 Order Size'
+          ref: 'p75_order_size'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        },
+        VizFieldFull {
+          label: 'P95 Order Size'
+          ref: 'p95_order_size'
+          format {
+            type: 'number'
+            pattern: '#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: true
+        show_sub_total: true
+        sorts: [
+          SortSetting {
+            key: 'map_categories_parent_category'
+            direction: 'asc'
+          }
+        ]
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   view: CanvasLayout {
     label: 'View 1'
     width: 1300
-    height: 2500
+    height: 2930
     grid_size: 20
     auto_expand_vertically: true
     block title {
@@ -641,9 +737,14 @@ Dashboard sandbox_dashboard {
       position: pos(0, 100, 620, 420)
       layer: 1
     }
+    block v_vcfm {
+      position: pos(660, 2490, 620, 420)
+      layer: 7
+    }
     mobile {
       mode: 'auto'
     }
   }
   theme: buyco_light
+  interactions: []
 }
