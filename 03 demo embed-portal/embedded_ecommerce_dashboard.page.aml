@@ -1,4 +1,4 @@
-@tag('1️⃣ Trust/Endorsed')
+@tag('Endorsed')
 Dashboard embedded_ecommerce_dashboard {
   title: 'Ecommerce Embedded Analytics'
   owner: 'thong.do@holistics.io'
@@ -882,6 +882,21 @@ ecommerce_users.sign_up_date
       }
     }
   }
+  block f_merchants_name: FilterBlock {
+    label: 'Merchants Name'
+    type: 'field'
+    source: FieldFilterSource {
+      dataset: demo_ecommerce_version_2
+      field: r(ecommerce_merchants.name)
+    }
+    default {
+      operator: 'is'
+      value: '$H_NIL$'
+    }
+    settings {
+      input_type: 'nullable-single'
+    }
+  }
   view: TabLayout {
     label: 'View 1'
     tab view_1: CanvasLayout {
@@ -989,6 +1004,9 @@ ecommerce_users.sign_up_date
       block v_et7r {
         position: pos(40, 870, 650, 420)
       }
+      block f_merchants_name {
+        position: pos(270, 90, 300, 80)
+      }
       default_zoom: 'fit_to_width'
     }
     tab tab_1ds6: CanvasLayout {
@@ -1022,9 +1040,11 @@ ecommerce_users.sign_up_date
       }
       block t_50lr {
         position: pos(10, 140, 590, 460)
+        layer: -1
       }
       block t_tfcn {
         position: pos(630, 140, 660, 460)
+        layer: 1
       }
       default_zoom: 'fit_to_width'
     }
@@ -1034,7 +1054,10 @@ ecommerce_users.sign_up_date
       from: 'f3'
       to: [
         CustomMapping {
-          block: 'f_country_name'
+          block: [
+            'f_country_name',
+            'f_merchants_name'
+          ]
           disabled: true
         }
       ]
@@ -1043,7 +1066,27 @@ ecommerce_users.sign_up_date
       from: 'f_country_name'
       to: [
         CustomMapping {
-          block: 'f3'
+          block: [
+            'f3',
+            'f_merchants_name'
+          ]
+          disabled: true
+        }
+      ]
+    },
+    FilterInteraction {
+      from: 'f_merchants_name'
+      to: [
+        CustomMapping {
+          block: [
+            'v_gmv_sales',
+            'v_nmv',
+            'v_revenue',
+            'v_order_status',
+            'v_category_table',
+            'f3',
+            'f_country_name'
+          ]
           disabled: true
         }
       ]
@@ -1053,11 +1096,11 @@ ecommerce_users.sign_up_date
       to: [
         CustomMapping {
           block: 'v8'
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         },
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         }
       ]
     },
@@ -1066,11 +1109,11 @@ ecommerce_users.sign_up_date
       to: [
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         },
         CustomMapping {
           block: 'v8'
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         }
       ]
     },
@@ -1085,7 +1128,7 @@ ecommerce_users.sign_up_date
             'v7',
             'v12'
           ]
-          field: r(ecommerce_orders.created_at)
+          field: ref('ecommerce_orders', 'created_at')
         }
       ]
     },
@@ -1099,7 +1142,7 @@ ecommerce_users.sign_up_date
             'v8',
             'v12'
           ]
-          field: r(ecommerce_users.sign_up_date)
+          field: ref('ecommerce_users', 'sign_up_date')
         },
         CustomMapping {
           block: [
@@ -1107,11 +1150,11 @@ ecommerce_users.sign_up_date
             'v6',
             'v7'
           ]
-          field: r(ecommerce_orders.created_at)
+          field: ref('ecommerce_orders', 'created_at')
         },
         CustomMapping {
           block: 'v11'
-          field: r(dim_dates.date_key)
+          field: ref('dim_dates', 'date_key')
         }
       ]
     }

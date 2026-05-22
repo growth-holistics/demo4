@@ -1,0 +1,278 @@
+Dashboard aw_sales_dashboard {
+  title: 'AW Sales'
+  description: 'Migrated from Power BI AW-Sales report. 3 PBI pages -> 3 tabs. Slicer (Fiscal Year / Month) lifted to page-level filters.'
+
+  block filter_fiscal_year: FilterBlock {
+    type: 'field'
+    label: 'Fiscal Year'
+    source: FieldFilterSource {
+      dataset: 'aw_sales'
+      field: r(date.fiscal_year)
+    }
+  }
+
+  block filter_month: FilterBlock {
+    type: 'field'
+    label: 'Month'
+    source: FieldFilterSource {
+      dataset: 'aw_sales'
+      field: r(date.month)
+    }
+  }
+
+  block pivot_category_business_type: VizBlock {
+    label: 'Sales Amount by Product Category x Reseller Business Type'
+    viz: PivotTable {
+      dataset: aw_sales
+      rows: [
+        VizFieldFull {
+          ref: r(product.category)
+          label: 'Product Category'
+          format {
+            type: 'text'
+          }
+        },
+        VizFieldFull {
+          ref: r(reseller.business_type)
+          label: 'Reseller Business Type'
+          format {
+            type: 'text'
+          }
+        }
+      ]
+      values: [
+        VizFieldFull {
+          ref: r(sales.total_sales_amount)
+          label: 'Sales Amount'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00'
+          }
+        }
+      ]
+      settings {
+        pagination_size: 100
+        show_row_total: true
+        show_column_total: false
+        show_sub_total: true
+        wrap_header_text: true
+        wrap_cell_text: false
+        sorts: [
+          KeyBasedSortSetting {
+            key: 'sales.total_sales_amount'
+            direction: 'desc'
+          }
+        ]
+      }
+    }
+  }
+
+  block map_quantity_country: VizBlock {
+    label: 'Order Quantity by Reseller Country'
+    viz: FilledMap {
+      dataset: aw_sales
+      location {
+        field: VizFieldFull {
+          ref: r(reseller.country_region)
+          label: 'Country'
+        }
+        location_type: 'country'
+        primary_field: true
+      }
+      value: VizFieldFull {
+        ref: r(sales.total_order_quantity)
+        label: 'Order Quantity'
+        format {
+          type: 'number'
+          pattern: 'inherited'
+        }
+      }
+      settings {
+        map_background: 'light'
+        color_scale: 'vertical'
+        value_colors {
+          style: 'smooth'
+          min {
+            color: '#DBEAFE'
+          }
+          mid {
+            color: '#60A5FA'
+          }
+          max {
+            color: '#1D4ED8'
+          }
+        }
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
+
+  block pie_sales_city: VizBlock {
+    label: 'Sales Amount by Reseller City'
+    viz: PieChart {
+      dataset: aw_sales
+      legend: VizFieldFull {
+        ref: r(reseller.city)
+        label: 'City'
+      }
+      series {
+        field: VizFieldFull {
+          ref: r(sales.total_sales_amount)
+          label: 'Sales Amount'
+          format {
+            type: 'number'
+            pattern: '[$$]#,###0.00'
+          }
+        }
+      }
+      settings {
+        row_limit: 10
+        sort: 'desc'
+        display_as_donut: true
+        show_data_label: true
+        show_percentage: true
+        data_label_position: 'outside'
+        legend_label: 'right'
+        group_values_into: 10
+      }
+    }
+  }
+
+  block area_sales_vs_due: VizBlock {
+    label: 'Sales Amount vs Sales Amount by Due Date (by Month)'
+    viz: AreaChart {
+      dataset: aw_sales
+      x_axis: VizFieldFull {
+        ref: r(date.date)
+        label: 'Month'
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+      }
+      y_axis {
+        label: 'Sales Amount'
+        series {
+          field: VizFieldFull {
+            ref: r(sales.total_sales_amount)
+            label: 'Sales Amount'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+          settings {
+            color: '#2563EB'
+          }
+        }
+        series {
+          field: VizFieldFull {
+            ref: r(aw_sales.sales_amount_by_due_date)
+            label: 'Sales Amount by Due Date'
+            format {
+              type: 'number'
+              pattern: '[$$]#,###0.00'
+            }
+          }
+          settings {
+            color: '#F59E0B'
+          }
+        }
+      }
+      settings {
+        legend_label: 'top'
+        row_limit: 1000
+        sort: LineFamilySort {
+          type: 'xaxis'
+          direction: 'asc'
+        }
+        show_data_points: false
+        connect_discontinuous_points: false
+      }
+    }
+  }
+
+  view: TabLayout {
+    label: 'AW Sales'
+
+    tab page_1: CanvasLayout {
+      label: 'Page 1'
+      width: 1280
+      height: 800
+
+      block filter_fiscal_year {
+        position: pos(0, 0, 300, 70)
+      }
+
+      block filter_month {
+        position: pos(310, 0, 300, 70)
+      }
+      block pivot_category_business_type {
+        position: pos(10, 460, 1260, 330)
+      }
+
+      block map_quantity_country {
+        position: pos(630, 80, 640, 380)
+      }
+      block area_sales_vs_due {
+        position: pos(0, 80, 630, 380)
+      }
+      default_zoom: 'fit_to_page'
+    }
+
+    tab page_2: CanvasLayout {
+      label: 'Page 2'
+      width: 1280
+      height: 800
+
+      block filter_fiscal_year {
+        position: pos(0, 0, 300, 70)
+      }
+
+      block pivot_category_business_type {
+        position: pos(0, 80, 1270, 700)
+      }
+      default_zoom: 'fit_to_page'
+    }
+
+    tab page_3: CanvasLayout {
+      label: 'Page 3'
+      width: 1280
+      height: 800
+
+      block filter_fiscal_year {
+        position: pos(0, 0, 300, 70)
+      }
+
+      block area_sales_vs_due {
+        position: pos(0, 80, 1270, 700)
+      }
+      default_zoom: 'fit_to_page'
+    }
+
+    tab page_4: CanvasLayout {
+      label: 'Page 4'
+      width: 1280
+      height: 800
+
+      block filter_fiscal_year {
+        position: pos(0, 0, 300, 70)
+      }
+
+      block pie_sales_city {
+        position: pos(0, 80, 1270, 700)
+      }
+      default_zoom: 'fit_to_page'
+    }
+  }
+  settings {
+    timezone: 'America/Los_Angeles'
+    cache_duration: 4320
+    autorun_on_open: true
+    autorun_on_changes: true
+  }
+}

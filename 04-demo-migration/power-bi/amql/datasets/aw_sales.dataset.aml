@@ -1,0 +1,39 @@
+Dataset aw_sales {
+  __engine__: 'aql'
+  label: 'AW Sales'
+  description: 'Migrated from Power BI AW-Sales semantic model (AdventureWorks).'
+
+  data_source_name: 'md_adventure_works_sales'
+  models: [
+    sales,
+    date,
+    customer,
+    product,
+    reseller,
+    sales_order,
+    sales_territory
+  ]
+
+  relationships: [
+    // Active relationships (PBI defaults)
+    relationship(sales.customer_key > customer.customer_key, true),
+    relationship(sales.product_key > product.product_key, true),
+    relationship(sales.reseller_key > reseller.reseller_key, true),
+    relationship(sales.sales_territory_key > sales_territory.sales_territory_key, true),
+    relationship(sales.order_date_key > date.date_key, true),
+    relationship(sales.sales_order_line_key - sales_order.sales_order_line_key, true),
+
+    // Inactive role-playing date relationships (PBI USERELATIONSHIP)
+    // Activate per-metric via with_relationships(...)
+    relationship(sales.due_date_key > date.date_key, false),
+    relationship(sales.ship_date_key > date.date_key, false)
+  ]
+
+  metric sales_amount_by_due_date {
+    label: 'Sales Amount by Due Date'
+    type: 'number'
+    description: 'Sum of Sales Amount using DueDateKey relationship to Date. Migrated from DAX: CALCULATE(SUM(Sales[Sales Amount]), USERELATIONSHIP(Sales[DueDateKey], Date[DateKey])).'
+    definition: @aql sum(sales.sales_amount)
+      | with_relationships(sales.due_date_key > date.date_key);;
+  }
+}
