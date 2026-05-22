@@ -1,0 +1,28 @@
+Model marlin_dim_month {
+  type: 'query'
+  label: 'Month'
+  description: 'One row per month present in the monthly fact tables. Acts as the join hub for month-grain filtering: dim_date → dim_month ← rpt_monthly_member_waterfall ← waterfall_unpivot.'
+  data_source_name: 'demo_marlin_mangrove_sample'
+
+  dimension month_start {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    primary_key: true
+    definition: @sql {{ #SOURCE.month_start }}::date ;;
+  }
+
+  dimension month_label {
+    label: 'Month Label'
+    type: 'text'
+    hidden: false
+    definition: @sql TO_CHAR({{ #SOURCE.month_start }}::date, 'Mon YYYY') ;;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  query: @sql
+    SELECT DISTINCT month_start::date AS month_start
+    FROM "public"."rpt_monthly_member_waterfall"
+    ORDER BY 1
+  ;;
+}

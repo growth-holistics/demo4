@@ -1,0 +1,89 @@
+Model marlin_dim_date {
+  type: 'table'
+  label: 'Date'
+  data_source_name: 'demo_marlin_mangrove_sample'
+
+  dimension date_id {
+    label: 'Date Id'
+    type: 'date'
+    hidden: false
+    primary_key: true
+    definition: @sql {{ #SOURCE.date_id }}::date ;;
+  }
+  dimension day_of_week {
+    label: 'Day Of Week'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.day_of_week }} ;;
+  }
+  dimension is_weekend {
+    label: 'Is Weekend'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.is_weekend }} ;;
+  }
+  dimension iso_week_num {
+    label: 'Iso Week Num'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.iso_week_num }} ;;
+  }
+  dimension iso_year {
+    label: 'Iso Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.iso_year }} ;;
+  }
+  dimension week_start_date {
+    label: 'Week Start Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.week_start_date }}::date ;;
+  }
+  dimension week_end_date {
+    label: 'Week End Date'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.week_end_date }}::date ;;
+  }
+  dimension pay_week_start {
+    label: 'Pay Week Start'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.pay_week_start }}::date ;;
+  }
+  dimension month_num {
+    label: 'Month Num'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_num }} ;;
+  }
+  dimension month_start {
+    label: 'Month'
+    type: 'date'
+    hidden: false
+    description: 'First day of the month — used for month-grain filtering on monthly fact tables.'
+    definition: @sql DATE_TRUNC('month', {{ #SOURCE.date_id }}::date)::date ;;
+  }
+  dimension month_name {
+    label: 'Month Name'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_name }} ;;
+  }
+  dimension quarter {
+    label: 'Quarter'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.quarter }} ;;
+  }
+  dimension financial_year {
+    label: 'Financial Year'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.financial_year }} ;;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  table_name: '"public"."dim_date"'
+}

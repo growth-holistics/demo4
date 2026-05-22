@@ -591,6 +591,65 @@ Dashboard pied_piper_country_breakdown_tpmdo {
       }
     }
   }
+  block v_7gda: VizBlock {
+    label: 'Revenue by Month and Continent Name'
+    viz: ColumnChart {
+      dataset: demo_ecommerce_version_2
+      filter {
+        field: r(ecommerce_orders.created_at)
+        operator: 'matches'
+        value: 'last 15 months'
+      }
+      x_axis: VizFieldFull {
+        label: 'Month'
+        ref: r(ecommerce_orders.created_at)
+        transformation: 'datetrunc month'
+        format {
+          type: 'date'
+          pattern: 'LLL yyyy'
+        }
+        uname: 'datetrunc_month_created_at_1'
+      }
+      legend: VizFieldFull {
+        label: 'Continent Name'
+        ref: r(ecommerce_countries.continent_name)
+        format {
+          type: 'text'
+        }
+      }
+      y_axis {
+        label: 'Revenue'
+        settings {
+          stack_series_by: 'value'
+        }
+        series {
+          field: VizFieldFull {
+            label: 'Revenue'
+            ref: r(demo_ecommerce_version_2.revenue)
+            format {
+              type: 'number'
+              pattern: 'inherited'
+            }
+          }
+        }
+      }
+      settings {
+        row_limit: 1000
+        sort {
+          field_index: 0
+          direction: 'asc'
+          type: 'xaxis'
+        }
+        legend_label: 'right'
+        x_axis_label: 'Month'
+        x_axis_show_null_datetime: true
+        aggregate_awareness {
+          enabled: true
+          debug_comments: true
+        }
+      }
+    }
+  }
   interactions: [
     FilterInteraction {
       from: 'created_at'
@@ -724,7 +783,7 @@ Dashboard pied_piper_country_breakdown_tpmdo {
   view: CanvasLayout {
     label: 'Canvas Layout'
     width: 1220
-    height: 1410
+    height: 1830
     grid_size: 20
     block f1 {
       position: pos(920, 140, 280, 100)
@@ -777,6 +836,10 @@ Dashboard pied_piper_country_breakdown_tpmdo {
     block customer_gender {
       position: pos(920, 20, 280, 100)
       layer: 1
+    }
+    block v_7gda {
+      position: pos(20, 1410, 580, 400)
+      layer: 3
     }
   }
   theme: H.themes.classic

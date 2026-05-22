@@ -1,0 +1,61 @@
+Model customer {
+  type: 'query'
+  label: 'Customer'
+  description: 'AdventureWorks customer dimension.'
+  data_source_name: 'md_adventure_works_sales'
+  query: @sql
+    select
+      "CustomerKey"     as customer_key,
+      "Customer ID"     as customer_id,
+      "Customer"        as customer,
+      "City"            as city,
+      "State-Province"  as state_province,
+      "Country-Region"  as country_region,
+      "Postal Code"     as postal_code
+    from main.customer
+  ;;
+
+  dimension customer_key {
+    label: 'Customer Key'
+    type: 'number'
+    hidden: true
+    primary_key: true
+    definition: @sql {{ #SOURCE.customer_key }};;
+  }
+
+  dimension customer_id {
+    label: 'Customer ID'
+    type: 'text'
+    definition: @sql {{ #SOURCE.customer_id }};;
+  }
+
+  dimension customer {
+    label: 'Customer'
+    type: 'text'
+    definition: @sql {{ #SOURCE.customer }};;
+  }
+
+  dimension city {
+    label: 'City'
+    type: 'text'
+    definition: @sql {{ #SOURCE.city }};;
+  }
+
+  dimension state_province {
+    label: 'State-Province'
+    type: 'text'
+    definition: @sql {{ #SOURCE.state_province }};;
+  }
+
+  dimension country_region {
+    label: 'Country-Region'
+    type: 'text'
+    definition: @sql {{ #SOURCE.country_region }};;
+  }
+
+  dimension postal_code {
+    label: 'Postal Code'
+    type: 'text'
+    definition: @sql {{ #SOURCE.postal_code }};;
+  }
+}
