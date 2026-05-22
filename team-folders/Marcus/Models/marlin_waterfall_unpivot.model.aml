@@ -1,0 +1,111 @@
+Model marlin_waterfall_unpivot {
+  type: 'query'
+  label: 'Waterfall (Unpivoted)'
+  description: 'Long-format view of rpt_monthly_member_waterfall — one row per waterfall step (Opening, +New, +Reactivated, −Lapsed, =Closing). Powers the CustomChart waterfall on Tab 3.'
+  data_source_name: 'demo_marlin_mangrove_sample'
+
+  dimension label {
+    label: 'Label'
+    type: 'text'
+    hidden: false
+    definition: @sql {{ #SOURCE.label }} ;;
+  }
+
+  dimension sort_order {
+    label: 'Sort Order'
+    type: 'number'
+    hidden: true
+    definition: @sql {{ #SOURCE.sort_order }} ;;
+  }
+
+  dimension month_start {
+    label: 'Month Start'
+    type: 'date'
+    hidden: false
+    definition: @sql {{ #SOURCE.month_start }}::date ;;
+  }
+
+  dimension venue_id {
+    label: 'Venue Id'
+    type: 'number'
+    hidden: false
+    definition: @sql {{ #SOURCE.venue_id }} ;;
+  }
+
+  dimension bar_class {
+    label: 'Bar Class'
+    type: 'text'
+    hidden: true
+    description: 'CSS class for styling — total / add / sub'
+    definition: @sql {{ #SOURCE.bar_class }} ;;
+  }
+
+  dimension value_label {
+    label: 'Value Label'
+    type: 'text'
+    hidden: true
+    description: 'Constant — used as a dummy columns dim to trigger MarkdownViz pivot semantics.'
+    definition: @sql 'v' ;;
+  }
+
+  measure amount {
+    label: 'Amount'
+    type: 'number'
+    description: 'Bar value — positive for inflows (Opening, New, Reactivated, Closing), negative for Lapsed.'
+    definition: @sql sum({{ #SOURCE.amount }}) ;;
+  }
+
+  measure bar_min {
+    label: 'Bar Min'
+    type: 'number'
+    hidden: true
+    description: 'Lower y-edge of the waterfall bar.'
+    definition: @sql sum({{ #SOURCE.bar_min }}) ;;
+  }
+
+  measure bar_max {
+    label: 'Bar Max'
+    type: 'number'
+    hidden: true
+    description: 'Upper y-edge of the waterfall bar.'
+    definition: @sql sum({{ #SOURCE.bar_max }}) ;;
+  }
+
+  owner: 'dong.ln@holistics.io'
+  query: @sql
+    SELECT '1. Opening' AS label, 1 AS sort_order, 'total' AS bar_class,
+      opening_active_count::numeric AS amount,
+      0::numeric AS bar_min,
+      opening_active_count::numeric AS bar_max,
+      month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '2. + New', 2, 'add',
+      new_member_count::numeric,
+      opening_active_count::numeric,
+      (opening_active_count + new_member_count)::numeric,
+      month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '3. + Reactivated', 3, 'add',
+      reactivated_count::numeric,
+      (opening_active_count + new_member_count)::numeric,
+      (opening_active_count + new_member_count + reactivated_count)::numeric,
+      month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '4. - Lapsed', 4, 'sub',
+      -lapsed_count::numeric,
+      (opening_active_count + new_member_count + reactivated_count - lapsed_count)::numeric,
+      (opening_active_count + new_member_count + reactivated_count)::numeric,
+      month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+    UNION ALL
+    SELECT '5. = Closing', 5, 'total',
+      closing_active_count::numeric,
+      0::numeric,
+      closing_active_count::numeric,
+      month_start, venue_id
+    FROM "public"."rpt_monthly_member_waterfall"
+  ;;
+}
